@@ -196,6 +196,13 @@ const ADDITIVES: AdditiveEntry[] = [
     matchers: [name("Carrageenan"), ecode("E407")],
   },
   {
+    id: "brominated-vegetable-oil",
+    risk: "high",
+    penalty: 23,
+    note: "Flame-retardant chemical used to keep citrus flavoring suspended in sodas — banned in the EU and Japan, and by the FDA in 2024 over thyroid and nervous-system harm.",
+    matchers: [name("Brominated vegetable oil"), name("BVO")],
+  },
+  {
     id: "sodium-benzoate",
     risk: "high",
     penalty: 20,
@@ -214,7 +221,7 @@ const ADDITIVES: AdditiveEntry[] = [
     risk: "high",
     penalty: 20,
     note: "Artificial sweetener that animal research has tentatively linked to glucose-tolerance and gut-microbiome disruption.",
-    matchers: [name("Acesulfame potassium"), name("Acesulfame-K"), name("Acesulfame K"), ecode("E950")],
+    matchers: [name("Acesulfame potassium"), name("Acesulfame-K"), name("Acesulfame K"), name("Ace-K"), ecode("E950")],
   },
   {
     id: "saccharin",
@@ -244,7 +251,28 @@ const ADDITIVES: AdditiveEntry[] = [
     risk: "medium",
     penalty: 11,
     note: "Artificial sweetener that recent studies suggest may alter gut bacteria and blunt the body's insulin response.",
-    matchers: [name("Sucralose"), ecode("E955")],
+    matchers: [name("Sucralose"), name("Splenda"), ecode("E955")],
+  },
+  {
+    id: "caramel-color",
+    risk: "medium",
+    penalty: 11,
+    note: "Some forms (Class III/IV) are made using ammonia compounds that generate 4-MEI, a byproduct California lists as a possible carcinogen.",
+    matchers: [name("Caramel colour"), name("Caramel color"), { label: "E150", pattern: /\bE[\s-]?150[a-d]?\b/i }],
+  },
+  {
+    id: "phosphoric-acid",
+    risk: "medium",
+    penalty: 10,
+    note: "Acidulant common in colas — regular high intake has been linked in studies to lower bone density and added strain on the kidneys.",
+    matchers: [name("Phosphoric acid"), ecode("E338")],
+  },
+  {
+    id: "artificial-flavors",
+    risk: "medium",
+    penalty: 10,
+    note: "A vague catch-all permitted to mask the exact synthetic flavor compounds used — the lack of specificity is the flag.",
+    matchers: [name("Artificial flavours"), name("Artificial flavors"), name("Artificial flavoring"), name("Artificial flavour"), name("Artificial flavor")],
   },
   {
     id: "polysorbate-80",
@@ -308,8 +336,8 @@ const ADDITIVES: AdditiveEntry[] = [
     risk: "medium",
     penalty: 10,
     note: "An unspecified blend — the vagueness itself is the flag, since it can mask less desirable oils swapped batch to batch.",
-    // Lookbehind so "(partially) hydrogenated vegetable oil" is only counted under that entry, not double-flagged here too.
-    matchers: [{ label: "Vegetable oil", pattern: /(?<!(?:partially[\s-]+)?hydrogenated[\s-]+)\bvegetable[\s-]+oil\b/i }],
+    // Lookbehind so "(partially) hydrogenated/brominated vegetable oil" is only counted under those entries, not double-flagged here too.
+    matchers: [{ label: "Vegetable oil", pattern: /(?<!(?:partially[\s-]+)?(?:hydrogenated|brominated)[\s-]+)\bvegetable[\s-]+oil\b/i }],
   },
   {
     id: "natural-flavors",
@@ -389,6 +417,13 @@ const ADDITIVES: AdditiveEntry[] = [
     penalty: 3,
     note: "Plant-derived thickener and fiber source — well tolerated by most people in the quantities typically used in food.",
     matchers: [name("Guar gum"), ecode("E412")],
+  },
+  {
+    id: "calcium-disodium-edta",
+    risk: "low",
+    penalty: 4,
+    note: "Synthetic preservative that binds trace metals to keep flavor and color stable — well studied and considered safe at the tiny levels typically used.",
+    matchers: [name("Calcium disodium EDTA"), name("EDTA"), ecode("E385")],
   },
 ];
 
