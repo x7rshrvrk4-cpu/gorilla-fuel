@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import BarcodeScanner from "./components/BarcodeScanner";
 import ProductResultCard from "./components/ProductResultCard";
+import ScanResultSheet from "./components/ScanResultSheet";
 import ScanHistory, { type HistoryEntry } from "./components/ScanHistory";
 import {
   fetchAlternativesInCategory,
@@ -25,12 +26,15 @@ type LookupState =
 
 export default function ScanPage() {
   const [scannerActive, setScannerActive] = useState(false);
+  const [sheetVisible, setSheetVisible] = useState(false);
   const [lookup, setLookup] = useState<LookupState>({ phase: "idle" });
+  const [manualOpen, setManualOpen] = useState(false);
   const [manualBarcode, setManualBarcode] = useState("");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [alternatives, setAlternatives] = useState<OffProduct[]>([]);
   const [alternativesLoading, setAlternativesLoading] = useState(false);
   const inFlightRef = useRef<string | null>(null);
+  const resultRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     try {
@@ -42,6 +46,14 @@ export default function ScanPage() {
       // ignore corrupt history
     }
   }, []);
+
+  // Lock page scroll while the fullscreen scanner overlay is open.
+  useEffect(() => {
+    document.body.style.overflow = scannerActive ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [scannerActive]);
 
   const persistHistory = useCallback((entries: HistoryEntry[]) => {
     setHistory(entries);
@@ -60,6 +72,7 @@ export default function ScanPage() {
       inFlightRef.current = trimmed;
       setAlternatives([]);
       setAlternativesLoading(false);
+      setSheetVisible(false);
       setLookup({ phase: "loading", barcode: trimmed });
 
       const lookupResult = await lookupBarcode(trimmed);
@@ -80,6 +93,7 @@ export default function ScanPage() {
       const result = computeScore(product.nutriments ?? {}, product.ingredients_text || product.ingredients_text_en);
 
       setLookup({ phase: "found", product, result });
+      setSheetVisible(true);
 
       const entry: HistoryEntry = {
         barcode: product.code,
@@ -127,8 +141,18 @@ export default function ScanPage() {
     e.preventDefault();
     if (manualBarcode.trim()) {
       runLookup(manualBarcode);
+      setManualBarcode("");
     }
   };
+
+  const handleViewFull = useCallback(() => {
+    setSheetVisible(false);
+    setScannerActive(false);
+    // Give the overlay a beat to slide away before scrolling to the full card.
+    window.setTimeout(() => {
+      resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
+  }, []);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-12 sm:px-8 sm:py-16">
@@ -144,52 +168,30 @@ export default function ScanPage() {
         </p>
       </div>
 
-      <div className="mt-8 flex flex-col gap-6 lg:flex-row">
-        <div className="flex-1">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-display text-xl tracking-wide text-foreground">Camera Scanner</h2>
-            <button
-              type="button"
-              onClick={() => setScannerActive((v) => !v)}
-              className={`rounded-sm px-5 py-2 font-display text-base tracking-widest transition-colors ${
-                scannerActive
-                  ? "border border-gold text-gold hover:bg-gold hover:text-background"
-                  : "bg-gold text-background hover:scale-105"
-              }`}
-            >
-              {scannerActive ? "Stop Scanner" : "Start Scanner"}
-            </button>
+      <div className="mt-8">
+        <button
+          type="button"
+          onClick={() => setScannerActive(true)}
+          className="gorilla-card pulse-glow flex w-full items-center justify-between gap-4 rounded-sm p-6 text-left transition-transform hover:scale-[1.01] sm:p-8"
+        >
+          <div>
+            <h2 className="font-display text-2xl tracking-wide text-foreground sm:text-3xl">
+              Open Camera Scanner
+            </h2>
+            <p className="mt-1 text-sm text-muted">
+              Launches a fullscreen scanner — point at any barcode to score it instantly.
+            </p>
           </div>
-          <BarcodeScanner active={scannerActive} onDetected={handleDetected} />
-        </div>
-
-        <div className="lg:w-80">
-          <h2 className="mb-3 font-display text-xl tracking-wide text-foreground">Manual Entry</h2>
-          <form onSubmit={handleManualSubmit} className="gorilla-card flex flex-col gap-3 rounded-sm p-5">
-            <label htmlFor="manual-barcode" className="text-sm text-muted">
-              No camera? Type the barcode printed under it.
-            </label>
-            <input
-              id="manual-barcode"
-              type="text"
-              inputMode="numeric"
-              value={manualBarcode}
-              onChange={(e) => setManualBarcode(e.target.value)}
-              placeholder="e.g. 5000159484695"
-              className="rounded-sm border border-line bg-background px-4 py-3 text-foreground placeholder:text-muted/60 focus:border-gold focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="rounded-sm bg-gold px-5 py-3 font-display text-lg tracking-widest text-background transition-transform hover:scale-105"
-            >
-              Look Up Product
-            </button>
-          </form>
-        </div>
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gold text-background">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10" />
+            </svg>
+          </span>
+        </button>
       </div>
 
       {/* RESULTS */}
-      <div className="mt-10">
+      <div ref={resultRef} className="mt-10">
         {lookup.phase === "loading" && (
           <div className="gorilla-card flex items-center gap-4 rounded-sm p-6">
             <span className="h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
@@ -226,6 +228,52 @@ export default function ScanPage() {
       </div>
 
       <ScanHistory entries={history} onSelect={runLookup} />
+
+      {/* Manual entry — understated, bottom of screen */}
+      <div className="mt-16 border-t border-line pt-6 text-center">
+        {manualOpen ? (
+          <form onSubmit={handleManualSubmit} className="mx-auto flex max-w-sm flex-col gap-2 sm:flex-row">
+            <input
+              id="manual-barcode"
+              type="text"
+              inputMode="numeric"
+              autoFocus
+              value={manualBarcode}
+              onChange={(e) => setManualBarcode(e.target.value)}
+              placeholder="Type barcode, e.g. 5000159484695"
+              className="flex-1 rounded-sm border border-line bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted/60 focus:border-gold focus:outline-none"
+            />
+            <button
+              type="submit"
+              className="rounded-sm border border-gold px-4 py-2.5 font-display text-sm tracking-widest text-gold transition-colors hover:bg-gold hover:text-background"
+            >
+              Look Up
+            </button>
+          </form>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setManualOpen(true)}
+            className="text-sm text-muted underline decoration-line decoration-1 underline-offset-4 transition-colors hover:text-gold"
+          >
+            No camera? Enter a barcode manually
+          </button>
+        )}
+      </div>
+
+      {scannerActive && (
+        <>
+          <BarcodeScanner active={scannerActive} onDetected={handleDetected} onClose={() => setScannerActive(false)} />
+          {sheetVisible && lookup.phase === "found" && (
+            <ScanResultSheet
+              product={lookup.product}
+              result={lookup.result}
+              onDismiss={() => setSheetVisible(false)}
+              onViewFull={handleViewFull}
+            />
+          )}
+        </>
+      )}
     </div>
   );
 }

@@ -113,6 +113,36 @@ h1, h2, h3, h4, .display {
   animation: pulse-glow 2.4s ease-out infinite;
 }
 
+/* Scanner laser sweep */
+@keyframes laser-sweep {
+  0%, 100% {
+    top: 6%;
+    opacity: 0.35;
+  }
+  50% {
+    top: 92%;
+    opacity: 1;
+  }
+}
+
+.scanner-laser {
+  animation: laser-sweep 2.4s ease-in-out infinite;
+}
+
+/* Result sheet slide-up */
+@keyframes sheet-rise {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-sheet-rise {
+  animation: sheet-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;

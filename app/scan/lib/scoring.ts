@@ -436,8 +436,8 @@ export function scoreNutrition(n: Nutriments): {
   const fiber = n.fiber_100g ?? 0;
   const protein = n.proteins_100g ?? 0;
 
-  if (sugar > 22.5) {
-    score -= 25;
+  if (sugar > 20) {
+    score -= 30;
     flags.push(`Very high sugar — ${sugar.toFixed(1)}g per 100g`);
   } else if (sugar > 12) {
     score -= 12;
@@ -453,7 +453,7 @@ export function scoreNutrition(n: Nutriments): {
   }
 
   if (salt > 1.5) {
-    score -= 15;
+    score -= 25;
     flags.push(`Very high salt — ${salt.toFixed(2)}g per 100g`);
   } else if (salt > 0.6) {
     score -= 8;
