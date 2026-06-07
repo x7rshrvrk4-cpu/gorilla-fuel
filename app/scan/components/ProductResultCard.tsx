@@ -125,11 +125,11 @@ export default function ProductResultCard({ product, result, alternatives, alter
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {result.detectedAdditives.map((additive) => (
               <div
-                key={additive.code}
+                key={additive.id}
                 className={`rounded-sm border p-3 text-sm ${RISK_COLOR[additive.risk]}`}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-display text-lg tracking-wide">{additive.code} · {additive.name}</span>
+                  <span className="font-display text-lg tracking-wide">{additive.name}</span>
                   <span className="shrink-0 rounded-sm border border-current px-2 py-0.5 text-[10px] uppercase tracking-[0.2em]">
                     {RISK_LABEL[additive.risk]}
                   </span>
