@@ -227,10 +227,18 @@ export default function AlcoholResultCard({ product, result }: Props) {
       <div className="border-t border-slate-800 p-6">
         <h3 className="font-display text-xl tracking-wide text-white">Flagged Beer &amp; Alcohol Additives</h3>
         <p className="mt-1 text-xs text-slate-400">
-          Screened for caramel colours, sulfite preservatives, foam/clarity stabilizers, cold-sterilization agents,
-          carrageenan, high fructose corn syrup, and artificial colours.
+          Screened for caramel colours, sulfite preservatives, foam/clarity stabilizers, DMDC, isinglass,
+          carrageenan, high fructose corn syrup, artificial colours, citric acid, and flavour additives.
         </p>
-        {result.detectedAdditives.length > 0 ? (
+        {!result.hasIngredients ? (
+          <div className="mt-3 rounded-sm border border-amber-400/30 bg-amber-400/5 p-4">
+            <p className="text-sm leading-relaxed text-amber-200">
+              <span className="font-display tracking-wide">Ingredient list not available from Open Food Facts.</span>{" "}
+              Canadian alcohol labelling laws do not require full ingredient disclosure. We cannot confirm this
+              product is additive-free — the absence of a list should not be read as a clean bill of health.
+            </p>
+          </div>
+        ) : result.detectedAdditives.length > 0 ? (
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {result.detectedAdditives.map((additive) => (
               <div key={additive.id} className={`rounded-sm border p-3 text-sm ${RISK_COLOR[additive.risk]}`}>

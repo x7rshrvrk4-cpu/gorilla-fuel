@@ -46,6 +46,24 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
         </div>
       </div>
 
+      {product.knownAdditives.length > 0 ? (
+        <div className="mt-3 border-t border-slate-800 pt-3">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Known Additives</p>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {product.knownAdditives.map((additive) => (
+              <span key={additive} className="rounded-sm border border-amber-400/40 bg-amber-400/8 px-2 py-0.5 text-[10px] uppercase tracking-[0.15em] text-amber-300">
+                {additive}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="mt-3 border-t border-slate-800 pt-3">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Known Additives</p>
+          <p className="mt-0.5 text-[11px] text-emerald-400">None found in public ingredient disclosures</p>
+        </div>
+      )}
+
       <p className="mt-3 border-t border-slate-800 pt-3 text-xs text-slate-400">{product.availability}</p>
     </div>
   );
