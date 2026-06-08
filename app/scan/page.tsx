@@ -61,6 +61,14 @@ export default function ScanPage() {
     }
   }, []);
 
+  // Pre-warm the OFF API connection on page load so DNS is already resolved
+  // and the TCP connection is cached before the first real scan fires.
+  useEffect(() => {
+    fetch("https://world.openfoodfacts.org/api/v2/product/0.json?fields=code", {
+      cache: "no-store",
+    }).catch(() => {});
+  }, []);
+
   // Lock page scroll while the fullscreen scanner overlay is open.
   useEffect(() => {
     document.body.style.overflow = scannerActive ? "hidden" : "";

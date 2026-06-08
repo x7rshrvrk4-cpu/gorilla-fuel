@@ -12,15 +12,24 @@ type Props = {
 
 type CameraStatus = "idle" | "starting" | "live" | "denied" | "unsupported" | "error";
 
-// `torch` is a real, widely-supported capability/constraint on mobile Chrome and
-// Safari, but it isn't in the standard DOM typings — extend locally.
 type TorchCapabilities = MediaTrackCapabilities & { torch?: boolean };
 type TorchConstraintSet = MediaTrackConstraintSet & { torch?: boolean };
 
+// The focusMode constraint isn't in standard TS DOM types but is widely
+// supported on iOS Safari and Android Chrome to enable hardware autofocus.
+type ExtendedVideoConstraints = MediaTrackConstraints & {
+  advanced?: (MediaTrackConstraintSet & { focusMode?: string })[];
+};
+
 export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const readerRef = useRef<BrowserMultiFormatReaderType | null>(null);
+  const rafRef = useRef<number | null>(null);
   const lastCodeRef = useRef<{ code: string; at: number } | null>(null);
+  // Keep onDetected in a ref so the scan loop never lists it as a dep —
+  // prevents restarting the entire scanner after every successful scan result.
+  const onDetectedRef = useRef(onDetected);
   const [status, setStatus] = useState<CameraStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [torchSupported, setTorchSupported] = useState(false);
@@ -28,12 +37,35 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
   const [hit, setHit] = useState(false);
 
   useEffect(() => {
+    onDetectedRef.current = onDetected;
+  }, [onDetected]);
+
+  useEffect(() => {
     if (!active) {
-      readerRef.current?.reset();
+      setStatus("idle");
       return;
     }
 
     let cancelled = false;
+
+    function handleCode(code: string) {
+      const now = Date.now();
+      const last = lastCodeRef.current;
+      // 3-second debounce: suppress re-fires of the same code while API loads.
+      if (last && last.code === code && now - last.at < 3000) return;
+      lastCodeRef.current = { code, at: now };
+      // Vibrate immediately — before API call — for instant tactile feedback.
+      if (typeof navigator.vibrate === "function") navigator.vibrate([50]);
+      setHit(true);
+      window.setTimeout(() => setHit(false), 500);
+      onDetectedRef.current(code);
+    }
+
+    function checkTorch(stream: MediaStream) {
+      const track = stream.getVideoTracks()[0];
+      const caps = track?.getCapabilities?.() as TorchCapabilities | undefined;
+      setTorchSupported(Boolean(caps?.torch));
+    }
 
     async function start() {
       if (!navigator.mediaDevices?.getUserMedia) {
@@ -46,48 +78,113 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
       setTorchSupported(false);
       setTorchOn(false);
 
+      // High-res + continuous autofocus constraints. Requesting 1080p (or
+      // whatever the device can do) gives the decoder more pixel data to work
+      // with, which meaningfully reduces misread rates on dense barcodes.
+      const videoConstraints: ExtendedVideoConstraints = {
+        facingMode: "environment",
+        width: { ideal: 1920 },
+        height: { ideal: 1080 },
+        advanced: [{ focusMode: "continuous" }],
+      };
+
+      // Native BarcodeDetector is available in iOS Safari 17+ and Chrome 83+.
+      // It runs in a browser-native (often hardware-accelerated) pipeline and
+      // is dramatically faster than any JS/WASM library on mobile.
+      const hasNative =
+        typeof window !== "undefined" && "BarcodeDetector" in window;
+
       try {
-        const { BrowserMultiFormatReader } = await import("@zxing/library");
-        if (cancelled) return;
+        if (hasNative) {
+          // ─── Native BarcodeDetector path ───
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: videoConstraints as MediaTrackConstraints,
+          });
+          if (cancelled) { stream.getTracks().forEach((t) => t.stop()); return; }
 
-        const reader = new BrowserMultiFormatReader();
-        readerRef.current = reader;
+          streamRef.current = stream;
+          const video = videoRef.current;
+          if (!video) { stream.getTracks().forEach((t) => t.stop()); return; }
 
-        const devices = await reader.listVideoInputDevices();
-        const backCamera = devices.find((d) =>
-          /back|rear|environment/i.test(d.label)
-        );
-        const deviceId = backCamera?.deviceId ?? devices[devices.length - 1]?.deviceId;
+          video.srcObject = stream;
+          await video.play();
+          if (cancelled) return;
 
-        if (cancelled || !videoRef.current) return;
+          // Show camera feed immediately after play() resolves — no need to
+          // wait for the first decode result.
+          setStatus("live");
+          checkTorch(stream);
 
-        await reader.decodeFromVideoDevice(deviceId, videoRef.current, (result) => {
-          if (!result || cancelled) return;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const DetectorCtor = (window as any).BarcodeDetector as {
+            new(opts?: { formats?: string[] }): {
+              detect(src: HTMLVideoElement): Promise<{ rawValue: string }[]>;
+            };
+          };
+          const detector = new DetectorCtor({
+            formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"],
+          });
 
-          const code = result.getText();
-          const now = Date.now();
-          const last = lastCodeRef.current;
+          // RAF loop: await each detect() before scheduling the next frame so
+          // concurrent requests never pile up (detect() is async and can take
+          // multiple frames to complete on slow hardware).
+          async function tick() {
+            if (cancelled) return;
+            try {
+              const results = await detector.detect(video!);
+              if (!cancelled && results.length > 0) handleCode(results[0].rawValue);
+            } catch {
+              // Single-frame decode error — not fatal, continue.
+            }
+            if (!cancelled) rafRef.current = requestAnimationFrame(tick);
+          }
+          rafRef.current = requestAnimationFrame(tick);
+        } else {
+          // ─── ZXing fallback path ───
+          // Lazy-import so the WASM bundle doesn't block the initial page load.
+          const { BrowserMultiFormatReader } = await import("@zxing/library");
+          if (cancelled) return;
 
-          // Debounce: ignore the same code re-fired within 3 seconds
-          if (last && last.code === code && now - last.at < 3000) return;
+          const reader = new BrowserMultiFormatReader();
+          readerRef.current = reader;
 
-          lastCodeRef.current = { code, at: now };
+          const videoEl = videoRef.current!;
 
-          if (typeof navigator.vibrate === "function") navigator.vibrate(100);
-          setHit(true);
-          window.setTimeout(() => setHit(false), 500);
+          // Listen for the video's playing event so we can show the camera
+          // feed as soon as the stream is live — before the first decode result.
+          let wentLive = false;
+          const onPlayingWithFlag = () => {
+            if (!cancelled) {
+              wentLive = true;
+              setStatus("live");
+              const s = videoEl.srcObject;
+              if (s instanceof MediaStream) {
+                streamRef.current = s;
+                checkTorch(s);
+              }
+            }
+          };
+          videoEl.addEventListener("playing", onPlayingWithFlag, { once: true });
 
-          onDetected(code);
-        });
+          await reader.decodeFromConstraints(
+            { video: videoConstraints as MediaTrackConstraints },
+            videoEl,
+            (result) => {
+              if (!result || cancelled) return;
+              handleCode(result.getText());
+            }
+          );
+          videoEl.removeEventListener("playing", onPlayingWithFlag);
 
-        if (cancelled) return;
-        setStatus("live");
-
-        const stream = videoRef.current.srcObject;
-        if (stream instanceof MediaStream) {
-          const track = stream.getVideoTracks()[0];
-          const capabilities = track?.getCapabilities?.() as TorchCapabilities | undefined;
-          setTorchSupported(Boolean(capabilities?.torch));
+          // Fallback: if playing event never fired, set live now.
+          if (!cancelled && !wentLive) {
+            setStatus("live");
+            const s = videoEl.srcObject;
+            if (s instanceof MediaStream) {
+              streamRef.current = s;
+              checkTorch(s);
+            }
+          }
         }
       } catch (err) {
         if (cancelled) return;
@@ -104,23 +201,31 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
 
     return () => {
       cancelled = true;
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
       readerRef.current?.reset();
       readerRef.current = null;
     };
-  }, [active, onDetected]);
+  }, [active]); // onDetected accessed via onDetectedRef — not a dep
 
   const toggleTorch = useCallback(async () => {
-    const stream = videoRef.current?.srcObject;
-    if (!(stream instanceof MediaStream)) return;
+    // Support both native path (streamRef) and ZXing path (video.srcObject).
+    const stream =
+      streamRef.current ??
+      (videoRef.current?.srcObject instanceof MediaStream ? videoRef.current.srcObject : null);
+    if (!stream) return;
     const track = stream.getVideoTracks()[0];
     if (!track) return;
-
     const next = !torchOn;
     try {
       await track.applyConstraints({ advanced: [{ torch: next } as TorchConstraintSet] });
       setTorchOn(next);
     } catch {
-      // device claims torch support but rejected the constraint — leave state untouched
+      // device claimed torch support but rejected the constraint
     }
   }, [torchOn]);
 
@@ -134,6 +239,7 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
         ref={videoRef}
         muted
         playsInline
+        autoPlay
         className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
           displayStatus === "live" ? "opacity-100" : "opacity-0"
         }`}
@@ -211,7 +317,7 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
         </div>
       )}
 
-      {/* Status states */}
+      {/* Loading / error states */}
       {displayStatus !== "live" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-8 text-center">
           {displayStatus === "starting" && (
@@ -222,6 +328,7 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
                 width={64}
                 height={64}
                 unoptimized
+                loading="lazy"
                 className="h-16 w-16 animate-pulse rounded-sm object-contain drop-shadow-[0_0_24px_rgba(255,215,0,0.45)]"
               />
               <p className="text-sm text-white/70">Activating camera…</p>

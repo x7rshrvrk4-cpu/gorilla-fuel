@@ -36,7 +36,7 @@ export default function ScanHistory({ entries, onSelect }: Props) {
             >
               <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-sm border border-line bg-background">
                 {entry.image ? (
-                  <Image src={entry.image} alt={entry.name} width={56} height={56} unoptimized className="h-full w-full object-contain" />
+                  <Image src={entry.image} alt={entry.name} width={56} height={56} unoptimized loading="lazy" className="h-full w-full object-contain" />
                 ) : (
                   <span className="font-display text-lg text-gold/40">G</span>
                 )}
