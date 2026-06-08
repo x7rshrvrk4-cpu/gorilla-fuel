@@ -2,37 +2,44 @@ import type { EvidenceTier, Nutriments, RiskLevel } from "./scoring";
 
 // ───────── DETECTION ─────────
 
-const ALCOHOL_CATEGORY_HINTS = [
-  "beer",
-  "beers",
-  "wine",
-  "wines",
-  "spirit",
-  "spirits",
-  "cider",
-  "ciders",
-  "alcoholic-beverage",
-  "alcoholic-beverages",
-  "ale",
-  "ales",
-  "lager",
-  "lagers",
-  "stout",
-  "stouts",
-  "ipa",
-  "ipas",
-  "seltzer",
-  "seltzers",
-  "hard-seltzer",
-  "hard-seltzers",
-];
+// Explicit set of known OFF taxonomy slugs (after stripping the language prefix,
+// e.g. "en:" → "beers"). Substring matching is intentionally avoided here because
+// it creates false positives: "ginger-ale" contains "ale", "wine-vinegars" contains
+// "wine", "root-beer" contains "beer". Only exact slug membership routes to alcohol mode.
+const ALCOHOL_TAXONOMY = new Set([
+  // Top-level alcoholic categories
+  "beers", "beer", "wines", "wine", "spirits", "spirit",
+  "ciders", "cider", "alcoholic-beverages", "alcoholic-beverage",
+  "malt-beverages", "malt-beverage", "alcoholic-drinks", "alcoholic-drink",
+  // Beer subcategories
+  "ales", "ale", "lagers", "lager", "stouts", "stout",
+  "ipas", "ipa", "india-pale-ales", "india-pale-ale",
+  "pale-ales", "pale-ale", "porters", "porter",
+  "pilsners", "pilsner", "wheat-beers", "wheat-beer",
+  "witbiers", "witbier", "light-beers", "light-beer",
+  "craft-beers", "craft-beer", "dark-beers", "dark-beer",
+  "sour-beers", "sour-beer",
+  // Hard seltzer / RTD
+  "hard-seltzers", "hard-seltzer", "seltzers", "seltzer",
+  "hard-sodas", "hard-soda", "hard-lemonades", "hard-lemonade",
+  "ready-to-drink-cocktails", "rtd-cocktails",
+  // Wine subcategories
+  "sparkling-wines", "sparkling-wine", "red-wines", "red-wine",
+  "white-wines", "white-wine", "rose-wines", "rose-wine",
+  "champagne", "prosecco", "dessert-wines", "dessert-wine",
+  // Spirits subcategories
+  "whisky", "whiskey", "whiskies", "vodka", "rum", "rums",
+  "gin", "gins", "tequila", "tequilas", "brandy", "brandies",
+  "cognac", "liqueur", "liqueurs", "schnapps",
+]);
 
-/** Checks an OFF `categories_tags` array for any alcohol-category hint, in any taxonomy language. */
+/** Checks an OFF `categories_tags` array for an explicit alcohol taxonomy match.
+ *  Requires non-empty categories — empty/missing categories_tags always returns false. */
 export function isAlcoholProduct(categoriesTags: string[] | undefined | null): boolean {
   if (!categoriesTags || categoriesTags.length === 0) return false;
   return categoriesTags.some((tag) => {
     const slug = tag.replace(/^[a-z]{2}:/, "").toLowerCase();
-    return ALCOHOL_CATEGORY_HINTS.some((hint) => slug === hint || slug.includes(hint));
+    return ALCOHOL_TAXONOMY.has(slug);
   });
 }
 
@@ -260,6 +267,78 @@ const ALCOHOL_ADDITIVES: AlcoholAdditiveEntry[] = [
     sources: ["FDA — Inventory of Effective Food Contact Substance Notifications: Flavoring Agents", "EFSA — Re-evaluation of Artificial Flavourings Programme", "Environmental Working Group — Artificial Flavors in Alcoholic Beverages"],
     matchers: [name("Artificial flavour"), name("Artificial flavor"), name("Artificial flavours"), name("Artificial flavors"), name("Artificial flavouring"), name("Artificial flavoring")],
   },
+
+  // ── General food-grade additives with elevated penalties for alcohol context ──
+  // These are the same compounds caught by the food scoring engine, but in alcohol
+  // products they carry a higher concern: consumers aren't expecting artificial
+  // sweeteners in a beer or seltzer, and habitual drinkers consume larger volumes.
+
+  {
+    id: "aspartame",
+    name: "Aspartame",
+    risk: "high",
+    penalty: 30,
+    note: "A dipeptide-based artificial sweetener used in zero-sugar alcoholic seltzers and RTD cocktails. Decomposes to methanol, aspartate, and phenylalanine during digestion; contraindicated for people with phenylketonuria. Its presence in an alcoholic drink adds artificial chemical load on top of an already-metabolic-stress event.",
+    tier: "contested",
+    healthBodyPosition: "EFSA and the FDA both maintain aspartame is safe below the ADI of 40 mg/kg body weight/day. The WHO's IARC classified aspartame as 'possibly carcinogenic to humans' (Group 2B) in 2023, triggering renewed review — regulators are no longer fully aligned on the long-term safety picture.",
+    sources: ["EFSA — Re-evaluation of Aspartame (E951) Safety (2013)", "WHO IARC — Monographs Volume 134: Aspartame (2023)", "FDA — Additional Information about High-Intensity Sweeteners"],
+    matchers: [name("Aspartame"), ecode("E951")],
+  },
+  {
+    id: "acesulfame-k",
+    name: "Acesulfame Potassium",
+    risk: "high",
+    penalty: 35,
+    note: "A synthetic sweetener almost always co-formulated with aspartame in zero-sugar alcoholic seltzers — the combination is more intense than either alone. Some animal studies suggest acesulfame K may alter gut microbiome composition and amplify appetite signalling; human long-term data is thin, particularly at the intake levels of regular drinkers.",
+    tier: "emerging-evidence",
+    healthBodyPosition: "EFSA and the FDA classify acesulfame potassium as safe at the ADI of 9 mg/kg body weight/day. Emerging research questions its effects on gut microbiota and metabolic pathways. The WHO's 2023 non-sugar sweetener guideline recommends against long-term use for weight management, citing insufficient evidence of benefit and possible harms.",
+    sources: ["EFSA ANS Panel — Acesulfame K (E950) Safety Evaluation", "WHO Guideline on Non-Sugar Sweeteners (2023)", "PubMed — acesulfame potassium and gut microbiome studies"],
+    matchers: [name("Acesulfame potassium"), name("Acesulfame-potassium"), name("Acesulfame-K"), name("Acesulfame K"), ecode("E950")],
+  },
+  {
+    id: "sucralose",
+    name: "Sucralose",
+    risk: "high",
+    penalty: 28,
+    note: "A chlorinated sucrose derivative used as a zero-calorie sweetener in some hard seltzers — 600× sweeter than sugar. Emerging evidence links it to gut microbiome disruption and, at elevated temperatures, formation of chlorinated organic compounds. Its presence in an alcoholic product offers no metabolic benefit.",
+    tier: "emerging-evidence",
+    healthBodyPosition: "Approved by FDA and EFSA with an ADI of 5 mg/kg body weight/day. Recent research has raised concerns about gut microbiome disruption and chloropropanol formation at high temperatures. The WHO's 2023 guideline on non-sugar sweeteners recommends against long-term use across all populations.",
+    sources: ["EFSA ANS Panel — Sucralose (E955) Re-evaluation", "WHO Guideline on Non-Sugar Sweeteners (2023)", "PubMed — sucralose gut microbiota disruption studies"],
+    matchers: [name("Sucralose"), ecode("E955")],
+  },
+  {
+    id: "saccharin",
+    name: "Saccharin",
+    risk: "high",
+    penalty: 30,
+    note: "One of the oldest synthetic sweeteners, occasionally found in flavored malt beverages and pre-mixed cocktails. Was briefly delisted in the US after studies linked it to bladder cancer in rats; relisted after the rodent-specific mechanism was established. Human epidemiological evidence remains contested, with some research associating habitual saccharin intake with altered glucose metabolism.",
+    tier: "contested",
+    healthBodyPosition: "The FDA removed saccharin from its carcinogen list in 2000, citing mechanism differences between rats and humans. EFSA sets an ADI of 5 mg/kg body weight/day. The WHO's 2023 non-sugar sweetener guideline does not recommend long-term use for weight control.",
+    sources: ["FDA — Final Rule: Saccharin Delisting (2000)", "EFSA — Re-evaluation of Saccharin (E954)", "WHO Guideline on Non-Sugar Sweeteners (2023)"],
+    matchers: [name("Saccharin"), name("Sodium saccharin"), ecode("E954")],
+  },
+  {
+    id: "sodium-benzoate",
+    name: "Sodium Benzoate",
+    risk: "high",
+    penalty: 30,
+    note: "A preservative used in some flavored malt beverages and RTD cocktails — when co-formulated with ascorbic acid (vitamin C) in an acidic beverage, it can react to form benzene, a Group 1 IARC carcinogen. The benzene risk is dose- and formulation-dependent, but the combination has been found in excess of WHO guidelines in commercial soft drinks.",
+    tier: "strong-consensus",
+    healthBodyPosition: "FDA recognizes sodium benzoate as GRAS at current use levels but has documented benzene formation when paired with vitamin C in acidic drinks. Health Canada lists it as a permitted preservative with maximum use levels. The EU requires the 'Southampton Six' hyperactivity warning on products containing it alongside specific synthetic dyes.",
+    sources: ["FDA — Data on Benzene in Soft Drinks and Other Beverages (2006)", "IARC — Monographs on Benzene (Group 1 Carcinogen)", "EU Regulation (EC) No 1333/2008 — Permitted Preservatives"],
+    matchers: [name("Sodium benzoate"), ecode("E211")],
+  },
+  {
+    id: "potassium-benzoate",
+    name: "Potassium Benzoate",
+    risk: "high",
+    penalty: 25,
+    note: "A potassium-salt preservative functionally identical to sodium benzoate — carries the same benzene-formation risk when combined with ascorbic acid in acidic beverages, and the same hyperactivity concerns when paired with certain synthetic dyes.",
+    tier: "strong-consensus",
+    healthBodyPosition: "Approved by FDA and EFSA under the same conditions as sodium benzoate — the benzene risk from co-occurrence with vitamin C applies equally to both forms. EFSA sets an ADI for the benzoate class collectively; Health Canada lists it as a permitted preservative.",
+    sources: ["FDA — Data on Benzene in Soft Drinks and Other Beverages (2006)", "EFSA ANS Panel — Re-evaluation of Benzoic Acid and Benzoates (E210-E213)"],
+    matchers: [name("Potassium benzoate"), ecode("E212")],
+  },
 ];
 
 export type DetectedAlcoholAdditive = Omit<AlcoholAdditiveEntry, "matchers">;
@@ -402,7 +481,10 @@ export function computeAlcoholScore(
   const calScore = calorieDensityScore(kcalPer100ml);
   const carbSc = carbScore(carbsPer100ml);
 
-  const score = Math.round(cScore * 0.5 + calScore * 0.3 + carbSc * 0.2);
+  // Ingredient cleanliness dominates (70% = 40% cleanliness + 30% additive) so
+  // that a sweetener-heavy zero-sugar seltzer scores in the 45-55 range rather
+  // than getting propped up by its low calorie/carb numbers.
+  const score = Math.round(cScore * 0.7 + calScore * 0.2 + carbSc * 0.1);
   const grade = alcoholGradeFromScore(score);
   const gorillaPour = gorillaPourRating(score);
 

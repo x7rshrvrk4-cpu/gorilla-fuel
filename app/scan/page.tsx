@@ -32,7 +32,7 @@ const MAX_HISTORY = 6;
 type LookupState =
   | { phase: "idle" }
   | { phase: "loading"; barcode: string }
-  | { phase: "not-found"; barcode: string }
+  | { phase: "not-found"; barcode: string; message?: string }
   | { phase: "error"; barcode: string; message: string }
   | { phase: "found"; product: OffProduct; result: ScoreResult }
   | { phase: "found-beauty"; product: ObfProduct; result: BeautyScoreResult }
@@ -136,6 +136,21 @@ export default function ScanPage() {
       }
 
       const product = lookupResult.product;
+
+      // Reject products with no category data at all — empty categories_tags is a
+      // reliable signal of a barcode-collision stub in OFF (i.e. the barcode resolved
+      // to a different product entirely). Scoring unknown data causes worse UX than
+      // showing not-found.
+      if (!product.categories_tags || product.categories_tags.length === 0) {
+        setLookup({
+          phase: "not-found",
+          barcode: trimmed,
+          message:
+            "Product not found in our database. Try scanning again or check that the barcode is from an alcohol product.",
+        });
+        inFlightRef.current = null;
+        return;
+      }
 
       // Beer, wine, spirits, cider, and seltzer get routed to alcohol-specific
       // scoring instead of the standard nutrition/additive pipeline — ABV,
@@ -290,9 +305,13 @@ export default function ScanPage() {
           <div className="gorilla-card rounded-sm p-6">
             <h3 className="font-display text-2xl text-foreground">Not in the database</h3>
             <p className="mt-2 text-sm text-muted">
-              Open Food Facts doesn&apos;t have data for barcode{" "}
-              <span className="text-gold">{lookup.barcode}</span> yet. Try
-              another product, or contribute the data at openfoodfacts.org.
+              {lookup.message ?? (
+                <>
+                  Open Food Facts doesn&apos;t have data for barcode{" "}
+                  <span className="text-gold">{lookup.barcode}</span> yet. Try
+                  another product, or contribute the data at openfoodfacts.org.
+                </>
+              )}
             </p>
           </div>
         )}

@@ -151,8 +151,9 @@ export default function AlcoholResultCard({ product, result }: Props) {
           <span className="text-base text-slate-400">/100</span>
         </p>
         <p className="mt-1 text-xs text-slate-400">
-          Weighted as ingredient cleanliness (50%, scored {result.cleanlinessScore}/100), calorie density (30%, scored{" "}
-          {result.calorieDensityScore}/100), and carb content (20%, scored {result.carbScore}/100).
+          Weighted as ingredient cleanliness (70%, scored {result.cleanlinessScore}/100), calorie density (20%, scored{" "}
+          {result.calorieDensityScore}/100), and carb content (10%, scored {result.carbScore}/100).
+          Additive quality is the dominant factor — artificial sweeteners and preservatives pull this score down significantly.
         </p>
       </div>
 
@@ -228,7 +229,9 @@ export default function AlcoholResultCard({ product, result }: Props) {
         <h3 className="font-display text-xl tracking-wide text-white">Flagged Beer &amp; Alcohol Additives</h3>
         <p className="mt-1 text-xs text-slate-400">
           Screened for caramel colours, sulfite preservatives, foam/clarity stabilizers, DMDC, isinglass,
-          carrageenan, high fructose corn syrup, artificial colours, citric acid, and flavour additives.
+          carrageenan, high fructose corn syrup, artificial sweeteners (aspartame, acesulfame K, sucralose,
+          saccharin), preservatives (sodium benzoate, potassium benzoate), artificial colours, citric acid,
+          and flavour additives.
         </p>
         {!result.hasIngredients ? (
           <div className="mt-3 rounded-sm border border-amber-400/30 bg-amber-400/5 p-4">
