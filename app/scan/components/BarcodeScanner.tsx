@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { BrowserMultiFormatReader as BrowserMultiFormatReaderType } from "@zxing/library";
 
@@ -215,7 +216,14 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-8 text-center">
           {displayStatus === "starting" && (
             <>
-              <span className="h-10 w-10 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+              <Image
+                src="/gorilla-fuel-icon.png"
+                alt="Gorilla Fuel"
+                width={64}
+                height={64}
+                unoptimized
+                className="h-16 w-16 animate-pulse rounded-sm object-contain drop-shadow-[0_0_24px_rgba(255,215,0,0.45)]"
+              />
               <p className="text-sm text-white/70">Activating camera…</p>
             </>
           )}

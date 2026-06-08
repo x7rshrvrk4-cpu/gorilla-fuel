@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import CrossLinkBanner from "./components/CrossLinkBanner";
 
@@ -75,40 +76,58 @@ export default function Home() {
       {/* HERO */}
       <section className="relative overflow-hidden border-b border-line">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,215,0,0.10),_transparent_60%)]" />
-        <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-6 py-24 sm:py-32">
-          <span className="animate-fade rounded-full border border-gold-dim px-4 py-1.5 font-display text-sm tracking-[0.3em] text-gold">
-            FOOD &amp; SUPPLEMENT INTELLIGENCE
-          </span>
-          <h1 className="animate-rise font-display text-5xl leading-[0.95] text-foreground sm:text-7xl md:text-8xl">
-            STOP GUESSING
-            <br />
-            WHAT YOU{" "}
-            <span className="gold-gradient-text">SWALLOW.</span>
-          </h1>
-          <p
-            className="animate-rise max-w-2xl text-lg text-muted sm:text-xl"
-            style={{ animationDelay: "0.15s" }}
-          >
-            Gorilla Fuel scans, scores, and ranks the supplements and food
-            products you actually buy — no sponsorships, no fluff, just the
-            data brands don&apos;t put on the front of the label.
-          </p>
+        <div className="mx-auto flex max-w-6xl flex-col-reverse items-center gap-12 px-6 py-24 sm:py-32 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+          <div className="flex max-w-2xl flex-col items-start gap-6">
+            <span className="animate-fade rounded-full border border-gold-dim px-4 py-1.5 font-display text-sm tracking-[0.3em] text-gold">
+              FOOD &amp; SUPPLEMENT INTELLIGENCE
+            </span>
+            <h1 className="animate-rise font-display text-5xl leading-[0.95] text-foreground sm:text-7xl md:text-8xl">
+              STOP GUESSING
+              <br />
+              WHAT YOU{" "}
+              <span className="gold-gradient-text">SWALLOW.</span>
+            </h1>
+            <p
+              className="animate-rise max-w-2xl text-lg text-muted sm:text-xl"
+              style={{ animationDelay: "0.15s" }}
+            >
+              Gorilla Fuel scans, scores, and ranks the supplements and food
+              products you actually buy — no sponsorships, no fluff, just the
+              data brands don&apos;t put on the front of the label.
+            </p>
+            <div
+              className="animate-rise flex flex-col gap-4 sm:flex-row"
+              style={{ animationDelay: "0.3s" }}
+            >
+              <Link
+                href="/scan"
+                className="pulse-glow rounded-sm bg-gold px-8 py-4 text-center font-display text-xl tracking-widest text-background transition-transform hover:scale-105"
+              >
+                Scan a Product →
+              </Link>
+              <Link
+                href="/rankings"
+                className="rounded-sm border border-gold px-8 py-4 text-center font-display text-xl tracking-widest text-gold transition-colors hover:bg-gold hover:text-background"
+              >
+                View Rankings
+              </Link>
+            </div>
+          </div>
+
           <div
-            className="animate-rise flex flex-col gap-4 sm:flex-row"
-            style={{ animationDelay: "0.3s" }}
+            className="animate-rise relative shrink-0"
+            style={{ animationDelay: "0.2s" }}
           >
-            <Link
-              href="/scan"
-              className="pulse-glow rounded-sm bg-gold px-8 py-4 text-center font-display text-xl tracking-widest text-background transition-transform hover:scale-105"
-            >
-              Scan a Product →
-            </Link>
-            <Link
-              href="/rankings"
-              className="rounded-sm border border-gold px-8 py-4 text-center font-display text-xl tracking-widest text-gold transition-colors hover:bg-gold hover:text-background"
-            >
-              View Rankings
-            </Link>
+            <div className="pointer-events-none absolute inset-0 -z-10 scale-110 rounded-full bg-gold/25 blur-[90px]" />
+            <Image
+              src="/gorilla-fuel-hero.png"
+              alt="Gorilla Fuel — flexing gorilla"
+              width={480}
+              height={480}
+              unoptimized
+              priority
+              className="relative h-64 w-64 object-contain drop-shadow-[0_0_70px_rgba(255,215,0,0.35)] sm:h-80 sm:w-80 lg:h-[26rem] lg:w-[26rem]"
+            />
           </div>
         </div>
 

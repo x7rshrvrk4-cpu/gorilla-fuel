@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -23,9 +24,14 @@ export default function Navigation() {
           className="flex items-center gap-2 group"
           onClick={() => setOpen(false)}
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-sm bg-gold text-background font-display text-xl transition-transform group-hover:scale-105">
-            G
-          </span>
+          <Image
+            src="/gorilla-fuel-icon.png"
+            alt="Gorilla Fuel"
+            width={40}
+            height={40}
+            unoptimized
+            className="h-10 w-10 rounded-sm object-contain transition-transform group-hover:scale-105"
+          />
           <span className="font-display text-2xl tracking-wider text-foreground">
             GORILLA <span className="text-gold">FUEL</span>
           </span>

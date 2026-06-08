@@ -14,10 +14,28 @@ const dmSans = DM_Sans({
   subsets: ["latin"],
 });
 
+const description =
+  "Scan it. Score it. Know what you're putting in your body. Gorilla Fuel is the no-BS supplement and food intelligence brand from the Gorilla Sports ecosystem.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.gorillafuel.ca"),
   title: "Gorilla Fuel — Supplement & Food Intelligence",
-  description:
-    "Scan it. Score it. Know what you're putting in your body. Gorilla Fuel is the no-BS supplement and food intelligence brand from the Gorilla Sports ecosystem.",
+  description,
+  icons: {
+    icon: "/gorilla-fuel-icon.png",
+    apple: "/gorilla-fuel-icon.png",
+  },
+  openGraph: {
+    title: "Gorilla Fuel — Supplement & Food Intelligence",
+    description,
+    images: [{ url: "/gorilla-fuel-icon.png", width: 1024, height: 1024, alt: "Gorilla Fuel" }],
+  },
+  twitter: {
+    card: "summary",
+    title: "Gorilla Fuel — Supplement & Food Intelligence",
+    description,
+    images: ["/gorilla-fuel-icon.png"],
+  },
 };
 
 export default function RootLayout({
