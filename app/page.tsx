@@ -38,7 +38,7 @@ const methodology = [
   {
     step: "04",
     title: "Deliver the Verdict",
-    body: "Nutrition (60%) and additives (40%) combine into one score: Excellent, Good, Poor, or Bad. Plus better alternatives, instantly.",
+    body: "Nutrition (60%), additives (30%), and an organic bonus (10%) combine into one score: Excellent, Good, Poor, or Bad. Plus better alternatives, instantly.",
   },
 ];
 

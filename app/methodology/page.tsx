@@ -40,40 +40,57 @@ export default function MethodologyPage() {
       <section className="mt-14">
         <h2 className="font-display text-3xl text-foreground">How The Score Is Built</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
-          Every product gets a single Final Score out of 100, which is a weighted blend of two
-          independent sub-scores. Both start at a perfect 100 and lose points only when the data
-          gives us a real reason to dock them — nothing is subjective or hand-tuned per brand.
+          Every product gets a single Final Score out of 100, which is a weighted blend of three
+          dimensions. The two sub-scores start at a perfect 100 and lose points only when the data
+          gives us a real reason to dock them — nothing is subjective or hand-tuned per brand —
+          and a small organic bonus is added on top when it&apos;s genuinely earned.
         </p>
 
-        <div className="mt-6 grid gap-px overflow-hidden rounded-sm border border-line bg-line sm:grid-cols-2">
+        <div className="mt-6 grid gap-px overflow-hidden rounded-sm border border-line bg-line sm:grid-cols-3">
           <div className="bg-surface p-6">
             <p className="font-display text-sm uppercase tracking-[0.2em] text-gold">Nutrition Score · 60%</p>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              Calculated from sugar, saturated fat, salt, calorie density, fiber, and protein per
-              100g, measured against thresholds drawn from WHO and major cardiology-body
-              guidelines:
+              Calculated from sugar, saturated fat, salt, calorie density, fiber, protein, and NOVA
+              processing group per 100g, measured against thresholds drawn from WHO and major
+              cardiology-body guidelines:
             </p>
             <ul className="mt-3 space-y-1.5 text-xs text-muted">
-              <li>— Sugar: −12 over 12g/100g, −30 over 20g/100g</li>
+              <li>— Sugar: −10 over 9g/100g, −20 over 15g/100g, −35 over 22.5g/100g</li>
               <li>— Saturated fat: −10 over 5g/100g, −20 over 10g/100g</li>
-              <li>— Salt: −8 over 0.6g/100g, −25 over 1.5g/100g</li>
+              <li>— Salt: −10 over 0.6g/100g, −20 over 1.2g/100g, −35 over 2g/100g</li>
               <li>— Calories: −8 over 350 kcal/100g, −15 over 500 kcal/100g</li>
+              <li>— NOVA group 3 (processed): −5 · NOVA group 4 (ultra-processed): −10</li>
               <li>— Fiber over 3g/100g: +8 · Protein over 10g/100g: +10</li>
             </ul>
+            <p className="mt-3 text-xs text-muted">
+              Every flagged nutrient also shows the per-serving figure alongside the per-100g one
+              (e.g. &ldquo;High sugar: 26g per 100g (4g per 15g serving)&rdquo;) whenever Open Food
+              Facts has serving-size data, so the number maps to what you&apos;ll actually eat.
+            </p>
           </div>
           <div className="bg-surface p-6">
-            <p className="font-display text-sm uppercase tracking-[0.2em] text-gold">Additive Score · 40%</p>
+            <p className="font-display text-sm uppercase tracking-[0.2em] text-gold">Additive Score · 30%</p>
             <p className="mt-2 text-sm leading-relaxed text-muted">
               Every detected additive is matched against our intel database — over 50 entries
               covering common names, aliases, and E-codes. Each match deducts a penalty sized to
               its real-world risk level (high / medium / low), and the running total is the
               Additive Score.
             </p>
+          </div>
+          <div className="bg-surface p-6">
+            <p className="font-display text-sm uppercase tracking-[0.2em] text-gold">Organic Bonus · 10%</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              Up to <span className="text-foreground">+10 points</span> are added on top whenever
+              Open Food Facts&apos; labels or categories carry a verified organic certification
+              (e.g. &ldquo;organic,&rdquo; &ldquo;bio,&rdquo; &ldquo;biologique&rdquo;). No
+              certification, no bonus — we don&apos;t guess from marketing copy.
+            </p>
             <p className="mt-3 text-xs text-muted">
-              The two scores are blended <span className="text-foreground">60/40 toward nutrition</span> —
-              what you eat in bulk matters more than trace additive exposure, but both move the needle.
-              The final number maps to a letter grade: <span className="text-foreground">Excellent (75+)
-              · Good (50–74) · Poor (25–49) · Bad (below 25)</span>.
+              The three combine as <span className="text-foreground">60% nutrition + 30% additives
+              + the organic bonus</span> — what you eat in bulk matters most, additive exposure
+              moves the needle, and genuine organic certification earns a modest nudge upward.
+              The final number maps to a letter grade: <span className="text-foreground">Excellent
+              (75+) · Good (50–74) · Poor (25–49) · Bad (below 25)</span>.
             </p>
           </div>
         </div>

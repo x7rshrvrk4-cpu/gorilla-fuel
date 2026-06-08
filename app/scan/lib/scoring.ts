@@ -446,6 +446,17 @@ const ADDITIVES: AdditiveEntry[] = [
     matchers: [name("Polysorbate 80"), ecode("E433")],
   },
   {
+    id: "mono-and-diglycerides",
+    risk: "medium",
+    penalty: 8,
+    note: "One of the most common emulsifiers in packaged baked goods and processed foods — part of a class now under active research for its effects on gut bacteria.",
+    tier: "emerging-evidence",
+    healthBodyPosition: "The FDA and EFSA classify it as safe at current use levels, while the same 2015 Nature research program that first raised emulsifier-and-gut-microbiome questions for carrageenan and polysorbate 80 has named emulsifiers as a class — including this one — as worth continued study.",
+    gorillaPosition: "It's everywhere in packaged baked goods, and it's swept up in the same emerging emulsifier research as its more-discussed cousins — not a reason to panic about a slice of bread, but a reason to notice how often 'emulsifier' shows up across your week.",
+    sources: ["FDA Code of Federal Regulations — 21 CFR 184.1505", "EFSA Panel on Food Additives — Re-evaluation of Mono- and Diglycerides of Fatty Acids (2017)", "Chassaing et al., Nature, Vol 519 (2015) — 'Dietary emulsifiers impact the mouse gut microbiota'"],
+    matchers: [name("Mono- and diglycerides"), name("Mono and diglycerides"), name("Monoglycerides and diglycerides"), ecode("E471")],
+  },
+  {
     id: "palm-oil",
     risk: "medium",
     penalty: 10,
@@ -582,6 +593,39 @@ const ADDITIVES: AdditiveEntry[] = [
 
   // ───────────────────────── LOW RISK ──────────────────────────
   {
+    id: "potassium-sorbate",
+    risk: "low",
+    penalty: 3,
+    note: "Common preservative that prevents mold and yeast growth — among the most extensively studied and well-tolerated preservatives in use.",
+    tier: "strong-consensus",
+    healthBodyPosition: "The FDA, EFSA, and JECFA all classify it as safe at typical use levels, with decades of safety review and no significant concerns raised in recent re-evaluations.",
+    gorillaPosition: "One of the more reassuring names on an ingredient list — it does a real job stopping mold, and the safety data backs it up.",
+    sources: ["FDA Code of Federal Regulations — 21 CFR 182.3640", "EFSA ANS Panel — Re-evaluation of Sorbic Acid and Potassium Sorbate (2015)", "JECFA — Evaluation of Sorbates"],
+    matchers: [name("Potassium sorbate"), ecode("E202")],
+  },
+  {
+    id: "disodium-ribonucleotides",
+    risk: "low",
+    penalty: 4,
+    note: "Flavor enhancers often paired with MSG in savory snacks and instant foods — chemically related to compounds naturally present in meat, fish, and mushrooms.",
+    tier: "strong-consensus",
+    healthBodyPosition: "The FDA, EFSA, and JECFA all classify them as safe at typical use levels, noting they're structurally identical to nucleotides the body already produces and processes from ordinary food.",
+    gorillaPosition: "These ride along with MSG in a lot of savory snacks and get the same 'sounds scary, isn't' treatment — your body breaks down the same molecules from a bowl of mushroom soup.",
+    sources: ["FDA Code of Federal Regulations — 21 CFR 172.530", "EFSA ANS Panel — Re-evaluation of Disodium 5'-Ribonucleotides (2017)", "JECFA — Evaluation of Flavor Enhancer Nucleotides"],
+    matchers: [name("Disodium inosinate"), name("Disodium guanylate"), name("Disodium ribonucleotides"), ecode("E631"), ecode("E627")],
+  },
+  {
+    id: "silicon-dioxide",
+    risk: "low",
+    penalty: 3,
+    note: "Anti-caking agent that keeps powdered foods like spice blends and shredded cheese from clumping — chemically the same compound as sand and quartz.",
+    tier: "strong-consensus",
+    healthBodyPosition: "The FDA, EFSA, and JECFA all classify it as safe and essentially inert at the trace levels used as an anti-caking agent, with EFSA's most recent re-evaluation in 2018 finding no safety concerns at current exposure levels.",
+    gorillaPosition: "About as benign as food-additive names get — it passes through the body without being absorbed, and it's there to do a boring, useful job.",
+    sources: ["FDA Code of Federal Regulations — 21 CFR 172.480", "EFSA ANS Panel — Re-evaluation of Silicon Dioxide (2018)", "JECFA — Evaluation of Anti-Caking Agents"],
+    matchers: [name("Silicon dioxide"), name("Silica"), ecode("E551")],
+  },
+  {
     id: "msg",
     risk: "low",
     penalty: 4,
@@ -675,17 +719,85 @@ export type Grade = "Excellent" | "Good" | "Poor" | "Bad";
 
 export type Nutriments = {
   sugars_100g?: number;
+  sugars_serving?: number;
   "saturated-fat_100g"?: number;
+  "saturated-fat_serving"?: number;
   salt_100g?: number;
+  salt_serving?: number;
   "energy-kcal_100g"?: number;
+  "energy-kcal_serving"?: number;
   fiber_100g?: number;
   proteins_100g?: number;
 };
+
+/**
+ * NOVA — the widely used food-processing classification (1 = unprocessed,
+ * 4 = ultra-processed). We fold it into the nutrition score because the degree
+ * of industrial processing is itself a health signal that raw nutrient numbers
+ * can miss entirely.
+ */
+export type NovaGroup = 1 | 2 | 3 | 4;
+
+const NOVA_LABEL: Record<NovaGroup, string> = {
+  1: "Unprocessed or Minimally Processed",
+  2: "Processed Culinary Ingredients",
+  3: "Processed Foods",
+  4: "Ultra-Processed Foods",
+};
+
+const NOVA_DESCRIPTION: Record<NovaGroup, string> = {
+  1: "Foods in (or close to) their natural state — fresh, dried, frozen, or ground whole foods like fruit, vegetables, grains, eggs, and plain meat, with nothing added.",
+  2: "Substances pressed, refined, or extracted from whole foods and used in home and restaurant kitchens to prepare meals — things like oils, butter, sugar, and salt.",
+  3: "Whole or Group 2 foods combined and altered with processes like canning, smoking, or curing — think canned vegetables, fresh-baked bread, or cheese.",
+  4: "Industrial formulations with little or no whole food left in them — typically built from cheap refined ingredients, additives, and substances rarely found in a home kitchen. A large and growing body of research links high ultra-processed intake to higher rates of obesity, heart disease, and early death.",
+};
+
+const NOVA_PENALTY: Record<NovaGroup, number> = { 1: 0, 2: 0, 3: 5, 4: 10 };
+
+function asNovaGroup(value: number | undefined): NovaGroup | null {
+  if (value === 1 || value === 2 || value === 3 || value === 4) return value;
+  return null;
+}
+
+export function novaGroupLabel(group: number): string | null {
+  const g = asNovaGroup(group);
+  return g === null ? null : NOVA_LABEL[g];
+}
+
+export function novaGroupDescription(group: number): string | null {
+  const g = asNovaGroup(group);
+  return g === null ? null : NOVA_DESCRIPTION[g];
+}
+
+/**
+ * Extra context beyond the raw nutriment numbers — pulled straight from Open
+ * Food Facts — that the score now factors in: serving size (for per-serving
+ * flag context), NOVA processing group, and the labels/categories tags we scan
+ * for organic certification.
+ */
+export type ScoringContext = {
+  servingSize?: string | null;
+  novaGroup?: number | null;
+  labelsTags?: string[] | null;
+  categoriesTags?: string[] | null;
+};
+
+const ORGANIC_TAG_PATTERN = /organic|\bbio\b|biologique|ecologico|ekologisk/i;
+
+function detectOrganicCertification(context?: ScoringContext): boolean {
+  if (!context) return false;
+  const tags = [...(context.labelsTags ?? []), ...(context.categoriesTags ?? [])];
+  return tags.some((tag) => ORGANIC_TAG_PATTERN.test(tag));
+}
 
 export type ScoreResult = {
   finalScore: number;
   nutritionScore: number;
   additiveScore: number;
+  /** Points (0–10) the organic dimension contributed to the final score. */
+  organicBonus: number;
+  organicCertified: boolean;
+  novaGroup: NovaGroup | null;
   grade: Grade;
   flags: string[];
   positives: string[];
@@ -699,7 +811,21 @@ function gradeFromScore(score: number): Grade {
   return "Bad";
 }
 
-export function scoreNutrition(n: Nutriments): {
+/**
+ * Builds the "Xg per 100g (Yg per <serving> serving)" suffix shoppers actually
+ * need — the per-100g figure is how labels are regulated, but the per-serving
+ * figure is what lands in their body in one sitting. Omitted when OFF doesn't
+ * have serving-level data for this product.
+ */
+function servingContext(perServing: number | undefined, servingSize: string | null | undefined, unit: string, decimals: number): string {
+  if (perServing === undefined || !servingSize) return "";
+  return ` (${perServing.toFixed(decimals)}${unit} per ${servingSize} serving)`;
+}
+
+export function scoreNutrition(
+  n: Nutriments,
+  context?: ScoringContext
+): {
   score: number;
   flags: string[];
   positives: string[];
@@ -714,37 +840,47 @@ export function scoreNutrition(n: Nutriments): {
   const calories = n["energy-kcal_100g"] ?? 0;
   const fiber = n.fiber_100g ?? 0;
   const protein = n.proteins_100g ?? 0;
+  const servingSize = context?.servingSize ?? null;
 
-  if (sugar > 20) {
-    score -= 30;
-    flags.push(`Very high sugar — ${sugar.toFixed(1)}g per 100g`);
-  } else if (sugar > 12) {
-    score -= 12;
-    flags.push(`Elevated sugar — ${sugar.toFixed(1)}g per 100g`);
+  // Sugar and salt thresholds are tightened to track real-world assessments
+  // (Nutri-Score-style bands) much more closely than a lenient pass/fail cliff —
+  // this is the single biggest driver of the gap against stricter scoring apps.
+  if (sugar > 22.5) {
+    score -= 35;
+    flags.push(`Very high sugar — ${sugar.toFixed(1)}g per 100g${servingContext(n.sugars_serving, servingSize, "g", 1)}`);
+  } else if (sugar > 15) {
+    score -= 20;
+    flags.push(`High sugar — ${sugar.toFixed(1)}g per 100g${servingContext(n.sugars_serving, servingSize, "g", 1)}`);
+  } else if (sugar > 9) {
+    score -= 10;
+    flags.push(`Elevated sugar — ${sugar.toFixed(1)}g per 100g${servingContext(n.sugars_serving, servingSize, "g", 1)}`);
   }
 
   if (satFat > 10) {
     score -= 20;
-    flags.push(`Very high saturated fat — ${satFat.toFixed(1)}g per 100g`);
+    flags.push(`Very high saturated fat — ${satFat.toFixed(1)}g per 100g${servingContext(n["saturated-fat_serving"], servingSize, "g", 1)}`);
   } else if (satFat > 5) {
     score -= 10;
-    flags.push(`Elevated saturated fat — ${satFat.toFixed(1)}g per 100g`);
+    flags.push(`Elevated saturated fat — ${satFat.toFixed(1)}g per 100g${servingContext(n["saturated-fat_serving"], servingSize, "g", 1)}`);
   }
 
-  if (salt > 1.5) {
-    score -= 25;
-    flags.push(`Very high salt — ${salt.toFixed(2)}g per 100g`);
+  if (salt > 2) {
+    score -= 35;
+    flags.push(`Very high salt — ${salt.toFixed(2)}g per 100g${servingContext(n.salt_serving, servingSize, "g", 2)}`);
+  } else if (salt > 1.2) {
+    score -= 20;
+    flags.push(`High salt — ${salt.toFixed(2)}g per 100g${servingContext(n.salt_serving, servingSize, "g", 2)}`);
   } else if (salt > 0.6) {
-    score -= 8;
-    flags.push(`Elevated salt — ${salt.toFixed(2)}g per 100g`);
+    score -= 10;
+    flags.push(`Elevated salt — ${salt.toFixed(2)}g per 100g${servingContext(n.salt_serving, servingSize, "g", 2)}`);
   }
 
   if (calories > 500) {
     score -= 15;
-    flags.push(`Very calorie-dense — ${calories.toFixed(0)} kcal per 100g`);
+    flags.push(`Very calorie-dense — ${calories.toFixed(0)} kcal per 100g${servingContext(n["energy-kcal_serving"], servingSize, " kcal", 0)}`);
   } else if (calories > 350) {
     score -= 8;
-    flags.push(`Calorie-dense — ${calories.toFixed(0)} kcal per 100g`);
+    flags.push(`Calorie-dense — ${calories.toFixed(0)} kcal per 100g${servingContext(n["energy-kcal_serving"], servingSize, " kcal", 0)}`);
   }
 
   if (fiber > 3) {
@@ -755,6 +891,20 @@ export function scoreNutrition(n: Nutriments): {
   if (protein > 10) {
     score += 10;
     positives.push(`Strong protein content — ${protein.toFixed(1)}g per 100g`);
+  }
+
+  // NOVA — degree of industrial processing. A product can pass every individual
+  // nutrient threshold and still be an ultra-processed formulation; this catches
+  // that blind spot directly rather than hoping the nutrient numbers reveal it.
+  const nova = asNovaGroup(context?.novaGroup ?? undefined);
+  if (nova !== null) {
+    const penalty = NOVA_PENALTY[nova];
+    if (penalty > 0) {
+      score -= penalty;
+      flags.push(`NOVA Group ${nova} — ${NOVA_LABEL[nova]}: ${NOVA_DESCRIPTION[nova]}`);
+    } else {
+      positives.push(`NOVA Group ${nova} — ${NOVA_LABEL[nova]}: minimal industrial processing detected`);
+    }
   }
 
   if (flags.length === 0) {
@@ -796,12 +946,18 @@ export function scoreAdditives(ingredientsText: string | undefined | null): {
 
 export function computeScore(
   nutriments: Nutriments,
-  ingredientsText: string | undefined | null
+  ingredientsText: string | undefined | null,
+  context?: ScoringContext
 ): ScoreResult {
-  const nutrition = scoreNutrition(nutriments);
+  const nutrition = scoreNutrition(nutriments, context);
   const additives = scoreAdditives(ingredientsText);
 
-  const finalScore = Math.round(nutrition.score * 0.6 + additives.score * 0.4);
+  const organicCertified = detectOrganicCertification(context);
+  const organicBonus = organicCertified ? 10 : 0;
+
+  // 60% nutrition, 30% additives, 10% organic — the organic dimension is a pure
+  // bonus (0 or +10), never a penalty, since its absence isn't itself a red flag.
+  const finalScore = Math.round(nutrition.score * 0.6 + additives.score * 0.3 + organicBonus);
 
   const flags = [...nutrition.flags];
   const positives = [...nutrition.positives];
@@ -823,10 +979,17 @@ export function computeScore(
     positives.push("No flagged additives detected in the ingredients list");
   }
 
+  if (organicCertified) {
+    positives.push("Certified organic — labels/categories carry organic certification, adding 10 points to the final score");
+  }
+
   return {
     finalScore: Math.max(0, Math.min(100, finalScore)),
     nutritionScore: Math.round(nutrition.score),
     additiveScore: Math.round(additives.score),
+    organicBonus,
+    organicCertified,
+    novaGroup: asNovaGroup(context?.novaGroup ?? undefined),
     grade: gradeFromScore(finalScore),
     flags,
     positives,

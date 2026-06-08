@@ -10,6 +10,7 @@ import {
   lookupBarcode,
   primaryCategory,
   productImage,
+  scoringContext,
   type OffProduct,
 } from "./lib/openFoodFacts";
 import { computeScore, type ScoreResult } from "./lib/scoring";
@@ -90,7 +91,11 @@ export default function ScanPage() {
       }
 
       const product = lookupResult.product;
-      const result = computeScore(product.nutriments ?? {}, product.ingredients_text || product.ingredients_text_en);
+      const result = computeScore(
+        product.nutriments ?? {},
+        product.ingredients_text || product.ingredients_text_en,
+        scoringContext(product)
+      );
 
       setLookup({ phase: "found", product, result });
       setSheetVisible(true);
@@ -114,7 +119,11 @@ export default function ScanPage() {
         const better = candidates
           .map((candidate) => ({
             candidate,
-            score: computeScore(candidate.nutriments ?? {}, candidate.ingredients_text || candidate.ingredients_text_en).finalScore,
+            score: computeScore(
+              candidate.nutriments ?? {},
+              candidate.ingredients_text || candidate.ingredients_text_en,
+              scoringContext(candidate)
+            ).finalScore,
           }))
           .filter((c) => c.score > result.finalScore)
           .sort((a, b) => b.score - a.score)

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { GRADE_COLORS, type ScoreResult } from "../lib/scoring";
+import { GRADE_COLORS, novaGroupDescription, novaGroupLabel, type NovaGroup, type ScoreResult } from "../lib/scoring";
 import { buildGorillaTake } from "../lib/gorillaAnalysis";
 import type { OffProduct } from "../lib/openFoodFacts";
 import { productImage } from "../lib/openFoodFacts";
@@ -9,6 +9,13 @@ import NhpBadge from "./NhpBadge";
 import RecallBanner from "./RecallBanner";
 import ScoreRing from "./ScoreRing";
 import SourcesFooter from "./SourcesFooter";
+
+const NOVA_COLOR: Record<NovaGroup, string> = {
+  1: "#3ddc84",
+  2: "#9fd6ff",
+  3: "#ff9d2e",
+  4: "#ff4d4d",
+};
 
 type Props = {
   product: OffProduct;
@@ -65,7 +72,7 @@ export default function ProductResultCard({ product, result, alternatives, alter
       </div>
 
       {/* SCORE BREAKDOWN */}
-      <div className="grid grid-cols-2 gap-px border-b border-line bg-line">
+      <div className="grid grid-cols-1 gap-px border-b border-line bg-line sm:grid-cols-3">
         <div className="bg-surface p-5">
           <p className="text-xs uppercase tracking-[0.2em] text-muted">Nutrition Score</p>
           <p className="mt-1 font-display text-3xl text-foreground">{result.nutritionScore}<span className="text-base text-muted">/100</span></p>
@@ -74,9 +81,42 @@ export default function ProductResultCard({ product, result, alternatives, alter
         <div className="bg-surface p-5">
           <p className="text-xs uppercase tracking-[0.2em] text-muted">Additive Score</p>
           <p className="mt-1 font-display text-3xl text-foreground">{result.additiveScore}<span className="text-base text-muted">/100</span></p>
-          <p className="mt-1 text-xs text-muted">Weighted 40% of final score</p>
+          <p className="mt-1 text-xs text-muted">Weighted 30% of final score</p>
+        </div>
+        <div className="bg-surface p-5">
+          <p className="text-xs uppercase tracking-[0.2em] text-muted">Organic Bonus</p>
+          <p className="mt-1 font-display text-3xl text-foreground">+{result.organicBonus}<span className="text-base text-muted">/10</span></p>
+          <p className="mt-1 text-xs text-muted">
+            {result.organicCertified ? "Organic certification detected — full bonus applied" : "No organic certification detected in labels/categories"}
+          </p>
         </div>
       </div>
+
+      {/* NOVA PROCESSING LEVEL */}
+      {result.novaGroup !== null && (
+        <div className="border-b border-line bg-surface p-6">
+          <div className="flex flex-wrap items-start gap-4">
+            <span
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-sm border-2 font-display text-2xl"
+              style={{
+                borderColor: NOVA_COLOR[result.novaGroup],
+                color: NOVA_COLOR[result.novaGroup],
+              }}
+            >
+              {result.novaGroup}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                NOVA Group {result.novaGroup} · Processing Level
+              </p>
+              <p className="mt-1 font-display text-xl tracking-wide" style={{ color: NOVA_COLOR[result.novaGroup] }}>
+                {novaGroupLabel(result.novaGroup)}
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-muted">{novaGroupDescription(result.novaGroup)}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-px bg-line sm:grid-cols-2">
         {/* FLAGS */}

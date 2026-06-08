@@ -1,4 +1,4 @@
-import type { Nutriments } from "./scoring";
+import type { Nutriments, ScoringContext } from "./scoring";
 
 export type OffProduct = {
   code: string;
@@ -11,9 +11,22 @@ export type OffProduct = {
   ingredients_text_en?: string;
   nutriments?: Nutriments;
   categories_tags?: string[];
+  labels_tags?: string[];
   countries_tags?: string[];
+  serving_size?: string;
+  nova_group?: number;
   lang?: string;
 };
+
+/** Pulls the serving-size, NOVA, and label/category context the scorer needs straight off an OFF record. */
+export function scoringContext(product: OffProduct): ScoringContext {
+  return {
+    servingSize: product.serving_size,
+    novaGroup: product.nova_group,
+    labelsTags: product.labels_tags,
+    categoriesTags: product.categories_tags,
+  };
+}
 
 // English-speaking markets — used to keep "healthier alternatives" relevant to
 // the shopper rather than surfacing products they can't actually buy or read.
@@ -81,7 +94,7 @@ export async function fetchAlternativesInCategory(
     url.searchParams.set("categories_tags", categoryTag);
     url.searchParams.set(
       "fields",
-      "code,product_name,brands,image_front_url,image_small_url,ingredients_text,nutriments,categories_tags,countries_tags,lang"
+      "code,product_name,brands,image_front_url,image_small_url,ingredients_text,nutriments,categories_tags,labels_tags,countries_tags,serving_size,nova_group,lang"
     );
     url.searchParams.set("page_size", "20");
     url.searchParams.set("sort_by", "unique_scans_n");

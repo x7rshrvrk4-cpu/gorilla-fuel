@@ -46,13 +46,17 @@ export default function MethodologyModal({ open, onClose }: Props) {
           <section>
             <h3 className="font-display text-lg tracking-[0.2em] text-gold">THE SCORE</h3>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              Every Gorilla Fuel score is two numbers blended into one. A{" "}
+              Every Gorilla Fuel score blends three numbers. A{" "}
               <span className="text-foreground">Nutrition Score</span> (60% weight) is built from
-              sugar, fat, salt, and energy density against established public-health thresholds.
-              An <span className="text-foreground">Additive Score</span> (40% weight) starts at
+              sugar, fat, salt, and energy density against established public-health thresholds —
+              and now also factors in <span className="text-foreground">NOVA processing group</span>,
+              docking ultra-processed (NOVA 4) products 10 points and processed (NOVA 3) products 5.
+              An <span className="text-foreground">Additive Score</span> (30% weight) starts at
               100 and loses points for every detected ingredient with a known concern, weighted by
-              how serious that concern is. The two are combined into the final grade you see —
-              Excellent, Good, Poor, or Bad.
+              how serious that concern is. An{" "}
+              <span className="text-foreground">Organic Bonus</span> (10% weight, up to +10 points)
+              is added whenever Open Food Facts&apos; labels or categories carry a verified organic
+              certification. The three combine into the final grade you see — Excellent, Good, Poor, or Bad.
             </p>
           </section>
 
