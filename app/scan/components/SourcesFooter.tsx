@@ -1,6 +1,8 @@
 const SOURCES = [
   "Open Food Facts (product and ingredient data)",
+  "Open Beauty Facts (cosmetics product and ingredient data)",
   "Labdoor Testing Database (purity benchmarks)",
+  "Examine.com Research Database (supplement ingredient summaries)",
   "PubMed National Library of Medicine (peer-reviewed research)",
   "Health Canada Natural Health Products Database",
   "Open FDA Enforcement Database",

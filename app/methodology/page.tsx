@@ -12,8 +12,10 @@ export const metadata: Metadata = {
 const TIERS: EvidenceTier[] = ["strong-consensus", "emerging-evidence", "contested", "precautionary"];
 
 const SOURCES: { name: string; description: string }[] = [
-  { name: "Open Food Facts", description: "Product, ingredient, and nutrition data — the backbone of every scan." },
-  { name: "Labdoor Testing Database", description: "Independent purity and label-accuracy benchmarks for supplements." },
+  { name: "Open Food Facts", description: "Product, ingredient, and nutrition data — the backbone of every food and drink scan." },
+  { name: "Open Beauty Facts", description: "Open Food Facts' sister database for cosmetics — powers Cosmetics Mode when a barcode isn't a food product." },
+  { name: "Labdoor Testing Database", description: "Independent purity and label-accuracy benchmarks for supplements, referenced for context (Labdoor has no public API for live per-product lookups)." },
+  { name: "Examine.com Research Database", description: "Curated, citation-backed summaries of what each common supplement ingredient does, its evidence strength, dose range, and safety considerations." },
   { name: "PubMed / National Library of Medicine", description: "Peer-reviewed research — the most recent indexed papers on each detected additive." },
   { name: "Health Canada Natural Health Products Database", description: "Licensing, NPN verification, and ingredient status for supplements." },
   { name: "Open FDA Enforcement Database", description: "Active recalls and enforcement actions checked on every scan." },

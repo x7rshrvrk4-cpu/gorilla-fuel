@@ -13,7 +13,10 @@ import {
   scoringContext,
   type OffProduct,
 } from "./lib/openFoodFacts";
+import { beautyProductImage, lookupBeautyBarcode, type ObfProduct } from "./lib/openBeautyFacts";
 import { computeScore, type ScoreResult } from "./lib/scoring";
+import { computeBeautyScore, type BeautyScoreResult } from "./lib/beautyScoring";
+import BeautyResultCard from "./components/BeautyResultCard";
 
 const HISTORY_KEY = "gorilla-fuel-scan-history";
 const MAX_HISTORY = 6;
@@ -23,7 +26,8 @@ type LookupState =
   | { phase: "loading"; barcode: string }
   | { phase: "not-found"; barcode: string }
   | { phase: "error"; barcode: string; message: string }
-  | { phase: "found"; product: OffProduct; result: ScoreResult };
+  | { phase: "found"; product: OffProduct; result: ScoreResult }
+  | { phase: "found-beauty"; product: ObfProduct; result: BeautyScoreResult };
 
 export default function ScanPage() {
   const [scannerActive, setScannerActive] = useState(false);
@@ -79,6 +83,38 @@ export default function ScanPage() {
       const lookupResult = await lookupBarcode(trimmed);
 
       if (lookupResult.status === "not-found") {
+        // No food/drink record — try Open Beauty Facts before giving up. Same
+        // foundation, same data shape, but covers cosmetics OFF doesn't track.
+        const beautyResult = await lookupBeautyBarcode(trimmed);
+
+        if (beautyResult.status === "found") {
+          const beautyProduct = beautyResult.product;
+          const beautyScore = computeBeautyScore(beautyProduct.ingredients_text || beautyProduct.ingredients_text_en);
+
+          setLookup({ phase: "found-beauty", product: beautyProduct, result: beautyScore });
+          setSheetVisible(false);
+          // No beauty-specific result sheet yet — close the scanner and jump
+          // straight to the full card so a camera scan doesn't dead-end.
+          setScannerActive(false);
+          window.setTimeout(() => {
+            resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 150);
+
+          const entry: HistoryEntry = {
+            barcode: beautyProduct.code,
+            name: beautyProduct.product_name || "Unnamed Product",
+            brand: beautyProduct.brands || "Unknown Brand",
+            image: beautyProductImage(beautyProduct),
+            score: beautyScore.score,
+            grade: beautyScore.grade,
+            scannedAt: Date.now(),
+          };
+          persistHistory([entry, ...history.filter((h) => h.barcode !== entry.barcode)].slice(0, MAX_HISTORY));
+
+          inFlightRef.current = null;
+          return;
+        }
+
         setLookup({ phase: "not-found", barcode: trimmed });
         inFlightRef.current = null;
         return;
@@ -233,6 +269,10 @@ export default function ScanPage() {
             alternatives={alternatives}
             alternativesLoading={alternativesLoading}
           />
+        )}
+
+        {lookup.phase === "found-beauty" && (
+          <BeautyResultCard product={lookup.product} result={lookup.result} />
         )}
       </div>
 

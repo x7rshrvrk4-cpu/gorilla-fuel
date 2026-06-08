@@ -68,17 +68,27 @@ export async function lookupBarcode(barcode: string): Promise<LookupResult> {
       { headers: { Accept: "application/json" } }
     );
 
-    if (!res.ok) {
-      return { status: "error", message: `Open Food Facts returned ${res.status}` };
+    let data: { status?: number; product?: OffProduct } | null = null;
+    try {
+      data = await res.json();
+    } catch {
+      // Non-JSON body — fall through to the status-code-based error below.
     }
 
-    const data = await res.json();
-
-    if (data.status !== 1 || !data.product) {
+    // OFF answers with HTTP 404 (not 200) whenever a barcode exists under a
+    // *different* product type — e.g. "product found with a different product
+    // type: beauty" for cosmetics — but still includes a `status: 0` body. The
+    // body is the authoritative "miss" signal here, not the HTTP status code,
+    // and a clean miss is exactly when we want to fall back to Open Beauty Facts.
+    if (data && data.status !== 1) {
       return { status: "not-found" };
     }
 
-    return { status: "found", product: data.product as OffProduct };
+    if (!res.ok || !data?.product) {
+      return { status: "error", message: `Open Food Facts returned ${res.status}` };
+    }
+
+    return { status: "found", product: data.product };
   } catch {
     return { status: "error", message: "Couldn't reach Open Food Facts. Check your connection." };
   }

@@ -804,7 +804,7 @@ export type ScoreResult = {
   detectedAdditives: AdditiveInfo[];
 };
 
-function gradeFromScore(score: number): Grade {
+export function gradeFromScore(score: number): Grade {
   if (score >= 75) return "Excellent";
   if (score >= 50) return "Good";
   if (score >= 25) return "Poor";

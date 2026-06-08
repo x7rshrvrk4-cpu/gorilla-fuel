@@ -5,8 +5,11 @@ import type { OffProduct } from "../lib/openFoodFacts";
 import { productImage } from "../lib/openFoodFacts";
 import AdditiveCard from "./AdditiveCard";
 import EvidenceTierBadge from "../../components/EvidenceTierBadge";
+import { detectExamineIngredients } from "../lib/examineDatabase";
+import LabdoorCrossCheck from "./LabdoorCrossCheck";
 import NhpBadge from "./NhpBadge";
 import RecallBanner from "./RecallBanner";
+import ResearchSummaryCard from "./ResearchSummaryCard";
 import ScoreRing from "./ScoreRing";
 import SourcesFooter from "./SourcesFooter";
 
@@ -28,6 +31,7 @@ export default function ProductResultCard({ product, result, alternatives, alter
   const image = productImage(product);
   const gradeColor = GRADE_COLORS[result.grade];
   const gorillaTake = buildGorillaTake(result.detectedAdditives, result.grade);
+  const researchIngredients = detectExamineIngredients(product.ingredients_text || product.ingredients_text_en);
 
   return (
     <div className="gorilla-card animate-rise overflow-hidden rounded-sm">
@@ -65,6 +69,9 @@ export default function ProductResultCard({ product, result, alternatives, alter
               {result.grade.toUpperCase()}
             </span>
             <NhpBadge productName={product.product_name} categoryTags={product.categories_tags} />
+          </div>
+          <div className="mt-3 max-w-md">
+            <LabdoorCrossCheck productName={product.product_name} brand={product.brands} categoryTags={product.categories_tags} />
           </div>
         </div>
 
@@ -171,6 +178,22 @@ export default function ProductResultCard({ product, result, alternatives, alter
           <p className="mt-3 text-sm text-muted">No flagged additives found in the ingredients list.</p>
         )}
       </div>
+
+      {/* RESEARCH SUMMARIES — hardcoded Examine.com findings for detected supplement ingredients */}
+      {researchIngredients.length > 0 && (
+        <div className="border-t border-line p-6">
+          <h3 className="font-display text-xl tracking-wide text-foreground">Research Summaries</h3>
+          <p className="mt-1 text-xs text-muted">
+            Curated findings on the supplement ingredients we detected — what each one does,
+            how strong the evidence is, effective dose ranges, and safety considerations.
+          </p>
+          <div className="mt-3 space-y-2.5">
+            {researchIngredients.map((ingredient) => (
+              <ResearchSummaryCard key={ingredient.id} ingredient={ingredient} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* GORILLA ANALYSIS */}
       <div className="border-t border-line bg-surface p-6">
