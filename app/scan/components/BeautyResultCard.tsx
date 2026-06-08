@@ -4,6 +4,7 @@ import type { BeautyScoreResult } from "../lib/beautyScoring";
 import type { ObfProduct } from "../lib/openBeautyFacts";
 import { beautyProductImage } from "../lib/openBeautyFacts";
 import BeautyIngredientCard from "./BeautyIngredientCard";
+import ScoreDisclaimer from "./ScoreDisclaimer";
 import ScoreRing from "./ScoreRing";
 import SourcesFooter from "./SourcesFooter";
 
@@ -76,6 +77,8 @@ export default function BeautyResultCard({ product, result }: Props) {
           paraben preservatives, weighed by real risk level.
         </p>
       </div>
+
+      <ScoreDisclaimer />
 
       <div className="grid gap-px bg-line sm:grid-cols-2">
         {/* FLAGS */}

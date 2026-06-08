@@ -216,6 +216,17 @@ export default function MethodologyPage() {
         </div>
       </section>
 
+      {/* EDITORIAL OPINION DISCLOSURE */}
+      <section className="mt-6 mb-4">
+        <div className="max-w-3xl rounded-sm border border-line bg-surface p-6">
+          <p className="text-sm leading-relaxed text-muted">
+            All scores constitute editorial opinion based on publicly disclosed methodology.
+            Gorilla Fuel is an independent analytical platform. No brand pays for placement or
+            influences scoring.
+          </p>
+        </div>
+      </section>
+
       <div className="mt-16 -mx-5 sm:-mx-8">
         <CrossLinkBanner />
       </div>

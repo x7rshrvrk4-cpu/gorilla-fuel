@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, DM_Sans } from "next/font/google";
 import Navigation from "./components/Navigation";
+import SiteFooter from "./components/SiteFooter";
 import "./globals.css";
 
 const bebasNeue = Bebas_Neue({
@@ -51,6 +52,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground font-body">
         <Navigation />
         <div className="flex-1 flex flex-col">{children}</div>
+        <SiteFooter />
       </body>
     </html>
   );

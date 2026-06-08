@@ -10,6 +10,7 @@ import LabdoorCrossCheck from "./LabdoorCrossCheck";
 import NhpBadge from "./NhpBadge";
 import RecallBanner from "./RecallBanner";
 import ResearchSummaryCard from "./ResearchSummaryCard";
+import ScoreDisclaimer from "./ScoreDisclaimer";
 import ScoreRing from "./ScoreRing";
 import SourcesFooter from "./SourcesFooter";
 
@@ -98,6 +99,8 @@ export default function ProductResultCard({ product, result, alternatives, alter
           </p>
         </div>
       </div>
+
+      <ScoreDisclaimer />
 
       {/* NOVA PROCESSING LEVEL */}
       {result.novaGroup !== null && (

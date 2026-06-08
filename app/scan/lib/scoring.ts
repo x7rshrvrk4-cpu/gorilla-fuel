@@ -120,7 +120,7 @@ const ADDITIVES: AdditiveEntry[] = [
     note: "Curing agent that can form nitrosamines in the body — compounds classified as probable carcinogens, especially with processed meats.",
     tier: "strong-consensus",
     healthBodyPosition: "The WHO's cancer research arm (IARC) classifies processed meat — where nitrites are the primary curing agent — as a Group 1 carcinogen, the same evidence-strength category as tobacco, even though regulators still permit nitrites at controlled levels because curing also prevents botulism.",
-    gorillaPosition: "This is a real trade-off, not a scare story — nitrites stop a deadly toxin and feed a documented cancer pathway at once. Less cured meat in your regular rotation is the move, regardless of which curing salt is used.",
+    gorillaPosition: "This is a real trade-off, not a scare story — nitrites stop a dangerous foodborne toxin, but they're also the mechanism IARC pointed to when it classified processed meat in its highest-evidence carcinogen category. Less cured meat in your regular rotation looks like the sensible read of that evidence, regardless of which curing salt is used.",
     sources: ["IARC Monographs Volume 114 — Red and Processed Meat (2015)", "WHO Q&A on the Carcinogenicity of Processed Meat", "Health Canada Nitrite/Nitrate Food Additive Assessment"],
     matchers: [name("Sodium nitrite"), ecode("E250")],
   },

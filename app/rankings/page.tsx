@@ -134,6 +134,16 @@ export default function RankingsPage() {
         </div>
       </div>
 
+      <div className="mt-10 rounded-sm border border-line bg-surface p-5">
+        <p className="text-xs leading-relaxed text-muted">
+          Supplement rankings reflect our assessment of publicly available laboratory testing
+          data, certification status, and ingredient research at time of publication. Rankings
+          are updated periodically but may not reflect the most current product formulations.
+          Third-party certification status should be independently verified directly with the
+          certifying body.
+        </p>
+      </div>
+
       <div className="mt-16 -mx-5 sm:-mx-8">
         <CrossLinkBanner />
       </div>
