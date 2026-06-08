@@ -728,6 +728,9 @@ export type Nutriments = {
   "energy-kcal_serving"?: number;
   fiber_100g?: number;
   proteins_100g?: number;
+  carbohydrates_100g?: number;
+  carbohydrates_serving?: number;
+  alcohol_100g?: number;
 };
 
 /**

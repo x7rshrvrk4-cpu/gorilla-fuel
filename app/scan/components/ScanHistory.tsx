@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { GRADE_COLORS, type Grade } from "../lib/scoring";
 
 export type HistoryEntry = {
   barcode: string;
@@ -7,7 +6,8 @@ export type HistoryEntry = {
   brand: string;
   image: string | null;
   score: number;
-  grade: Grade;
+  /** Hex colour for the score chip — pulled from whichever grade-colour map produced this entry's grade. */
+  color: string;
   scannedAt: number;
 };
 
@@ -26,7 +26,7 @@ export default function ScanHistory({ entries, onSelect }: Props) {
       </h3>
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {entries.map((entry) => {
-          const color = GRADE_COLORS[entry.grade];
+          const color = entry.color;
           return (
             <button
               key={`${entry.barcode}-${entry.scannedAt}`}

@@ -14,6 +14,7 @@ const TIERS: EvidenceTier[] = ["strong-consensus", "emerging-evidence", "contest
 const SOURCES: { name: string; description: string }[] = [
   { name: "Open Food Facts", description: "Product, ingredient, and nutrition data — the backbone of every food and drink scan." },
   { name: "Open Beauty Facts", description: "Open Food Facts' sister database for cosmetics — powers Cosmetics Mode when a barcode isn't a food product." },
+  { name: "Alcohol & Beer Intel (Beer Store / LCBO + manufacturer data)", description: "ABV, serving-size calorie and carb data, and additive disclosures for beer, cider, seltzer, wine, and spirits — powers Alcohol Mode and the /alcohol rankings hub." },
   { name: "Labdoor Testing Database", description: "Independent purity and label-accuracy benchmarks for supplements, referenced for context (Labdoor has no public API for live per-product lookups)." },
   { name: "Examine.com Research Database", description: "Curated, citation-backed summaries of what each common supplement ingredient does, its evidence strength, dose range, and safety considerations." },
   { name: "PubMed / National Library of Medicine", description: "Peer-reviewed research — the most recent indexed papers on each detected additive." },

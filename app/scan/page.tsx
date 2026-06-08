@@ -14,9 +14,17 @@ import {
   type OffProduct,
 } from "./lib/openFoodFacts";
 import { beautyProductImage, lookupBeautyBarcode, type ObfProduct } from "./lib/openBeautyFacts";
-import { computeScore, type ScoreResult } from "./lib/scoring";
+import { computeScore, GRADE_COLORS, type ScoreResult } from "./lib/scoring";
 import { computeBeautyScore, type BeautyScoreResult } from "./lib/beautyScoring";
 import BeautyResultCard from "./components/BeautyResultCard";
+import {
+  ALCOHOL_GRADE_COLORS,
+  computeAlcoholScore,
+  detectAlcoholKind,
+  isAlcoholProduct,
+  type AlcoholScoreResult,
+} from "./lib/alcoholScoring";
+import AlcoholResultCard from "./components/AlcoholResultCard";
 
 const HISTORY_KEY = "gorilla-fuel-scan-history";
 const MAX_HISTORY = 6;
@@ -27,7 +35,8 @@ type LookupState =
   | { phase: "not-found"; barcode: string }
   | { phase: "error"; barcode: string; message: string }
   | { phase: "found"; product: OffProduct; result: ScoreResult }
-  | { phase: "found-beauty"; product: ObfProduct; result: BeautyScoreResult };
+  | { phase: "found-beauty"; product: ObfProduct; result: BeautyScoreResult }
+  | { phase: "found-alcohol"; product: OffProduct; result: AlcoholScoreResult };
 
 export default function ScanPage() {
   const [scannerActive, setScannerActive] = useState(false);
@@ -106,7 +115,7 @@ export default function ScanPage() {
             brand: beautyProduct.brands || "Unknown Brand",
             image: beautyProductImage(beautyProduct),
             score: beautyScore.score,
-            grade: beautyScore.grade,
+            color: GRADE_COLORS[beautyScore.grade],
             scannedAt: Date.now(),
           };
           persistHistory([entry, ...history.filter((h) => h.barcode !== entry.barcode)].slice(0, MAX_HISTORY));
@@ -127,6 +136,39 @@ export default function ScanPage() {
       }
 
       const product = lookupResult.product;
+
+      // Beer, wine, spirits, cider, and seltzer get routed to alcohol-specific
+      // scoring instead of the standard nutrition/additive pipeline — ABV,
+      // serving-size calorie/carb math, and a different additive watchlist.
+      if (isAlcoholProduct(product.categories_tags)) {
+        const alcoholResult = computeAlcoholScore(
+          product.nutriments ?? {},
+          product.ingredients_text || product.ingredients_text_en,
+          detectAlcoholKind(product.categories_tags)
+        );
+
+        setLookup({ phase: "found-alcohol", product, result: alcoholResult });
+        setSheetVisible(false);
+        setScannerActive(false);
+        window.setTimeout(() => {
+          resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 150);
+
+        const alcoholEntry: HistoryEntry = {
+          barcode: product.code,
+          name: product.product_name || "Unnamed Product",
+          brand: product.brands || "Unknown Brand",
+          image: productImage(product),
+          score: alcoholResult.score,
+          color: ALCOHOL_GRADE_COLORS[alcoholResult.grade],
+          scannedAt: Date.now(),
+        };
+        persistHistory([alcoholEntry, ...history.filter((h) => h.barcode !== alcoholEntry.barcode)].slice(0, MAX_HISTORY));
+
+        inFlightRef.current = null;
+        return;
+      }
+
       const result = computeScore(
         product.nutriments ?? {},
         product.ingredients_text || product.ingredients_text_en,
@@ -142,7 +184,7 @@ export default function ScanPage() {
         brand: product.brands || "Unknown Brand",
         image: productImage(product),
         score: result.finalScore,
-        grade: result.grade,
+        color: GRADE_COLORS[result.grade],
         scannedAt: Date.now(),
       };
       persistHistory([entry, ...history.filter((h) => h.barcode !== entry.barcode)].slice(0, MAX_HISTORY));
@@ -273,6 +315,10 @@ export default function ScanPage() {
 
         {lookup.phase === "found-beauty" && (
           <BeautyResultCard product={lookup.product} result={lookup.result} />
+        )}
+
+        {lookup.phase === "found-alcohol" && (
+          <AlcoholResultCard product={lookup.product} result={lookup.result} />
         )}
       </div>
 
