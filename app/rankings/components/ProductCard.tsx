@@ -2,10 +2,17 @@
 
 import { useState } from "react";
 import { GRADE_COLORS, type Product } from "../lib/products";
+import EvidenceTierBadge from "../../components/EvidenceTierBadge";
 
 type Props = {
   product: Product;
 };
+
+function formatVerifiedDate(iso: string): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+}
 
 export default function ProductCard({ product }: Props) {
   const [expanded, setExpanded] = useState(false);
@@ -40,6 +47,12 @@ export default function ProductCard({ product }: Props) {
               3rd-Party Tested
             </span>
             <span>Purity {product.purityScore}/100</span>
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <EvidenceTierBadge tier={product.evidenceTier} />
+            <span className="text-[11px] uppercase tracking-[0.18em] text-muted">
+              Last verified {formatVerifiedDate(product.lastVerified)}
+            </span>
           </div>
         </div>
 

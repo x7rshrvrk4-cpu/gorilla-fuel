@@ -8,6 +8,7 @@ const links = [
   { href: "/", label: "Home" },
   { href: "/scan", label: "Scan" },
   { href: "/rankings", label: "Rankings" },
+  { href: "/methodology", label: "Methodology" },
 ];
 
 export default function Navigation() {

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import CrossLinkBanner from "../components/CrossLinkBanner";
+import MethodologyModal from "../components/MethodologyModal";
 import ProductCard from "./components/ProductCard";
 import {
   CATEGORIES,
@@ -24,6 +25,7 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 export default function RankingsPage() {
   const [category, setCategory] = useState<Category>("Creatine");
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [methodologyOpen, setMethodologyOpen] = useState(false);
 
   const products = useMemo(() => {
     return PRODUCTS.filter((p) => p.category === category)
@@ -54,6 +56,13 @@ export default function RankingsPage() {
           full Gorilla Analysis treatment — purity, pricing, pros, cons, and
           the certifications that actually matter.
         </p>
+        <button
+          type="button"
+          onClick={() => setMethodologyOpen(true)}
+          className="mt-5 inline-flex items-center gap-2 rounded-sm border border-gold-dim px-4 py-2 font-display text-sm tracking-[0.2em] text-gold transition-colors hover:bg-gold hover:text-background"
+        >
+          How We Score
+        </button>
       </div>
 
       {/* CATEGORY TABS */}
@@ -128,6 +137,8 @@ export default function RankingsPage() {
       <div className="mt-16 -mx-5 sm:-mx-8">
         <CrossLinkBanner />
       </div>
+
+      <MethodologyModal open={methodologyOpen} onClose={() => setMethodologyOpen(false)} />
     </div>
   );
 }

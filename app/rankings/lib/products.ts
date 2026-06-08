@@ -1,3 +1,5 @@
+import type { EvidenceTier } from "../../scan/lib/scoring";
+
 export type Category = "Creatine" | "Whey Protein" | "Pre-Workout" | "BCAAs/EAAs";
 
 export type Grade = "S" | "A+" | "A" | "B" | "C" | "D";
@@ -7,6 +9,10 @@ export type Product = {
   category: Category;
   name: string;
   brand: string;
+  /** How settled the science is on the claims made about this product's category — e.g. creatine monohydrate is STRONG CONSENSUS, a newer blend is PRECAUTIONARY. */
+  evidenceTier: EvidenceTier;
+  /** ISO date this entry's data was last checked against current sources. */
+  lastVerified: string;
   grade: Grade;
   pricePerServing: number;
   thirdPartyTested: boolean;
@@ -44,6 +50,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "creatine-forge-micronized",
     category: "Creatine",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-01",
     name: "Micronized Creatine Monohydrate",
     brand: "Forge Labs",
     grade: "S",
@@ -67,6 +75,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "creatine-ironcore-hcl",
     category: "Creatine",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-01",
     name: "Creatine HCl Pro",
     brand: "IronCore",
     grade: "A",
@@ -89,6 +99,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "creatine-summit-blend",
     category: "Creatine",
+    evidenceTier: "precautionary",
+    lastVerified: "2026-06-01",
     name: "Creatine Blend Matrix",
     brand: "Summit Nutrition",
     grade: "C",
@@ -111,6 +123,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "creatine-vantage-creapure",
     category: "Creatine",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-01",
     name: "Creapure® Elite",
     brand: "Vantage Performance",
     grade: "S",
@@ -135,6 +149,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "whey-bedrock-grassfed-isolate",
     category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-01",
     name: "Grass-Fed Whey Isolate",
     brand: "Bedrock Nutrition",
     grade: "S",
@@ -157,6 +173,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "whey-granite-gold-standard",
     category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-01",
     name: "Gold Standard Whey Blend",
     brand: "Granite Supplements",
     grade: "A",
@@ -179,6 +197,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "whey-crucible-mass",
     category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-01",
     name: "Mass Whey Concentrate",
     brand: "Crucible Labs",
     grade: "C",
@@ -201,6 +221,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "whey-anvil-clean-isolate",
     category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-01",
     name: "Clean Isolate 90",
     brand: "Anvil Performance",
     grade: "A+",
@@ -223,6 +245,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "whey-outlaw-budget-stack",
     category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-01",
     name: "Budget Whey Stack",
     brand: "Outlaw Nutrition",
     grade: "D",
@@ -247,6 +271,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "pre-catalyst-ignite",
     category: "Pre-Workout",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-01",
     name: "Ignite Pre",
     brand: "Catalyst Labs",
     grade: "B",
@@ -269,6 +295,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "pre-vertex-surge",
     category: "Pre-Workout",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-01",
     name: "Surge V2",
     brand: "Vertex Athletics",
     grade: "S",
@@ -291,6 +319,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "pre-strata-rocket-fuel",
     category: "Pre-Workout",
+    evidenceTier: "precautionary",
+    lastVerified: "2026-06-01",
     name: "Rocket Fuel Extreme",
     brand: "Strata Sport",
     grade: "D",
@@ -313,6 +343,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "pre-apex-clean-charge",
     category: "Pre-Workout",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-01",
     name: "Clean Charge",
     brand: "Apex Labs",
     grade: "A",
@@ -337,6 +369,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "amino-nordic-recovery",
     category: "BCAAs/EAAs",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-01",
     name: "Recovery Aminos Complete",
     brand: "Nordic Strength",
     grade: "A",
@@ -359,6 +393,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "amino-titan-bcaa-classic",
     category: "BCAAs/EAAs",
+    evidenceTier: "contested",
+    lastVerified: "2026-06-01",
     name: "BCAA 2:1:1 Classic",
     brand: "Titan Supps",
     grade: "C",
@@ -381,6 +417,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "amino-purestack-eaa",
     category: "BCAAs/EAAs",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-01",
     name: "EAA Essentials",
     brand: "PureStack",
     grade: "A+",
@@ -403,6 +441,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "amino-brawn-sweetened-punch",
     category: "BCAAs/EAAs",
+    evidenceTier: "contested",
+    lastVerified: "2026-06-01",
     name: "Sweetened BCAA Punch",
     brand: "Brawn & Co",
     grade: "D",

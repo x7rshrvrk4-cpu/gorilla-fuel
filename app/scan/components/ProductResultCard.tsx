@@ -1,8 +1,14 @@
 import Image from "next/image";
 import { GRADE_COLORS, type ScoreResult } from "../lib/scoring";
+import { buildGorillaTake } from "../lib/gorillaAnalysis";
 import type { OffProduct } from "../lib/openFoodFacts";
 import { productImage } from "../lib/openFoodFacts";
+import AdditiveCard from "./AdditiveCard";
+import EvidenceTierBadge from "../../components/EvidenceTierBadge";
+import NhpBadge from "./NhpBadge";
+import RecallBanner from "./RecallBanner";
 import ScoreRing from "./ScoreRing";
+import SourcesFooter from "./SourcesFooter";
 
 type Props = {
   product: OffProduct;
@@ -11,24 +17,15 @@ type Props = {
   alternativesLoading: boolean;
 };
 
-const RISK_LABEL: Record<string, string> = {
-  high: "High Risk",
-  medium: "Medium Risk",
-  low: "Low Risk",
-};
-
-const RISK_COLOR: Record<string, string> = {
-  high: "border-red-500/50 text-red-400 bg-red-500/10",
-  medium: "border-amber-400/50 text-amber-300 bg-amber-400/10",
-  low: "border-emerald-400/40 text-emerald-300 bg-emerald-400/10",
-};
-
 export default function ProductResultCard({ product, result, alternatives, alternativesLoading }: Props) {
   const image = productImage(product);
   const gradeColor = GRADE_COLORS[result.grade];
+  const gorillaTake = buildGorillaTake(result.detectedAdditives, result.grade);
 
   return (
     <div className="gorilla-card animate-rise overflow-hidden rounded-sm">
+      <RecallBanner brand={product.brands} productName={product.product_name} />
+
       {/* HEADER */}
       <div className="flex flex-col gap-6 border-b border-line p-6 sm:flex-row sm:items-center sm:p-8">
         <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-line bg-background">
@@ -53,12 +50,15 @@ export default function ProductResultCard({ product, result, alternatives, alter
           <h2 className="mt-1 font-display text-3xl leading-tight text-foreground sm:text-4xl">
             {product.product_name || "Unnamed Product"}
           </h2>
-          <span
-            className="mt-3 inline-block rounded-sm border px-3 py-1 font-display text-sm tracking-[0.2em]"
-            style={{ borderColor: gradeColor, color: gradeColor }}
-          >
-            {result.grade.toUpperCase()}
-          </span>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span
+              className="inline-block rounded-sm border px-3 py-1 font-display text-sm tracking-[0.2em]"
+              style={{ borderColor: gradeColor, color: gradeColor }}
+            >
+              {result.grade.toUpperCase()}
+            </span>
+            <NhpBadge productName={product.product_name} categoryTags={product.categories_tags} />
+          </div>
         </div>
 
         <ScoreRing score={result.finalScore} grade={result.grade} />
@@ -124,23 +124,42 @@ export default function ProductResultCard({ product, result, alternatives, alter
         {result.detectedAdditives.length > 0 ? (
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {result.detectedAdditives.map((additive) => (
-              <div
-                key={additive.id}
-                className={`rounded-sm border p-3 text-sm ${RISK_COLOR[additive.risk]}`}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-display text-lg tracking-wide">{additive.name}</span>
-                  <span className="shrink-0 rounded-sm border border-current px-2 py-0.5 text-[10px] uppercase tracking-[0.2em]">
-                    {RISK_LABEL[additive.risk]}
-                  </span>
-                </div>
-                <p className="mt-1 text-xs text-foreground/70">{additive.note}</p>
-              </div>
+              <AdditiveCard key={additive.id} additive={additive} />
             ))}
           </div>
         ) : (
           <p className="mt-3 text-sm text-muted">No flagged additives found in the ingredients list.</p>
         )}
+      </div>
+
+      {/* GORILLA ANALYSIS */}
+      <div className="border-t border-line bg-surface p-6">
+        <h3 className="font-display text-xl tracking-wide text-foreground">
+          <span className="text-gold">▲</span> Gorilla Analysis
+        </h3>
+
+        {gorillaTake.tierBreakdown.length > 0 && (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="text-xs uppercase tracking-[0.2em] text-muted">Evidence on the concerns found:</span>
+            {gorillaTake.tierBreakdown.map((b) => (
+              <span key={b.tier} className="flex items-center gap-1.5">
+                <EvidenceTierBadge tier={b.tier} />
+                <span className="text-xs text-muted">×{b.count}</span>
+              </span>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-4 space-y-3 text-sm leading-relaxed text-muted">
+          <p>
+            <span className="font-display tracking-wide text-foreground">What the science says: </span>
+            {gorillaTake.scienceSummary}
+          </p>
+          <p>
+            <span className="font-display tracking-wide text-gold">Gorilla position: </span>
+            {gorillaTake.positionStatement}
+          </p>
+        </div>
       </div>
 
       {/* ALTERNATIVES */}
@@ -177,6 +196,8 @@ export default function ProductResultCard({ product, result, alternatives, alter
           </div>
         )}
       </div>
+
+      <SourcesFooter />
     </div>
   );
 }
