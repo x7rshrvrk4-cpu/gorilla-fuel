@@ -25,7 +25,6 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const readerRef = useRef<BrowserMultiFormatReaderType | null>(null);
-  const rafRef = useRef<number | null>(null);
   const lastCodeRef = useRef<{ code: string; at: number } | null>(null);
   // Keep onDetected in a ref so the scan loop never lists it as a dep —
   // prevents restarting the entire scanner after every successful scan result.
@@ -78,13 +77,15 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
       setTorchSupported(false);
       setTorchOn(false);
 
-      // High-res + continuous autofocus constraints. Requesting 1080p (or
-      // whatever the device can do) gives the decoder more pixel data to work
-      // with, which meaningfully reduces misread rates on dense barcodes.
+      // 720p is the sweet spot for barcode detection: enough resolution to read
+      // EAN-13/UPC-A reliably, but low enough that the camera sensor can deliver
+      // frames quickly and the decoder processes each one faster. 1080p+ actually
+      // slows detection because it increases both camera init time and per-frame
+      // pixel count without meaningfully improving read rates for typical barcodes.
       const videoConstraints: ExtendedVideoConstraints = {
         facingMode: "environment",
-        width: { ideal: 1920 },
-        height: { ideal: 1080 },
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
         advanced: [{ focusMode: "continuous" }],
       };
 
@@ -125,20 +126,20 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
             formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"],
           });
 
-          // RAF loop: await each detect() before scheduling the next frame so
-          // concurrent requests never pile up (detect() is async and can take
-          // multiple frames to complete on slow hardware).
-          async function tick() {
-            if (cancelled) return;
-            try {
-              const results = await detector.detect(video!);
-              if (!cancelled && results.length > 0) handleCode(results[0].rawValue);
-            } catch {
-              // Single-frame decode error — not fatal, continue.
+          // Tight async loop: run detect() as fast as the hardware allows.
+          // Avoids requestAnimationFrame's 0–16 ms scheduling gap — each iteration
+          // starts the moment the previous detect() Promise resolves rather than
+          // waiting for the next display refresh tick.
+          void (async () => {
+            while (!cancelled) {
+              try {
+                const results = await detector.detect(video!);
+                if (!cancelled && results.length > 0) handleCode(results[0].rawValue);
+              } catch {
+                // Single-frame decode error — not fatal, keep looping.
+              }
             }
-            if (!cancelled) rafRef.current = requestAnimationFrame(tick);
-          }
-          rafRef.current = requestAnimationFrame(tick);
+          })();
         } else {
           // ─── ZXing fallback path ───
           // Lazy-import so the WASM bundle doesn't block the initial page load.
@@ -200,11 +201,7 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
     start();
 
     return () => {
-      cancelled = true;
-      if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = null;
-      }
+      cancelled = true; // stops the while loop on its next iteration
       streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
       readerRef.current?.reset();

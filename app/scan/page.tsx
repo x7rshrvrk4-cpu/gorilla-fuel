@@ -61,12 +61,20 @@ export default function ScanPage() {
     }
   }, []);
 
-  // Pre-warm the OFF API connection on page load so DNS is already resolved
-  // and the TCP connection is cached before the first real scan fires.
+  // Pre-warm the OFF API connection so DNS is already resolved before first scan.
   useEffect(() => {
     fetch("https://world.openfoodfacts.org/api/v2/product/0.json?fields=code", {
       cache: "no-store",
     }).catch(() => {});
+  }, []);
+
+  // Preload ZXing if the native BarcodeDetector API is not available so the
+  // dynamic import is already cached when the user opens the scanner. On iOS
+  // Safari 17+ and Chrome, BarcodeDetector is native so ZXing never loads.
+  useEffect(() => {
+    if (typeof window !== "undefined" && !("BarcodeDetector" in window)) {
+      import("@zxing/library").catch(() => {});
+    }
   }, []);
 
   // Lock page scroll while the fullscreen scanner overlay is open.
