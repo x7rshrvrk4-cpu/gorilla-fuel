@@ -110,7 +110,7 @@ export default function ScanPage() {
       const category = primaryCategory(product);
       if (category) {
         setAlternativesLoading(true);
-        const candidates = await fetchAlternativesInCategory(category, product.code);
+        const candidates = await fetchAlternativesInCategory(category, product.categories_tags ?? [], product.code);
         const better = candidates
           .map((candidate) => ({
             candidate,
