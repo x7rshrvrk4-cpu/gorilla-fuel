@@ -10,11 +10,14 @@ export const maxDuration = 120;
  * writes any changes to the `fuel_audit_log` Supabase table so there's always
  * a permanent, queryable trail of what changed, when, and from which source.
  *
- * Supabase is reached over its REST (PostgREST) endpoint with the service-role
- * key — no client library required. If SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY
- * aren't configured yet, the job still runs its checks and reports findings in
- * the response/log; it just can't persist them until those env vars are set in
- * the Vercel project (Project Settings → Environment Variables).
+ * Supabase is reached over its REST (PostgREST) endpoint with the anon key —
+ * no client library required. The `fuel_audit_log` table has row-level security
+ * policies that grant the `anon` role insert + select access (see the setup SQL),
+ * matching how the gorillasports.ca project is already configured. If
+ * SUPABASE_URL / SUPABASE_ANON_KEY aren't set yet, the job still runs its checks
+ * and reports findings in the response/log; it just can't persist them until
+ * those env vars are set in the Vercel project (Project Settings → Environment
+ * Variables).
  */
 
 type AuditLogEntry = {
@@ -27,11 +30,11 @@ type AuditLogEntry = {
 };
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const AUDIT_TABLE = "fuel_audit_log";
 
 function supabaseConfigured(): boolean {
-  return Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
+  return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 }
 
 async function fetchLatestLogEntry(productName: string, changeType: string): Promise<AuditLogEntry | null> {
@@ -45,8 +48,8 @@ async function fetchLatestLogEntry(productName: string, changeType: string): Pro
 
     const res = await fetch(url.toString(), {
       headers: {
-        apikey: SUPABASE_SERVICE_ROLE_KEY!,
-        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        apikey: SUPABASE_ANON_KEY!,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       },
     });
     if (!res.ok) return null;
@@ -63,8 +66,8 @@ async function insertLogEntry(entry: AuditLogEntry): Promise<boolean> {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${AUDIT_TABLE}`, {
       method: "POST",
       headers: {
-        apikey: SUPABASE_SERVICE_ROLE_KEY!,
-        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        apikey: SUPABASE_ANON_KEY!,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         "Content-Type": "application/json",
         Prefer: "return=minimal",
       },
@@ -184,7 +187,7 @@ export async function GET(req: NextRequest) {
 
   if (!supabaseConfigured()) {
     console.warn(
-      "[fuel_audit_log] Supabase env vars (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY) are not set — " +
+      "[fuel_audit_log] Supabase env vars (SUPABASE_URL, SUPABASE_ANON_KEY) are not set — " +
         "audit findings were computed but not persisted. Findings:",
       JSON.stringify(findings)
     );
