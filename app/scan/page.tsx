@@ -38,7 +38,7 @@ import { logMissedScan } from "./lib/missedScans";
 import { lookupColaCloud, lookupWineVybe, type FallbackAlcoholProduct } from "./lib/externalAlcohol";
 import { lookupUsda, lookupNutritionix } from "./lib/externalFood";
 import { lookupGoUpc, lookupDrugFacts, type GoUpcProduct, type DrugProduct } from "./lib/externalGeneral";
-import { lookupCuratedByBarcode, lookupCuratedByName } from "../alcohol/lib/products";
+import { lookupCuratedByBarcode, lookupCuratedByName, overrideWithCurated } from "../alcohol/lib/products";
 import type { DataSource } from "./components/SourceBadge";
 
 const HISTORY_KEY = "gorilla-fuel-scan-history";
@@ -275,6 +275,26 @@ export default function ScanPage() {
               inFlightRef.current = null;
               return;
             }
+            // Name-override: if OFF's product name matches a curated entry, use our verified nutrition
+            const curatedNameHit = overrideWithCurated(product.product_name || "", product.brands);
+            if (curatedNameHit) {
+              const servingMl = curatedNameHit.servingMl ?? 355;
+              const kind = curatedNameHit.category === "IPAs" ? "beer" : curatedNameHit.category === "Hard Seltzers" ? "seltzer" : curatedNameHit.category === "Ciders" ? "cider" : "beer";
+              const curatedNutriments = {
+                "energy-kcal_100g": (curatedNameHit.caloriesPerCan / servingMl) * 100,
+                carbohydrates_100g: (curatedNameHit.carbsPerCan / servingMl) * 100,
+                sugars_100g: (curatedNameHit.sugarPerCan / servingMl) * 100,
+                alcohol_100g: curatedNameHit.abv,
+              };
+              const overriddenProduct: OffProduct = { ...product, nutriments: curatedNutriments, product_name: curatedNameHit.name, brands: curatedNameHit.brand };
+              const overrideResult = computeAlcoholScore(curatedNutriments, undefined, kind);
+              setLookup({ phase: "found-alcohol", product: overriddenProduct, result: overrideResult, dataSource: "gorilla-curated" });
+              setScannerActive(false);
+              scrollToResult();
+              persistHistory([{ barcode: trimmed, name: curatedNameHit.name, brand: curatedNameHit.brand, image: null, score: overrideResult.score, color: ALCOHOL_GRADE_COLORS[overrideResult.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
+              inFlightRef.current = null;
+              return;
+            }
             const alcoholResult = computeAlcoholScore(
               product.nutriments ?? {},
               product.ingredients_text || product.ingredients_text_en,
@@ -365,6 +385,19 @@ export default function ScanPage() {
         // ─────────────────────────────────────────────────────────
         const usdaHit = await lookupUsda(trimmed);
         if (usdaHit) {
+          // Name-override: USDA sometimes lists alcohol brands — defer to our verified data
+          const usdaCuratedHit = overrideWithCurated(usdaHit.product_name || "", usdaHit.brands);
+          if (usdaCuratedHit) {
+            const servingMl = usdaCuratedHit.servingMl ?? 355;
+            const kind = usdaCuratedHit.category === "IPAs" ? "beer" : usdaCuratedHit.category === "Hard Seltzers" ? "seltzer" : usdaCuratedHit.category === "Ciders" ? "cider" : "beer";
+            const cn = { "energy-kcal_100g": (usdaCuratedHit.caloriesPerCan / servingMl) * 100, carbohydrates_100g: (usdaCuratedHit.carbsPerCan / servingMl) * 100, sugars_100g: (usdaCuratedHit.sugarPerCan / servingMl) * 100, alcohol_100g: usdaCuratedHit.abv };
+            const overrideResult = computeAlcoholScore(cn, undefined, kind);
+            const overriddenProduct: OffProduct = { ...usdaHit, nutriments: cn, product_name: usdaCuratedHit.name, brands: usdaCuratedHit.brand };
+            setLookup({ phase: "found-alcohol", product: overriddenProduct, result: overrideResult, dataSource: "gorilla-curated" });
+            setScannerActive(false); scrollToResult();
+            persistHistory([{ barcode: trimmed, name: usdaCuratedHit.name, brand: usdaCuratedHit.brand, image: null, score: overrideResult.score, color: ALCOHOL_GRADE_COLORS[overrideResult.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
+            inFlightRef.current = null; return;
+          }
           const result = computeScore(
             usdaHit.nutriments ?? {},
             usdaHit.ingredients_text,
