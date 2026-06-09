@@ -35,8 +35,8 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
           <p className="mt-0.5 font-display text-lg text-white">{product.carbsPerCan}g</p>
         </div>
         <div>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Flagged Additives</p>
-          <p className="mt-0.5 font-display text-lg text-white">{product.additiveCount}</p>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Sugar / can</p>
+          <p className="mt-0.5 font-display text-lg text-white">{product.sugarPerCan}g</p>
         </div>
         <div>
           <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Gorilla Pour</p>

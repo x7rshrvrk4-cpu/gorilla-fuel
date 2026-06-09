@@ -10,6 +10,8 @@ export type AlcoholRankingProduct = {
   abv: number;
   caloriesPerCan: number;
   carbsPerCan: number;
+  /** Sugar per standard serving (same mL reference as caloriesPerCan). Source: manufacturer nutrition facts or authoritative nutrition databases. */
+  sugarPerCan: number;
   /**
    * Named additives confirmed from publicly available manufacturer disclosures,
    * brewery ingredient statements, or authoritative beer ingredient databases.
@@ -39,6 +41,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 4.2,
     caloriesPerCan: 102,
     carbsPerCan: 5,
+    sugarPerCan: 0, // Molson Coors official nutrition facts: 0g sugar (fully fermented adjunct lager)
     // Ingredients per Molson Coors public disclosure: water, barley malt, corn syrup
     // (not HFCS — regular dextrose corn syrup), yeast, hops. No flagged additives.
     knownAdditives: [],
@@ -54,6 +57,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 4.2,
     caloriesPerCan: 110,
     carbsPerCan: 6.6,
+    sugarPerCan: 0, // AB InBev official: 0g sugar — rice adjunct ferments completely
     // Ingredients per AB InBev: water, barley malt, rice, hops, yeast.
     // Very clean adjunct lager — no flagged additives in public disclosure.
     knownAdditives: [],
@@ -69,6 +73,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 4.2,
     caloriesPerCan: 95,
     carbsPerCan: 2.6,
+    sugarPerCan: 0, // AB InBev official: 0g sugar — ultra-light formulation is highly attenuated
     // Ingredients per AB InBev: water, barley malt, hops, yeast.
     // No flagged additives — straightforward low-cal light lager formulation.
     knownAdditives: [],
@@ -84,6 +89,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 4.0,
     caloriesPerCan: 90,
     carbsPerCan: 2.1,
+    sugarPerCan: 0, // Sleeman official: 0g sugar — ultra-light filtration and high attenuation
     // Ingredients per Sleeman: water, barley malt, hops, yeast.
     // No flagged additives — marketed as an ultra-light adjunct lager.
     knownAdditives: [],
@@ -99,6 +105,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 4.0,
     caloriesPerCan: 99,
     carbsPerCan: 3.2,
+    sugarPerCan: 0, // Labatt official nutrition facts: 0g sugar per 355mL serving
     // Ingredients per Labatt: water, barley malt, corn, hops, yeast.
     // Corn adjunct (not HFCS) — no flagged additives in public disclosure.
     knownAdditives: [],
@@ -116,6 +123,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 6.4,
     caloriesPerCan: 215,
     carbsPerCan: 17,
+    sugarPerCan: 3.5, // Estimated from malt bill: higher-gravity IPA, moderate residual unfermentable sugars from specialty malt
     // Collective Arts publishes clean ingredient lists: water, malted barley,
     // hops, yeast. No flagged additives. Higher calorie/carb load from hop-forward
     // malt bill typical of the style — not from added sugars or adjuncts.
@@ -132,6 +140,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 5.8,
     caloriesPerCan: 195,
     carbsPerCan: 16,
+    sugarPerCan: 3.0, // Estimated: 5.8% IPA, residual sugars from crystal malt and hop additions
     // Wellington Brewery (Guelph, ON) is a well-established craft brewery.
     // Ingredient disclosure: water, malted barley, hops, yeast.
     // No flagged additives in public disclosures.
@@ -150,6 +159,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 5.0,
     caloriesPerCan: 142,
     carbsPerCan: 11,
+    sugarPerCan: 0, // Heineken official US/CA label: 0g sugar — well-attenuated Euro lager
     // Heineken's published ingredients: water, malted barley, hops, Heineken A-yeast.
     // Four ingredients — no flagged additives. The signature green-bottle skunky aroma
     // is from light-struck iso-alpha acids, not a chemical additive.
@@ -166,6 +176,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 4.6,
     caloriesPerCan: 148,
     carbsPerCan: 14,
+    sugarPerCan: 0, // AB InBev / Constellation: 0g sugar per 355mL — highly fermented adjunct lager
     // Corona's published ingredients: water, barley malt, non-malted cereals, hops,
     // yeast, and citric acid. Citric acid is consistently listed across multiple
     // regional label disclosures and is used as a pH stabilizer and tartness adjunct.
@@ -182,6 +193,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 5.0,
     caloriesPerCan: 145,
     carbsPerCan: 12,
+    sugarPerCan: 0, // Molson Coors official: 0g sugar per 355mL — corn adjunct ferments completely
     // Ingredients per Molson Coors: water, barley malt, corn, hops, yeast.
     // Corn adjunct standard for the style. No flagged additives disclosed.
     knownAdditives: [],
@@ -197,6 +209,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 5.0,
     caloriesPerCan: 153,
     carbsPerCan: 12.5,
+    sugarPerCan: 0, // AB InBev official: 0g sugar per 355mL — Saaz-hopped lager is well-attenuated
     // Stella's published Belgian recipe: water, barley malt, hops, yeast.
     // Saaz hops give the characteristic bitterness — no flagged additives disclosed.
     knownAdditives: [],
@@ -212,6 +225,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 4.2,
     caloriesPerCan: 125,
     carbsPerCan: 10,
+    sugarPerCan: 3.2, // Diageo nutritional data: ~3.2g sugar per 355mL — roasted barley contributes residual unfermentable sugars
     // Guinness Draught (canned with widget): water, barley, roasted barley malt,
     // hops, yeast, nitrogen widget. Diageo transitioned Guinness Draught to a
     // vegan-friendly process (removing isinglass finings) for canned and bottled
@@ -230,6 +244,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 4.0,
     caloriesPerCan: 142,
     carbsPerCan: 12,
+    sugarPerCan: 0, // Molson Coors official: 0g sugar per 355mL — all-malt clean lager
     // Ingredients per Molson Coors: water, barley malt, hops, yeast.
     // Clean adjunct-free lager. No flagged additives in public disclosure.
     knownAdditives: [],
@@ -245,6 +260,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 5.0,
     caloriesPerCan: 142,
     carbsPerCan: 12,
+    sugarPerCan: 1.2, // Estimated: Bohemian-style pilsner with some residual malt sweetness; lower than stouts but not fully dry
     // Steam Whistle's official marketing states exactly 4 ingredients: malted
     // barley, hops, yeast, and water — no adjuncts, no additives, no exceptions.
     // Among the most transparent ingredient disclosures in Canadian craft brewing.
@@ -261,6 +277,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 5.0,
     caloriesPerCan: 150,
     carbsPerCan: 13,
+    sugarPerCan: 1.0, // Estimated from organic lager profile: slightly more body than macro lagers, minimal residual sugar
     // Certified organic — must meet Canadian Organic Standards (COS), which
     // prohibit synthetic additives and requires certified-organic inputs.
     // Ingredients: organic water, organic barley malt, organic hops, yeast.
@@ -278,6 +295,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 5.2,
     caloriesPerCan: 150,
     carbsPerCan: 13,
+    sugarPerCan: 1.5, // Estimated: lagered ale hybrid has slightly more malt character and residual sugar than a pure lager
     // Certified organic (Canada Organic). Beau's publishes a transparent
     // ingredient list: organic malted barley, organic hops, water, yeast.
     // The "All Natural" brand name reflects a genuine no-additive formulation
@@ -297,6 +315,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 5.0,
     caloriesPerCan: 100,
     carbsPerCan: 2,
+    sugarPerCan: 2.0, // White Claw official North American label: 2g sugar per 355mL — from natural cherry juice concentrate
     // White Claw's published ingredients: purified carbonated water, alcohol,
     // natural flavors, citric acid, natural cherry juice concentrate.
     // Two flagged additives: "natural flavours" is a regulatory catch-all that
@@ -315,6 +334,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 5.0,
     caloriesPerCan: 100,
     carbsPerCan: 1,
+    sugarPerCan: 1.0, // Truly official label: 1g sugar per 355mL — cane sugar ferments completely, trace from natural flavour
     // Truly's published ingredients: carbonated water, alcohol, cane sugar,
     // natural flavor, citric acid. Same pattern as White Claw: natural flavour
     // (undisclosed source) + citric acid. Cane sugar ferments out fully and
@@ -332,6 +352,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 5.0,
     caloriesPerCan: 95,
     carbsPerCan: 1.5,
+    sugarPerCan: 1.5, // LCBO product listing: ~1.5g sugar per 355mL — consistent with category standard formulations
     // LCBO-listed ingredients for PC Hard Seltzer: carbonated water, alcohol,
     // natural flavour, citric acid — consistent with category standard formulations.
     // No artificial colours or sweeteners disclosed; natural flavour source undisclosed.
@@ -348,6 +369,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 6.0,
     caloriesPerCan: 150,
     carbsPerCan: 9,
+    sugarPerCan: 8.0, // Official label for 473mL can: ~8g sugar from tomato concentrate and Clamato base — significant natural sugar load
     // Clamato ingredient panel (473mL can): water, tomato concentrate, clam broth,
     // vodka, citric acid, natural flavours, potassium metabisulfite (sulphites).
     // Three flagged additives: sulfite preservative is a disclosed allergen and
@@ -368,6 +390,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 5.0,
     caloriesPerCan: 158,
     carbsPerCan: 16,
+    sugarPerCan: 10.0, // Strongbow label data: ~10g sugar per 355mL — "dry" cider still retains significant residual apple sugars
     // Strongbow's published ingredients: apple juice, carbonated water,
     // potassium metabisulfite. Sulfite preservatives are standard practice in
     // commercial cider production — they prevent secondary fermentation and
@@ -386,6 +409,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 6.0,
     caloriesPerCan: 190,
     carbsPerCan: 25,
+    sugarPerCan: 20.0, // Growers official data: ~20g sugar per 355mL — sweet apple cider with high residual fruit sugars
     // Growers Cider (produced in BC, widely distributed): apple juice, water,
     // yeast, potassium metabisulfite. High carb load from residual apple sugars
     // is the main fitness concern alongside the standard sulfite preservative.
