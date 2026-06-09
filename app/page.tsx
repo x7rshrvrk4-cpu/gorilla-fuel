@@ -4,7 +4,7 @@ import CrossLinkBanner from "./components/CrossLinkBanner";
 
 const tickerItems = [
   "SCAN BEFORE YOU BUY",
-  "40+ PRODUCTS RANKED",
+  "100+ PRODUCTS RANKED",
   "ADDITIVES EXPOSED",
   "NO SPONSORED RESULTS",
   "BLACK & GOLD STANDARD",
@@ -14,9 +14,9 @@ const tickerItems = [
 ];
 
 const stats = [
-  { value: "40+", label: "Products Ranked" },
+  { value: "100+", label: "Products Ranked" },
   { value: "90+", label: "Additives Tracked" },
-  { value: "4", label: "Categories Covered" },
+  { value: "10", label: "Categories Covered" },
   { value: "100%", label: "Independent Scoring" },
 ];
 

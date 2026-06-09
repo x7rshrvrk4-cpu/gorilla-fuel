@@ -52,7 +52,7 @@ export default function RankingsPage() {
           The Rankings.
         </h1>
         <p className="mt-4 text-muted">
-          17 products, 4 categories, zero sponsorships. Every entry gets the
+          80+ products, 10 categories, zero sponsorships. Every entry gets the
           full Gorilla Analysis treatment — purity, pricing, pros, cons, and
           the certifications that actually matter.
         </p>
