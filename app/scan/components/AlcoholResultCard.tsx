@@ -20,6 +20,7 @@ import SourcesFooter from "./SourcesFooter";
 type Props = {
   product: OffProduct;
   result: AlcoholScoreResult;
+  fromCommunity?: boolean;
 };
 
 const RISK_COLOR: Record<string, string> = {
@@ -80,7 +81,7 @@ function GorillaPour({ rating }: { rating: number }) {
   );
 }
 
-export default function AlcoholResultCard({ product, result }: Props) {
+export default function AlcoholResultCard({ product, result, fromCommunity }: Props) {
   const [additivesOpen, setAdditivesOpen] = useState(false);
 
   const image = productImage(product);
@@ -99,6 +100,11 @@ export default function AlcoholResultCard({ product, result }: Props) {
         <p className="font-display text-sm uppercase tracking-[0.3em] text-amber-300">
           {emoji} {kindLabel(kind)} · Alcohol Mode
         </p>
+        {fromCommunity && (
+          <span className="ml-auto shrink-0 rounded-sm border border-sky-400/50 bg-sky-400/10 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.18em] text-sky-300">
+            Community Submitted
+          </span>
+        )}
       </div>
 
       {/* COMPACT PRODUCT IDENTITY */}

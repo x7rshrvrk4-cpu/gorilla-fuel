@@ -25,6 +25,13 @@ import {
   type AlcoholScoreResult,
 } from "./lib/alcoholScoring";
 import AlcoholResultCard from "./components/AlcoholResultCard";
+import AlcoholSubmitForm from "./components/AlcoholSubmitForm";
+import {
+  lookupCommunityProduct,
+  productTypeToAlcoholKind,
+  productTypeToCategories,
+  communityProductToNutriments,
+} from "./lib/communityProducts";
 
 const HISTORY_KEY = "gorilla-fuel-scan-history";
 const MAX_HISTORY = 6;
@@ -36,12 +43,13 @@ type LookupState =
   | { phase: "error"; barcode: string; message: string }
   | { phase: "found"; product: OffProduct; result: ScoreResult }
   | { phase: "found-beauty"; product: ObfProduct; result: BeautyScoreResult }
-  | { phase: "found-alcohol"; product: OffProduct; result: AlcoholScoreResult };
+  | { phase: "found-alcohol"; product: OffProduct; result: AlcoholScoreResult; fromCommunity?: boolean };
 
 export default function ScanPage() {
   const [scannerActive, setScannerActive] = useState(false);
   const [sheetVisible, setSheetVisible] = useState(false);
   const [lookup, setLookup] = useState<LookupState>({ phase: "idle" });
+  const [showSubmitForm, setShowSubmitForm] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
   const [manualBarcode, setManualBarcode] = useState("");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -103,7 +111,41 @@ export default function ScanPage() {
       setAlternatives([]);
       setAlternativesLoading(false);
       setSheetVisible(false);
+      setShowSubmitForm(false);
       setLookup({ phase: "loading", barcode: trimmed });
+
+      // Community DB is checked first — verified submissions take priority over OFF.
+      const communityHit = await lookupCommunityProduct(trimmed);
+      if (communityHit) {
+        const kind = productTypeToAlcoholKind(communityHit.product_type);
+        const nutriments = communityProductToNutriments(communityHit, kind);
+        const syntheticProduct: OffProduct = {
+          code: communityHit.barcode,
+          product_name: communityHit.product_name,
+          brands: communityHit.brand,
+          categories_tags: productTypeToCategories(communityHit.product_type),
+          nutriments,
+        };
+        const alcoholResult = computeAlcoholScore(nutriments, undefined, kind);
+        setLookup({ phase: "found-alcohol", product: syntheticProduct, result: alcoholResult, fromCommunity: true });
+        setSheetVisible(false);
+        setScannerActive(false);
+        window.setTimeout(() => {
+          resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 150);
+        const communityEntry: HistoryEntry = {
+          barcode: communityHit.barcode,
+          name: communityHit.product_name,
+          brand: communityHit.brand || "Unknown Brand",
+          image: null,
+          score: alcoholResult.score,
+          color: ALCOHOL_GRADE_COLORS[alcoholResult.grade],
+          scannedAt: Date.now(),
+        };
+        persistHistory([communityEntry, ...history.filter((h) => h.barcode !== communityEntry.barcode)].slice(0, MAX_HISTORY));
+        inFlightRef.current = null;
+        return;
+      }
 
       const lookupResult = await lookupBarcode(trimmed);
 
@@ -318,18 +360,34 @@ export default function ScanPage() {
         )}
 
         {lookup.phase === "not-found" && (
-          <div className="gorilla-card rounded-sm p-6">
-            <h3 className="font-display text-2xl text-foreground">Not in the database</h3>
-            <p className="mt-2 text-sm text-muted">
-              {lookup.message ?? (
-                <>
-                  Open Food Facts doesn&apos;t have data for barcode{" "}
-                  <span className="text-gold">{lookup.barcode}</span> yet. Try
-                  another product, or contribute the data at openfoodfacts.org.
-                </>
-              )}
-            </p>
-          </div>
+          <>
+            <div className="gorilla-card rounded-sm p-6">
+              <h3 className="font-display text-2xl text-foreground">Not in the database</h3>
+              <p className="mt-2 text-sm text-muted">
+                {lookup.message ?? (
+                  <>
+                    Open Food Facts doesn&apos;t have data for barcode{" "}
+                    <span className="text-gold">{lookup.barcode}</span> yet. Try
+                    another product, or contribute the data at openfoodfacts.org.
+                  </>
+                )}
+              </p>
+            </div>
+            {showSubmitForm ? (
+              <AlcoholSubmitForm barcode={lookup.barcode} />
+            ) : (
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => setShowSubmitForm(true)}
+                  className="rounded-sm border border-gold/60 px-6 py-2.5 font-display text-sm tracking-widest text-gold transition-colors hover:bg-gold hover:text-background"
+                >
+                  Submit This Product
+                </button>
+                <p className="mt-2 text-xs text-muted">Know this product? Help the community.</p>
+              </div>
+            )}
+          </>
         )}
 
         {lookup.phase === "error" && (
@@ -353,7 +411,7 @@ export default function ScanPage() {
         )}
 
         {lookup.phase === "found-alcohol" && (
-          <AlcoholResultCard product={lookup.product} result={lookup.result} />
+          <AlcoholResultCard product={lookup.product} result={lookup.result} fromCommunity={lookup.fromCommunity} />
         )}
       </div>
 
