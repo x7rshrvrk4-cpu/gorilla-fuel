@@ -7,6 +7,7 @@ import BeautyIngredientCard from "./BeautyIngredientCard";
 import ScoreDisclaimer from "./ScoreDisclaimer";
 import ScoreRing from "./ScoreRing";
 import SourcesFooter from "./SourcesFooter";
+import SourceBadge from "./SourceBadge";
 
 type Props = {
   product: ObfProduct;
@@ -25,6 +26,7 @@ export default function BeautyResultCard({ product, result }: Props) {
         <p className="font-display text-sm uppercase tracking-[0.3em] text-purple-300">
           Beauty Product · Cosmetics Mode
         </p>
+        <SourceBadge source="open-beauty-facts" className="ml-auto" />
       </div>
 
       {/* HEADER */}

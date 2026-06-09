@@ -16,11 +16,13 @@ import {
 import EvidenceTierBadge from "../../components/EvidenceTierBadge";
 import AlcoholDisclaimer from "./AlcoholDisclaimer";
 import SourcesFooter from "./SourcesFooter";
+import SourceBadge, { type DataSource } from "./SourceBadge";
 
 type Props = {
   product: OffProduct;
   result: AlcoholScoreResult;
   fromCommunity?: boolean;
+  dataSource?: DataSource;
 };
 
 const RISK_COLOR: Record<string, string> = {
@@ -81,7 +83,7 @@ function GorillaPour({ rating }: { rating: number }) {
   );
 }
 
-export default function AlcoholResultCard({ product, result, fromCommunity }: Props) {
+export default function AlcoholResultCard({ product, result, fromCommunity, dataSource }: Props) {
   const [additivesOpen, setAdditivesOpen] = useState(false);
 
   const image = productImage(product);
@@ -95,17 +97,43 @@ export default function AlcoholResultCard({ product, result, fromCommunity }: Pr
     <div className="animate-rise overflow-hidden rounded-sm border border-amber-400/20 bg-slate-950 shadow-[0_0_40px_-12px_rgba(251,191,36,0.15)]">
 
       {/* ALCOHOL BANNER */}
-      <div className="flex items-center gap-2 border-b border-amber-400/25 bg-slate-900 px-6 py-3">
+      <div className="flex flex-wrap items-center gap-2 border-b border-amber-400/25 bg-slate-900 px-6 py-3">
         <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-amber-400" />
         <p className="font-display text-sm uppercase tracking-[0.3em] text-amber-300">
           {emoji} {kindLabel(kind)} · Alcohol Mode
         </p>
-        {fromCommunity && (
-          <span className="ml-auto shrink-0 rounded-sm border border-sky-400/50 bg-sky-400/10 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.18em] text-sky-300">
-            Community Submitted
-          </span>
-        )}
+        <div className="ml-auto flex flex-wrap gap-2">
+          {fromCommunity && (
+            <SourceBadge source="community" />
+          )}
+          {!fromCommunity && dataSource && (
+            <SourceBadge source={dataSource} />
+          )}
+        </div>
       </div>
+
+      {/* COLA VERIFIED — government-record notice */}
+      {dataSource === "cola-verified" && (
+        <div className="border-b border-indigo-500/20 bg-indigo-500/5 px-6 py-3">
+          <p className="text-[10px] leading-relaxed text-indigo-300/80">
+            <span className="font-display tracking-wide text-indigo-200">ABV confirmed via U.S. TTB Certificate of Label Approval (COLA).</span>{" "}
+            This is a government-issued alcohol label registration — the ABV figure comes directly from a federally filed label submission.
+          </p>
+        </div>
+      )}
+
+      {/* ALCOHOL NUTRITION GAP — shown when nutrition data is missing (common for Canadian alcohol) */}
+      {(result.kcalPerServing === null || result.carbsPerServing === null) && (
+        <div className="border-b border-amber-400/20 bg-amber-400/5 px-6 py-3">
+          <p className="text-[10px] leading-relaxed text-amber-300/70">
+            <span className="font-display tracking-wide text-amber-300/90">Canadian alcohol labelling laws do not require breweries to disclose full nutrition information.</span>{" "}
+            ABV is government verified. Calorie and carb data where shown is sourced from brand websites and community submissions.
+            If you know the nutrition data for this product,{" "}
+            <span className="text-amber-300 underline decoration-1 underline-offset-2">tap Submit below</span>{" "}
+            to help build the database.
+          </p>
+        </div>
+      )}
 
       {/* COMPACT PRODUCT IDENTITY */}
       <div className="flex items-center gap-4 border-b border-slate-800 px-5 py-4 sm:px-6">

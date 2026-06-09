@@ -14,6 +14,7 @@ import ResearchSummaryCard from "./ResearchSummaryCard";
 import ScoreDisclaimer from "./ScoreDisclaimer";
 import ScoreRing from "./ScoreRing";
 import SourcesFooter from "./SourcesFooter";
+import SourceBadge, { type DataSource } from "./SourceBadge";
 
 const NOVA_COLOR: Record<NovaGroup, string> = {
   1: "#3ddc84",
@@ -27,9 +28,10 @@ type Props = {
   result: ScoreResult;
   alternatives: Alternative[];
   alternativesLoading: boolean;
+  dataSource?: DataSource;
 };
 
-export default function ProductResultCard({ product, result, alternatives, alternativesLoading }: Props) {
+export default function ProductResultCard({ product, result, alternatives, alternativesLoading, dataSource }: Props) {
   const image = productImage(product);
   const gradeColor = GRADE_COLORS[result.grade];
   const gorillaTake = buildGorillaTake(result.detectedAdditives, result.grade);
@@ -71,6 +73,7 @@ export default function ProductResultCard({ product, result, alternatives, alter
               {result.grade.toUpperCase()}
             </span>
             <NhpBadge productName={product.product_name} categoryTags={product.categories_tags} />
+            {dataSource && <SourceBadge source={dataSource} />}
           </div>
           <div className="mt-3 max-w-md">
             <LabdoorCrossCheck productName={product.product_name} brand={product.brands} categoryTags={product.categories_tags} />

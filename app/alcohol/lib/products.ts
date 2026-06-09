@@ -25,6 +25,10 @@ export type AlcoholRankingProduct = {
   gorillaPour: number;
   /** Where to find it in Canadian retail. */
   availability: string;
+  /** Serving size in mL (default 355 for standard cans, 341 for longnecks, etc.). */
+  servingMl?: number;
+  /** Known UPC/EAN barcodes for this product — used for curated barcode lookup. */
+  barcodes?: string[];
 };
 
 // Nutritional data from manufacturer disclosures and Open Food Facts records,
@@ -41,13 +45,12 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 4.0,
     caloriesPerCan: 102,
     carbsPerCan: 5.3,
-    sugarPerCan: 0, // Molson Coors official nutrition facts: 0g sugar (fully fermented adjunct lager)
-    // Ingredients per Molson Coors public disclosure: water, barley malt, corn syrup
-    // (not HFCS — regular dextrose corn syrup), yeast, hops. No flagged additives.
+    sugarPerCan: 0,
     knownAdditives: [],
     additiveCount: 0,
     gorillaPour: 4,
     availability: "Beer Store & LCBO — wide availability",
+    barcodes: ["0071990100003", "0071990000005"],
   },
   {
     id: "bud-light",
@@ -121,13 +124,12 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 4.1,
     caloriesPerCan: 95,
     carbsPerCan: 3.2,
-    sugarPerCan: 0, // AB InBev official: 0g sugar per 355mL — highly attenuated light lager
-    // Ingredients per AB InBev: water, barley malt, corn, hops, yeast.
-    // No flagged additives — among the cleanest macros of any widely-available beer.
+    sugarPerCan: 0,
     knownAdditives: [],
     additiveCount: 0,
     gorillaPour: 5,
     availability: "Beer Store & LCBO — wide availability",
+    barcodes: ["0018200417179"],
   },
   {
     id: "natural-light",
@@ -244,14 +246,12 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 4.6,
     caloriesPerCan: 148,
     carbsPerCan: 13.9,
-    sugarPerCan: 0, // AB InBev / Constellation: 0g sugar per 355mL — highly fermented adjunct lager
-    // Corona's published ingredients: water, barley malt, non-malted cereals, hops,
-    // yeast, and citric acid. Citric acid is consistently listed across multiple
-    // regional label disclosures and is used as a pH stabilizer and tartness adjunct.
+    sugarPerCan: 0,
     knownAdditives: ["Citric acid"],
     additiveCount: 1,
     gorillaPour: 3,
     availability: "Beer Store & LCBO — wide availability",
+    barcodes: ["0062067382406", "0013700001348"],
   },
   {
     id: "molson-canadian",
@@ -261,13 +261,12 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 5.0,
     caloriesPerCan: 145,
     carbsPerCan: 12.9,
-    sugarPerCan: 0, // Molson Coors official: 0g sugar per 355mL — corn adjunct ferments completely
-    // Ingredients per Molson Coors: water, barley malt, corn, hops, yeast.
-    // Corn adjunct standard for the style. No flagged additives disclosed.
+    sugarPerCan: 0,
     knownAdditives: [],
     additiveCount: 0,
     gorillaPour: 3,
     availability: "Beer Store & LCBO — wide availability",
+    barcodes: ["0062032000012", "0062032000029"],
   },
   {
     id: "stella-artois",
@@ -381,14 +380,12 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 5.0,
     caloriesPerCan: 145,
     carbsPerCan: 10.9,
-    sugarPerCan: 0, // AB InBev official: 0g sugar per 355mL — beechwood-aged adjunct lager ferments completely
-    // Ingredients per AB InBev: water, barley malt, rice, hops, yeast.
-    // Rice adjunct ferments completely — no residual sugar. No flagged additives
-    // in the publicly disclosed formula.
+    sugarPerCan: 0,
     knownAdditives: [],
     additiveCount: 0,
     gorillaPour: 3,
     availability: "Beer Store & LCBO — wide availability nationwide",
+    barcodes: ["0018200007318", "0062067000017"],
   },
   {
     id: "coors-banquet",
@@ -562,13 +559,40 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     abv: 6.0,
     caloriesPerCan: 190,
     carbsPerCan: 25,
-    sugarPerCan: 20.0, // Growers official data: ~20g sugar per 355mL — sweet apple cider with high residual fruit sugars
-    // Growers Cider (produced in BC, widely distributed): apple juice, water,
-    // yeast, potassium metabisulfite. High carb load from residual apple sugars
-    // is the main fitness concern alongside the standard sulfite preservative.
+    sugarPerCan: 20.0,
     knownAdditives: ["Potassium metabisulfite (sulphites)"],
     additiveCount: 1,
     gorillaPour: 1,
     availability: "Beer Store & LCBO — strongest in Western Canada",
   },
 ];
+
+/** Normalize a barcode string to a leading-zero-stripped digit string for comparison. */
+function normBarcode(b: string): string {
+  return b.replace(/\D/g, "").replace(/^0+/, "") || "0";
+}
+
+/** Look up a product from the curated database by exact barcode match. */
+export function lookupCuratedByBarcode(barcode: string): AlcoholRankingProduct | null {
+  const target = normBarcode(barcode);
+  return (
+    ALCOHOL_PRODUCTS.find((p) =>
+      p.barcodes?.some((b) => normBarcode(b) === target)
+    ) ?? null
+  );
+}
+
+/**
+ * Try to find a curated product whose name closely matches a given string.
+ * Used to merge COLA Cloud data with curated nutrition after a name-based lookup.
+ */
+export function lookupCuratedByName(productName: string): AlcoholRankingProduct | null {
+  const target = productName.toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (target.length < 4) return null;
+  return (
+    ALCOHOL_PRODUCTS.find((p) => {
+      const pn = p.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+      return pn === target || pn.includes(target) || target.includes(pn);
+    }) ?? null
+  );
+}

@@ -11,10 +11,18 @@ export const metadata: Metadata = {
 
 const TIERS: EvidenceTier[] = ["strong-consensus", "emerging-evidence", "contested", "precautionary"];
 
-const SOURCES: { name: string; description: string }[] = [
-  { name: "Open Food Facts", description: "Product, ingredient, and nutrition data — the backbone of every food and drink scan." },
-  { name: "Open Beauty Facts", description: "Open Food Facts' sister database for cosmetics — powers Cosmetics Mode when a barcode isn't a food product." },
-  { name: "Alcohol & Beer Intel (Beer Store / LCBO + manufacturer data)", description: "ABV, serving-size calorie and carb data, and additive disclosures for beer, cider, seltzer, wine, and spirits — powers Alcohol Mode and the /alcohol rankings hub." },
+const SOURCES: { name: string; description: string; badge?: string }[] = [
+  // ── Waterfall lookup order (1–9) ──────────────────────────────────────────
+  { name: "Gorilla Curated Database", badge: "Step 1 · GORILLA CURATED", description: "Our own hand-verified alcohol product database. Every entry is manually reviewed with confirmed ABV, calorie, carb, and serving-size data. Always checked first — takes absolute priority over all external sources." },
+  { name: "Community Submissions (Supabase)", badge: "Step 2 · COMMUNITY", description: "User-submitted products that have passed admin review. Enables Canadian and regional products not yet covered by major databases." },
+  { name: "Open Food Facts", badge: "Step 3 · OPEN FOOD FACTS", description: "The world's largest open food database — 3M+ products with ingredients, nutrition, additives, and NOVA processing group. Backbone of every food, drink, and supplement scan." },
+  { name: "USDA FoodData Central", badge: "Step 4 · USDA", description: "The US Department of Agriculture's branded-food nutrition database. Used as the primary fallback when Open Food Facts has no match or low-confidence data." },
+  { name: "Nutritionix Branded Food Database", badge: "Step 5 · NUTRITIONIX", description: "A large North American branded-food database with strong coverage of US grocery products and restaurant chains. Requires NUTRITIONIX_APP_ID + NUTRITIONIX_APP_KEY." },
+  { name: "Open Beauty Facts", badge: "Step 6 · OPEN BEAUTY FACTS", description: "Open Food Facts' sister database for cosmetics and personal care — powers Cosmetics Mode with a purple BEAUTY PRODUCT banner when a barcode matches a non-food item." },
+  { name: "TTB COLA Cloud (US Government Alcohol Registry)", badge: "Step 7 · COLA VERIFIED", description: "The US Alcohol and Tobacco Tax and Trade Bureau's Certificate of Label Approval database. Every alcohol product sold in the US must be registered here. Free public API — displayed with a navy COLA VERIFIED government badge when matched." },
+  { name: "Go-UPC Global Product Database", badge: "Step 8 · GO-UPC", description: "500M+ product records worldwide. Returns name, brand, image, and category when all nutrition-focused databases return no result. No scoring is possible without nutrition data — a Submit button is shown so users can contribute the missing values." },
+  { name: "Open Drug Facts", badge: "Step 9 · OPEN DRUG FACTS", description: "OTC drug and medication database from the same open-data infrastructure as Open Food Facts. Displayed with a blue MEDICATION banner and a healthcare disclaimer. Checked last in the waterfall." },
+  // ── Scoring, safety, and research reference sources ────────────────────────
   { name: "Labdoor Testing Database", description: "Independent purity and label-accuracy benchmarks for supplements, referenced for context (Labdoor has no public API for live per-product lookups)." },
   { name: "Examine.com Research Database", description: "Curated, citation-backed summaries of what each common supplement ingredient does, its evidence strength, dose range, and safety considerations." },
   { name: "PubMed / National Library of Medicine", description: "Peer-reviewed research — the most recent indexed papers on each detected additive." },
@@ -164,11 +172,27 @@ export default function MethodologyPage() {
       <section className="mt-14">
         <h2 className="font-display text-3xl text-foreground">Data Sources</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
-          Every score, badge, and citation on this site traces back to one of these public,
+          Every scan runs a 9-step waterfall — sources are checked in strict priority order and
+          the first hit wins. Every score, badge, and citation traces back to one of these public,
           independently checkable sources — never to brand-supplied marketing copy.
         </p>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          {SOURCES.map((s) => (
+
+        <h3 className="mt-8 font-display text-xl text-gold">Lookup Waterfall · Steps 1–9</h3>
+        <p className="mt-1 text-xs text-muted">Checked in this order on every scan. First hit returns the result.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {SOURCES.filter((s) => s.badge).map((s) => (
+            <div key={s.name} className="rounded-sm border border-gold/20 bg-surface p-4">
+              <p className="font-display text-[10px] uppercase tracking-[0.25em] text-gold/60">{s.badge}</p>
+              <p className="mt-1 font-display text-base tracking-wide text-foreground">{s.name}</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted">{s.description}</p>
+            </div>
+          ))}
+        </div>
+
+        <h3 className="mt-8 font-display text-xl text-gold">Scoring &amp; Safety Reference Sources</h3>
+        <p className="mt-1 text-xs text-muted">Used for additive scoring, supplement research, recall detection, and carcinogenicity classification.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {SOURCES.filter((s) => !s.badge).map((s) => (
             <div key={s.name} className="rounded-sm border border-line bg-surface p-4">
               <p className="font-display text-base tracking-wide text-gold">{s.name}</p>
               <p className="mt-1 text-xs leading-relaxed text-muted">{s.description}</p>

@@ -847,6 +847,34 @@ export function scoreNutrition(
   const protein = n.proteins_100g ?? 0;
   const servingSize = context?.servingSize ?? null;
 
+  // ── Phase 5: Precautionary penalties for missing data in high-risk categories ──
+  // Incomplete data on products we have categorical reason to suspect are
+  // high-fat / high-sodium makes the score go DOWN, not stay falsely clean.
+  const cats = (context?.categoriesTags ?? []).join(" ").toLowerCase();
+  const noNova = context?.novaGroup == null;
+  const isSnackCat = /chips|crisps|crackers|cheese[\s-]snack|cheese puff|corn snack|pretzel|popcorn|candy|confectionery|cookies|biscuits|chocolate\b/.test(cats);
+  const isDairyCheeseCat = /cheese|dairy[\s-]snack/.test(cats);
+  const isSaltyCat = /chips|crisps|snack|crackers|pretzel|popcorn/.test(cats);
+
+  if (noNova && isSnackCat) {
+    score -= 10;
+    flags.push(
+      "NOVA group unavailable — snack/confectionery category indicates ultra-processed (inferred NOVA 4). 10-point precautionary penalty applied."
+    );
+  }
+  if (n["saturated-fat_100g"] === undefined && isDairyCheeseCat) {
+    score -= 8;
+    flags.push(
+      "Saturated fat data not disclosed for cheese/dairy snack — 8-point precautionary deduction. Conservative scoring: incomplete data makes scores go down, not stay high."
+    );
+  }
+  if (n.salt_100g === undefined && isSaltyCat) {
+    score -= 8;
+    flags.push(
+      "Sodium data not disclosed for salty snack — 8-point precautionary deduction. Conservative scoring: incomplete data makes scores go down, not stay high."
+    );
+  }
+
   // Sugar and salt thresholds are tightened to track real-world assessments
   // (Nutri-Score-style bands) much more closely than a lenient pass/fail cliff —
   // this is the single biggest driver of the gap against stricter scoring apps.

@@ -29,8 +29,11 @@ type AuditLogEntry = {
   source_url: string;
 };
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+// Accept both the server-only names and the NEXT_PUBLIC_ names that Vercel
+// injects into this project (they are the same credentials, different keys).
+const SUPABASE_URL = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY =
+  process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 const AUDIT_TABLE = "fuel_audit_log";
 
 function supabaseConfigured(): boolean {
