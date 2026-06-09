@@ -40,12 +40,9 @@ export default function ProductCard({ product }: Props) {
           </h3>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
             <span>${product.pricePerServing.toFixed(2)} / serving</span>
-            <span className="flex items-center gap-1">
-              <span className={product.thirdPartyTested ? "text-emerald-400" : "text-red-400"}>
-                {product.thirdPartyTested ? "✓" : "✕"}
-              </span>
-              3rd-Party Tested
-            </span>
+            {product.thirdPartyTested && (
+              <span className="text-emerald-400">3rd-Party Tested</span>
+            )}
             <span>Purity {product.purityScore}/100</span>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-3">
