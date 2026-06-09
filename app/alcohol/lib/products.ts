@@ -113,6 +113,56 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     gorillaPour: 3,
     availability: "Beer Store & LCBO — wide availability",
   },
+  {
+    id: "busch-light",
+    category: "Light Beers",
+    brand: "Anheuser-Busch / Labatt",
+    name: "Busch Light",
+    abv: 4.1,
+    caloriesPerCan: 95,
+    carbsPerCan: 3.2,
+    sugarPerCan: 0, // AB InBev official: 0g sugar per 355mL — highly attenuated light lager
+    // Ingredients per AB InBev: water, barley malt, corn, hops, yeast.
+    // No flagged additives — among the cleanest macros of any widely-available beer.
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 5,
+    availability: "Beer Store & LCBO — wide availability",
+  },
+  {
+    id: "natural-light",
+    category: "Light Beers",
+    brand: "Anheuser-Busch / Labatt",
+    name: "Natural Light",
+    abv: 4.2,
+    caloriesPerCan: 95,
+    carbsPerCan: 3.2,
+    sugarPerCan: 0, // AB InBev official: 0g sugar per 355mL — ultra-light adjunct formulation
+    // Ingredients per AB InBev: water, barley malt, corn, rice, hops, yeast.
+    // No flagged additives — rice and corn adjuncts ferment completely.
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 5,
+    availability: "Beer Store — select locations",
+  },
+  {
+    id: "carling",
+    category: "Light Beers",
+    brand: "Molson Coors",
+    name: "Carling",
+    abv: 4.0,
+    caloriesPerCan: 126,
+    carbsPerCan: 9.9,
+    sugarPerCan: 0, // Molson Coors official: 0g sugar per 355mL — adjunct lager
+    // Ingredients per Molson Coors Canadian formula: water, barley malt,
+    // glucose-fructose syrup, hops, yeast. Glucose-fructose in beer context
+    // ferments out during brewing and doesn't remain as sugar in the final product.
+    // Flagged under corn syrup category for disclosure transparency.
+    knownAdditives: ["Corn syrup"],
+    additiveCount: 1,
+    gorillaPour: 3,
+    availability: "Beer Store & LCBO — wide availability",
+  },
 
   // ───────── IPAs ─────────
   {
@@ -131,6 +181,24 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     additiveCount: 0,
     gorillaPour: 3,
     availability: "LCBO & Beer Store — select craft sets",
+  },
+  {
+    id: "alexander-keiths-ipa",
+    category: "IPAs",
+    brand: "Labatt / AB InBev",
+    name: "Alexander Keith's IPA",
+    abv: 5.0,
+    caloriesPerCan: 159,
+    carbsPerCan: 14.3,
+    sugarPerCan: 0, // Labatt official: 0g sugar per 341mL — India Pale Ale malt bill ferments fully
+    // Ingredients per Labatt: water, malted barley, hops, yeast.
+    // Despite the IPA label, Keith's is brewed as a conventional amber/pale ale
+    // rather than a hop-forward West Coast IPA — the calorie load is from the
+    // substantial malt bill. No flagged additives.
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 2,
+    availability: "Beer Store & LCBO — wide availability",
   },
   {
     id: "wellington-brewery-ipa",
@@ -321,6 +389,74 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     additiveCount: 0,
     gorillaPour: 3,
     availability: "Beer Store & LCBO — wide availability nationwide",
+  },
+  {
+    id: "coors-banquet",
+    category: "Craft Lagers",
+    brand: "Molson Coors",
+    name: "Coors Banquet",
+    abv: 5.0,
+    caloriesPerCan: 149,
+    carbsPerCan: 11.7,
+    sugarPerCan: 0, // Molson Coors official: 0g sugar per 355mL — all-malt Rocky Mountain lager
+    // Ingredients per Molson Coors: water, barley malt, corn syrup, hops, yeast.
+    // Corn syrup is used as an adjunct during brewing and ferments completely —
+    // no residual sugar in the finished product, but flagged for disclosure transparency.
+    knownAdditives: ["Corn syrup"],
+    additiveCount: 1,
+    gorillaPour: 3,
+    availability: "Beer Store & LCBO — wide availability",
+  },
+  {
+    id: "rickards-red",
+    category: "Craft Lagers",
+    brand: "Molson Coors",
+    name: "Rickard's Red",
+    abv: 5.2,
+    caloriesPerCan: 154,
+    carbsPerCan: 14.2,
+    sugarPerCan: 0, // Molson Coors official: 0g sugar per 341mL — amber ale, colour from caramel malt not added colour
+    // Ingredients per Molson Coors: water, barley malt, crystal malt, hops, yeast.
+    // The characteristic amber colour comes from crystal/caramel malts (roasted grain),
+    // not added caramel colour E150. No flagged additives in current disclosed formula.
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 2,
+    availability: "Beer Store & LCBO — wide availability",
+  },
+  {
+    id: "moosehead-lager",
+    category: "Craft Lagers",
+    brand: "Moosehead Breweries",
+    name: "Moosehead Lager",
+    abv: 5.0,
+    caloriesPerCan: 145,
+    carbsPerCan: 11.9,
+    sugarPerCan: 0, // Moosehead official: 0g sugar per 341mL — Canadian-brewed all-malt lager
+    // Ingredients per Moosehead Breweries: water, malted barley, corn, hops, yeast.
+    // Corn adjunct lager — one of the few remaining major independent Canadian breweries.
+    // No flagged additives in public disclosure.
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 3,
+    availability: "Beer Store & LCBO — wide availability",
+  },
+  {
+    id: "lakeport-honey-lager",
+    category: "Craft Lagers",
+    brand: "Labatt / AB InBev",
+    name: "Lakeport Honey Lager",
+    abv: 5.0,
+    caloriesPerCan: 153,
+    carbsPerCan: 13.8,
+    sugarPerCan: 0, // Labatt official: 0g sugar per 341mL — honey ferments completely; no residual sugar
+    // Ingredients per Labatt: water, barley malt, honey, hops, yeast.
+    // Honey is a fermentable adjunct that converts fully during brewing and
+    // contributes no residual sugar to the finished product. No flagged additives.
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 2,
+    availability: "Beer Store & LCBO — wide availability in Ontario",
   },
 
   // ───────── HARD SELTZERS ─────────

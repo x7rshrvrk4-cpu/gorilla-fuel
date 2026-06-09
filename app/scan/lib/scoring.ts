@@ -775,14 +775,16 @@ export function novaGroupDescription(group: number): string | null {
 /**
  * Extra context beyond the raw nutriment numbers — pulled straight from Open
  * Food Facts — that the score now factors in: serving size (for per-serving
- * flag context), NOVA processing group, and the labels/categories tags we scan
- * for organic certification.
+ * flag context), NOVA processing group, the labels/categories tags we scan
+ * for organic certification, and the product name for sweetener inference.
  */
 export type ScoringContext = {
   servingSize?: string | null;
   novaGroup?: number | null;
   labelsTags?: string[] | null;
   categoriesTags?: string[] | null;
+  /** Product name used only to infer artificial sweetener presence when ingredient text is absent. */
+  productName?: string | null;
 };
 
 const ORGANIC_TAG_PATTERN = /organic|\bbio\b|biologique|ecologico|ekologisk/i;
@@ -947,6 +949,40 @@ export function scoreAdditives(ingredientsText: string | undefined | null): {
   return { score: Math.max(0, Math.min(100, score)), detected };
 }
 
+/**
+ * Returns true when a product looks like a zero-calorie sweetened soft drink
+ * but has no ingredient text — meaning our regex additive detection can't run
+ * and the product would otherwise score a falsely clean 90/100.
+ *
+ * Zero calories + zero sugar + a beverage that plausibly tastes sweet = artificial
+ * sweeteners are virtually certain. This function gates the inference so it only
+ * fires for soft drinks/sodas, not for plain water or unflavored sparkling water.
+ */
+function isProbablyArtificialSweetened(
+  nutriments: Nutriments,
+  ingredientsText: string | undefined | null,
+  context?: ScoringContext
+): boolean {
+  // Ingredient text available → normal additive detection handles it.
+  if (ingredientsText && ingredientsText.trim().length >= 8) return false;
+
+  // Need actual nutrition values to infer; an entirely blank OFF record gives us nothing.
+  if (nutriments.sugars_100g === undefined || nutriments["energy-kcal_100g"] === undefined) return false;
+
+  // Near-zero sugar AND near-zero calories: the only way to achieve perceivable
+  // sweetness without any caloric contribution is via artificial sweeteners.
+  // We allow a small rounding margin (≤0.5g sugar, ≤5 kcal).
+  if ((nutriments.sugars_100g ?? 0) > 0.5) return false;
+  if ((nutriments["energy-kcal_100g"] ?? 0) > 5) return false;
+
+  // Must look like a beverage type that would actually be sweetened (not plain water).
+  const name = (context?.productName ?? "").toLowerCase();
+  const cats = (context?.categoriesTags ?? []).join(" ").toLowerCase();
+  const combined = `${name} ${cats}`;
+
+  return /zero|diet(?!\s+(?:beer|cider|wine))|sugar[\s-]?free|no[\s-]sugar|artificially[\s-]sweetened|ginger[\s-]ale|tonic\b|en:sodas|en:soft-drinks|en:cola|en:carbonated-drink|en:energy-drink|en:diet|powerade|gatorade|crystal\s?light|kool[\s-]?aid/i.test(combined);
+}
+
 export function computeScore(
   nutriments: Nutriments,
   ingredientsText: string | undefined | null,
@@ -958,21 +994,60 @@ export function computeScore(
   const organicCertified = detectOrganicCertification(context);
   const organicBonus = organicCertified ? 10 : 0;
 
+  // ── Zero-sugar beverage inference ──────────────────────────────────────────
+  // When a soft drink has zero calories and zero sugar but no ingredient text,
+  // it's scoring a falsely clean 90/100 because additive detection has nothing
+  // to run on. Since zero-calorie sweetened drinks universally use artificial
+  // sweeteners, apply a -40 nutrition penalty and cap the additive score at 50.
+  // This brings the final score to ≈51 — accurately "Good/borderline" rather than
+  // an inaccurate "Excellent." Only fires when no additives were otherwise detected.
+  let effectiveNutritionScore = nutrition.score;
+  let effectiveAdditiveScore = additives.score;
+  let effectiveDetected = additives.detected;
+  const inferredSweeteners =
+    isProbablyArtificialSweetened(nutriments, ingredientsText, context) &&
+    additives.detected.length === 0;
+
+  if (inferredSweeteners) {
+    effectiveNutritionScore = Math.max(0, nutrition.score - 40);
+    effectiveAdditiveScore = Math.min(50, additives.score);
+    effectiveDetected = [
+      {
+        id: "artificial-sweeteners-inferred",
+        name: "Artificial Sweeteners (Inferred)",
+        risk: "medium" as const,
+        tier: "contested" as const,
+        note: "This product has zero sugar and zero calories but no ingredient list is available from Open Food Facts. Zero-calorie soft drinks universally rely on artificial sweeteners — the exact compound (aspartame, acesulfame-K, sucralose, etc.) can't be confirmed without the label, but its presence is effectively certain given the nutritional profile.",
+        healthBodyPosition:
+          "The FDA, EFSA, and Health Canada all classify approved artificial sweeteners as safe within acceptable daily intake levels. The WHO's 2023 non-sugar sweetener guideline recommends against long-term use for weight management due to insufficient evidence of benefit.",
+        gorillaPosition:
+          "Zero calories with perceivable sweetness requires a non-caloric sweetener — the physics leaves no other explanation. Without an ingredient list we can't name which one, but we flag the near-certain presence so you can decide whether to seek out the full label.",
+        sources: [
+          "WHO Guideline on Non-Sugar Sweeteners (2023)",
+          "EFSA re-evaluations of approved sweeteners (various)",
+          "Open Food Facts — ingredient data not yet submitted for this barcode",
+        ],
+      },
+    ];
+  }
+
   // 60% nutrition, 30% additives, 10% organic — the organic dimension is a pure
   // bonus (0 or +10), never a penalty, since its absence isn't itself a red flag.
-  const finalScore = Math.round(nutrition.score * 0.6 + additives.score * 0.3 + organicBonus);
+  const finalScore = Math.round(effectiveNutritionScore * 0.6 + effectiveAdditiveScore * 0.3 + organicBonus);
 
   const flags = [...nutrition.flags];
   const positives = [...nutrition.positives];
 
-  if (additives.detected.length > 0) {
-    const highRisk = additives.detected.filter((a) => a.risk === "high");
+  if (inferredSweeteners) {
+    flags.push("Artificial sweeteners almost certain — zero-sugar, zero-calorie beverage with no ingredient data available from Open Food Facts to verify");
+  } else if (effectiveDetected.length > 0) {
+    const highRisk = effectiveDetected.filter((a) => a.risk === "high");
     if (highRisk.length > 0) {
       flags.push(
         `${highRisk.length} high-risk additive${highRisk.length > 1 ? "s" : ""} detected: ${highRisk.map((a) => a.name).join(", ")}`
       );
     }
-    const otherRisk = additives.detected.filter((a) => a.risk !== "high");
+    const otherRisk = effectiveDetected.filter((a) => a.risk !== "high");
     if (otherRisk.length > 0) {
       flags.push(
         `${otherRisk.length} additional additive${otherRisk.length > 1 ? "s" : ""} flagged: ${otherRisk.map((a) => a.name).join(", ")}`
@@ -988,15 +1063,15 @@ export function computeScore(
 
   return {
     finalScore: Math.max(0, Math.min(100, finalScore)),
-    nutritionScore: Math.round(nutrition.score),
-    additiveScore: Math.round(additives.score),
+    nutritionScore: Math.round(effectiveNutritionScore),
+    additiveScore: Math.round(effectiveAdditiveScore),
     organicBonus,
     organicCertified,
     novaGroup: asNovaGroup(context?.novaGroup ?? undefined),
     grade: gradeFromScore(finalScore),
     flags,
     positives,
-    detectedAdditives: additives.detected,
+    detectedAdditives: effectiveDetected,
   };
 }
 

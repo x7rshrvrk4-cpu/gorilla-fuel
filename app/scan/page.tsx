@@ -33,6 +33,7 @@ import {
   communityProductToNutriments,
 } from "./lib/communityProducts";
 import { logMissedScan } from "./lib/missedScans";
+import { lookupColaCloud, lookupWineVybe, type FallbackAlcoholProduct } from "./lib/externalAlcohol";
 
 const HISTORY_KEY = "gorilla-fuel-scan-history";
 const MAX_HISTORY = 6;
@@ -116,6 +117,7 @@ export default function ScanPage() {
   const [sheetVisible, setSheetVisible] = useState(false);
   const [lookup, setLookup] = useState<LookupState>({ phase: "idle" });
   const [showSubmitForm, setShowSubmitForm] = useState(false);
+  const [fallbackProduct, setFallbackProduct] = useState<FallbackAlcoholProduct | null>(null);
   const [manualOpen, setManualOpen] = useState(false);
   const [manualBarcode, setManualBarcode] = useState("");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -175,6 +177,7 @@ export default function ScanPage() {
       setAlternativesLoading(false);
       setSheetVisible(false);
       setShowSubmitForm(false);
+      setFallbackProduct(null);
       setLookup({ phase: "loading", barcode: trimmed });
 
       // ── 1. Community DB — verified alcohol submissions take priority over OFF ──
@@ -241,6 +244,36 @@ export default function ScanPage() {
         }
 
         // Neither OFF nor OBF has this barcode.
+        // Try COLA Cloud (TTB barcode registry — good for US alcohol products).
+        const colaHit = await lookupColaCloud(trimmed);
+        if (colaHit) {
+          logMissedScan(trimmed, "alcohol");
+          setFallbackProduct(colaHit);
+          setShowSubmitForm(true);
+          setLookup({
+            phase: "not-found",
+            barcode: trimmed,
+            message: `Found "${colaHit.name}" on the TTB COLA Cloud database${colaHit.abv ? ` (${colaHit.abv}% ABV)` : ""}. Submit the nutritional details below to complete the record.`,
+          });
+          inFlightRef.current = null;
+          return;
+        }
+
+        // Try WineVybe (RapidAPI beer database — requires RAPIDAPI_KEY env var).
+        const wineVybeHit = await lookupWineVybe(trimmed);
+        if (wineVybeHit) {
+          logMissedScan(trimmed, "alcohol");
+          setFallbackProduct(wineVybeHit);
+          setShowSubmitForm(true);
+          setLookup({
+            phase: "not-found",
+            barcode: trimmed,
+            message: `Found "${wineVybeHit.name}" on WineVybe${wineVybeHit.abv ? ` (${wineVybeHit.abv}% ABV)` : ""}. Submit the nutritional details below to complete the record.`,
+          });
+          inFlightRef.current = null;
+          return;
+        }
+
         logMissedScan(trimmed, "unknown");
         setLookup({ phase: "not-found", barcode: trimmed });
         inFlightRef.current = null;
@@ -499,7 +532,13 @@ export default function ScanPage() {
               </div>
             </div>
             {showSubmitForm && (
-              <AlcoholSubmitForm barcode={lookup.barcode} />
+              <AlcoholSubmitForm
+                barcode={lookup.barcode}
+                initialName={fallbackProduct?.name}
+                initialBrand={fallbackProduct?.brand}
+                initialAbv={fallbackProduct?.abv ?? undefined}
+                dataSource={fallbackProduct?.source}
+              />
             )}
           </>
         )}

@@ -18,13 +18,14 @@ export type OffProduct = {
   lang?: string;
 };
 
-/** Pulls the serving-size, NOVA, and label/category context the scorer needs straight off an OFF record. */
+/** Pulls the serving-size, NOVA, label/category, and name context the scorer needs straight off an OFF record. */
 export function scoringContext(product: OffProduct): ScoringContext {
   return {
     servingSize: product.serving_size,
     novaGroup: product.nova_group,
     labelsTags: product.labels_tags,
     categoriesTags: product.categories_tags,
+    productName: product.product_name,
   };
 }
 

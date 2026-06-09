@@ -7,9 +7,11 @@
  *   product_name         text         not null,
  *   brand                text         not null default '',
  *   abv                  numeric(5,2) not null,
- *   calories_per_serving numeric(6,1) not null,
- *   carbs_per_serving    numeric(5,1) not null,
- *   sugar_per_serving    numeric(5,1) not null,
+ *   -- Nutrition fields are nullable: Canadian alcohol labels don't require full disclosure.
+ *   -- null means "not disclosed by manufacturer", displayed as — in the UI.
+ *   calories_per_serving numeric(6,1),
+ *   carbs_per_serving    numeric(5,1),
+ *   sugar_per_serving    numeric(5,1),
  *   product_type         text         not null,
  *   submitted_at         timestamptz  not null default now(),
  *   verified             boolean      not null default false
@@ -62,9 +64,12 @@ export type CommunityAlcoholProduct = {
   product_name: string;
   brand: string;
   abv: number;
-  calories_per_serving: number;
-  carbs_per_serving: number;
-  sugar_per_serving: number;
+  /** null means the manufacturer did not disclose this value. Displayed as — in the UI. */
+  calories_per_serving: number | null;
+  /** null means not disclosed. */
+  carbs_per_serving: number | null;
+  /** null means not disclosed. */
+  sugar_per_serving: number | null;
   product_type: string;
   submitted_at?: string;
   verified?: boolean;
@@ -122,11 +127,18 @@ export function communityProductToNutriments(
 ): Nutriments {
   const refMl = REFERENCE_SERVING_ML[kind];
   return {
-    "energy-kcal_100g": Math.round((product.calories_per_serving / refMl) * 1000) / 10,
-    carbohydrates_100g: Math.round((product.carbs_per_serving / refMl) * 1000) / 10,
+    // null means the field wasn't disclosed — omit from Nutriments so the UI shows —
+    ...(product.calories_per_serving !== null && {
+      "energy-kcal_100g": Math.round((product.calories_per_serving / refMl) * 1000) / 10,
+    }),
+    ...(product.carbs_per_serving !== null && {
+      carbohydrates_100g: Math.round((product.carbs_per_serving / refMl) * 1000) / 10,
+    }),
     alcohol_100g: product.abv,
     // Pass sugar as sugars_serving so the scorer uses it directly without re-scaling
-    sugars_serving: product.sugar_per_serving,
+    ...(product.sugar_per_serving !== null && {
+      sugars_serving: product.sugar_per_serving,
+    }),
   };
 }
 
