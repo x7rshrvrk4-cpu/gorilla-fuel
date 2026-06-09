@@ -423,10 +423,23 @@ function carbScore(carbsPer100ml: number | null): number {
   return 20;
 }
 
-function cleanlinessScore(detected: DetectedAlcoholAdditive[], hasIngredients: boolean): number {
-  // When ingredient data isn't available we can't claim the product is clean — use a neutral
-  // mid-point rather than a perfect 100 so the overall score isn't misleadingly high.
-  if (!hasIngredients) return 70;
+function cleanlinessScore(
+  detected: DetectedAlcoholAdditive[],
+  hasIngredients: boolean,
+  kcalPer100ml: number | null,
+  carbsPer100ml: number | null
+): number {
+  if (!hasIngredients) {
+    // Ultra-low-calorie (≤35 kcal/100ml) + ultra-low-carb (≤1g/100ml) = almost certainly
+    // an artificially-sweetened zero-sugar seltzer. Without ingredient data we can't confirm,
+    // so use a conservative default that reflects the likely sweetener burden rather than
+    // awarding a misleadingly high "clean" score for a product we can't verify.
+    if (kcalPer100ml !== null && kcalPer100ml <= 35 && carbsPer100ml !== null && carbsPer100ml <= 1) {
+      return 45;
+    }
+    // For everything else without ingredient data, use a neutral mid-point.
+    return 70;
+  }
   const penalty = detected.reduce((sum, a) => sum + a.penalty, 0);
   return Math.max(0, 100 - penalty);
 }
@@ -477,7 +490,7 @@ export function computeAlcoholScore(
   const hasIngredients = ingredientsAvailable(ingredientsText);
   const detectedAdditives = detectAlcoholAdditives(ingredientsText);
 
-  const cScore = cleanlinessScore(detectedAdditives, hasIngredients);
+  const cScore = cleanlinessScore(detectedAdditives, hasIngredients, kcalPer100ml, carbsPer100ml);
   const calScore = calorieDensityScore(kcalPer100ml);
   const carbSc = carbScore(carbsPer100ml);
 

@@ -277,6 +277,40 @@ export default function Home() {
         </div>
       </section>
 
+      {/* GORILLA SPORTS CROSS-LINK */}
+      <section className="border-b border-line bg-background">
+        <div className="mx-auto max-w-6xl px-6 py-20">
+          <p className="font-display text-sm tracking-[0.3em] text-gold">
+            THE SAME SHARP ANALYTICS APPLIED TO YOUR BETS
+          </p>
+          <div className="mt-6 overflow-hidden rounded-sm border border-gold/30 bg-gradient-to-br from-[#1a1500] to-[#0a0a00]">
+            <div className="flex flex-col items-start gap-6 p-8 sm:flex-row sm:items-center sm:justify-between">
+              <div className="max-w-xl">
+                <h2 className="font-display text-3xl text-foreground sm:text-4xl">
+                  Gorilla <span className="text-gold">Sports</span>
+                </h2>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  We built Gorilla Fuel to cut through nutrition marketing. We built Gorilla Sports to cut through
+                  sportsbook noise — data-driven picks, sharp analytics, and zero fluff. If you hold your
+                  supplements to a higher standard, your bets deserve the same treatment.
+                </p>
+                <p className="mt-3 text-xs uppercase tracking-[0.2em] text-gold/60">
+                  gorillasports.ca
+                </p>
+              </div>
+              <a
+                href="https://gorillasports.ca"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 rounded-sm border border-gold bg-gold/10 px-8 py-4 font-display text-lg tracking-widest text-gold transition-all hover:bg-gold hover:text-background"
+              >
+                Visit Gorilla Sports ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <CrossLinkBanner />
     </>
   );

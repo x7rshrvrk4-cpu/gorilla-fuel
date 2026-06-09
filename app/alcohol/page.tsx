@@ -51,6 +51,10 @@ export default function AlcoholRankingsPage() {
           fitness-minded drinker — ABV, calories, carbs, additive counts, and a Gorilla Pour rating for how
           drinkable each one is without derailing your goals. All available at Beer Store or LCBO in Canada.
         </p>
+        <p className="mt-3 inline-flex items-center gap-2 rounded-sm border border-amber-400/30 bg-amber-400/8 px-3 py-1.5 text-xs text-amber-300/80">
+          <span className="text-amber-400">✓</span>
+          Nutritional data last verified June 2026 — sourced from manufacturer disclosures and official product labels
+        </p>
       </div>
 
       <div className="mt-8 overflow-hidden rounded-sm border border-amber-400/20">

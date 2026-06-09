@@ -282,11 +282,12 @@ export default function ScanPage() {
         // barcode with an alcohol product that isn't yet in OFF.
         if (productNameContradictsAlcohol(product.product_name || "")) {
           logMissedScan(trimmed, "alcohol");
+          setShowSubmitForm(true);
           setLookup({
             phase: "not-found",
             barcode: trimmed,
             message:
-              "This barcode did not return an alcohol product. The product may not be in our database yet. Use the Submit button below to add it.",
+              "This barcode returned a non-alcohol product. If you scanned an alcoholic beverage, submit it below and we'll add it to the database.",
           });
           inFlightRef.current = null;
           return;
