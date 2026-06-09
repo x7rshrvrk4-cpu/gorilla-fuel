@@ -32,16 +32,82 @@ import {
   productTypeToCategories,
   communityProductToNutriments,
 } from "./lib/communityProducts";
+import { logMissedScan } from "./lib/missedScans";
 
 const HISTORY_KEY = "gorilla-fuel-scan-history";
 const MAX_HISTORY = 6;
+
+// Product name words that are incompatible with alcohol scoring — used to catch
+// barcode collisions where an OFF record for a cosmetic or supplement shares a
+// barcode with an alcohol product the user was trying to scan.
+const NON_ALCOHOL_NAME_WORDS = new Set([
+  "shampoo", "conditioner", "lotion", "cream", "moisturizer", "serum",
+  "foundation", "mascara", "lipstick", "blush", "eyeshadow", "concealer",
+  "toothpaste", "deodorant", "antiperspirant", "soap", "bodywash",
+  "sunscreen", "sunblock", "perfume", "cologne", "hairspray",
+  "supplement", "vitamin", "capsule", "tablet", "softgel",
+  "protein", "powder", "preworkout", "pre-workout", "creatine",
+]);
+
+/** Returns true if the product name contains a word that makes it incompatible
+ *  with alcohol scoring — catches cosmetic/supplement barcodes mis-routed to alcohol mode. */
+function productNameContradictsAlcohol(productName: string): boolean {
+  const words = productName.toLowerCase().split(/[\s,/()-]+/);
+  return words.some((w) => NON_ALCOHOL_NAME_WORDS.has(w));
+}
+
+/** Confidence gate: validate that a returned OFF product actually corresponds to
+ *  the scanned barcode and carries enough data to be worth showing. */
+function validateConfidence(
+  product: OffProduct,
+  scannedBarcode: string
+): { pass: boolean; reason: string } {
+  // Barcode must match — normalize both sides by stripping leading zeros.
+  const norm = (b: string) => b.replace(/^0+/, "") || "0";
+  if (product.code && norm(product.code) !== norm(scannedBarcode)) {
+    return { pass: false, reason: "barcode-mismatch" };
+  }
+  // Must have a product name — nameless records are stubs.
+  if (!product.product_name?.trim()) {
+    return { pass: false, reason: "no-name" };
+  }
+  // Must carry at least one substantive data field.
+  const hasIngredients = !!(product.ingredients_text || product.ingredients_text_en);
+  const hasNutriments = !!(
+    product.nutriments && Object.keys(product.nutriments).length > 0
+  );
+  const hasCategories = !!(
+    product.categories_tags && product.categories_tags.length > 0
+  );
+  if (!hasIngredients && !hasNutriments && !hasCategories) {
+    return { pass: false, reason: "no-data" };
+  }
+  return { pass: true, reason: "ok" };
+}
+
+/** Returns true when the barcode GS1 prefix indicates a Canadian-market product
+ *  (prefixes 00–09 shared with USA, and 754–755 which are Canada-exclusive). */
+function isCanadianBarcode(barcode: string): boolean {
+  const digits = barcode.replace(/\D/g, "");
+  const prefix3 = parseInt(digits.slice(0, 3), 10);
+  if (isNaN(prefix3)) return false;
+  return (prefix3 >= 0 && prefix3 <= 9) || (prefix3 >= 754 && prefix3 <= 755);
+}
+
+/** Returns true when the product carries any Canadian or global market tag. */
+function hasCanadianOrGlobalMarketData(product: OffProduct): boolean {
+  const tags = product.countries_tags ?? [];
+  return tags.some(
+    (t) => t === "en:canada" || t === "en:united-states" || t === "en:world"
+  );
+}
 
 type LookupState =
   | { phase: "idle" }
   | { phase: "loading"; barcode: string }
   | { phase: "not-found"; barcode: string; message?: string }
   | { phase: "error"; barcode: string; message: string }
-  | { phase: "found"; product: OffProduct; result: ScoreResult }
+  | { phase: "found"; product: OffProduct; result: ScoreResult; lowConfidence?: boolean }
   | { phase: "found-beauty"; product: ObfProduct; result: BeautyScoreResult }
   | { phase: "found-alcohol"; product: OffProduct; result: AlcoholScoreResult; fromCommunity?: boolean };
 
@@ -114,7 +180,7 @@ export default function ScanPage() {
       setShowSubmitForm(false);
       setLookup({ phase: "loading", barcode: trimmed });
 
-      // Community DB is checked first — verified submissions take priority over OFF.
+      // ── 1. Community DB — verified alcohol submissions take priority over OFF ──
       const communityHit = await lookupCommunityProduct(trimmed);
       if (communityHit) {
         const kind = productTypeToAlcoholKind(communityHit.product_type);
@@ -147,26 +213,22 @@ export default function ScanPage() {
         return;
       }
 
+      // ── 2. Open Food Facts lookup ──
       const lookupResult = await lookupBarcode(trimmed);
 
       if (lookupResult.status === "not-found") {
-        // No food/drink record — try Open Beauty Facts before giving up. Same
-        // foundation, same data shape, but covers cosmetics OFF doesn't track.
+        // OFF doesn't have this barcode — try Open Beauty Facts before giving up.
         const beautyResult = await lookupBeautyBarcode(trimmed);
 
         if (beautyResult.status === "found") {
           const beautyProduct = beautyResult.product;
           const beautyScore = computeBeautyScore(beautyProduct.ingredients_text || beautyProduct.ingredients_text_en);
-
           setLookup({ phase: "found-beauty", product: beautyProduct, result: beautyScore });
           setSheetVisible(false);
-          // No beauty-specific result sheet yet — close the scanner and jump
-          // straight to the full card so a camera scan doesn't dead-end.
           setScannerActive(false);
           window.setTimeout(() => {
             resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
           }, 150);
-
           const entry: HistoryEntry = {
             barcode: beautyProduct.code,
             name: beautyProduct.product_name || "Unnamed Product",
@@ -177,11 +239,12 @@ export default function ScanPage() {
             scannedAt: Date.now(),
           };
           persistHistory([entry, ...history.filter((h) => h.barcode !== entry.barcode)].slice(0, MAX_HISTORY));
-
           inFlightRef.current = null;
           return;
         }
 
+        // Neither OFF nor OBF has this barcode.
+        logMissedScan(trimmed, "unknown");
         setLookup({ phase: "not-found", barcode: trimmed });
         inFlightRef.current = null;
         return;
@@ -195,25 +258,40 @@ export default function ScanPage() {
 
       const product = lookupResult.product;
 
-      // Reject products with no category data at all — empty categories_tags is a
-      // reliable signal of a barcode-collision stub in OFF (i.e. the barcode resolved
-      // to a different product entirely). Scoring unknown data causes worse UX than
-      // showing not-found.
-      if (!product.categories_tags || product.categories_tags.length === 0) {
-        setLookup({
-          phase: "not-found",
-          barcode: trimmed,
-          message:
-            "Product not found in our database. Try scanning again or check that the barcode is from an alcohol product.",
-        });
+      // ── 3. CONFIDENCE VALIDATION — reject unreliable OFF records ──
+      const confidence = validateConfidence(product, trimmed);
+      if (!confidence.pass) {
+        logMissedScan(trimmed, "food");
+        setLookup({ phase: "not-found", barcode: trimmed });
         inFlightRef.current = null;
         return;
       }
 
-      // Beer, wine, spirits, cider, and seltzer get routed to alcohol-specific
-      // scoring instead of the standard nutrition/additive pipeline — ABV,
-      // serving-size calorie/carb math, and a different additive watchlist.
+      // ── 4. Empty categories — reliable stub/collision signal in OFF ──
+      if (!product.categories_tags || product.categories_tags.length === 0) {
+        logMissedScan(trimmed, "food");
+        setLookup({ phase: "not-found", barcode: trimmed });
+        inFlightRef.current = null;
+        return;
+      }
+
+      // ── 5. ALCOHOL ROUTING ──
       if (isAlcoholProduct(product.categories_tags)) {
+        // Safety check: reject if the product name contradicts alcohol context.
+        // Catches barcode collisions where a cosmetic/supplement record shares a
+        // barcode with an alcohol product that isn't yet in OFF.
+        if (productNameContradictsAlcohol(product.product_name || "")) {
+          logMissedScan(trimmed, "alcohol");
+          setLookup({
+            phase: "not-found",
+            barcode: trimmed,
+            message:
+              "This barcode did not return an alcohol product. The product may not be in our database yet. Use the Submit button below to add it.",
+          });
+          inFlightRef.current = null;
+          return;
+        }
+
         const alcoholResult = computeAlcoholScore(
           product.nutriments ?? {},
           product.ingredients_text || product.ingredients_text_en,
@@ -237,18 +315,22 @@ export default function ScanPage() {
           scannedAt: Date.now(),
         };
         persistHistory([alcoholEntry, ...history.filter((h) => h.barcode !== alcoholEntry.barcode)].slice(0, MAX_HISTORY));
-
         inFlightRef.current = null;
         return;
       }
 
+      // ── 6. FOOD ROUTING ──
       const result = computeScore(
         product.nutriments ?? {},
         product.ingredients_text || product.ingredients_text_en,
         scoringContext(product)
       );
 
-      setLookup({ phase: "found", product, result });
+      // Canadian barcode with no Canadian/US market data — flag as low confidence.
+      const lowConfidence =
+        isCanadianBarcode(trimmed) && !hasCanadianOrGlobalMarketData(product);
+
+      setLookup({ phase: "found", product, result, lowConfidence });
       setSheetVisible(true);
 
       const entry: HistoryEntry = {
@@ -262,7 +344,7 @@ export default function ScanPage() {
       };
       persistHistory([entry, ...history.filter((h) => h.barcode !== entry.barcode)].slice(0, MAX_HISTORY));
 
-      // Fetch healthier alternatives from the same category
+      // Fetch healthier alternatives from the same category.
       const category = primaryCategory(product);
       if (category) {
         setAlternativesLoading(true);
@@ -308,10 +390,15 @@ export default function ScanPage() {
   const handleViewFull = useCallback(() => {
     setSheetVisible(false);
     setScannerActive(false);
-    // Give the overlay a beat to slide away before scrolling to the full card.
     window.setTimeout(() => {
       resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 150);
+  }, []);
+
+  const handleTryAgain = useCallback(() => {
+    setLookup({ phase: "idle" });
+    setShowSubmitForm(false);
+    setScannerActive(true);
   }, []);
 
   return (
@@ -361,31 +448,48 @@ export default function ScanPage() {
 
         {lookup.phase === "not-found" && (
           <>
-            <div className="gorilla-card rounded-sm p-6">
-              <h3 className="font-display text-2xl text-foreground">Not in the database</h3>
-              <p className="mt-2 text-sm text-muted">
-                {lookup.message ?? (
-                  <>
-                    Open Food Facts doesn&apos;t have data for barcode{" "}
-                    <span className="text-gold">{lookup.barcode}</span> yet. Try
-                    another product, or contribute the data at openfoodfacts.org.
-                  </>
-                )}
-              </p>
-            </div>
-            {showSubmitForm ? (
-              <AlcoholSubmitForm barcode={lookup.barcode} />
-            ) : (
-              <div className="mt-4 text-center">
-                <button
-                  type="button"
-                  onClick={() => setShowSubmitForm(true)}
-                  className="rounded-sm border border-gold/60 px-6 py-2.5 font-display text-sm tracking-widest text-gold transition-colors hover:bg-gold hover:text-background"
-                >
-                  Submit This Product
-                </button>
-                <p className="mt-2 text-xs text-muted">Know this product? Help the community.</p>
+            <div className="gorilla-card overflow-hidden rounded-sm">
+              {/* Header strip */}
+              <div className="border-b border-line bg-surface px-6 py-4">
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400/60" />
+                  <p className="font-display text-sm uppercase tracking-[0.3em] text-amber-300/80">
+                    Product Not Found
+                  </p>
+                </div>
               </div>
+              <div className="px-6 py-5">
+                <p className="font-mono text-xs text-gold/60">{lookup.barcode}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
+                  {lookup.message ?? "This product is not in our database yet."}
+                </p>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={handleTryAgain}
+                    className="rounded-sm bg-gold px-5 py-2.5 font-display text-sm tracking-widest text-background transition-colors hover:bg-gold/90"
+                  >
+                    Try Again
+                  </button>
+                  {!showSubmitForm && (
+                    <button
+                      type="button"
+                      onClick={() => setShowSubmitForm(true)}
+                      className="rounded-sm border border-gold/60 px-5 py-2.5 font-display text-sm tracking-widest text-gold transition-colors hover:bg-gold hover:text-background"
+                    >
+                      Submit This Product
+                    </button>
+                  )}
+                </div>
+                {!showSubmitForm && (
+                  <p className="mt-3 text-xs text-muted/60">
+                    Know what this is? Submit the product details and our team will review it.
+                  </p>
+                )}
+              </div>
+            </div>
+            {showSubmitForm && (
+              <AlcoholSubmitForm barcode={lookup.barcode} />
             )}
           </>
         )}
@@ -394,16 +498,34 @@ export default function ScanPage() {
           <div className="gorilla-card rounded-sm p-6">
             <h3 className="font-display text-2xl text-foreground">Lookup failed</h3>
             <p className="mt-2 text-sm text-muted">{lookup.message}</p>
+            <button
+              type="button"
+              onClick={handleTryAgain}
+              className="mt-4 rounded-sm border border-gold/60 px-5 py-2.5 font-display text-sm tracking-widest text-gold transition-colors hover:bg-gold hover:text-background"
+            >
+              Try Again
+            </button>
           </div>
         )}
 
         {lookup.phase === "found" && (
-          <ProductResultCard
-            product={lookup.product}
-            result={lookup.result}
-            alternatives={alternatives}
-            alternativesLoading={alternativesLoading}
-          />
+          <>
+            {lookup.lowConfidence && (
+              <div className="mb-4 flex items-start gap-3 rounded-sm border border-amber-400/30 bg-amber-400/8 px-4 py-3">
+                <span className="mt-0.5 shrink-0 text-amber-400">⚠</span>
+                <p className="text-xs leading-relaxed text-amber-200/80">
+                  <span className="font-display tracking-wide">Product found but data may be incomplete for the Canadian market.</span>{" "}
+                  Verify nutritional values against the product label before relying on this score.
+                </p>
+              </div>
+            )}
+            <ProductResultCard
+              product={lookup.product}
+              result={lookup.result}
+              alternatives={alternatives}
+              alternativesLoading={alternativesLoading}
+            />
+          </>
         )}
 
         {lookup.phase === "found-beauty" && (
