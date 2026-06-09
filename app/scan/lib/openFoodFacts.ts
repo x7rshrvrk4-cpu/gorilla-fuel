@@ -140,6 +140,38 @@ export async function fetchAlternativesInCategory(
   }
 }
 
+/** Search for alternatives across multiple category levels (most specific → broadest).
+ *  Tries up to 4 en: tag levels, relaxing the overlap requirement for parent categories
+ *  so narrowly-stocked product types still surface alternatives. */
+export async function fetchAlternativesMultiLevel(
+  product: OffProduct,
+  targetCount = 3
+): Promise<OffProduct[]> {
+  const originalCategories = product.categories_tags ?? [];
+
+  // OFF stores category tags general → specific; reverse to try most specific first.
+  const enTags = originalCategories
+    .filter((t) => t.startsWith("en:"))
+    .reverse()
+    .slice(0, 4);
+
+  if (enTags.length === 0) return [];
+
+  let lastResults: OffProduct[] = [];
+
+  for (let i = 0; i < enTags.length; i++) {
+    const tag = enTags[i]!;
+    // Most specific level: require full overlap with original categories (strict).
+    // Parent levels: only require the tag itself (relaxed — prevents over-filtering).
+    const matchCategories = i === 0 ? originalCategories : [tag];
+    lastResults = await fetchAlternativesInCategory(tag, matchCategories, product.code);
+    if (lastResults.length >= targetCount) return lastResults;
+  }
+
+  // Return whatever the broadest search found (may be 0–2 results).
+  return lastResults;
+}
+
 export function primaryCategory(product: OffProduct): string | null {
   const tags = product.categories_tags;
   if (!tags || tags.length === 0) return null;

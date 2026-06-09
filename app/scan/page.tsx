@@ -6,13 +6,13 @@ import ProductResultCard from "./components/ProductResultCard";
 import ScanResultSheet from "./components/ScanResultSheet";
 import ScanHistory, { type HistoryEntry } from "./components/ScanHistory";
 import {
-  fetchAlternativesInCategory,
+  fetchAlternativesMultiLevel,
   lookupBarcode,
-  primaryCategory,
   productImage,
   scoringContext,
   type OffProduct,
 } from "./lib/openFoodFacts";
+import { gorillaSuggestionsFor, type Alternative } from "./lib/gorillaGuidance";
 import { beautyProductImage, lookupBeautyBarcode, type ObfProduct } from "./lib/openBeautyFacts";
 import { computeScore, GRADE_COLORS, type ScoreResult } from "./lib/scoring";
 import { computeBeautyScore, type BeautyScoreResult } from "./lib/beautyScoring";
@@ -119,7 +119,7 @@ export default function ScanPage() {
   const [manualOpen, setManualOpen] = useState(false);
   const [manualBarcode, setManualBarcode] = useState("");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [alternatives, setAlternatives] = useState<OffProduct[]>([]);
+  const [alternatives, setAlternatives] = useState<Alternative[]>([]);
   const [alternativesLoading, setAlternativesLoading] = useState(false);
   const inFlightRef = useRef<string | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
@@ -344,28 +344,40 @@ export default function ScanPage() {
       };
       persistHistory([entry, ...history.filter((h) => h.barcode !== entry.barcode)].slice(0, MAX_HISTORY));
 
-      // Fetch healthier alternatives from the same category.
-      const category = primaryCategory(product);
-      if (category) {
-        setAlternativesLoading(true);
-        const candidates = await fetchAlternativesInCategory(category, product.categories_tags ?? [], product.code);
-        const better = candidates
-          .map((candidate) => ({
-            candidate,
-            score: computeScore(
-              candidate.nutriments ?? {},
-              candidate.ingredients_text || candidate.ingredients_text_en,
-              scoringContext(candidate)
-            ).finalScore,
-          }))
-          .filter((c) => c.score > result.finalScore)
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 3)
-          .map((c) => c.candidate);
+      // Fetch healthier alternatives — try multiple category levels, fall back to curated Gorilla Suggestion.
+      setAlternativesLoading(true);
+      const candidates = await fetchAlternativesMultiLevel(product);
+      const better: Alternative[] = candidates
+        .map((candidate) => {
+          const candidateResult = computeScore(
+            candidate.nutriments ?? {},
+            candidate.ingredients_text || candidate.ingredients_text_en,
+            scoringContext(candidate)
+          );
+          return { candidate, candidateResult };
+        })
+        .filter(({ candidateResult }) => {
+          const scoreGain = candidateResult.finalScore >= result.finalScore + 5;
+          const fewerAdditives =
+            candidateResult.detectedAdditives.length < result.detectedAdditives.length;
+          const betterNova =
+            candidateResult.novaGroup !== null &&
+            result.novaGroup !== null &&
+            candidateResult.novaGroup < result.novaGroup;
+          return scoreGain || fewerAdditives || betterNova;
+        })
+        .sort((a, b) => b.candidateResult.finalScore - a.candidateResult.finalScore)
+        .slice(0, 3)
+        .map(({ candidate, candidateResult }) => ({
+          type: "off-match" as const,
+          product: candidate,
+          score: candidateResult.finalScore,
+        }));
 
-        setAlternatives(better);
-        setAlternativesLoading(false);
-      }
+      setAlternatives(
+        better.length > 0 ? better : gorillaSuggestionsFor(product.categories_tags ?? [])
+      );
+      setAlternativesLoading(false);
 
       inFlightRef.current = null;
     },

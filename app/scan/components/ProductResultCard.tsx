@@ -3,6 +3,7 @@ import { GRADE_COLORS, novaGroupDescription, novaGroupLabel, type NovaGroup, typ
 import { buildGorillaTake } from "../lib/gorillaAnalysis";
 import type { OffProduct } from "../lib/openFoodFacts";
 import { productImage } from "../lib/openFoodFacts";
+import type { Alternative } from "../lib/gorillaGuidance";
 import AdditiveCard from "./AdditiveCard";
 import EvidenceTierBadge from "../../components/EvidenceTierBadge";
 import { detectExamineIngredients } from "../lib/examineDatabase";
@@ -24,7 +25,7 @@ const NOVA_COLOR: Record<NovaGroup, string> = {
 type Props = {
   product: OffProduct;
   result: ScoreResult;
-  alternatives: OffProduct[];
+  alternatives: Alternative[];
   alternativesLoading: boolean;
 };
 
@@ -232,33 +233,96 @@ export default function ProductResultCard({ product, result, alternatives, alter
       <div className="border-t border-line p-6">
         <h3 className="font-display text-xl tracking-wide text-foreground">Healthier Alternatives</h3>
         {alternativesLoading && (
-          <p className="mt-3 text-sm text-muted">Searching the same category for better options…</p>
-        )}
-        {!alternativesLoading && alternatives.length === 0 && (
-          <p className="mt-3 text-sm text-muted">
-            No clearly better alternatives found in this category right now.
-          </p>
+          <p className="mt-3 text-sm text-muted">Searching for better options…</p>
         )}
         {!alternativesLoading && alternatives.length > 0 && (
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            {alternatives.map((alt) => {
-              const altImage = productImage(alt);
-              return (
-                <div key={alt.code} className="gorilla-card flex items-center gap-3 rounded-sm p-3">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-line bg-background">
-                    {altImage ? (
-                      <Image src={altImage} alt={alt.product_name ?? ""} width={56} height={56} unoptimized className="h-full w-full object-contain" />
-                    ) : (
-                      <span className="font-display text-lg text-gold/40">G</span>
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-foreground">{alt.product_name}</p>
-                    <p className="truncate text-xs text-muted">{alt.brands || "Unknown brand"}</p>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="mt-4">
+            {alternatives[0]?.type === "off-match" ? (
+              /* OFF database matches — shown in a grid with score badge */
+              <div className="grid gap-3 sm:grid-cols-3">
+                {alternatives.map((alt) => {
+                  if (alt.type !== "off-match") return null;
+                  const altImage = productImage(alt.product);
+                  return (
+                    <div key={alt.product.code} className="gorilla-card overflow-hidden rounded-sm">
+                      <div className="flex items-center gap-2 border-b border-line bg-surface px-3 py-1.5">
+                        <svg
+                          width="10"
+                          height="10"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="shrink-0 text-sky-400"
+                        >
+                          <ellipse cx="12" cy="5" rx="9" ry="3" />
+                          <path d="M3 5v14a9 3 0 0 0 18 0V5" />
+                          <path d="M3 12a9 3 0 0 0 18 0" />
+                        </svg>
+                        <span className="text-[9px] uppercase tracking-[0.18em] text-sky-400">
+                          Open Food Facts Match
+                        </span>
+                        <span className="ml-auto font-display text-[10px] text-sky-400/70">
+                          {alt.score}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 p-3">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-line bg-background">
+                          {altImage ? (
+                            <Image
+                              src={altImage}
+                              alt={alt.product.product_name ?? ""}
+                              width={48}
+                              height={48}
+                              unoptimized
+                              className="h-full w-full object-contain"
+                            />
+                          ) : (
+                            <span className="font-display text-base text-gold/40">G</span>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-foreground">
+                            {alt.product.product_name}
+                          </p>
+                          <p className="truncate text-xs text-muted">
+                            {alt.product.brands || "Unknown brand"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              /* Gorilla Suggestion cards — curated guidance when no OFF match found */
+              <div className="space-y-3">
+                {alternatives.map((alt, i) => {
+                  if (alt.type !== "gorilla-suggestion") return null;
+                  return (
+                    <div
+                      key={i}
+                      className="rounded-sm border border-gold/25 bg-gold/5 p-5"
+                    >
+                      <div className="mb-3 flex items-center gap-2">
+                        <span className="text-xl leading-none">🦍</span>
+                        <span className="font-display tracking-wide text-gold">
+                          Gorilla Suggestion
+                        </span>
+                      </div>
+                      <p className="text-sm leading-relaxed text-muted">{alt.headline}</p>
+                      {alt.brands && (
+                        <p className="mt-3 border-t border-gold/15 pt-3 text-xs leading-relaxed text-muted/70">
+                          {alt.brands}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>
