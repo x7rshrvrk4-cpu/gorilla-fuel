@@ -4,18 +4,18 @@ import CrossLinkBanner from "./components/CrossLinkBanner";
 
 const tickerItems = [
   "SCAN BEFORE YOU BUY",
-  "17 PRODUCTS RANKED",
+  "40+ PRODUCTS RANKED",
   "ADDITIVES EXPOSED",
   "NO SPONSORED RESULTS",
   "BLACK & GOLD STANDARD",
   "KNOW YOUR INGREDIENTS",
-  "NUTRITION SCORED IN SECONDS",
+  "BEER · SPIRITS · SUPPLEMENTS",
   "GORILLA FUEL — NO BS",
 ];
 
 const stats = [
-  { value: "17", label: "Products Ranked" },
-  { value: "21", label: "Additives Tracked" },
+  { value: "40+", label: "Products Ranked" },
+  { value: "90+", label: "Additives Tracked" },
   { value: "4", label: "Categories Covered" },
   { value: "100%", label: "Independent Scoring" },
 ];
@@ -68,6 +68,18 @@ const categories = [
     href: "/rankings",
     accent: "from-[#332b13] to-[#0f0d08]",
   },
+  {
+    name: "Beer & Alcohol",
+    description: "ABV, calorie density, artificial sweeteners, sulfites, and clarity agents — 22 Canadian favourites ranked.",
+    href: "/alcohol",
+    accent: "from-[#3b2e05] to-[#0f0d08]",
+  },
+  {
+    name: "Beauty Scanner",
+    description: "Parabens, sulfates, silicones, and 11 flagged chemicals — scan any cosmetic barcode for an instant safety score.",
+    href: "/scan",
+    accent: "from-[#1e1e2e] to-[#0f0d08]",
+  },
 ];
 
 export default function Home() {
@@ -78,7 +90,7 @@ export default function Home() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,215,0,0.10),_transparent_60%)]" />
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-7 px-6 py-24 text-center sm:py-32">
           <span className="animate-fade rounded-full border border-gold-dim px-4 py-1.5 font-display text-sm tracking-[0.3em] text-gold">
-            FOOD &amp; SUPPLEMENT INTELLIGENCE
+            FOOD · ALCOHOL · SUPPLEMENT · BEAUTY
           </span>
           <h1 className="animate-rise font-display text-5xl leading-[0.95] text-foreground sm:text-7xl md:text-8xl">
             STOP GUESSING
@@ -103,12 +115,21 @@ export default function Home() {
             >
               Scan a Product →
             </Link>
-            <Link
-              href="/rankings"
-              className="font-display text-sm tracking-[0.3em] text-muted transition-colors hover:text-gold"
-            >
-              OR VIEW RANKINGS →
-            </Link>
+            <div className="flex items-center gap-5">
+              <Link
+                href="/rankings"
+                className="font-display text-sm tracking-[0.3em] text-muted transition-colors hover:text-gold"
+              >
+                SUPPLEMENTS →
+              </Link>
+              <span className="text-muted/30">|</span>
+              <Link
+                href="/alcohol"
+                className="font-display text-sm tracking-[0.3em] text-muted transition-colors hover:text-gold"
+              >
+                ALCOHOL →
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -192,12 +213,20 @@ export default function Home() {
                 Ranked by Category
               </h2>
             </div>
-            <Link
-              href="/rankings"
-              className="font-display text-lg tracking-widest text-gold hover:underline"
-            >
-              See all rankings →
-            </Link>
+            <div className="flex items-center gap-5">
+              <Link
+                href="/rankings"
+                className="font-display text-lg tracking-widest text-gold hover:underline"
+              >
+                Supplements →
+              </Link>
+              <Link
+                href="/alcohol"
+                className="font-display text-lg tracking-widest text-gold hover:underline"
+              >
+                Alcohol →
+              </Link>
+            </div>
           </div>
           <div className="grid gap-6 sm:grid-cols-2">
             {categories.map((cat) => (
