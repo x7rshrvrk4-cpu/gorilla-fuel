@@ -20,6 +20,10 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const readerRef = useRef<BrowserMultiFormatReaderType | null>(null);
   const lastCodeRef = useRef<{ code: string; at: number } | null>(null);
+  // Stable ref so the ZXing effect never tears down and restarts just because
+  // the parent re-renders and hands us a new onDetected function reference.
+  const onDetectedRef = useRef(onDetected);
+  onDetectedRef.current = onDetected;
   const [status, setStatus] = useState<CameraStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [torchSupported, setTorchSupported] = useState(false);
@@ -76,7 +80,9 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
           setHit(true);
           window.setTimeout(() => setHit(false), 500);
 
-          onDetected(code);
+          // Use the stable ref — never the prop directly — so calling the parent
+          // callback can't trigger an effect cleanup that kills the scanner.
+          onDetectedRef.current(code);
         });
 
         if (cancelled) return;
@@ -106,7 +112,7 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
       readerRef.current?.reset();
       readerRef.current = null;
     };
-  }, [active, onDetected]);
+  }, [active]);
 
   const toggleTorch = useCallback(async () => {
     const stream = videoRef.current?.srcObject;

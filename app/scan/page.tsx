@@ -180,6 +180,8 @@ export default function ScanPage() {
       setFallbackProduct(null);
       setLookup({ phase: "loading", barcode: trimmed });
 
+      try {
+
       // ── 1. Community DB — verified alcohol submissions take priority over OFF ──
       const communityHit = await lookupCommunityProduct(trimmed);
       if (communityHit) {
@@ -409,8 +411,15 @@ export default function ScanPage() {
         better.length > 0 ? better : gorillaSuggestionsFor(product.categories_tags ?? [])
       );
       setAlternativesLoading(false);
-
-      inFlightRef.current = null;
+      } catch (err) {
+        // An unhandled exception inside the lookup pipeline would otherwise leave
+        // the UI stuck at "loading" and block the same barcode from re-scanning.
+        console.error("[Gorilla] runLookup crashed:", err);
+        setLookup({ phase: "error", barcode: trimmed, message: "Something went wrong — please try again." });
+        setAlternativesLoading(false);
+      } finally {
+        inFlightRef.current = null;
+      }
     },
     [history, persistHistory]
   );
