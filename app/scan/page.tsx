@@ -142,13 +142,10 @@ export default function ScanPage() {
     }).catch(() => {});
   }, []);
 
-  // Preload ZXing if the native BarcodeDetector API is not available so the
-  // dynamic import is already cached when the user opens the scanner. On iOS
-  // Safari 17+ and Chrome, BarcodeDetector is native so ZXing never loads.
+  // Preload ZXing on mount so the dynamic import is already cached when the
+  // user opens the scanner — avoids a WASM download delay on first scan.
   useEffect(() => {
-    if (typeof window !== "undefined" && !("BarcodeDetector" in window)) {
-      import("@zxing/library").catch(() => {});
-    }
+    import("@zxing/library").catch(() => {});
   }, []);
 
   // Lock page scroll while the fullscreen scanner overlay is open.
