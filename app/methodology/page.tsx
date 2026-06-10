@@ -11,17 +11,23 @@ export const metadata: Metadata = {
 
 const TIERS: EvidenceTier[] = ["strong-consensus", "emerging-evidence", "contested", "precautionary"];
 
-const SOURCES: { name: string; description: string; badge?: string }[] = [
-  // ── Waterfall lookup order (1–9) ──────────────────────────────────────────
+const SOURCES: { name: string; description: string; badge?: string; parallel?: boolean }[] = [
+  // ── Waterfall lookup order ─────────────────────────────────────────────────
   { name: "Gorilla Curated Database", badge: "Step 1 · GORILLA CURATED", description: "Our own hand-verified alcohol product database. Every entry is manually reviewed with confirmed ABV, calorie, carb, and serving-size data. Always checked first — takes absolute priority over all external sources." },
   { name: "Community Submissions (Supabase)", badge: "Step 2 · COMMUNITY", description: "User-submitted products that have passed admin review. Enables Canadian and regional products not yet covered by major databases." },
   { name: "Open Food Facts", badge: "Step 3 · OPEN FOOD FACTS", description: "The world's largest open food database — 3M+ products with ingredients, nutrition, additives, and NOVA processing group. Backbone of every food, drink, and supplement scan." },
-  { name: "USDA FoodData Central", badge: "Step 4 · USDA", description: "The US Department of Agriculture's branded-food nutrition database. Used as the primary fallback when Open Food Facts has no match or low-confidence data." },
-  { name: "Nutritionix Branded Food Database", badge: "Step 5 · NUTRITIONIX", description: "A large North American branded-food database with strong coverage of US grocery products and restaurant chains. Requires NUTRITIONIX_APP_ID + NUTRITIONIX_APP_KEY." },
-  { name: "Open Beauty Facts", badge: "Step 6 · OPEN BEAUTY FACTS", description: "Open Food Facts' sister database for cosmetics and personal care — powers Cosmetics Mode with a purple BEAUTY PRODUCT banner when a barcode matches a non-food item." },
-  { name: "TTB COLA Cloud (US Government Alcohol Registry)", badge: "Step 7 · COLA VERIFIED", description: "The US Alcohol and Tobacco Tax and Trade Bureau's Certificate of Label Approval database. Every alcohol product sold in the US must be registered here. Free public API — displayed with a navy COLA VERIFIED government badge when matched." },
-  { name: "Go-UPC Global Product Database", badge: "Step 8 · GO-UPC", description: "500M+ product records worldwide. Returns name, brand, image, and category when all nutrition-focused databases return no result. No scoring is possible without nutrition data — a Submit button is shown so users can contribute the missing values." },
-  { name: "Open Drug Facts", badge: "Step 9 · OPEN DRUG FACTS", description: "OTC drug and medication database from the same open-data infrastructure as Open Food Facts. Displayed with a blue MEDICATION banner and a healthcare disclaimer. Checked last in the waterfall." },
+  { name: "USDA FoodData Central", badge: "Step 4 · USDA ↗ parallel", description: "The US Department of Agriculture's branded-food nutrition database. Fired in parallel with Steps 5–8.", parallel: true },
+  { name: "FatSecret Platform", badge: "Step 5 · FATSECRET ↗ parallel", description: "A large global food and nutrition database covering millions of branded foods. Accessed via OAuth 2.0. Requires FATSECRET_CLIENT_ID + FATSECRET_CLIENT_SECRET.", parallel: true },
+  { name: "Barcode Lookup (RapidAPI)", badge: "Step 6 · BARCODE DB ↗ parallel", description: "A consumer product database accessed via RapidAPI with nutrition data where available. Requires RAPIDAPI_KEY.", parallel: true },
+  { name: "NIH Dietary Supplement Label Database", badge: "Step 7 · NIH VERIFIED ↗ parallel", description: "The US National Institutes of Health's official registry of dietary supplement labels. No API key required. Returns serving size, supplement facts, and certifications (NSF, Informed Sport). Fired in parallel — displayed with a blue NIH VERIFIED government badge.", parallel: true },
+  { name: "UPCitemdb", badge: "Step 8 · UPC DATABASE ↗ parallel", description: "A free UPC product database (100 req/day trial tier) covering millions of consumer products. Returns name, brand, and category for identification when nutrition data is unavailable.", parallel: true },
+  { name: "Nutritionix Branded Food Database", badge: "Step 9 · NUTRITIONIX", description: "A large North American branded-food database with strong coverage of US grocery products. Requires NUTRITIONIX_APP_ID + NUTRITIONIX_APP_KEY." },
+  { name: "Open Beauty Facts", badge: "Step 10 · OPEN BEAUTY FACTS", description: "Open Food Facts' sister database for cosmetics and personal care — powers Cosmetics Mode with a purple BEAUTY PRODUCT banner when a barcode matches a non-food item." },
+  { name: "WineVybe Beer Database (RapidAPI)", badge: "Step 11 · WINEVYBE", description: "A beer and beverage barcode database via RapidAPI. Used for alcohol products when all food databases return no result. Requires RAPIDAPI_KEY." },
+  { name: "Wine Analyzer (RapidAPI)", badge: "Step 12 · WINE ANALYZER", description: "A wine-specific barcode lookup via RapidAPI. Used as a fallback after WineVybe for wine products. Requires RAPIDAPI_KEY." },
+  { name: "TTB COLA Cloud (US Government Alcohol Registry)", badge: "Step 13 · COLA VERIFIED", description: "The US Alcohol and Tobacco Tax and Trade Bureau's Certificate of Label Approval database. Every alcohol product sold in the US must be registered here. Free public API — displayed with a navy COLA VERIFIED government badge." },
+  { name: "Go-UPC Global Product Database", badge: "Step 14 · GO-UPC", description: "500M+ product records worldwide. Returns name, brand, image, and category when all nutrition-focused databases return no result. Requires GOUPC_API_KEY." },
+  { name: "Open Drug Facts", badge: "Step 15 · OPEN DRUG FACTS", description: "OTC drug and medication database from the same open-data infrastructure as Open Food Facts. Displayed with a blue MEDICATION banner and a healthcare disclaimer. Checked last in the waterfall." },
   // ── Scoring, safety, and research reference sources ────────────────────────
   { name: "Labdoor Testing Database", description: "Independent purity and label-accuracy benchmarks for supplements, referenced for context (Labdoor has no public API for live per-product lookups)." },
   { name: "Examine.com Research Database", description: "Curated, citation-backed summaries of what each common supplement ingredient does, its evidence strength, dose range, and safety considerations." },
@@ -172,17 +178,18 @@ export default function MethodologyPage() {
       <section className="mt-14">
         <h2 className="font-display text-3xl text-foreground">Data Sources</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
-          Every scan runs a 9-step waterfall — sources are checked in strict priority order and
-          the first hit wins. Every score, badge, and citation traces back to one of these public,
+          Every scan runs a 15-step waterfall — sources are checked in priority order and
+          the first hit wins. Steps 4–8 fire in parallel to minimise latency.
+          Every score, badge, and citation traces back to one of these public,
           independently checkable sources — never to brand-supplied marketing copy.
         </p>
 
-        <h3 className="mt-8 font-display text-xl text-gold">Lookup Waterfall · Steps 1–9</h3>
-        <p className="mt-1 text-xs text-muted">Checked in this order on every scan. First hit returns the result.</p>
+        <h3 className="mt-8 font-display text-xl text-gold">Lookup Waterfall · Steps 1–15</h3>
+        <p className="mt-1 text-xs text-muted">Checked in this order on every scan. Steps 4–8 are fired in parallel to reduce total lookup time — the first hit (in priority order) wins. Total waterfall completes within 8 seconds.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {SOURCES.filter((s) => s.badge).map((s) => (
-            <div key={s.name} className="rounded-sm border border-gold/20 bg-surface p-4">
-              <p className="font-display text-[10px] uppercase tracking-[0.25em] text-gold/60">{s.badge}</p>
+            <div key={s.name} className={`rounded-sm border p-4 ${s.parallel ? "border-sky-500/25 bg-sky-500/5" : "border-gold/20 bg-surface"}`}>
+              <p className={`font-display text-[10px] uppercase tracking-[0.25em] ${s.parallel ? "text-sky-400/70" : "text-gold/60"}`}>{s.badge}</p>
               <p className="mt-1 font-display text-base tracking-wide text-foreground">{s.name}</p>
               <p className="mt-1 text-xs leading-relaxed text-muted">{s.description}</p>
             </div>

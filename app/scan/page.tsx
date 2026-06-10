@@ -35,9 +35,18 @@ import {
   communityProductToNutriments,
 } from "./lib/communityProducts";
 import { logMissedScan } from "./lib/missedScans";
-import { lookupColaCloud, lookupWineVybe, type FallbackAlcoholProduct } from "./lib/externalAlcohol";
-import { lookupUsda, lookupNutritionix } from "./lib/externalFood";
-import { lookupGoUpc, lookupDrugFacts, type GoUpcProduct, type DrugProduct } from "./lib/externalGeneral";
+import { lookupColaCloud, lookupWineVybe, lookupWineAnalyzer, type FallbackAlcoholProduct } from "./lib/externalAlcohol";
+import { lookupUsda, lookupNutritionix, lookupFatSecret } from "./lib/externalFood";
+import {
+  lookupGoUpc,
+  lookupDrugFacts,
+  lookupUpcItemDb,
+  lookupBarcodeLookup,
+  lookupNihDsld,
+  type GoUpcProduct,
+  type DrugProduct,
+  type NihDsldProduct,
+} from "./lib/externalGeneral";
 import { lookupCuratedByBarcode, lookupCuratedByName, overrideWithCurated } from "../alcohol/lib/products";
 import type { DataSource } from "./components/SourceBadge";
 import {
@@ -48,6 +57,7 @@ import {
   trackScanModeFood,
 } from "../lib/gtag";
 import ScanConfirmationOverlay from "./components/ScanConfirmationOverlay";
+import SupplementResultCard from "./components/SupplementResultCard";
 
 const HISTORY_KEY = "gorilla-fuel-scan-history";
 const MAX_HISTORY = 6;
@@ -86,6 +96,43 @@ function validateConfidence(
   return { pass: true, reason: "ok" };
 }
 
+const ALCOHOL_TERMS_REGEX = /\b(beer|lager|ale|ipa|stout|porter|pilsner|wheat\s*beer|cider|wine|ros[eé]|champagne|prosecco|spirits|whisky|whiskey|bourbon|vodka|rum|gin|tequila|mead|seltzer|hard\s*soda|hard\s*lemonade|hard\s*iced\s*tea|alcopop|malt|brew|brewed|brewed\s*with|distilled|fermented|alcoholic|alcohol|abv|%\s*alc|proof)\b/i;
+
+/** Returns true when a product name contains alcohol-related language. */
+function productNameIndicatesAlcohol(name: string): boolean {
+  return ALCOHOL_TERMS_REGEX.test(name);
+}
+
+const ALCOHOL_CATEGORY_TERMS = new Set([
+  "beers", "beer", "ales", "lagers", "stouts", "porters", "pilsners", "ipas",
+  "ciders", "wines", "red-wines", "white-wines", "rose-wines", "sparkling-wines",
+  "spirits", "whiskeys", "whisky", "bourbon", "vodka", "rum", "gin", "tequila",
+  "meads", "hard-seltzers", "seltzers", "alcoholic-beverages", "alcoholic-drinks",
+  "alcopops", "fermented-beverages",
+]);
+
+/** Returns true when categories contain alcohol-specific terms. */
+function categoriesIndicateAlcohol(categoriesTags: string[]): boolean {
+  return categoriesTags.some((t) => {
+    const slug = t.replace(/^[a-z]{2}:/, "").toLowerCase();
+    return ALCOHOL_CATEGORY_TERMS.has(slug) || slug.includes("alcoholic") || slug.includes("beer") || slug.includes("wine") || slug.includes("spirit") || slug.includes("cider") || slug.includes("seltzer");
+  });
+}
+
+/** Returns the first 2 meaningful category slugs from an OFF tags array for same-category comparison. */
+function topCategorySlugs(tags: string[]): string[] {
+  return tags
+    .map((t) => t.replace(/^[a-z]{2}:/, "").toLowerCase())
+    .filter((t) => t.length > 2)
+    .slice(0, 3);
+}
+
+/** Returns true if two products share at least one top-level category. */
+function sharesMainCategory(a: OffProduct, b: OffProduct): boolean {
+  const aTags = new Set(topCategorySlugs(a.categories_tags ?? []));
+  return topCategorySlugs(b.categories_tags ?? []).some((t) => aTags.has(t));
+}
+
 function isCanadianBarcode(barcode: string): boolean {
   const digits = barcode.replace(/\D/g, "");
   const prefix3 = parseInt(digits.slice(0, 3), 10);
@@ -109,14 +156,15 @@ type LookupState =
   | { phase: "found-beauty"; product: ObfProduct; result: BeautyScoreResult }
   | { phase: "found-alcohol"; product: OffProduct; result: AlcoholScoreResult; fromCommunity?: boolean; dataSource: DataSource }
   | { phase: "found-generic"; product: GoUpcProduct }
-  | { phase: "found-drug"; product: DrugProduct };
+  | { phase: "found-drug"; product: DrugProduct }
+  | { phase: "found-supplement"; product: NihDsldProduct };
 
 /** Governs the fullscreen scan-confirmation overlay lifecycle. */
 type ScanOverlayState =
   | { phase: "idle" }
   | { phase: "scanning" | "not-found"; barcode: string };
 
-const FOUND_PHASES = new Set(["found", "found-alcohol", "found-beauty", "found-generic", "found-drug"]);
+const FOUND_PHASES = new Set(["found", "found-alcohol", "found-beauty", "found-generic", "found-drug", "found-supplement"]);
 
 export default function ScanPage() {
   const [scannerActive, setScannerActive] = useState(false);
@@ -329,7 +377,12 @@ export default function ScanPage() {
           } else if (!product.categories_tags || product.categories_tags.length === 0) {
             // No categories — fall through
           } else if (isAlcoholProduct(product.categories_tags)) {
-            if (productNameContradictsAlcohol(product.product_name || "")) {
+            // Strict validation: name or categories must confirm this is actually alcohol
+            const nameConfirms = productNameIndicatesAlcohol(product.product_name || "");
+            const catConfirms = categoriesIndicateAlcohol(product.categories_tags);
+            if (!nameConfirms && !catConfirms) {
+              // Neither name nor categories confirm alcohol — reject, fall through to next source
+            } else if (productNameContradictsAlcohol(product.product_name || "")) {
               logMissedScan(trimmed, "alcohol");
               setShowSubmitForm(true);
               setLookup({
@@ -339,52 +392,53 @@ export default function ScanPage() {
               });
               inFlightRef.current = null;
               return;
-            }
-            // Name-override: if OFF's product name matches a curated entry, use our verified nutrition
-            const curatedNameHit = overrideWithCurated(product.product_name || "", product.brands);
-            if (curatedNameHit) {
-              const servingMl = curatedNameHit.servingMl ?? 355;
-              const kind = curatedNameHit.category === "IPAs" ? "beer" : curatedNameHit.category === "Hard Seltzers" ? "seltzer" : curatedNameHit.category === "Ciders" ? "cider" : "beer";
-              const curatedNutriments = {
-                "energy-kcal_100g": (curatedNameHit.caloriesPerCan / servingMl) * 100,
-                carbohydrates_100g: (curatedNameHit.carbsPerCan / servingMl) * 100,
-                sugars_100g: (curatedNameHit.sugarPerCan / servingMl) * 100,
-                alcohol_100g: curatedNameHit.abv,
-              };
-              const overriddenProduct: OffProduct = { ...product, nutriments: curatedNutriments, product_name: curatedNameHit.name, brands: curatedNameHit.brand };
-              const overrideResult = computeAlcoholScore(curatedNutriments, undefined, kind, servingMl);
-              setLookup({ phase: "found-alcohol", product: overriddenProduct, result: overrideResult, dataSource: "gorilla-curated" });
+            } else {
+              // Name-override: if OFF's product name matches a curated entry, use our verified nutrition
+              const curatedNameHit = overrideWithCurated(product.product_name || "", product.brands);
+              if (curatedNameHit) {
+                const servingMl = curatedNameHit.servingMl ?? 355;
+                const kind = curatedNameHit.category === "IPAs" ? "beer" as const : curatedNameHit.category === "Hard Seltzers" ? "seltzer" as const : curatedNameHit.category === "Ciders" ? "cider" as const : "beer" as const;
+                const curatedNutriments = {
+                  "energy-kcal_100g": (curatedNameHit.caloriesPerCan / servingMl) * 100,
+                  carbohydrates_100g: (curatedNameHit.carbsPerCan / servingMl) * 100,
+                  sugars_100g: (curatedNameHit.sugarPerCan / servingMl) * 100,
+                  alcohol_100g: curatedNameHit.abv,
+                };
+                const overriddenProduct: OffProduct = { ...product, nutriments: curatedNutriments, product_name: curatedNameHit.name, brands: curatedNameHit.brand };
+                const overrideResult = computeAlcoholScore(curatedNutriments, undefined, kind, servingMl);
+                setLookup({ phase: "found-alcohol", product: overriddenProduct, result: overrideResult, dataSource: "gorilla-curated" });
+                setScannerActive(false);
+                scrollToResult();
+                persistHistory([{ barcode: trimmed, name: curatedNameHit.name, brand: curatedNameHit.brand, image: null, score: overrideResult.score, color: ALCOHOL_GRADE_COLORS[overrideResult.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
+                inFlightRef.current = null;
+                return;
+              }
+              const alcoholResult = computeAlcoholScore(
+                product.nutriments ?? {},
+                product.ingredients_text || product.ingredients_text_en,
+                detectAlcoholKind(product.categories_tags)
+              );
+              trackProductFound("open-food-facts", trimmed, product.product_name);
+              trackScanModeAlcohol(trimmed, product.product_name);
+              setLookup({ phase: "found-alcohol", product, result: alcoholResult, dataSource: "open-food-facts" });
+              setSheetVisible(false);
               setScannerActive(false);
               scrollToResult();
-              persistHistory([{ barcode: trimmed, name: curatedNameHit.name, brand: curatedNameHit.brand, image: null, score: overrideResult.score, color: ALCOHOL_GRADE_COLORS[overrideResult.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
+              persistHistory([
+                {
+                  barcode: product.code,
+                  name: product.product_name || "Unnamed Product",
+                  brand: product.brands || "Unknown Brand",
+                  image: productImage(product),
+                  score: alcoholResult.score,
+                  color: ALCOHOL_GRADE_COLORS[alcoholResult.grade],
+                  scannedAt: Date.now(),
+                },
+                ...history.filter((h) => h.barcode !== product.code),
+              ].slice(0, MAX_HISTORY));
               inFlightRef.current = null;
               return;
             }
-            const alcoholResult = computeAlcoholScore(
-              product.nutriments ?? {},
-              product.ingredients_text || product.ingredients_text_en,
-              detectAlcoholKind(product.categories_tags)
-            );
-            trackProductFound("open-food-facts", trimmed, product.product_name);
-            trackScanModeAlcohol(trimmed, product.product_name);
-            setLookup({ phase: "found-alcohol", product, result: alcoholResult, dataSource: "open-food-facts" });
-            setSheetVisible(false);
-            setScannerActive(false);
-            scrollToResult();
-            persistHistory([
-              {
-                barcode: product.code,
-                name: product.product_name || "Unnamed Product",
-                brand: product.brands || "Unknown Brand",
-                image: productImage(product),
-                score: alcoholResult.score,
-                color: ALCOHOL_GRADE_COLORS[alcoholResult.grade],
-                scannedAt: Date.now(),
-              },
-              ...history.filter((h) => h.barcode !== product.code),
-            ].slice(0, MAX_HISTORY));
-            inFlightRef.current = null;
-            return;
           } else {
             // Food / supplement path
             const result = computeScore(
@@ -420,7 +474,8 @@ export default function ScanPage() {
                 );
                 return { candidate, candidateResult };
               })
-              .filter(({ candidateResult }) => {
+              .filter(({ candidate, candidateResult }) => {
+                if (!sharesMainCategory(candidate, product)) return false;
                 const scoreGain = candidateResult.finalScore >= result.finalScore + 5;
                 const fewerAdditives = candidateResult.detectedAdditives.length < result.detectedAdditives.length;
                 const betterNova =
@@ -449,95 +504,100 @@ export default function ScanPage() {
         }
 
         // ─────────────────────────────────────────────────────────
-        // STEP 4 — USDA FOODDATA CENTRAL
-        // US government branded-food nutrition database.
+        // STEPS 4–8 — PARALLEL NUTRITION BATCH
+        // Fire UPCitemdb, USDA, FatSecret, NIH DSLD, and Barcode Lookup
+        // simultaneously. Process results in priority order.
+        // Each individual call has a 3-second server-side timeout.
         // ─────────────────────────────────────────────────────────
-        const usdaHit = await lookupUsda(trimmed);
-        if (usdaHit) {
-          // Name-override: USDA sometimes lists alcohol brands — defer to our verified data
-          const usdaCuratedHit = overrideWithCurated(usdaHit.product_name || "", usdaHit.brands);
-          if (usdaCuratedHit) {
-            const servingMl = usdaCuratedHit.servingMl ?? 355;
-            const kind = usdaCuratedHit.category === "IPAs" ? "beer" : usdaCuratedHit.category === "Hard Seltzers" ? "seltzer" : usdaCuratedHit.category === "Ciders" ? "cider" : "beer";
-            const cn = { "energy-kcal_100g": (usdaCuratedHit.caloriesPerCan / servingMl) * 100, carbohydrates_100g: (usdaCuratedHit.carbsPerCan / servingMl) * 100, sugars_100g: (usdaCuratedHit.sugarPerCan / servingMl) * 100, alcohol_100g: usdaCuratedHit.abv };
-            const overrideResult = computeAlcoholScore(cn, undefined, kind);
-            const overriddenProduct: OffProduct = { ...usdaHit, nutriments: cn, product_name: usdaCuratedHit.name, brands: usdaCuratedHit.brand };
+        const [upcRes, usdaRes, fsRes, nihRes, bclRes] = await Promise.allSettled([
+          lookupUpcItemDb(trimmed),
+          lookupUsda(trimmed),
+          lookupFatSecret(trimmed),
+          lookupNihDsld(trimmed),
+          lookupBarcodeLookup(trimmed),
+        ]);
+
+        const upcHit   = upcRes.status  === "fulfilled" ? upcRes.value  : null;
+        const usdaHit  = usdaRes.status === "fulfilled" ? usdaRes.value : null;
+        const fsHit    = fsRes.status   === "fulfilled" ? fsRes.value   : null;
+        const nihHit   = nihRes.status  === "fulfilled" ? nihRes.value  : null;
+        const bclHit   = bclRes.status  === "fulfilled" ? bclRes.value  : null;
+
+        // Helper: score and return a food result
+        const returnFoodHit = async (hit: OffProduct, source: DataSource) => {
+          // Name-override: if external DB found an alcohol product, defer to curated data
+          const curatedOverride = overrideWithCurated(hit.product_name || "", hit.brands);
+          if (curatedOverride) {
+            const servingMl = curatedOverride.servingMl ?? 355;
+            const kind = curatedOverride.category === "IPAs" ? "beer" as const : curatedOverride.category === "Hard Seltzers" ? "seltzer" as const : curatedOverride.category === "Ciders" ? "cider" as const : "beer" as const;
+            const cn = { "energy-kcal_100g": (curatedOverride.caloriesPerCan / servingMl) * 100, carbohydrates_100g: (curatedOverride.carbsPerCan / servingMl) * 100, sugars_100g: (curatedOverride.sugarPerCan / servingMl) * 100, alcohol_100g: curatedOverride.abv };
+            const overrideResult = computeAlcoholScore(cn, undefined, kind, servingMl);
+            const overriddenProduct: OffProduct = { ...hit, nutriments: cn, product_name: curatedOverride.name, brands: curatedOverride.brand };
             setLookup({ phase: "found-alcohol", product: overriddenProduct, result: overrideResult, dataSource: "gorilla-curated" });
             setScannerActive(false); scrollToResult();
-            persistHistory([{ barcode: trimmed, name: usdaCuratedHit.name, brand: usdaCuratedHit.brand, image: null, score: overrideResult.score, color: ALCOHOL_GRADE_COLORS[overrideResult.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
-            inFlightRef.current = null; return;
+            persistHistory([{ barcode: trimmed, name: curatedOverride.name, brand: curatedOverride.brand, image: null, score: overrideResult.score, color: ALCOHOL_GRADE_COLORS[overrideResult.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
+            return;
           }
-          const result = computeScore(
-            usdaHit.nutriments ?? {},
-            usdaHit.ingredients_text,
-            scoringContext(usdaHit)
-          );
-          trackProductFound("usda", trimmed, usdaHit.product_name);
-          trackScanModeFood(trimmed, usdaHit.product_name);
-          setLookup({ phase: "found", product: usdaHit, result, dataSource: "usda" });
+          const result = computeScore(hit.nutriments ?? {}, hit.ingredients_text, scoringContext(hit));
+          trackProductFound(source, trimmed, hit.product_name);
+          trackScanModeFood(trimmed, hit.product_name);
+          setLookup({ phase: "found", product: hit, result, dataSource: source });
           setSheetVisible(true);
-          persistHistory([
-            {
-              barcode: trimmed,
-              name: usdaHit.product_name || "Unnamed Product",
-              brand: usdaHit.brands || "Unknown Brand",
-              image: productImage(usdaHit),
-              score: result.finalScore,
-              color: GRADE_COLORS[result.grade],
-              scannedAt: Date.now(),
-            },
-            ...history.filter((h) => h.barcode !== trimmed),
-          ].slice(0, MAX_HISTORY));
+          persistHistory([{ barcode: trimmed, name: hit.product_name || "Unnamed Product", brand: hit.brands || "Unknown Brand", image: productImage(hit), score: result.finalScore, color: GRADE_COLORS[result.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
           setAlternativesLoading(true);
-          const candidates = await fetchAlternativesMultiLevel(usdaHit);
+          const candidates = await fetchAlternativesMultiLevel(hit);
           const better: Alternative[] = candidates
-            .map((c) => {
-              const cr = computeScore(c.nutriments ?? {}, c.ingredients_text || c.ingredients_text_en, scoringContext(c));
-              return { candidate: c, candidateResult: cr };
-            })
-            .filter(({ candidateResult }) => candidateResult.finalScore >= result.finalScore + 5)
+            .map((c) => { const cr = computeScore(c.nutriments ?? {}, c.ingredients_text || c.ingredients_text_en, scoringContext(c)); return { candidate: c, candidateResult: cr }; })
+            .filter(({ candidate, candidateResult }) => sharesMainCategory(candidate, hit) && candidateResult.finalScore >= result.finalScore + 5)
             .sort((a, b) => b.candidateResult.finalScore - a.candidateResult.finalScore)
             .slice(0, 3)
             .map(({ candidate, candidateResult }) => ({ type: "off-match" as const, product: candidate, score: candidateResult.finalScore }));
-          setAlternatives(better.length > 0 ? better : gorillaSuggestionsFor(usdaHit.categories_tags ?? []));
+          setAlternatives(better.length > 0 ? better : gorillaSuggestionsFor(hit.categories_tags ?? []));
           setAlternativesLoading(false);
+        };
+
+        // STEP 4 — USDA (best nutrition data — checked first in nutrition priority)
+        if (usdaHit) { await returnFoodHit(usdaHit, "usda"); inFlightRef.current = null; return; }
+
+        // STEP 5 — FATSECRET
+        if (fsHit) { await returnFoodHit(fsHit, "fatsecret"); inFlightRef.current = null; return; }
+
+        // STEP 6 — BARCODE LOOKUP (may have nutrition data)
+        if (bclHit && Object.keys(bclHit.nutriments ?? {}).length > 0) {
+          await returnFoodHit(bclHit, "barcode-lookup");
           inFlightRef.current = null;
           return;
         }
 
+        // STEP 7 — NIH DSLD (supplement labels — takes priority over identification-only)
+        if (nihHit) {
+          trackProductFound("nih-dsld", trimmed, nihHit.productName);
+          setLookup({ phase: "found-supplement", product: nihHit });
+          setScannerActive(false);
+          scrollToResult();
+          persistHistory([{ barcode: trimmed, name: nihHit.productName, brand: nihHit.brandName || "Unknown Brand", image: null, score: 0, color: "#3b82f6", scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
+          inFlightRef.current = null;
+          return;
+        }
+
+        // STEP 8 — UPCITEMDB (identification only — name/brand/category, no nutrition score)
+        if (upcHit) { await returnFoodHit(upcHit, "upcitemdb"); inFlightRef.current = null; return; }
+
+        // STEP 8b — BARCODE LOOKUP (identification-only fallback, no nutrition)
+        if (bclHit) { await returnFoodHit(bclHit, "barcode-lookup"); inFlightRef.current = null; return; }
+
         // ─────────────────────────────────────────────────────────
-        // STEP 5 — NUTRITIONIX
-        // 500-call/day free tier. Requires NUTRITIONIX_APP_ID + NUTRITIONIX_APP_KEY.
+        // STEP 9 — NUTRITIONIX (legacy; kept for backwards compat)
         // ─────────────────────────────────────────────────────────
         const nxHit = await lookupNutritionix(trimmed);
         if (nxHit) {
-          const result = computeScore(
-            nxHit.nutriments ?? {},
-            nxHit.ingredients_text,
-            scoringContext(nxHit)
-          );
-          trackProductFound("nutritionix", trimmed, nxHit.product_name);
-          trackScanModeFood(trimmed, nxHit.product_name);
-          setLookup({ phase: "found", product: nxHit, result, dataSource: "nutritionix" });
-          setSheetVisible(true);
-          persistHistory([
-            {
-              barcode: trimmed,
-              name: nxHit.product_name || "Unnamed Product",
-              brand: nxHit.brands || "Unknown Brand",
-              image: productImage(nxHit),
-              score: result.finalScore,
-              color: GRADE_COLORS[result.grade],
-              scannedAt: Date.now(),
-            },
-            ...history.filter((h) => h.barcode !== trimmed),
-          ].slice(0, MAX_HISTORY));
+          await returnFoodHit(nxHit, "nutritionix");
           inFlightRef.current = null;
           return;
         }
 
         // ─────────────────────────────────────────────────────────
-        // STEP 6 — OPEN BEAUTY FACTS
+        // STEP 10 — OPEN BEAUTY FACTS
         // Cosmetics database — purple BEAUTY PRODUCT banner.
         // ─────────────────────────────────────────────────────────
         const beautyResult = await lookupBeautyBarcode(trimmed);
@@ -566,13 +626,63 @@ export default function ScanPage() {
         }
 
         // ─────────────────────────────────────────────────────────
-        // STEP 7 — COLA CLOUD (TTB Government Alcohol Registry)
+        // STEP 11 — WINEVYBE (RapidAPI beer/wine DB)
+        // Requires RAPIDAPI_KEY env var. For alcohol products.
+        // ─────────────────────────────────────────────────────────
+        const wineVybeHit = await lookupWineVybe(trimmed);
+        if (wineVybeHit) {
+          logMissedScan(trimmed, "alcohol");
+          const abv = wineVybeHit.abv;
+          const nutriments = abv !== null ? { alcohol_100g: abv } : {};
+          const syntheticProduct: OffProduct = {
+            code: trimmed,
+            product_name: wineVybeHit.name,
+            brands: wineVybeHit.brand || undefined,
+            categories_tags: ["en:alcoholic-beverages", "en:beers"],
+            nutriments,
+          };
+          const alcoholResult = computeAlcoholScore(nutriments, undefined, "beer");
+          setFallbackProduct(wineVybeHit);
+          setLookup({ phase: "found-alcohol", product: syntheticProduct, result: alcoholResult, dataSource: "winevybe" });
+          setScannerActive(false);
+          scrollToResult();
+          persistHistory([{ barcode: trimmed, name: wineVybeHit.name, brand: wineVybeHit.brand || "Unknown Brand", image: null, score: alcoholResult.score, color: ALCOHOL_GRADE_COLORS[alcoholResult.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
+          inFlightRef.current = null;
+          return;
+        }
+
+        // ─────────────────────────────────────────────────────────
+        // STEP 12 — WINE ANALYZER (wine-specific fallback after WineVybe)
+        // ─────────────────────────────────────────────────────────
+        const wineAnalyzerHit = await lookupWineAnalyzer(trimmed);
+        if (wineAnalyzerHit) {
+          logMissedScan(trimmed, "alcohol");
+          const abv = wineAnalyzerHit.abv;
+          const nutriments = abv !== null ? { alcohol_100g: abv } : {};
+          const syntheticProduct: OffProduct = {
+            code: trimmed,
+            product_name: wineAnalyzerHit.name,
+            brands: wineAnalyzerHit.brand || undefined,
+            categories_tags: ["en:alcoholic-beverages", "en:wines"],
+            nutriments,
+          };
+          const alcoholResult = computeAlcoholScore(nutriments, undefined, "wine");
+          setFallbackProduct(wineAnalyzerHit);
+          setLookup({ phase: "found-alcohol", product: syntheticProduct, result: alcoholResult, dataSource: "wine-analyzer" });
+          setScannerActive(false);
+          scrollToResult();
+          persistHistory([{ barcode: trimmed, name: wineAnalyzerHit.name, brand: wineAnalyzerHit.brand || "Unknown Brand", image: null, score: alcoholResult.score, color: ALCOHOL_GRADE_COLORS[alcoholResult.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
+          inFlightRef.current = null;
+          return;
+        }
+
+        // ─────────────────────────────────────────────────────────
+        // STEP 13 — COLA CLOUD (TTB Government Alcohol Registry)
         // Free US government API. Certificate of Label Approval records.
         // ─────────────────────────────────────────────────────────
         const colaHit = await lookupColaCloud(trimmed);
         if (colaHit) {
           logMissedScan(trimmed, "alcohol");
-          // Try to match curated nutrition by product name
           const curatedMatch = lookupCuratedByName(colaHit.name);
           const servingMl = curatedMatch?.servingMl ?? 355;
           const abv = colaHit.abv ?? curatedMatch?.abv ?? null;
@@ -593,56 +703,18 @@ export default function ScanPage() {
             categories_tags: ["en:alcoholic-beverages", "en:beers"],
             nutriments,
           };
-          const alcoholResult = computeAlcoholScore(
-            nutriments,
-            undefined,
-            "beer"
-          );
+          const alcoholResult = computeAlcoholScore(nutriments, undefined, "beer");
           setFallbackProduct(colaHit);
-          setLookup({
-            phase: "found-alcohol",
-            product: syntheticProduct,
-            result: alcoholResult,
-            dataSource: "cola-verified",
-          });
+          setLookup({ phase: "found-alcohol", product: syntheticProduct, result: alcoholResult, dataSource: "cola-verified" });
           setScannerActive(false);
           scrollToResult();
-          persistHistory([
-            {
-              barcode: trimmed,
-              name: colaHit.name,
-              brand: colaHit.brand || "Unknown Brand",
-              image: null,
-              score: alcoholResult.score,
-              color: ALCOHOL_GRADE_COLORS[alcoholResult.grade],
-              scannedAt: Date.now(),
-            },
-            ...history.filter((h) => h.barcode !== trimmed),
-          ].slice(0, MAX_HISTORY));
+          persistHistory([{ barcode: trimmed, name: colaHit.name, brand: colaHit.brand || "Unknown Brand", image: null, score: alcoholResult.score, color: ALCOHOL_GRADE_COLORS[alcoholResult.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
           inFlightRef.current = null;
           return;
         }
 
         // ─────────────────────────────────────────────────────────
-        // STEP 7b — WINEVYBE (RapidAPI beer/wine DB, secondary alcohol fallback)
-        // Requires RAPIDAPI_KEY env var. Shows submit form when found.
-        // ─────────────────────────────────────────────────────────
-        const wineVybeHit = await lookupWineVybe(trimmed);
-        if (wineVybeHit) {
-          logMissedScan(trimmed, "alcohol");
-          setFallbackProduct(wineVybeHit);
-          setShowSubmitForm(true);
-          setLookup({
-            phase: "not-found",
-            barcode: trimmed,
-            message: `Found "${wineVybeHit.name}" on WineVybe${wineVybeHit.abv ? ` (${wineVybeHit.abv}% ABV)` : ""}. Submit the nutritional details below to complete the record.`,
-          });
-          inFlightRef.current = null;
-          return;
-        }
-
-        // ─────────────────────────────────────────────────────────
-        // STEP 8 — GO-UPC
+        // STEP 14 — GO-UPC
         // 500M+ products worldwide. Returns name, brand, image, category.
         // Requires GOUPC_API_KEY env var. No nutrition scoring available.
         // ─────────────────────────────────────────────────────────
@@ -651,24 +723,13 @@ export default function ScanPage() {
           setLookup({ phase: "found-generic", product: goupcHit });
           setScannerActive(false);
           scrollToResult();
-          persistHistory([
-            {
-              barcode: trimmed,
-              name: goupcHit.name,
-              brand: goupcHit.brand || "Unknown Brand",
-              image: goupcHit.image,
-              score: 0,
-              color: "#6b7280",
-              scannedAt: Date.now(),
-            },
-            ...history.filter((h) => h.barcode !== trimmed),
-          ].slice(0, MAX_HISTORY));
+          persistHistory([{ barcode: trimmed, name: goupcHit.name, brand: goupcHit.brand || "Unknown Brand", image: goupcHit.image, score: 0, color: "#6b7280", scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
           inFlightRef.current = null;
           return;
         }
 
         // ─────────────────────────────────────────────────────────
-        // STEP 9 — OPEN DRUG FACTS
+        // STEP 15 — OPEN DRUG FACTS
         // OTC drugs and medications. Blue MEDICATION banner + disclaimer.
         // ─────────────────────────────────────────────────────────
         const drugHit = await lookupDrugFacts(trimmed);
@@ -681,9 +742,8 @@ export default function ScanPage() {
         }
 
         // ─────────────────────────────────────────────────────────
-        // STEP 10 — NOT FOUND
+        // STEP 16 — NOT FOUND
         // All sources exhausted. Log to missed_scans and show clean card.
-        // Always resolves within ~3s from first call.
         // ─────────────────────────────────────────────────────────
         logMissedScan(trimmed, "unknown");
         trackProductNotFound(trimmed);
@@ -759,8 +819,8 @@ export default function ScanPage() {
         </h1>
         <p className="mt-4 text-muted">
           Activate your camera, hold a barcode steady in the frame, and Gorilla
-          Fuel checks 9 data sources instantly — food, alcohol, beauty, and medication
-          barcodes all supported.
+          Fuel checks 12 data sources instantly — food, supplements, alcohol, beauty,
+          and medication barcodes all supported.
         </p>
       </div>
 
@@ -809,7 +869,7 @@ export default function ScanPage() {
               <div className="px-6 py-5">
                 <p className="font-mono text-xs text-gold/60">{lookup.barcode}</p>
                 <p className="mt-2 text-sm leading-relaxed text-muted">
-                  {lookup.message ?? "This product is not in our database yet."}
+                  {lookup.message ?? "We checked 8 databases and this product is not in any of them yet."}
                 </p>
                 <div className="mt-5 flex flex-wrap gap-3">
                   <button
@@ -928,6 +988,10 @@ export default function ScanPage() {
 
         {lookup.phase === "found-drug" && (
           <DrugResultCard product={lookup.product} />
+        )}
+
+        {lookup.phase === "found-supplement" && (
+          <SupplementResultCard product={lookup.product} />
         )}
       </div>
 

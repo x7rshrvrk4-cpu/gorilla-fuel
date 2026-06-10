@@ -32,3 +32,20 @@ export async function lookupNutritionix(barcode: string): Promise<OffProduct | n
     return null;
   }
 }
+
+/**
+ * Looks up a barcode against the FatSecret Platform API via OAuth 2.0.
+ * Requires FATSECRET_CLIENT_ID and FATSECRET_CLIENT_SECRET env vars.
+ * Returns an OffProduct-shaped object with per-serving nutrition data, or null.
+ * Never throws — any OAuth or API failure is silently skipped.
+ */
+export async function lookupFatSecret(barcode: string): Promise<OffProduct | null> {
+  try {
+    const res = await fetch(`/api/fatsecret?barcode=${encodeURIComponent(barcode)}`);
+    if (!res.ok) return null;
+    const data: OffProduct | null = await res.json();
+    return data?.product_name ? data : null;
+  } catch {
+    return null;
+  }
+}

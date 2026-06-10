@@ -1,11 +1,12 @@
 import type { ColaProduct } from "../../api/cola/route";
 import type { WineVybeProduct } from "../../api/winevybe/route";
+import type { WineAnalyzerProduct } from "../../api/wineanalyzer/route";
 
 export type FallbackAlcoholProduct = {
   name: string;
   brand: string;
   abv: number | null;
-  source: "COLA Cloud" | "WineVybe";
+  source: "COLA Cloud" | "WineVybe" | "Wine Analyzer";
 };
 
 /**
@@ -50,6 +51,29 @@ export async function lookupWineVybe(barcode: string): Promise<FallbackAlcoholPr
       brand: data.brand ?? "",
       abv: data.abv ?? null,
       source: "WineVybe",
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Looks up a barcode against the Wine Analyzer API via RapidAPI.
+ * Used as a wine-specific fallback after WineVybe returns no result.
+ * Requires RAPIDAPI_KEY env var.
+ */
+export async function lookupWineAnalyzer(barcode: string): Promise<FallbackAlcoholProduct | null> {
+  try {
+    const res = await fetch(`/api/wineanalyzer?barcode=${encodeURIComponent(barcode)}`);
+    if (!res.ok) return null;
+    const data: WineAnalyzerProduct | null = await res.json();
+    if (!data || !data.name) return null;
+
+    return {
+      name: data.name,
+      brand: data.brand ?? "",
+      abv: data.abv ?? null,
+      source: "Wine Analyzer",
     };
   } catch {
     return null;
