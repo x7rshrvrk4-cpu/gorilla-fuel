@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, DM_Sans } from "next/font/google";
+import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import Navigation from "./components/Navigation";
 import SiteFooter from "./components/SiteFooter";
 import "./globals.css";
+
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 const bebasNeue = Bebas_Neue({
   variable: "--font-bebas",
@@ -49,10 +53,24 @@ export default function RootLayout({
       lang="en"
       className={`${bebasNeue.variable} ${dmSans.variable} h-full antialiased`}
     >
+      <head>
+        {GA_ID && (
+          <>
+            <Script
+              strategy="afterInteractive"
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+            />
+            <Script strategy="afterInteractive" id="ga-init">
+              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}
+            </Script>
+          </>
+        )}
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground font-body">
         <Navigation />
         <div className="flex-1 flex flex-col">{children}</div>
         <SiteFooter />
+        <Analytics />
       </body>
     </html>
   );

@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CrossLinkBanner from "../components/CrossLinkBanner";
 import AlcoholDisclaimer from "../scan/components/AlcoholDisclaimer";
 import AlcoholProductCard from "./components/AlcoholProductCard";
 import { ALCOHOL_CATEGORIES, ALCOHOL_PRODUCTS, type AlcoholCategory } from "./lib/products";
+import { trackAlcoholRankingViewed } from "../lib/gtag";
 
 type FilterKey = "all" | "cleanest" | "low-carb" | "low-cal" | "seltzer";
 
@@ -19,6 +20,10 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 export default function AlcoholRankingsPage() {
   const [category, setCategory] = useState<AlcoholCategory>("Light Beers");
   const [filter, setFilter] = useState<FilterKey>("all");
+
+  useEffect(() => {
+    trackAlcoholRankingViewed();
+  }, []);
 
   const products = useMemo(() => {
     return ALCOHOL_PRODUCTS.filter((p) => p.category === category)

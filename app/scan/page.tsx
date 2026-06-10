@@ -40,6 +40,13 @@ import { lookupUsda, lookupNutritionix } from "./lib/externalFood";
 import { lookupGoUpc, lookupDrugFacts, type GoUpcProduct, type DrugProduct } from "./lib/externalGeneral";
 import { lookupCuratedByBarcode, lookupCuratedByName, overrideWithCurated } from "../alcohol/lib/products";
 import type { DataSource } from "./components/SourceBadge";
+import {
+  trackBarcodeScanned,
+  trackProductFound,
+  trackProductNotFound,
+  trackScanModeAlcohol,
+  trackScanModeFood,
+} from "../lib/gtag";
 
 const HISTORY_KEY = "gorilla-fuel-scan-history";
 const MAX_HISTORY = 6;
@@ -172,6 +179,17 @@ export default function ScanPage() {
       setFallbackProduct(null);
       setLookup({ phase: "loading", barcode: trimmed });
 
+      // Hard timeout — if all API calls take longer than 12 s, show not-found
+      // rather than spinning indefinitely.
+      const timeoutId = window.setTimeout(() => {
+        if (inFlightRef.current === trimmed) {
+          inFlightRef.current = null;
+          trackProductNotFound(trimmed);
+          setAlternativesLoading(false);
+          setLookup({ phase: "not-found", barcode: trimmed });
+        }
+      }, 12_000);
+
       try {
 
         // ─────────────────────────────────────────────────────────
@@ -199,6 +217,8 @@ export default function ScanPage() {
             nutriments,
           };
           const alcoholResult = computeAlcoholScore(nutriments, undefined, kind, servingMl);
+          trackProductFound("gorilla-curated", trimmed, curatedHit.name);
+          trackScanModeAlcohol(trimmed, curatedHit.name);
           setLookup({ phase: "found-alcohol", product: syntheticProduct, result: alcoholResult, dataSource: "gorilla-curated" });
           setScannerActive(false);
           scrollToResult();
@@ -300,6 +320,8 @@ export default function ScanPage() {
               product.ingredients_text || product.ingredients_text_en,
               detectAlcoholKind(product.categories_tags)
             );
+            trackProductFound("open-food-facts", trimmed, product.product_name);
+            trackScanModeAlcohol(trimmed, product.product_name);
             setLookup({ phase: "found-alcohol", product, result: alcoholResult, dataSource: "open-food-facts" });
             setSheetVisible(false);
             setScannerActive(false);
@@ -326,6 +348,8 @@ export default function ScanPage() {
               scoringContext(product)
             );
             const lowConfidence = isCanadianBarcode(trimmed) && !hasCanadianOrGlobalMarketData(product);
+            trackProductFound("open-food-facts", trimmed, product.product_name);
+            trackScanModeFood(trimmed, product.product_name);
             setLookup({ phase: "found", product, result, lowConfidence, dataSource: "open-food-facts" });
             setSheetVisible(true);
             persistHistory([
@@ -403,6 +427,8 @@ export default function ScanPage() {
             usdaHit.ingredients_text,
             scoringContext(usdaHit)
           );
+          trackProductFound("usda", trimmed, usdaHit.product_name);
+          trackScanModeFood(trimmed, usdaHit.product_name);
           setLookup({ phase: "found", product: usdaHit, result, dataSource: "usda" });
           setSheetVisible(true);
           persistHistory([
@@ -445,6 +471,8 @@ export default function ScanPage() {
             nxHit.ingredients_text,
             scoringContext(nxHit)
           );
+          trackProductFound("nutritionix", trimmed, nxHit.product_name);
+          trackScanModeFood(trimmed, nxHit.product_name);
           setLookup({ phase: "found", product: nxHit, result, dataSource: "nutritionix" });
           setSheetVisible(true);
           persistHistory([
@@ -613,6 +641,7 @@ export default function ScanPage() {
         // Always resolves within ~3s from first call.
         // ─────────────────────────────────────────────────────────
         logMissedScan(trimmed, "unknown");
+        trackProductNotFound(trimmed);
         setLookup({ phase: "not-found", barcode: trimmed });
 
       } catch (err) {
@@ -620,6 +649,7 @@ export default function ScanPage() {
         setLookup({ phase: "error", barcode: trimmed, message: "Something went wrong — please try again." });
         setAlternativesLoading(false);
       } finally {
+        clearTimeout(timeoutId);
         inFlightRef.current = null;
       }
     },
@@ -628,6 +658,7 @@ export default function ScanPage() {
 
   const handleDetected = useCallback(
     (barcode: string) => {
+      trackBarcodeScanned(barcode);
       runLookup(barcode);
     },
     [runLookup]
