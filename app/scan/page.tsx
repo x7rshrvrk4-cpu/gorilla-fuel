@@ -47,6 +47,7 @@ import {
   trackScanModeAlcohol,
   trackScanModeFood,
 } from "../lib/gtag";
+import ScanConfirmationOverlay from "./components/ScanConfirmationOverlay";
 
 const HISTORY_KEY = "gorilla-fuel-scan-history";
 const MAX_HISTORY = 6;
@@ -110,6 +111,13 @@ type LookupState =
   | { phase: "found-generic"; product: GoUpcProduct }
   | { phase: "found-drug"; product: DrugProduct };
 
+/** Governs the fullscreen scan-confirmation overlay lifecycle. */
+type ScanOverlayState =
+  | { phase: "idle" }
+  | { phase: "scanning" | "not-found"; barcode: string };
+
+const FOUND_PHASES = new Set(["found", "found-alcohol", "found-beauty", "found-generic", "found-drug"]);
+
 export default function ScanPage() {
   const [scannerActive, setScannerActive] = useState(false);
   const [sheetVisible, setSheetVisible] = useState(false);
@@ -123,6 +131,12 @@ export default function ScanPage() {
   const [alternativesLoading, setAlternativesLoading] = useState(false);
   const inFlightRef = useRef<string | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
+
+  // ── Scan confirmation overlay state ──────────────────────────────────────
+  const [scanOverlay, setScanOverlay] = useState<ScanOverlayState>({ phase: "idle" });
+  const [overlayExiting, setOverlayExiting] = useState(false);
+  // Applied to the result area on scanner-triggered lookups for a stronger entrance
+  const [resultFromScan, setResultFromScan] = useState(false);
 
   useEffect(() => {
     try {
@@ -151,6 +165,12 @@ export default function ScanPage() {
     };
   }, [scannerActive]);
 
+  const scrollToResult = useCallback(() => {
+    window.setTimeout(() => {
+      resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
+  }, []);
+
   const persistHistory = useCallback((entries: HistoryEntry[]) => {
     setHistory(entries);
     try {
@@ -160,11 +180,36 @@ export default function ScanPage() {
     }
   }, []);
 
-  const scrollToResult = useCallback(() => {
-    window.setTimeout(() => {
-      resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 150);
-  }, []);
+  // ── Overlay: 5-second not-found timeout ─────────────────────────────────
+  // If the API hasn't returned a result after 5 s, flip the overlay to NOT FOUND.
+  useEffect(() => {
+    if (scanOverlay.phase !== "scanning") return;
+    const bc = scanOverlay.barcode;
+    const t = window.setTimeout(() => {
+      setScanOverlay((prev) =>
+        prev.phase === "scanning" && prev.barcode === bc
+          ? { phase: "not-found", barcode: bc }
+          : prev
+      );
+    }, 5000);
+    return () => clearTimeout(t);
+  }, [scanOverlay]);
+
+  // ── Overlay: dismiss when a real result arrives ───────────────────────────
+  // Only FOUND phases trigger the overlay exit — the overlay itself handles NOT FOUND UX.
+  useEffect(() => {
+    if (scanOverlay.phase === "idle") return;
+    if (!FOUND_PHASES.has(lookup.phase)) return;
+    setOverlayExiting(true);
+    const t = window.setTimeout(() => {
+      setScanOverlay({ phase: "idle" });
+      setOverlayExiting(false);
+      setResultFromScan(true);
+      setScannerActive(false);
+      scrollToResult();
+    }, 320);
+    return () => clearTimeout(t);
+  }, [lookup.phase, scanOverlay.phase, scrollToResult]);
 
   const runLookup = useCallback(
     async (barcode: string) => {
@@ -659,6 +704,8 @@ export default function ScanPage() {
   const handleDetected = useCallback(
     (barcode: string) => {
       trackBarcodeScanned(barcode);
+      setScanOverlay({ phase: "scanning", barcode });
+      setResultFromScan(false);
       runLookup(barcode);
     },
     [runLookup]
@@ -685,6 +732,23 @@ export default function ScanPage() {
     setShowSubmitForm(false);
     setScannerActive(true);
   }, []);
+
+  const handleOverlayTryAgain = useCallback(() => {
+    setScanOverlay({ phase: "idle" });
+    setOverlayExiting(false);
+    setLookup({ phase: "idle" });
+    setShowSubmitForm(false);
+    // scanner stays active — user can immediately re-scan
+  }, []);
+
+  const handleOverlaySubmit = useCallback(() => {
+    const bc = scanOverlay.phase !== "idle" ? (scanOverlay as { phase: string; barcode: string }).barcode : "";
+    setScanOverlay({ phase: "idle" });
+    setOverlayExiting(false);
+    setScannerActive(false);
+    setShowSubmitForm(true);
+    if (bc) setLookup({ phase: "not-found", barcode: bc });
+  }, [scanOverlay]);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-12 sm:px-8 sm:py-16">
@@ -723,7 +787,7 @@ export default function ScanPage() {
       </div>
 
       {/* RESULTS */}
-      <div ref={resultRef} className="mt-10">
+      <div ref={resultRef} className={`mt-10${resultFromScan ? " animate-scan-result-rise" : ""}`}>
         {lookup.phase === "loading" && (
           <div className="gorilla-card flex items-center gap-4 rounded-sm p-6">
             <span className="h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
@@ -910,6 +974,15 @@ export default function ScanPage() {
               result={lookup.result}
               onDismiss={() => setSheetVisible(false)}
               onViewFull={handleViewFull}
+            />
+          )}
+          {scanOverlay.phase !== "idle" && (
+            <ScanConfirmationOverlay
+              phase={scanOverlay.phase}
+              barcode={scanOverlay.barcode}
+              exiting={overlayExiting}
+              onTryAgain={handleOverlayTryAgain}
+              onSubmit={handleOverlaySubmit}
             />
           )}
         </>
