@@ -198,7 +198,7 @@ export default function ScanPage() {
             categories_tags: ["en:alcoholic-beverages", `en:${curatedHit.category.toLowerCase().replace(/\s+/g, "-")}`],
             nutriments,
           };
-          const alcoholResult = computeAlcoholScore(nutriments, undefined, kind);
+          const alcoholResult = computeAlcoholScore(nutriments, undefined, kind, servingMl);
           setLookup({ phase: "found-alcohol", product: syntheticProduct, result: alcoholResult, dataSource: "gorilla-curated" });
           setScannerActive(false);
           scrollToResult();
@@ -287,7 +287,7 @@ export default function ScanPage() {
                 alcohol_100g: curatedNameHit.abv,
               };
               const overriddenProduct: OffProduct = { ...product, nutriments: curatedNutriments, product_name: curatedNameHit.name, brands: curatedNameHit.brand };
-              const overrideResult = computeAlcoholScore(curatedNutriments, undefined, kind);
+              const overrideResult = computeAlcoholScore(curatedNutriments, undefined, kind, servingMl);
               setLookup({ phase: "found-alcohol", product: overriddenProduct, result: overrideResult, dataSource: "gorilla-curated" });
               setScannerActive(false);
               scrollToResult();

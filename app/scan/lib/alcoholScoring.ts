@@ -472,9 +472,10 @@ function round1(value: number): number {
 export function computeAlcoholScore(
   nutriments: Nutriments,
   ingredientsText: string | undefined,
-  kind: AlcoholKind
+  kind: AlcoholKind,
+  customServingMl?: number
 ): AlcoholScoreResult {
-  const referenceServingMl = REFERENCE_SERVING_ML[kind];
+  const referenceServingMl = customServingMl ?? REFERENCE_SERVING_ML[kind];
 
   // Beverages have a density close enough to water (~1g/mL) that OFF's
   // per-100g nutriment figures are the right stand-in for per-100mL.

@@ -847,31 +847,37 @@ export function scoreNutrition(
   const protein = n.proteins_100g ?? 0;
   const servingSize = context?.servingSize ?? null;
 
-  // ── Phase 5: Precautionary penalties for missing data in high-risk categories ──
+  // ── Precautionary penalties for missing data in high-risk categories ──────
   // Incomplete data on products we have categorical reason to suspect are
   // high-fat / high-sodium makes the score go DOWN, not stay falsely clean.
   const cats = (context?.categoriesTags ?? []).join(" ").toLowerCase();
   const noNova = context?.novaGroup == null;
-  const isSnackCat = /chips|crisps|crackers|cheese[\s-]snack|cheese puff|corn snack|pretzel|popcorn|candy|confectionery|cookies|biscuits|chocolate\b/.test(cats);
+
+  // Broad snack/confectionery pattern — includes the OFF taxonomy slugs that
+  // encode "en:snacks", "en:salty-snacks", "en:cheese-sticks", etc.
+  const isSnackCat = /\bchips\b|\bcrisps\b|\bcrackers\b|cheese[\s-]?snack|cheese[\s-]?puff|cheese[\s-]?stick|corn[\s-]?snack|pretzel|popcorn|\bcandy\b|candies|confectionery|cookies|biscuits|\bchocolate\b|salty[\s-]?snack|\bsnacks?\b/.test(cats);
   const isDairyCheeseCat = /cheese|dairy[\s-]snack/.test(cats);
-  const isSaltyCat = /chips|crisps|snack|crackers|pretzel|popcorn/.test(cats);
+  const isSaltyCat = /\bchips\b|\bcrisps\b|\bsnacks?\b|\bcrackers\b|pretzel|popcorn/.test(cats);
 
   if (noNova && isSnackCat) {
     score -= 10;
+    // For snack-category products with no NOVA data, cap at 50 so missing
+    // processing info can't prop the score up artificially.
+    score = Math.min(score, 50);
     flags.push(
-      "NOVA group unavailable — snack/confectionery category indicates ultra-processed (inferred NOVA 4). 10-point precautionary penalty applied."
+      "NOVA group missing — snack/confectionery category detected. Ultra-processed assumed (inferred NOVA 4), score capped at 50. Incomplete data makes scores go down, not stay high."
     );
   }
   if (n["saturated-fat_100g"] === undefined && isDairyCheeseCat) {
     score -= 8;
     flags.push(
-      "Saturated fat data not disclosed for cheese/dairy snack — 8-point precautionary deduction. Conservative scoring: incomplete data makes scores go down, not stay high."
+      "Saturated fat not disclosed for cheese/dairy snack — 8-point precautionary deduction. Incomplete data makes scores go down, not stay high."
     );
   }
   if (n.salt_100g === undefined && isSaltyCat) {
     score -= 8;
     flags.push(
-      "Sodium data not disclosed for salty snack — 8-point precautionary deduction. Conservative scoring: incomplete data makes scores go down, not stay high."
+      "Sodium not disclosed for salty snack — 8-point precautionary deduction. Incomplete data makes scores go down, not stay high."
     );
   }
 
@@ -994,14 +1000,13 @@ function isProbablyArtificialSweetened(
   // Ingredient text available → normal additive detection handles it.
   if (ingredientsText && ingredientsText.trim().length >= 8) return false;
 
-  // Need actual nutrition values to infer; an entirely blank OFF record gives us nothing.
-  if (nutriments.sugars_100g === undefined || nutriments["energy-kcal_100g"] === undefined) return false;
-
-  // Near-zero sugar AND near-zero calories: the only way to achieve perceivable
-  // sweetness without any caloric contribution is via artificial sweeteners.
-  // We allow a small rounding margin (≤0.5g sugar, ≤5 kcal).
+  // Sugar must be defined and near-zero. Calories don't need to be present —
+  // if sugar is 0 on a named soda/diet drink, sweeteners are effectively certain.
+  if (nutriments.sugars_100g === undefined) return false;
   if ((nutriments.sugars_100g ?? 0) > 0.5) return false;
-  if ((nutriments["energy-kcal_100g"] ?? 0) > 5) return false;
+
+  // If calories are defined they must be near-zero (allow up to 10 kcal to handle rounding).
+  if (nutriments["energy-kcal_100g"] !== undefined && (nutriments["energy-kcal_100g"] ?? 0) > 10) return false;
 
   // Must look like a beverage type that would actually be sweetened (not plain water).
   const name = (context?.productName ?? "").toLowerCase();
@@ -1036,6 +1041,18 @@ export function computeScore(
     isProbablyArtificialSweetened(nutriments, ingredientsText, context) &&
     additives.detected.length === 0;
 
+  // For snack-category products with no ingredient text, the additive score of 100
+  // ("nothing detected = clean") overstates confidence — we simply don't know what's
+  // in there. Cap at 60 so the final score reflects missing information.
+  const catsStrCompute = (context?.categoriesTags ?? []).join(" ").toLowerCase();
+  const isSnackNoIngredients =
+    !ingredientsText &&
+    !inferredSweeteners &&
+    /\bsnacks?\b|chips|crisps|crackers|cheese[\s-]?snack|salty[\s-]?snack/.test(catsStrCompute);
+  if (isSnackNoIngredients && effectiveAdditiveScore === 100) {
+    effectiveAdditiveScore = 60;
+  }
+
   if (inferredSweeteners) {
     effectiveNutritionScore = Math.max(0, nutrition.score - 40);
     effectiveAdditiveScore = Math.min(50, additives.score);
@@ -1061,7 +1078,18 @@ export function computeScore(
 
   // 60% nutrition, 30% additives, 10% organic — the organic dimension is a pure
   // bonus (0 or +10), never a penalty, since its absence isn't itself a red flag.
-  const finalScore = Math.round(effectiveNutritionScore * 0.6 + effectiveAdditiveScore * 0.3 + organicBonus);
+  let finalScore = Math.round(effectiveNutritionScore * 0.6 + effectiveAdditiveScore * 0.3 + organicBonus);
+
+  // Zero-sugar beverages with artificial sweeteners must not score above 55.
+  // Without this cap, a clean-looking nutrition profile (100) + mild additive
+  // penalties still produces ~80. The sweetener burden is real even when macros
+  // look clean — the cap enforces the rule regardless of which sweetener was detected.
+  const SWEETENER_IDS = new Set(["aspartame", "acesulfame-k", "sucralose", "saccharin", "cyclamate", "artificial-sweeteners-inferred"]);
+  const hasSweetener = effectiveDetected.some((a) => SWEETENER_IDS.has(a.id));
+  const isZeroSugarProduct = (nutriments.sugars_100g ?? 1) <= 0.5;
+  if (hasSweetener && isZeroSugarProduct) {
+    finalScore = Math.min(finalScore, 55);
+  }
 
   const flags = [...nutrition.flags];
   const positives = [...nutrition.positives];

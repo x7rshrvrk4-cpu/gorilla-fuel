@@ -1253,7 +1253,7 @@ function normName(s: string): string {
     .toLowerCase()
     .replace(/\(.*?\)/g, "") // remove parentheticals like "(473mL)"
     .replace(/[^a-z0-9\s]/g, " ")
-    .replace(/\b(beer|lager|ale|ipa|pilsner|stout|cider|seltzer|hard|light|lite|original|classic|draught|draft|extra|special|premium|ice|dry|golden|gold|silver|canadian|the|and|de|la)\b/g, " ")
+    .replace(/\b(beer|lager|ale|ipa|pilsner|stout|cider|seltzer|hard|draught|draft|canadian|the|and|de|la)\b/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
