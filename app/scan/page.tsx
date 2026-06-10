@@ -36,12 +36,11 @@ import {
 } from "./lib/communityProducts";
 import { logMissedScan } from "./lib/missedScans";
 import { lookupColaCloud, lookupWineVybe, lookupWineAnalyzer, type FallbackAlcoholProduct } from "./lib/externalAlcohol";
-import { lookupUsda, lookupNutritionix, lookupFatSecret } from "./lib/externalFood";
+import { lookupNutritionix, lookupFatSecret } from "./lib/externalFood";
 import {
   lookupGoUpc,
   lookupDrugFacts,
   lookupUpcItemDb,
-  lookupBarcodeLookup,
   lookupNihDsld,
   type GoUpcProduct,
   type DrugProduct,
@@ -58,6 +57,7 @@ import {
 } from "../lib/gtag";
 import ScanConfirmationOverlay from "./components/ScanConfirmationOverlay";
 import SupplementResultCard from "./components/SupplementResultCard";
+import { lookupCuratedFood } from "./lib/curatedFoods";
 
 const HISTORY_KEY = "gorilla-fuel-scan-history";
 const MAX_HISTORY = 6;
@@ -289,6 +289,7 @@ export default function ScanPage() {
         // STEP 1 — GORILLA CURATED DATABASE
         // Our own verified alcohol products take absolute priority.
         // ─────────────────────────────────────────────────────────
+        console.log("[Gorilla] STEP 1 — curated alcohol check for:", trimmed);
         const curatedHit = lookupCuratedByBarcode(trimmed);
         if (curatedHit) {
           const servingMl = curatedHit.servingMl ?? 355;
@@ -333,6 +334,7 @@ export default function ScanPage() {
         // STEP 2 — COMMUNITY SUPABASE DB
         // Verified community alcohol submissions (user-submitted, admin-reviewed).
         // ─────────────────────────────────────────────────────────
+        console.log("[Gorilla] STEP 2 — community DB check for:", trimmed);
         const communityHit = await lookupCommunityProduct(trimmed);
         if (communityHit) {
           const kind = productTypeToAlcoholKind(communityHit.product_type);
@@ -363,23 +365,80 @@ export default function ScanPage() {
         }
 
         // ─────────────────────────────────────────────────────────
+        // STEP 2b — CURATED FOOD DATABASE
+        // Hardcoded Canadian products — always returns a result if the
+        // barcode is present, regardless of external API availability.
+        // ─────────────────────────────────────────────────────────
+        console.log("[Gorilla] STEP 2b — curated food check for:", trimmed);
+        const curatedFoodHit = lookupCuratedFood(trimmed);
+        if (curatedFoodHit) {
+          console.log("[Gorilla] STEP 2b HIT:", curatedFoodHit.product_name);
+          const cfResult = computeScore(
+            curatedFoodHit.nutriments ?? {},
+            curatedFoodHit.ingredients_text,
+            scoringContext(curatedFoodHit)
+          );
+          trackProductFound("gorilla-curated", trimmed, curatedFoodHit.product_name);
+          trackScanModeFood(trimmed, curatedFoodHit.product_name);
+          setLookup({ phase: "found", product: curatedFoodHit, result: cfResult, dataSource: "gorilla-curated" });
+          setSheetVisible(true);
+          persistHistory([
+            {
+              barcode: trimmed,
+              name: curatedFoodHit.product_name || "Unnamed Product",
+              brand: curatedFoodHit.brands || "Unknown Brand",
+              image: null,
+              score: cfResult.finalScore,
+              color: GRADE_COLORS[cfResult.grade],
+              scannedAt: Date.now(),
+            },
+            ...history.filter((h) => h.barcode !== trimmed),
+          ].slice(0, MAX_HISTORY));
+          setAlternativesLoading(true);
+          const cfCandidates = await fetchAlternativesMultiLevel(curatedFoodHit);
+          const cfBetter: Alternative[] = cfCandidates
+            .map((c) => {
+              const cr = computeScore(c.nutriments ?? {}, c.ingredients_text || c.ingredients_text_en, scoringContext(c));
+              return { candidate: c, candidateResult: cr };
+            })
+            .filter(({ candidate, candidateResult }) =>
+              sharesMainCategory(candidate, curatedFoodHit) && candidateResult.finalScore >= cfResult.finalScore + 5
+            )
+            .sort((a, b) => b.candidateResult.finalScore - a.candidateResult.finalScore)
+            .slice(0, 3)
+            .map(({ candidate, candidateResult }) => ({ type: "off-match" as const, product: candidate, score: candidateResult.finalScore }));
+          setAlternatives(cfBetter.length > 0 ? cfBetter : gorillaSuggestionsFor(curatedFoodHit.categories_tags ?? []));
+          setAlternativesLoading(false);
+          inFlightRef.current = null;
+          return;
+        }
+        console.log("[Gorilla] STEP 2b MISS");
+
+        // ─────────────────────────────────────────────────────────
         // STEP 3 — OPEN FOOD FACTS
         // Primary source for food, drink, and supplements worldwide.
         // ─────────────────────────────────────────────────────────
-        const offResult = await lookupBarcode(trimmed);
+        console.log("[Gorilla] STEP 3 — OFF lookup for:", trimmed);
+        let offResult;
+        try {
+          offResult = await lookupBarcode(trimmed);
+          console.log("[Gorilla] STEP 3 response: status=", offResult.status, offResult.status === "found" ? offResult.product.product_name : "");
+        } catch (offErr) {
+          console.error("[Gorilla] STEP 3 OFF fetch error:", offErr);
+          offResult = { status: "error" as const, message: String(offErr) };
+        }
 
         if (offResult.status === "found") {
           const product = offResult.product;
 
           const confidence = validateConfidence(product, trimmed);
           if (!confidence.pass) {
+            console.log("[Gorilla] STEP 3 confidence fail:", confidence.reason);
             // Confidence failed — fall through to further sources
-          } else if (!product.categories_tags || product.categories_tags.length === 0) {
-            // No categories — fall through
-          } else if (isAlcoholProduct(product.categories_tags)) {
+          } else if ((product.categories_tags?.length ?? 0) > 0 && isAlcoholProduct(product.categories_tags!)) {
             // Strict validation: name or categories must confirm this is actually alcohol
             const nameConfirms = productNameIndicatesAlcohol(product.product_name || "");
-            const catConfirms = categoriesIndicateAlcohol(product.categories_tags);
+            const catConfirms = categoriesIndicateAlcohol(product.categories_tags!);
             if (!nameConfirms && !catConfirms) {
               // Neither name nor categories confirm alcohol — reject, fall through to next source
             } else if (productNameContradictsAlcohol(product.product_name || "")) {
@@ -503,26 +562,6 @@ export default function ScanPage() {
           console.warn("[Gorilla] OFF error:", offResult.message);
         }
 
-        // ─────────────────────────────────────────────────────────
-        // STEPS 4–8 — PARALLEL NUTRITION BATCH
-        // Fire UPCitemdb, USDA, FatSecret, NIH DSLD, and Barcode Lookup
-        // simultaneously. Process results in priority order.
-        // Each individual call has a 3-second server-side timeout.
-        // ─────────────────────────────────────────────────────────
-        const [upcRes, usdaRes, fsRes, nihRes, bclRes] = await Promise.allSettled([
-          lookupUpcItemDb(trimmed),
-          lookupUsda(trimmed),
-          lookupFatSecret(trimmed),
-          lookupNihDsld(trimmed),
-          lookupBarcodeLookup(trimmed),
-        ]);
-
-        const upcHit   = upcRes.status  === "fulfilled" ? upcRes.value  : null;
-        const usdaHit  = usdaRes.status === "fulfilled" ? usdaRes.value : null;
-        const fsHit    = fsRes.status   === "fulfilled" ? fsRes.value   : null;
-        const nihHit   = nihRes.status  === "fulfilled" ? nihRes.value  : null;
-        const bclHit   = bclRes.status  === "fulfilled" ? bclRes.value  : null;
-
         // Helper: score and return a food result
         const returnFoodHit = async (hit: OffProduct, source: DataSource) => {
           // Name-override: if external DB found an alcohol product, defer to curated data
@@ -556,20 +595,43 @@ export default function ScanPage() {
           setAlternativesLoading(false);
         };
 
-        // STEP 4 — USDA (best nutrition data — checked first in nutrition priority)
-        if (usdaHit) { await returnFoodHit(usdaHit, "usda"); inFlightRef.current = null; return; }
+        // ─────────────────────────────────────────────────────────
+        // STEP 4 — UPCITEMDB (sequential, individual try/catch)
+        // ─────────────────────────────────────────────────────────
+        console.log("[Gorilla] STEP 4 — UPCitemdb lookup for:", trimmed);
+        let upcHit = null;
+        try {
+          upcHit = await lookupUpcItemDb(trimmed);
+          console.log("[Gorilla] STEP 4 UPCitemdb result:", upcHit ? upcHit.product_name : "null");
+        } catch (upcErr) {
+          console.error("[Gorilla] STEP 4 UPCitemdb error:", upcErr);
+        }
+        if (upcHit) { await returnFoodHit(upcHit, "upcitemdb"); inFlightRef.current = null; return; }
 
-        // STEP 5 — FATSECRET
+        // ─────────────────────────────────────────────────────────
+        // STEP 5 — FATSECRET (supplements & food)
+        // ─────────────────────────────────────────────────────────
+        console.log("[Gorilla] STEP 5 — FatSecret lookup for:", trimmed);
+        let fsHit = null;
+        try {
+          fsHit = await lookupFatSecret(trimmed);
+          console.log("[Gorilla] STEP 5 FatSecret result:", fsHit ? fsHit.product_name : "null");
+        } catch (fsErr) {
+          console.error("[Gorilla] STEP 5 FatSecret error:", fsErr);
+        }
         if (fsHit) { await returnFoodHit(fsHit, "fatsecret"); inFlightRef.current = null; return; }
 
-        // STEP 6 — BARCODE LOOKUP (may have nutrition data)
-        if (bclHit && Object.keys(bclHit.nutriments ?? {}).length > 0) {
-          await returnFoodHit(bclHit, "barcode-lookup");
-          inFlightRef.current = null;
-          return;
+        // ─────────────────────────────────────────────────────────
+        // STEP 6 — NIH DSLD (dietary supplement labels)
+        // ─────────────────────────────────────────────────────────
+        console.log("[Gorilla] STEP 6 — NIH DSLD lookup for:", trimmed);
+        let nihHit = null;
+        try {
+          nihHit = await lookupNihDsld(trimmed);
+          console.log("[Gorilla] STEP 6 NIH DSLD result:", nihHit ? nihHit.productName : "null");
+        } catch (nihErr) {
+          console.error("[Gorilla] STEP 6 NIH DSLD error:", nihErr);
         }
-
-        // STEP 7 — NIH DSLD (supplement labels — takes priority over identification-only)
         if (nihHit) {
           trackProductFound("nih-dsld", trimmed, nihHit.productName);
           setLookup({ phase: "found-supplement", product: nihHit });
@@ -580,16 +642,17 @@ export default function ScanPage() {
           return;
         }
 
-        // STEP 8 — UPCITEMDB (identification only — name/brand/category, no nutrition score)
-        if (upcHit) { await returnFoodHit(upcHit, "upcitemdb"); inFlightRef.current = null; return; }
-
-        // STEP 8b — BARCODE LOOKUP (identification-only fallback, no nutrition)
-        if (bclHit) { await returnFoodHit(bclHit, "barcode-lookup"); inFlightRef.current = null; return; }
-
         // ─────────────────────────────────────────────────────────
-        // STEP 9 — NUTRITIONIX (legacy; kept for backwards compat)
+        // STEP 7 — NUTRITIONIX (legacy fallback)
         // ─────────────────────────────────────────────────────────
-        const nxHit = await lookupNutritionix(trimmed);
+        console.log("[Gorilla] STEP 7 — Nutritionix lookup for:", trimmed);
+        let nxHit = null;
+        try {
+          nxHit = await lookupNutritionix(trimmed);
+          console.log("[Gorilla] STEP 7 Nutritionix result:", nxHit ? nxHit.product_name : "null");
+        } catch (nxErr) {
+          console.error("[Gorilla] STEP 7 Nutritionix error:", nxErr);
+        }
         if (nxHit) {
           await returnFoodHit(nxHit, "nutritionix");
           inFlightRef.current = null;
@@ -597,10 +660,18 @@ export default function ScanPage() {
         }
 
         // ─────────────────────────────────────────────────────────
-        // STEP 10 — OPEN BEAUTY FACTS
+        // STEP 8 — OPEN BEAUTY FACTS
         // Cosmetics database — purple BEAUTY PRODUCT banner.
         // ─────────────────────────────────────────────────────────
-        const beautyResult = await lookupBeautyBarcode(trimmed);
+        console.log("[Gorilla] STEP 8 — Open Beauty Facts lookup for:", trimmed);
+        let beautyResult;
+        try {
+          beautyResult = await lookupBeautyBarcode(trimmed);
+          console.log("[Gorilla] STEP 8 beauty result:", beautyResult.status);
+        } catch (beautyErr) {
+          console.error("[Gorilla] STEP 8 beauty error:", beautyErr);
+          beautyResult = { status: "not-found" as const };
+        }
         if (beautyResult.status === "found") {
           const beautyProduct = beautyResult.product;
           const beautyScore = computeBeautyScore(
@@ -626,10 +697,16 @@ export default function ScanPage() {
         }
 
         // ─────────────────────────────────────────────────────────
-        // STEP 11 — WINEVYBE (RapidAPI beer/wine DB)
-        // Requires RAPIDAPI_KEY env var. For alcohol products.
+        // STEP 9 — WINEVYBE (RapidAPI beer/wine DB)
         // ─────────────────────────────────────────────────────────
-        const wineVybeHit = await lookupWineVybe(trimmed);
+        console.log("[Gorilla] STEP 9 — WineVybe lookup for:", trimmed);
+        let wineVybeHit = null;
+        try {
+          wineVybeHit = await lookupWineVybe(trimmed);
+          console.log("[Gorilla] STEP 9 WineVybe result:", wineVybeHit ? wineVybeHit.name : "null");
+        } catch (wvErr) {
+          console.error("[Gorilla] STEP 9 WineVybe error:", wvErr);
+        }
         if (wineVybeHit) {
           logMissedScan(trimmed, "alcohol");
           const abv = wineVybeHit.abv;
@@ -652,9 +729,16 @@ export default function ScanPage() {
         }
 
         // ─────────────────────────────────────────────────────────
-        // STEP 12 — WINE ANALYZER (wine-specific fallback after WineVybe)
+        // STEP 10 — WINE ANALYZER (wine-specific fallback after WineVybe)
         // ─────────────────────────────────────────────────────────
-        const wineAnalyzerHit = await lookupWineAnalyzer(trimmed);
+        console.log("[Gorilla] STEP 10 — Wine Analyzer lookup for:", trimmed);
+        let wineAnalyzerHit = null;
+        try {
+          wineAnalyzerHit = await lookupWineAnalyzer(trimmed);
+          console.log("[Gorilla] STEP 10 Wine Analyzer result:", wineAnalyzerHit ? wineAnalyzerHit.name : "null");
+        } catch (waErr) {
+          console.error("[Gorilla] STEP 10 Wine Analyzer error:", waErr);
+        }
         if (wineAnalyzerHit) {
           logMissedScan(trimmed, "alcohol");
           const abv = wineAnalyzerHit.abv;
@@ -677,10 +761,16 @@ export default function ScanPage() {
         }
 
         // ─────────────────────────────────────────────────────────
-        // STEP 13 — COLA CLOUD (TTB Government Alcohol Registry)
-        // Free US government API. Certificate of Label Approval records.
+        // STEP 11 — COLA CLOUD (TTB Government Alcohol Registry)
         // ─────────────────────────────────────────────────────────
-        const colaHit = await lookupColaCloud(trimmed);
+        console.log("[Gorilla] STEP 11 — COLA Cloud lookup for:", trimmed);
+        let colaHit = null;
+        try {
+          colaHit = await lookupColaCloud(trimmed);
+          console.log("[Gorilla] STEP 11 COLA result:", colaHit ? colaHit.name : "null");
+        } catch (colaErr) {
+          console.error("[Gorilla] STEP 11 COLA error:", colaErr);
+        }
         if (colaHit) {
           logMissedScan(trimmed, "alcohol");
           const curatedMatch = lookupCuratedByName(colaHit.name);
@@ -714,11 +804,17 @@ export default function ScanPage() {
         }
 
         // ─────────────────────────────────────────────────────────
-        // STEP 14 — GO-UPC
+        // STEP 12 — GO-UPC
         // 500M+ products worldwide. Returns name, brand, image, category.
-        // Requires GOUPC_API_KEY env var. No nutrition scoring available.
         // ─────────────────────────────────────────────────────────
-        const goupcHit = await lookupGoUpc(trimmed);
+        console.log("[Gorilla] STEP 12 — Go-UPC lookup for:", trimmed);
+        let goupcHit = null;
+        try {
+          goupcHit = await lookupGoUpc(trimmed);
+          console.log("[Gorilla] STEP 12 Go-UPC result:", goupcHit ? goupcHit.name : "null");
+        } catch (goupcErr) {
+          console.error("[Gorilla] STEP 12 Go-UPC error:", goupcErr);
+        }
         if (goupcHit) {
           setLookup({ phase: "found-generic", product: goupcHit });
           setScannerActive(false);
@@ -729,10 +825,17 @@ export default function ScanPage() {
         }
 
         // ─────────────────────────────────────────────────────────
-        // STEP 15 — OPEN DRUG FACTS
+        // STEP 13 — OPEN DRUG FACTS
         // OTC drugs and medications. Blue MEDICATION banner + disclaimer.
         // ─────────────────────────────────────────────────────────
-        const drugHit = await lookupDrugFacts(trimmed);
+        console.log("[Gorilla] STEP 13 — Drug Facts lookup for:", trimmed);
+        let drugHit = null;
+        try {
+          drugHit = await lookupDrugFacts(trimmed);
+          console.log("[Gorilla] STEP 13 Drug Facts result:", drugHit ? drugHit.name : "null");
+        } catch (drugErr) {
+          console.error("[Gorilla] STEP 13 Drug Facts error:", drugErr);
+        }
         if (drugHit) {
           setLookup({ phase: "found-drug", product: drugHit });
           setScannerActive(false);
@@ -742,9 +845,10 @@ export default function ScanPage() {
         }
 
         // ─────────────────────────────────────────────────────────
-        // STEP 16 — NOT FOUND
+        // STEP 14 — NOT FOUND
         // All sources exhausted. Log to missed_scans and show clean card.
         // ─────────────────────────────────────────────────────────
+        console.log("[Gorilla] STEP 14 — all sources exhausted for:", trimmed);
         logMissedScan(trimmed, "unknown");
         trackProductNotFound(trimmed);
         setLookup({ phase: "not-found", barcode: trimmed });
