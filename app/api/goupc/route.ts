@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
           Authorization: `Bearer ${apiKey}`,
           Accept: "application/json",
         },
+        signal: AbortSignal.timeout(4000),
         next: { revalidate: 86400 },
       }
     );

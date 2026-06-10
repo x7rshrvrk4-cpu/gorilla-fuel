@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
       `https://world.opendrugsfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json`,
       {
         headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(4000),
         next: { revalidate: 86400 },
       }
     );

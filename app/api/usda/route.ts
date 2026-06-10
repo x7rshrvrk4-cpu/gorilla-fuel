@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
   const barcode = request.nextUrl.searchParams.get("barcode");
   if (!barcode) return NextResponse.json(null);
 
-  const apiKey = process.env.USDA_API_KEY ?? "DEMO_KEY";
+  const apiKey = process.env.USDA_API_KEY || "DEMO_KEY";
 
   try {
     const url = new URL("https://api.nal.usda.gov/fdc/v1/foods/search");
@@ -72,6 +72,7 @@ export async function GET(request: NextRequest) {
 
     const res = await fetch(url.toString(), {
       headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(4000),
       next: { revalidate: 86400 },
     });
 

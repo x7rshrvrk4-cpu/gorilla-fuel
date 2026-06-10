@@ -66,7 +66,7 @@ export async function lookupBarcode(barcode: string): Promise<LookupResult> {
   try {
     const res = await fetch(
       `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json`,
-      { headers: { Accept: "application/json" } }
+      { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(4000) }
     );
 
     let data: { status?: number; product?: OffProduct } | null = null;
@@ -110,7 +110,7 @@ export async function fetchAlternativesInCategory(
     url.searchParams.set("page_size", "20");
     url.searchParams.set("sort_by", "unique_scans_n");
 
-    const res = await fetch(url.toString(), { headers: { Accept: "application/json" } });
+    const res = await fetch(url.toString(), { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(4000) });
     if (!res.ok) return [];
 
     const data = await res.json();

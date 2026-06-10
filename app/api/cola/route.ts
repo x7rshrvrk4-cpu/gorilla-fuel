@@ -29,7 +29,8 @@ export async function GET(request: NextRequest) {
       `https://api.ttb.gov/colasearch/v1/cola/barcode/${encodeURIComponent(barcode)}`,
       {
         headers: { Accept: "application/json" },
-        next: { revalidate: 86400 }, // cache 24h
+        signal: AbortSignal.timeout(4000),
+        next: { revalidate: 86400 },
       }
     );
 

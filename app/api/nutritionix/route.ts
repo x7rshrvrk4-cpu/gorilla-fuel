@@ -68,6 +68,7 @@ export async function GET(request: NextRequest) {
         "x-app-key": appKey,
         Accept: "application/json",
       },
+      signal: AbortSignal.timeout(4000),
       next: { revalidate: 86400 },
     });
 

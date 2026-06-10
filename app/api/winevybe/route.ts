@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
           "X-RapidAPI-Host": "winevybe.p.rapidapi.com",
           Accept: "application/json",
         },
+        signal: AbortSignal.timeout(4000),
         next: { revalidate: 86400 },
       }
     );
