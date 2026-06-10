@@ -7,8 +7,8 @@ import { getTopScanned } from "../../../scan/lib/productCache";
  * Returns the top 50 most-scanned products, sorted by scan_count descending.
  * Used for brewery and supplement brand sponsorship pitch data.
  *
- * Authentication: pass ?key=<ADMIN_API_KEY> or header x-admin-key: <ADMIN_API_KEY>.
- * If ADMIN_API_KEY is not set in env vars, the endpoint is public (dev mode).
+ * Auth: header x-admin-key or ?key= must match ADMIN_API_KEY env var.
+ * ADMIN_API_KEY must always be set — the endpoint is never open without it.
  *
  * Optional query params:
  *   ?limit=N        Override the default 50 (max 200)
@@ -16,13 +16,17 @@ import { getTopScanned } from "../../../scan/lib/productCache";
  */
 export async function GET(request: NextRequest) {
   const adminKey = process.env.ADMIN_API_KEY;
-  if (adminKey) {
-    const provided =
-      request.headers.get("x-admin-key") ??
-      request.nextUrl.searchParams.get("key");
-    if (provided !== adminKey) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  if (!adminKey) {
+    return NextResponse.json(
+      { error: "ADMIN_API_KEY is not configured on this server." },
+      { status: 403 }
+    );
+  }
+  const provided =
+    request.headers.get("x-admin-key") ??
+    request.nextUrl.searchParams.get("key");
+  if (provided !== adminKey) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const limitParam = request.nextUrl.searchParams.get("limit");

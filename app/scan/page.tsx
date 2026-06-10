@@ -317,11 +317,17 @@ export default function ScanPage() {
                 nova_group: cached.nova_group ?? undefined,
                 image_front_url: cached.image_url ?? undefined,
               };
+              // computeScore is re-run (not using cached.gorilla_score) because the
+              // UI needs the full breakdown object (additivesFound, penalties, etc).
+              // The cached score is used for the history entry so history stays
+              // consistent even if scoring weights change between runs.
               const cachedResult = computeScore(
                 cachedProduct.nutriments ?? {},
                 cachedProduct.ingredients_text,
                 scoringContext(cachedProduct)
               );
+              const displayScore = cached.gorilla_score ?? cachedResult.finalScore;
+              const displayGrade = (cached.score_grade ?? cachedResult.grade) as typeof cachedResult.grade;
               trackProductFound("gorilla-cache", trimmed, cachedProduct.product_name);
               trackScanModeFood(trimmed, cachedProduct.product_name);
               setLookup({ phase: "found", product: cachedProduct, result: cachedResult, dataSource: "gorilla-cache" });
@@ -332,27 +338,30 @@ export default function ScanPage() {
                   name: cachedProduct.product_name || "Unknown Product",
                   brand: cachedProduct.brands || "Unknown Brand",
                   image: productImage(cachedProduct),
-                  score: cachedResult.finalScore,
-                  color: GRADE_COLORS[cachedResult.grade],
+                  score: displayScore,
+                  color: GRADE_COLORS[displayGrade],
                   scannedAt: Date.now(),
                 },
                 ...history.filter((h) => h.barcode !== trimmed),
               ].slice(0, MAX_HISTORY));
-              setAlternativesLoading(true);
-              const cAlt = await fetchAlternativesMultiLevel(cachedProduct);
-              const cBetter: Alternative[] = cAlt
-                .map((c) => {
-                  const cr = computeScore(c.nutriments ?? {}, c.ingredients_text || c.ingredients_text_en, scoringContext(c));
-                  return { candidate: c, candidateResult: cr };
-                })
-                .filter(({ candidate, candidateResult }) =>
-                  sharesMainCategory(candidate, cachedProduct) && candidateResult.finalScore >= cachedResult.finalScore + 5
-                )
-                .sort((a, b) => b.candidateResult.finalScore - a.candidateResult.finalScore)
-                .slice(0, 3)
-                .map(({ candidate, candidateResult }) => ({ type: "off-match" as const, product: candidate, score: candidateResult.finalScore }));
-              setAlternatives(cBetter.length > 0 ? cBetter : gorillaSuggestionsFor(cachedProduct.categories_tags ?? []));
-              setAlternativesLoading(false);
+              try {
+                setAlternativesLoading(true);
+                const cAlt = await fetchAlternativesMultiLevel(cachedProduct);
+                const cBetter: Alternative[] = cAlt
+                  .map((c) => {
+                    const cr = computeScore(c.nutriments ?? {}, c.ingredients_text || c.ingredients_text_en, scoringContext(c));
+                    return { candidate: c, candidateResult: cr };
+                  })
+                  .filter(({ candidate, candidateResult }) =>
+                    sharesMainCategory(candidate, cachedProduct) && candidateResult.finalScore >= cachedResult.finalScore + 5
+                  )
+                  .sort((a, b) => b.candidateResult.finalScore - a.candidateResult.finalScore)
+                  .slice(0, 3)
+                  .map(({ candidate, candidateResult }) => ({ type: "off-match" as const, product: candidate, score: candidateResult.finalScore }));
+                setAlternatives(cBetter.length > 0 ? cBetter : gorillaSuggestionsFor(cachedProduct.categories_tags ?? []));
+              } finally {
+                setAlternativesLoading(false);
+              }
               inFlightRef.current = null;
               return;
             }

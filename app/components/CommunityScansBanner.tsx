@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { getTopScanned } from "../scan/lib/productCache";
+import { getTopScanned, type TopScannedProduct } from "../scan/lib/productCache";
 
-function gradeColor(grade: string | null): string {
+function gradeColor(grade: TopScannedProduct["score_grade"]): string {
   switch (grade) {
     case "S": return "text-emerald-400";
     case "A": return "text-green-400";
@@ -14,8 +14,12 @@ function gradeColor(grade: string | null): string {
 }
 
 export default async function CommunityScansBanner() {
+  // Truncate to midnight so the Supabase URL is stable for a full day —
+  // a millisecond-precise timestamp would produce a new cache key on every
+  // render, defeating next: { revalidate: 300 } in getTopScanned.
   const since = new Date();
   since.setDate(since.getDate() - 7);
+  since.setHours(0, 0, 0, 0);
 
   const products = await getTopScanned(10, since);
   if (products.length === 0) return null;

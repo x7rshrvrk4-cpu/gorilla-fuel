@@ -161,11 +161,28 @@ export async function lookupProductCache(barcode: string): Promise<CachedProduct
   }
 }
 
+/** Fields actually returned by getTopScanned (partial select — not the full CachedProduct). */
+export type TopScannedProduct = Pick<
+  CachedProduct,
+  | "barcode"
+  | "product_name"
+  | "brand"
+  | "categories"
+  | "gorilla_score"
+  | "score_grade"
+  | "data_source"
+  | "image_url"
+  | "is_alcohol"
+  | "is_supplement"
+  | "scan_count"
+  | "last_scanned_at"
+>;
+
 /** Fetch top N most-scanned products, optionally filtered to those scanned since a given date. */
 export async function getTopScanned(
   limit = 50,
   sinceDate?: Date
-): Promise<CachedProduct[]> {
+): Promise<TopScannedProduct[]> {
   const url = sbUrl();
   if (!url || !sbKey()) return [];
   try {
