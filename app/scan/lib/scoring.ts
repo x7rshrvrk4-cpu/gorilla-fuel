@@ -755,7 +755,11 @@ const NOVA_DESCRIPTION: Record<NovaGroup, string> = {
   4: "Industrial formulations with little or no whole food left in them — typically built from cheap refined ingredients, additives, and substances rarely found in a home kitchen. A large and growing body of research links high ultra-processed intake to higher rates of obesity, heart disease, and early death.",
 };
 
-const NOVA_PENALTY: Record<NovaGroup, number> = { 1: 0, 2: 0, 3: 5, 4: 10 };
+// Positive = penalty (deducted), negative = bonus (added).
+// NOVA 4 ultra-processed: -55 caps nutrition at 45 before all other penalties.
+// NOVA 3 processed: -20 for commercially processed foods (bread, granola bars, cheese).
+// NOVA 1 unprocessed: +2 bonus rewards whole/minimally processed foods.
+const NOVA_PENALTY: Record<NovaGroup, number> = { 1: -2, 2: 0, 3: 20, 4: 55 };
 
 function asNovaGroup(value: number | undefined): NovaGroup | null {
   if (value === 1 || value === 2 || value === 3 || value === 4) return value;
@@ -827,6 +831,22 @@ function servingContext(perServing: number | undefined, servingSize: string | nu
   return ` (${perServing.toFixed(decimals)}${unit} per ${servingSize} serving)`;
 }
 
+/**
+ * Parse the gram value from a serving-size string like "28g", "355ml",
+ * "1 oz (28g)". ml is treated as grams (1ml ≈ 1g for beverages — close
+ * enough for penalty-band thresholds). Returns null when unparseable.
+ */
+function parseServingGrams(servingSize: string | null | undefined): number | null {
+  if (!servingSize) return null;
+  const ml = servingSize.match(/(\d+(?:\.\d+)?)\s*ml/i);
+  if (ml) return parseFloat(ml[1]);
+  const g = servingSize.match(/(\d+(?:\.\d+)?)\s*g\b/i);
+  if (g) return parseFloat(g[1]);
+  const oz = servingSize.match(/(\d+(?:\.\d+)?)\s*oz/i);
+  if (oz) return parseFloat(oz[1]) * 28.35;
+  return null;
+}
+
 export function scoreNutrition(
   n: Nutriments,
   context?: ScoringContext
@@ -847,103 +867,173 @@ export function scoreNutrition(
   const protein = n.proteins_100g ?? 0;
   const servingSize = context?.servingSize ?? null;
 
+  // ── NOVA — applied first as the dominant processing signal ───────────────
+  // NOVA 4 (ultra-processed) caps nutrition at 45 before other factors.
+  // NOVA 1 (unprocessed whole foods) receives a small bonus.
+  const nova = asNovaGroup(context?.novaGroup ?? undefined);
+  if (nova !== null) {
+    const penalty = NOVA_PENALTY[nova];
+    score -= penalty; // negative penalty = bonus for NOVA 1
+    if (penalty > 0) {
+      flags.push(`NOVA Group ${nova} — ${NOVA_LABEL[nova]}: ${NOVA_DESCRIPTION[nova]}`);
+    } else if (penalty < 0) {
+      positives.push(`NOVA Group ${nova} — ${NOVA_LABEL[nova]}: minimal industrial processing`);
+    } else {
+      positives.push(`NOVA Group ${nova} — ${NOVA_LABEL[nova]}: minimal industrial processing detected`);
+    }
+  }
+
+  // ── Serving-size-aware macro thresholds ──────────────────────────────────
+  // When a serving size is known (from OFF's _serving fields or by parsing the
+  // servingSize string), use per-serving bands — they better represent the sugar/
+  // fat/sodium load a person actually absorbs in one sitting. Without serving data,
+  // fall back to per-100g bands.
+  const servingGrams = parseServingGrams(servingSize);
+  const sugarServing  = n.sugars_serving         ?? (servingGrams != null ? sugar  * servingGrams / 100 : null);
+  const satFatServing = n["saturated-fat_serving"] ?? (servingGrams != null ? satFat * servingGrams / 100 : null);
+  const saltServing   = n.salt_serving            ?? (servingGrams != null ? salt   * servingGrams / 100 : null);
+  const sodiumServingMg = saltServing != null ? (saltServing / 2.5) * 1000 : null;
+  const hasServingData = sugarServing != null;
+
+  if (hasServingData) {
+    // ── Per-serving sugar ─────────────────────────────────────────────────
+    const sg = sugarServing!;
+    if (sg > 30) {
+      score -= 40;
+      flags.push(`Extreme sugar per serving — ${sg.toFixed(1)}g per ${servingSize ?? "serving"}`);
+    } else if (sg > 20) {
+      score -= 25;
+      flags.push(`Very high sugar per serving — ${sg.toFixed(1)}g per ${servingSize ?? "serving"}`);
+    } else if (sg > 12) {
+      score -= 15;
+      flags.push(`High sugar per serving — ${sg.toFixed(1)}g per ${servingSize ?? "serving"}`);
+    } else if (sg > 5) {
+      score -= 10;
+      flags.push(`Elevated sugar per serving — ${sg.toFixed(1)}g per ${servingSize ?? "serving"}`);
+    }
+
+    // ── Per-serving saturated fat ─────────────────────────────────────────
+    if (satFatServing != null) {
+      const sf = satFatServing;
+      if (sf > 6) {
+        score -= 22;
+        flags.push(`Very high saturated fat per serving — ${sf.toFixed(1)}g per ${servingSize ?? "serving"}`);
+      } else if (sf > 4) {
+        score -= 15;
+        flags.push(`High saturated fat per serving — ${sf.toFixed(1)}g per ${servingSize ?? "serving"}`);
+      } else if (sf > 2) {
+        score -= 8;
+        flags.push(`Elevated saturated fat per serving — ${sf.toFixed(1)}g per ${servingSize ?? "serving"}`);
+      }
+    }
+
+    // ── Per-serving sodium ────────────────────────────────────────────────
+    if (sodiumServingMg != null) {
+      const na = sodiumServingMg;
+      if (na > 1000) {
+        score -= 28;
+        flags.push(`Extreme sodium per serving — ${Math.round(na)}mg per ${servingSize ?? "serving"}`);
+      } else if (na > 600) {
+        score -= 20;
+        flags.push(`Very high sodium per serving — ${Math.round(na)}mg per ${servingSize ?? "serving"}`);
+      } else if (na > 400) {
+        score -= 12;
+        flags.push(`High sodium per serving — ${Math.round(na)}mg per ${servingSize ?? "serving"}`);
+      } else if (na > 200) {
+        score -= 5;
+        flags.push(`Elevated sodium per serving — ${Math.round(na)}mg per ${servingSize ?? "serving"}`);
+      }
+    }
+
+    // ── Concentration penalties (apply on top of serving thresholds) ──────
+    // Condiments with tiny serving sizes (e.g., ketchup 15g) pass per-serving
+    // thresholds cleanly, but their per-100g composition is still extreme.
+    // These catch the concentrated-ingredient signal that serving math misses.
+    if (sugar > 30) {
+      score -= 10;
+      flags.push(`Extremely sugar-dense product — ${sugar.toFixed(1)}g sugar per 100g`);
+    }
+    if (salt > 2) {
+      score -= 10;
+      flags.push(`Very high salt concentration — ${salt.toFixed(2)}g per 100g`);
+    }
+    if (satFat > 10) {
+      score -= 10;
+      flags.push(`Very high saturated fat concentration — ${satFat.toFixed(1)}g per 100g`);
+    }
+
+  } else {
+    // ── Per-100g fallback (no serving data available) ─────────────────────
+    if (sugar > 22.5) {
+      score -= 30;
+      flags.push(`Very high sugar — ${sugar.toFixed(1)}g per 100g`);
+    } else if (sugar > 15) {
+      score -= 20;
+      flags.push(`High sugar — ${sugar.toFixed(1)}g per 100g`);
+    } else if (sugar > 9) {
+      score -= 10;
+      flags.push(`Elevated sugar — ${sugar.toFixed(1)}g per 100g`);
+    }
+
+    if (satFat > 10) {
+      score -= 20;
+      flags.push(`Very high saturated fat — ${satFat.toFixed(1)}g per 100g`);
+    } else if (satFat > 5) {
+      score -= 10;
+      flags.push(`Elevated saturated fat — ${satFat.toFixed(1)}g per 100g`);
+    }
+
+    if (salt > 2) {
+      score -= 30;
+      flags.push(`Very high salt — ${salt.toFixed(2)}g per 100g`);
+    } else if (salt > 1.2) {
+      score -= 20;
+      flags.push(`High salt — ${salt.toFixed(2)}g per 100g`);
+    } else if (salt > 0.6) {
+      score -= 10;
+      flags.push(`Elevated salt — ${salt.toFixed(2)}g per 100g`);
+    }
+  }
+
+  // ── Calorie density — always per 100g ────────────────────────────────────
+  if (calories > 500) {
+    score -= 20;
+    flags.push(`Very calorie-dense — ${calories.toFixed(0)} kcal per 100g`);
+  } else if (calories > 400) {
+    score -= 10;
+    flags.push(`Calorie-dense — ${calories.toFixed(0)} kcal per 100g`);
+  }
+
   // ── Precautionary penalties for missing data in high-risk categories ──────
-  // Incomplete data on products we have categorical reason to suspect are
-  // high-fat / high-sodium makes the score go DOWN, not stay falsely clean.
   const cats = (context?.categoriesTags ?? []).join(" ").toLowerCase();
   const noNova = context?.novaGroup == null;
-
-  // Broad snack/confectionery pattern — includes the OFF taxonomy slugs that
-  // encode "en:snacks", "en:salty-snacks", "en:cheese-sticks", etc.
   const isSnackCat = /\bchips\b|\bcrisps\b|\bcrackers\b|cheese[\s-]?snack|cheese[\s-]?puff|cheese[\s-]?stick|corn[\s-]?snack|pretzel|popcorn|\bcandy\b|candies|confectionery|cookies|biscuits|\bchocolate\b|salty[\s-]?snack|\bsnacks?\b/.test(cats);
   const isDairyCheeseCat = /cheese|dairy[\s-]snack/.test(cats);
   const isSaltyCat = /\bchips\b|\bcrisps\b|\bsnacks?\b|\bcrackers\b|pretzel|popcorn/.test(cats);
 
   if (noNova && isSnackCat) {
     score -= 10;
-    // For snack-category products with no NOVA data, cap at 50 so missing
-    // processing info can't prop the score up artificially.
-    score = Math.min(score, 50);
-    flags.push(
-      "NOVA group missing — snack/confectionery category detected. Ultra-processed assumed (inferred NOVA 4), score capped at 50. Incomplete data makes scores go down, not stay high."
-    );
+    score = Math.min(score, 45);
+    flags.push("NOVA group missing — snack/confectionery category detected. Ultra-processed assumed, score capped at 45. Incomplete data makes scores go down, not stay high.");
   }
   if (n["saturated-fat_100g"] === undefined && isDairyCheeseCat) {
     score -= 8;
-    flags.push(
-      "Saturated fat not disclosed for cheese/dairy snack — 8-point precautionary deduction. Incomplete data makes scores go down, not stay high."
-    );
+    flags.push("Saturated fat not disclosed for cheese/dairy snack — 8-point precautionary deduction.");
   }
   if (n.salt_100g === undefined && isSaltyCat) {
     score -= 8;
-    flags.push(
-      "Sodium not disclosed for salty snack — 8-point precautionary deduction. Incomplete data makes scores go down, not stay high."
-    );
+    flags.push("Sodium not disclosed for salty snack — 8-point precautionary deduction.");
   }
 
-  // Sugar and salt thresholds are tightened to track real-world assessments
-  // (Nutri-Score-style bands) much more closely than a lenient pass/fail cliff —
-  // this is the single biggest driver of the gap against stricter scoring apps.
-  if (sugar > 22.5) {
-    score -= 35;
-    flags.push(`Very high sugar — ${sugar.toFixed(1)}g per 100g${servingContext(n.sugars_serving, servingSize, "g", 1)}`);
-  } else if (sugar > 15) {
-    score -= 20;
-    flags.push(`High sugar — ${sugar.toFixed(1)}g per 100g${servingContext(n.sugars_serving, servingSize, "g", 1)}`);
-  } else if (sugar > 9) {
-    score -= 10;
-    flags.push(`Elevated sugar — ${sugar.toFixed(1)}g per 100g${servingContext(n.sugars_serving, servingSize, "g", 1)}`);
+  // ── Positive signals ─────────────────────────────────────────────────────
+  if (fiber > 2.5) {
+    score += 5;
+    positives.push(`Good fiber content — ${fiber.toFixed(1)}g per 100g`);
   }
 
-  if (satFat > 10) {
-    score -= 20;
-    flags.push(`Very high saturated fat — ${satFat.toFixed(1)}g per 100g${servingContext(n["saturated-fat_serving"], servingSize, "g", 1)}`);
-  } else if (satFat > 5) {
-    score -= 10;
-    flags.push(`Elevated saturated fat — ${satFat.toFixed(1)}g per 100g${servingContext(n["saturated-fat_serving"], servingSize, "g", 1)}`);
-  }
-
-  if (salt > 2) {
-    score -= 35;
-    flags.push(`Very high salt — ${salt.toFixed(2)}g per 100g${servingContext(n.salt_serving, servingSize, "g", 2)}`);
-  } else if (salt > 1.2) {
-    score -= 20;
-    flags.push(`High salt — ${salt.toFixed(2)}g per 100g${servingContext(n.salt_serving, servingSize, "g", 2)}`);
-  } else if (salt > 0.6) {
-    score -= 10;
-    flags.push(`Elevated salt — ${salt.toFixed(2)}g per 100g${servingContext(n.salt_serving, servingSize, "g", 2)}`);
-  }
-
-  if (calories > 500) {
-    score -= 15;
-    flags.push(`Very calorie-dense — ${calories.toFixed(0)} kcal per 100g${servingContext(n["energy-kcal_serving"], servingSize, " kcal", 0)}`);
-  } else if (calories > 350) {
-    score -= 8;
-    flags.push(`Calorie-dense — ${calories.toFixed(0)} kcal per 100g${servingContext(n["energy-kcal_serving"], servingSize, " kcal", 0)}`);
-  }
-
-  if (fiber > 3) {
-    score += 8;
-    positives.push(`Solid fiber content — ${fiber.toFixed(1)}g per 100g`);
-  }
-
-  if (protein > 10) {
-    score += 10;
+  if (protein > 15) {
+    score += 5;
     positives.push(`Strong protein content — ${protein.toFixed(1)}g per 100g`);
-  }
-
-  // NOVA — degree of industrial processing. A product can pass every individual
-  // nutrient threshold and still be an ultra-processed formulation; this catches
-  // that blind spot directly rather than hoping the nutrient numbers reveal it.
-  const nova = asNovaGroup(context?.novaGroup ?? undefined);
-  if (nova !== null) {
-    const penalty = NOVA_PENALTY[nova];
-    if (penalty > 0) {
-      score -= penalty;
-      flags.push(`NOVA Group ${nova} — ${NOVA_LABEL[nova]}: ${NOVA_DESCRIPTION[nova]}`);
-    } else {
-      positives.push(`NOVA Group ${nova} — ${NOVA_LABEL[nova]}: minimal industrial processing detected`);
-    }
   }
 
   if (flags.length === 0) {
@@ -951,6 +1041,13 @@ export function scoreNutrition(
   }
 
   return { score: Math.max(0, Math.min(100, score)), flags, positives };
+}
+
+/** Standardised per-risk-tier additive deductions (replaces per-entry penalty fields). */
+function additivePenalty(risk: RiskLevel): number {
+  if (risk === "high") return 15;
+  if (risk === "medium") return 8;
+  return 4; // low
 }
 
 export function scoreAdditives(ingredientsText: string | undefined | null): {
@@ -977,7 +1074,7 @@ export function scoreAdditives(ingredientsText: string | undefined | null): {
       gorillaPosition: entry.gorillaPosition,
       sources: entry.sources,
     });
-    score -= entry.penalty;
+    score -= additivePenalty(entry.risk);
   }
 
   return { score: Math.max(0, Math.min(100, score)), detected };
@@ -1051,6 +1148,20 @@ export function computeScore(
     /\bsnacks?\b|chips|crisps|crackers|cheese[\s-]?snack|salty[\s-]?snack/.test(catsStrCompute);
   if (isSnackNoIngredients && effectiveAdditiveScore === 100) {
     effectiveAdditiveScore = 60;
+  }
+
+  // ── Problem 8: missing nutrition data in inherently-junk categories ───────
+  // When a product is in a category known for high sugar/fat/additives but has
+  // no nutrition data at all, default to a LOW score not a falsely clean one.
+  const isJunkCat = /\bchips\b|\bcrisps\b|\bsnacks?\b|\bcrackers\b|\bchocolate\b|\bcandy\b|candies|confectionery|ice[\s-]?cream|desserts?|cookies|biscuits|fast[\s-]?food|processed[\s-]?meat/.test(catsStrCompute);
+  const hasNoNutritionData =
+    nutriments.sugars_100g === undefined &&
+    nutriments["saturated-fat_100g"] === undefined &&
+    nutriments.salt_100g === undefined &&
+    nutriments["energy-kcal_100g"] === undefined;
+  if (isJunkCat && hasNoNutritionData && !inferredSweeteners) {
+    effectiveNutritionScore = Math.min(effectiveNutritionScore, 35);
+    effectiveAdditiveScore = Math.min(effectiveAdditiveScore, 60);
   }
 
   if (inferredSweeteners) {

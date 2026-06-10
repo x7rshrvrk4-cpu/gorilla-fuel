@@ -17,6 +17,7 @@ type CuratedFoodEntry = {
   categoriesTags: string[];
   ingredientsText: string;
   nutriments: Nutriments;
+  novaGroup?: number;
 };
 
 // ── Per-100ml soft drink nutrition ────────────────────────────────────────────
@@ -30,6 +31,7 @@ const SODAS: CuratedFoodEntry[] = [
     servingSize: "355ml",
     categoriesTags: ["en:beverages", "en:carbonated-drinks", "en:sodas", "en:diet-sodas"],
     ingredientsText: "Carbonated water, citric acid, natural flavours, sodium citrate, aspartame, acesulfame potassium, sodium benzoate",
+    novaGroup: 4,
     nutriments: {
       "energy-kcal_100g": 0,
       carbohydrates_100g: 0,
@@ -45,6 +47,7 @@ const SODAS: CuratedFoodEntry[] = [
     servingSize: "355ml",
     categoriesTags: ["en:beverages", "en:carbonated-drinks", "en:sodas"],
     ingredientsText: "Carbonated water, high fructose corn syrup, citric acid, natural flavours, sodium citrate, caramel colour, sodium benzoate",
+    novaGroup: 4,
     nutriments: {
       "energy-kcal_100g": 39,
       carbohydrates_100g: 11,
@@ -60,6 +63,7 @@ const SODAS: CuratedFoodEntry[] = [
     servingSize: "355ml",
     categoriesTags: ["en:beverages", "en:carbonated-drinks", "en:sodas", "en:colas"],
     ingredientsText: "Carbonated water, high fructose corn syrup, caramel colour (class IV), phosphoric acid, natural flavours, caffeine",
+    novaGroup: 4,
     nutriments: {
       "energy-kcal_100g": 39,
       carbohydrates_100g: 11,
@@ -75,6 +79,7 @@ const SODAS: CuratedFoodEntry[] = [
     servingSize: "355ml",
     categoriesTags: ["en:beverages", "en:carbonated-drinks", "en:sodas", "en:diet-sodas", "en:colas"],
     ingredientsText: "Carbonated water, caramel colour (class IV), phosphoric acid, natural flavours, citric acid, aspartame, acesulfame potassium, caffeine",
+    novaGroup: 4,
     nutriments: {
       "energy-kcal_100g": 0,
       carbohydrates_100g: 0,
@@ -90,6 +95,7 @@ const SODAS: CuratedFoodEntry[] = [
     servingSize: "355ml",
     categoriesTags: ["en:beverages", "en:carbonated-drinks", "en:sodas", "en:colas"],
     ingredientsText: "Carbonated water, high fructose corn syrup, caramel colour, phosphoric acid, caffeine, citric acid, natural flavours",
+    novaGroup: 4,
     nutriments: {
       "energy-kcal_100g": 42,
       carbohydrates_100g: 11.5,
@@ -105,6 +111,7 @@ const SODAS: CuratedFoodEntry[] = [
     servingSize: "355ml",
     categoriesTags: ["en:beverages", "en:carbonated-drinks", "en:sodas", "en:diet-sodas", "en:colas"],
     ingredientsText: "Carbonated water, caramel colour, phosphoric acid, citric acid, aspartame, acesulfame potassium, caffeine, natural flavours",
+    novaGroup: 4,
     nutriments: {
       "energy-kcal_100g": 0,
       carbohydrates_100g: 0,
@@ -120,6 +127,7 @@ const SODAS: CuratedFoodEntry[] = [
     servingSize: "355ml",
     categoriesTags: ["en:beverages", "en:carbonated-drinks", "en:sodas"],
     ingredientsText: "Carbonated water, high fructose corn syrup, citric acid, natural flavours, sodium citrate, sodium benzoate",
+    novaGroup: 4,
     nutriments: {
       "energy-kcal_100g": 39,
       carbohydrates_100g: 10.7,
@@ -140,6 +148,7 @@ const PACKAGED_FOODS: CuratedFoodEntry[] = [
     servingSize: "15g",
     categoriesTags: ["en:condiments", "en:sauces", "en:ketchup"],
     ingredientsText: "Tomato concentrate, distilled vinegar, high fructose corn syrup, corn syrup, salt, spice, onion powder, natural flavoring",
+    novaGroup: 4,
     nutriments: {
       "energy-kcal_100g": 133,
       carbohydrates_100g: 33,
@@ -156,6 +165,7 @@ const PACKAGED_FOODS: CuratedFoodEntry[] = [
     servingSize: "28g",
     categoriesTags: ["en:snacks", "en:chips-and-crisps", "en:salty-snacks"],
     ingredientsText: "Potatoes, vegetable oil (sunflower, corn, and/or canola oil), salt",
+    novaGroup: 4,
     nutriments: {
       "energy-kcal_100g": 536,
       carbohydrates_100g: 54,
@@ -172,6 +182,7 @@ const PACKAGED_FOODS: CuratedFoodEntry[] = [
     servingSize: "34g",
     categoriesTags: ["en:snacks", "en:sweet-snacks", "en:biscuits-and-cakes", "en:cookies"],
     ingredientsText: "Unbleached enriched flour, sugar, palm and/or canola oil, cocoa (processed with alkali), high fructose corn syrup, leavening, cornstarch, salt, soy lecithin, vanillin (artificial flavour)",
+    novaGroup: 4,
     nutriments: {
       "energy-kcal_100g": 471,
       carbohydrates_100g: 74,
@@ -207,5 +218,6 @@ export function lookupCuratedFood(barcode: string): OffProduct | null {
     categories_tags: entry.categoriesTags,
     ingredients_text: entry.ingredientsText,
     nutriments: entry.nutriments,
+    nova_group: entry.novaGroup,
   };
 }
