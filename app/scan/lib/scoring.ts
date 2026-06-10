@@ -591,6 +591,18 @@ const ADDITIVES: AdditiveEntry[] = [
     matchers: [name("Sulphur dioxide"), name("Sulfur dioxide"), ecode("E220")],
   },
 
+  {
+    id: "modified-milk-ingredients",
+    risk: "medium",
+    penalty: 8,
+    note: "Fractionated and recombined dairy components — often used to hit lower cost targets. Associated with ultra-processing (NOVA 4) and some research suggests higher intake is linked to increased insulin response vs. whole dairy.",
+    tier: "emerging-evidence",
+    healthBodyPosition: "Neither the FDA nor Health Canada has issued a specific safety concern, but several independent researchers and the NOVA classification system flag modified milk ingredients as a hallmark of ultra-processed food formulation.",
+    gorillaPosition: "Not a headline danger, but a reliable signal that a product has been engineered rather than made — if you're seeing this, the product almost certainly has other issues too.",
+    sources: ["Monteiro CA et al. — NOVA classification system (Public Health Nutr. 2018)", "Hall KD et al. — Ultra-Processed Diets Cause Excess Calorie Intake and Weight Gain (Cell Metabolism, 2019)", "Health Canada — Food Additive Listings"],
+    matchers: [name("Modified milk ingredients"), name("Modified milk ingredient")],
+  },
+
   // ───────────────────────── LOW RISK ──────────────────────────
   {
     id: "potassium-sorbate",
