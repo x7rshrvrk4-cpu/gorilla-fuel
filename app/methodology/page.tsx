@@ -11,23 +11,23 @@ export const metadata: Metadata = {
 
 const TIERS: EvidenceTier[] = ["strong-consensus", "emerging-evidence", "contested", "precautionary"];
 
-const SOURCES: { name: string; description: string; badge?: string; parallel?: boolean }[] = [
+const SOURCES: { name: string; description: string; badge?: string }[] = [
   // ── Waterfall lookup order ─────────────────────────────────────────────────
-  { name: "Gorilla Curated Database", badge: "Step 1 · GORILLA CURATED", description: "Our own hand-verified alcohol product database. Every entry is manually reviewed with confirmed ABV, calorie, carb, and serving-size data. Always checked first — takes absolute priority over all external sources." },
-  { name: "Community Submissions (Supabase)", badge: "Step 2 · COMMUNITY", description: "User-submitted products that have passed admin review. Enables Canadian and regional products not yet covered by major databases." },
+  { name: "Gorilla Curated Database", badge: "Step 1 · GORILLA CURATED", description: "Our own hand-verified product database. Every entry is manually reviewed with confirmed nutrition and serving-size data. Checked first on every scan." },
+  { name: "Community Submissions", badge: "Step 2 · COMMUNITY", description: "User-submitted products that have passed admin review. Enables Canadian and regional products not yet covered by major databases." },
   { name: "Open Food Facts", badge: "Step 3 · OPEN FOOD FACTS", description: "The world's largest open food database — 3M+ products with ingredients, nutrition, additives, and NOVA processing group. Backbone of every food, drink, and supplement scan." },
-  { name: "USDA FoodData Central", badge: "Step 4 · USDA ↗ parallel", description: "The US Department of Agriculture's branded-food nutrition database. Fired in parallel with Steps 5–8.", parallel: true },
-  { name: "FatSecret Platform", badge: "Step 5 · FATSECRET ↗ parallel", description: "A large global food and nutrition database covering millions of branded foods. Accessed via OAuth 2.0. Requires FATSECRET_CLIENT_ID + FATSECRET_CLIENT_SECRET.", parallel: true },
-  { name: "Barcode Lookup (RapidAPI)", badge: "Step 6 · BARCODE DB ↗ parallel", description: "A consumer product database accessed via RapidAPI with nutrition data where available. Requires RAPIDAPI_KEY.", parallel: true },
-  { name: "NIH Dietary Supplement Label Database", badge: "Step 7 · NIH VERIFIED ↗ parallel", description: "The US National Institutes of Health's official registry of dietary supplement labels. No API key required. Returns serving size, supplement facts, and certifications (NSF, Informed Sport). Fired in parallel — displayed with a blue NIH VERIFIED government badge.", parallel: true },
-  { name: "UPCitemdb", badge: "Step 8 · UPC DATABASE ↗ parallel", description: "A free UPC product database (100 req/day trial tier) covering millions of consumer products. Returns name, brand, and category for identification when nutrition data is unavailable.", parallel: true },
-  { name: "Nutritionix Branded Food Database", badge: "Step 9 · NUTRITIONIX", description: "A large North American branded-food database with strong coverage of US grocery products. Requires NUTRITIONIX_APP_ID + NUTRITIONIX_APP_KEY." },
-  { name: "Open Beauty Facts", badge: "Step 10 · OPEN BEAUTY FACTS", description: "Open Food Facts' sister database for cosmetics and personal care — powers Cosmetics Mode with a purple BEAUTY PRODUCT banner when a barcode matches a non-food item." },
-  { name: "WineVybe Beer Database (RapidAPI)", badge: "Step 11 · WINEVYBE", description: "A beer and beverage barcode database via RapidAPI. Used for alcohol products when all food databases return no result. Requires RAPIDAPI_KEY." },
-  { name: "Wine Analyzer (RapidAPI)", badge: "Step 12 · WINE ANALYZER", description: "A wine-specific barcode lookup via RapidAPI. Used as a fallback after WineVybe for wine products. Requires RAPIDAPI_KEY." },
-  { name: "TTB COLA Cloud (US Government Alcohol Registry)", badge: "Step 13 · COLA VERIFIED", description: "The US Alcohol and Tobacco Tax and Trade Bureau's Certificate of Label Approval database. Every alcohol product sold in the US must be registered here. Free public API — displayed with a navy COLA VERIFIED government badge." },
-  { name: "Go-UPC Global Product Database", badge: "Step 14 · GO-UPC", description: "500M+ product records worldwide. Returns name, brand, image, and category when all nutrition-focused databases return no result. Requires GOUPC_API_KEY." },
-  { name: "Open Drug Facts", badge: "Step 15 · OPEN DRUG FACTS", description: "OTC drug and medication database from the same open-data infrastructure as Open Food Facts. Displayed with a blue MEDICATION banner and a healthcare disclaimer. Checked last in the waterfall." },
+  { name: "USDA FoodData Central", badge: "Step 4 · USDA", description: "The US Department of Agriculture's branded-food nutrition database." },
+  { name: "FatSecret Platform", badge: "Step 5 · FATSECRET", description: "A large global food and nutrition database covering millions of branded foods." },
+  { name: "Barcode Lookup", badge: "Step 6 · BARCODE DB", description: "A consumer product database with nutrition data where available." },
+  { name: "NIH Dietary Supplement Label Database", badge: "Step 7 · NIH VERIFIED", description: "The US National Institutes of Health's official registry of dietary supplement labels. Returns serving size, supplement facts, and certifications (NSF, Informed Sport) — displayed with a blue NIH VERIFIED government badge." },
+  { name: "UPCitemdb", badge: "Step 8 · UPC DATABASE", description: "A UPC product database covering millions of consumer products. Returns name, brand, and category for identification when nutrition data is unavailable." },
+  { name: "Nutritionix Branded Food Database", badge: "Step 9 · NUTRITIONIX", description: "A large North American branded-food database with strong coverage of US grocery products." },
+  { name: "Open Beauty Facts", badge: "Step 10 · OPEN BEAUTY FACTS", description: "Open Food Facts' sister database for cosmetics and personal care — powers Beauty Mode with a purple BEAUTY PRODUCT banner when a barcode matches a non-food item." },
+  { name: "WineVybe Beer Database", badge: "Step 11 · WINEVYBE", description: "A beer and beverage barcode database, used for alcohol products when food databases return no result." },
+  { name: "Wine Analyzer", badge: "Step 12 · WINE ANALYZER", description: "A wine-specific barcode lookup used for wine products." },
+  { name: "TTB COLA Cloud (US Government Alcohol Registry)", badge: "Step 13 · COLA VERIFIED", description: "The US Alcohol and Tobacco Tax and Trade Bureau's Certificate of Label Approval database. Every alcohol product sold in the US must be registered here — displayed with a navy COLA VERIFIED government badge." },
+  { name: "Go-UPC Global Product Database", badge: "Step 14 · GO-UPC", description: "500M+ product records worldwide. Returns name, brand, image, and category when nutrition-focused databases return no result." },
+  { name: "Open Drug Facts", badge: "Step 15 · OPEN DRUG FACTS", description: "OTC drug and medication database from the same open-data infrastructure as Open Food Facts. Displayed with a blue MEDICATION banner and a healthcare disclaimer." },
   // ── Scoring, safety, and research reference sources ────────────────────────
   { name: "Labdoor Testing Database", description: "Independent purity and label-accuracy benchmarks for supplements, referenced for context (Labdoor has no public API for live per-product lookups)." },
   { name: "Examine.com Research Database", description: "Curated, citation-backed summaries of what each common supplement ingredient does, its evidence strength, dose range, and safety considerations." },
@@ -48,10 +48,29 @@ export default function MethodologyPage() {
           The <span className="text-gold">Methodology</span>.
         </h1>
         <p className="mt-4 text-muted">
-          No black boxes. No paid placements. Here is exactly how every score, badge,
+          No black boxes. No paid placements. Here is how every score, badge,
           and warning on this site gets generated — start to finish.
         </p>
       </div>
+
+      {/* INDEPENDENCE STATEMENT */}
+      <section className="mt-10">
+        <div className="rounded-sm border border-gold bg-gradient-to-r from-gold/10 to-transparent p-6">
+          <p className="font-display text-lg tracking-[0.2em] text-gold">
+            GORILLA FUEL INDEPENDENCE STATEMENT
+          </p>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-foreground/90">
+            Gorilla Fuel is an independent analytical platform. No brand,
+            manufacturer, or retailer pays for placement, influences scoring, or
+            has any input into our rankings or results. Our scoring methodology
+            is applied identically to every product regardless of brand size,
+            marketing budget, or popularity. A product from a small Canadian
+            craft brewery is scored using the exact same framework as a
+            multinational corporation. The data determines the score. Nothing
+            else.
+          </p>
+        </div>
+      </section>
 
       {/* THE SCORE */}
       <section className="mt-14">
@@ -68,21 +87,16 @@ export default function MethodologyPage() {
             <p className="font-display text-sm uppercase tracking-[0.2em] text-gold">Nutrition Score · 60%</p>
             <p className="mt-2 text-sm leading-relaxed text-muted">
               Calculated from sugar, saturated fat, salt, calorie density, fiber, protein, and NOVA
-              processing group per 100g, measured against thresholds drawn from WHO and major
-              cardiology-body guidelines:
+              processing group per 100g. Each nutrient is measured against graduated thresholds
+              drawn from WHO and major cardiology-body guidelines — penalties scale up as a
+              nutrient moves from &ldquo;elevated&rdquo; to &ldquo;high&rdquo; to
+              &ldquo;very high,&rdquo; while meaningful fiber and protein content earns credit
+              back. Higher NOVA processing groups carry additional penalties.
             </p>
-            <ul className="mt-3 space-y-1.5 text-xs text-muted">
-              <li>— Sugar: −10 over 9g/100g, −20 over 15g/100g, −35 over 22.5g/100g</li>
-              <li>— Saturated fat: −10 over 5g/100g, −20 over 10g/100g</li>
-              <li>— Salt: −10 over 0.6g/100g, −20 over 1.2g/100g, −35 over 2g/100g</li>
-              <li>— Calories: −8 over 350 kcal/100g, −15 over 500 kcal/100g</li>
-              <li>— NOVA group 3 (processed): −5 · NOVA group 4 (ultra-processed): −10</li>
-              <li>— Fiber over 3g/100g: +8 · Protein over 10g/100g: +10</li>
-            </ul>
             <p className="mt-3 text-xs text-muted">
               Every flagged nutrient also shows the per-serving figure alongside the per-100g one
-              (e.g. &ldquo;High sugar: 26g per 100g (4g per 15g serving)&rdquo;) whenever Open Food
-              Facts has serving-size data, so the number maps to what you&apos;ll actually eat.
+              (e.g. &ldquo;High sugar: 26g per 100g (4g per 15g serving)&rdquo;) whenever
+              serving-size data is available, so the number maps to what you&apos;ll actually eat.
             </p>
           </div>
           <div className="bg-surface p-6">
@@ -174,22 +188,93 @@ export default function MethodologyPage() {
         </div>
       </section>
 
+      {/* NOVA CLASSIFICATION */}
+      <section className="mt-14">
+        <h2 className="font-display text-3xl text-foreground">NOVA Processing Classification</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
+          NOVA is the internationally recognised system (developed at the University of São
+          Paulo and used by the WHO and FAO) that classifies foods by how processed they
+          are — not by their nutrients. We use it as one input to the Nutrition Score:
+          more processing means more penalty.
+        </p>
+        <div className="mt-5 grid gap-px overflow-hidden rounded-sm border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { group: "1", title: "Unprocessed / Minimally Processed", body: "Fresh, dried, frozen or ground whole foods — fruit, vegetables, meat, milk, eggs, plain nuts and seeds." },
+            { group: "2", title: "Processed Culinary Ingredients", body: "Substances extracted from Group 1 foods — oils, butter, sugar, salt — used to prepare and season." },
+            { group: "3", title: "Processed Foods", body: "Group 1 foods with Group 2 ingredients added — canned vegetables, simple cheeses, fresh bread, salted nuts." },
+            { group: "4", title: "Ultra-Processed Foods", body: "Industrial formulations with ingredients you wouldn't find in a home kitchen — colourants, emulsifiers, flavourings, HFCS. Most heavily penalised." },
+          ].map((n) => (
+            <div key={n.group} className="bg-surface p-5">
+              <p className="font-display text-3xl text-gold-dim">{n.group}</p>
+              <p className="mt-1 font-display text-base leading-tight text-foreground">{n.title}</p>
+              <p className="mt-2 text-xs leading-relaxed text-muted">{n.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ALCOHOL SCORING */}
+      <section className="mt-14">
+        <h2 className="font-display text-3xl text-foreground">How Alcohol Scoring Works</h2>
+        <div className="mt-3 max-w-3xl space-y-3 text-sm leading-relaxed text-muted">
+          <p>
+            Beer, seltzer, cider and RTD products are evaluated on three pillars:{" "}
+            <span className="text-foreground">cleanliness</span> (number and risk level of
+            known additives — clarity agents, artificial sweeteners, sulphites, colourants),{" "}
+            <span className="text-foreground">calorie density</span> per serving, and{" "}
+            <span className="text-foreground">carbohydrate and sugar content</span> per
+            serving. The result is the 1–5 Gorilla Pour rating shown on every card.
+          </p>
+          <p>
+            Wines use a published weighted score —{" "}
+            <span className="text-foreground">sugar 40% · calorie density 30% · additives 30%</span>{" "}
+            — measured per standard 148mL pour (60mL for icewine, which is served as a
+            dessert wine). Dry wines naturally score highest. Ontario VQA wines are
+            identified with a dedicated badge but are scored with the identical framework
+            as every other wine.
+          </p>
+        </div>
+      </section>
+
+      {/* SUPPLEMENT RANKINGS */}
+      <section className="mt-14">
+        <h2 className="font-display text-3xl text-foreground">How Supplement Rankings Work</h2>
+        <div className="mt-3 max-w-3xl space-y-3 text-sm leading-relaxed text-muted">
+          <p>
+            Every ranked supplement is evaluated on four pillars:{" "}
+            <span className="text-foreground">purity</span> (label accuracy, contaminant
+            risk, and filler content), <span className="text-foreground">independent
+            third-party testing</span> (NSF Certified for Sport, Informed Sport, USP and
+            comparable programs — manufacturer self-testing doesn&apos;t count),{" "}
+            <span className="text-foreground">certifications and transparency</span>{" "}
+            (full-disclosure labels beat proprietary blends, every time), and{" "}
+            <span className="text-foreground">value</span> (price per effective serving,
+            not price per tub). Those pillars combine into the S-through-D letter grade
+            shown above.
+          </p>
+          <p>
+            Where claims are involved, each product also carries an Evidence Tier badge so
+            you can see how settled the science is on its category — a perfectly pure
+            product in a contested category will say so.
+          </p>
+        </div>
+      </section>
+
       {/* DATA SOURCES */}
       <section className="mt-14">
         <h2 className="font-display text-3xl text-foreground">Data Sources</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
-          Every scan runs a 15-step waterfall — sources are checked in priority order and
-          the first hit wins. Steps 4–8 fire in parallel to minimise latency.
-          Every score, badge, and citation traces back to one of these public,
-          independently checkable sources — never to brand-supplied marketing copy.
+          Every scan checks 15 data sources in priority order. Every score, badge,
+          and citation traces back to one of these public, independently checkable
+          sources — never to brand-supplied marketing copy.
         </p>
 
-        <h3 className="mt-8 font-display text-xl text-gold">Lookup Waterfall · Steps 1–15</h3>
-        <p className="mt-1 text-xs text-muted">Checked in this order on every scan. Steps 4–8 are fired in parallel to reduce total lookup time — the first hit (in priority order) wins. Total waterfall completes within 8 seconds.</p>
+        <h3 className="mt-8 font-display text-xl text-gold">Lookup Sources · Steps 1–15</h3>
+        <p className="mt-1 text-xs text-muted">Checked in this priority order on every scan.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {SOURCES.filter((s) => s.badge).map((s) => (
-            <div key={s.name} className={`rounded-sm border p-4 ${s.parallel ? "border-sky-500/25 bg-sky-500/5" : "border-gold/20 bg-surface"}`}>
-              <p className={`font-display text-[10px] uppercase tracking-[0.25em] ${s.parallel ? "text-sky-400/70" : "text-gold/60"}`}>{s.badge}</p>
+            <div key={s.name} className="rounded-sm border border-gold/20 bg-surface p-4">
+              <p className="font-display text-[10px] uppercase tracking-[0.25em] text-gold/60">{s.badge}</p>
               <p className="mt-1 font-display text-base tracking-wide text-foreground">{s.name}</p>
               <p className="mt-1 text-xs leading-relaxed text-muted">{s.description}</p>
             </div>
