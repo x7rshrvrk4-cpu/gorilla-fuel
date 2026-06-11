@@ -12,7 +12,7 @@ export type { GoUpcProduct, DrugProduct, NihDsldProduct };
  */
 export async function lookupGoUpc(barcode: string): Promise<GoUpcProduct | null> {
   try {
-    const res = await fetch(`/api/goupc?barcode=${encodeURIComponent(barcode)}`);
+    const res = await fetch(`/api/goupc?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(8000) });
     if (!res.ok) return null;
     const data: GoUpcProduct | null = await res.json();
     return data?.name ? data : null;
@@ -28,7 +28,7 @@ export async function lookupGoUpc(barcode: string): Promise<GoUpcProduct | null>
  */
 export async function lookupDrugFacts(barcode: string): Promise<DrugProduct | null> {
   try {
-    const res = await fetch(`/api/drugfacts?barcode=${encodeURIComponent(barcode)}`);
+    const res = await fetch(`/api/drugfacts?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(8000) });
     if (!res.ok) return null;
     const data: DrugProduct | null = await res.json();
     return data?.name ? data : null;
@@ -44,7 +44,7 @@ export async function lookupDrugFacts(barcode: string): Promise<DrugProduct | nu
  */
 export async function lookupUpcItemDb(barcode: string): Promise<OffProduct | null> {
   try {
-    const res = await fetch(`/api/upcitemdb?barcode=${encodeURIComponent(barcode)}`);
+    const res = await fetch(`/api/upcitemdb?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(8000) });
     if (!res.ok) return null;
     const data: OffProduct | null = await res.json();
     return data?.product_name ? data : null;
@@ -59,7 +59,7 @@ export async function lookupUpcItemDb(barcode: string): Promise<OffProduct | nul
  */
 export async function lookupBarcodeLookup(barcode: string): Promise<OffProduct | null> {
   try {
-    const res = await fetch(`/api/barcodelookup?barcode=${encodeURIComponent(barcode)}`);
+    const res = await fetch(`/api/barcodelookup?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(8000) });
     if (!res.ok) return null;
     const data: OffProduct | null = await res.json();
     return data?.product_name ? data : null;
@@ -75,7 +75,7 @@ export async function lookupBarcodeLookup(barcode: string): Promise<OffProduct |
  */
 export async function lookupNihDsld(barcode: string): Promise<NihDsldProduct | null> {
   try {
-    const res = await fetch(`/api/nihdsl?barcode=${encodeURIComponent(barcode)}`);
+    const res = await fetch(`/api/nihdsl?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(8000) });
     if (!res.ok) return null;
     const data: NihDsldProduct | null = await res.json();
     return data?.productName ? data : null;

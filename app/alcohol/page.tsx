@@ -6,6 +6,7 @@ import AlcoholDisclaimer from "../scan/components/AlcoholDisclaimer";
 import AlcoholProductCard from "./components/AlcoholProductCard";
 import { ALCOHOL_CATEGORIES, ALCOHOL_PRODUCTS, type AlcoholCategory } from "./lib/products";
 import { trackAlcoholRankingViewed } from "../lib/gtag";
+import UniversalSearch from "../components/UniversalSearch";
 
 type FilterKey = "all" | "cleanest" | "low-carb" | "low-cal" | "seltzer";
 
@@ -17,24 +18,37 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "seltzer", label: "Seltzer Only" },
 ];
 
+const WINE_FILTERS: { key: FilterKey; label: string }[] = [
+  { key: "all", label: "All Wines" },
+  { key: "cleanest", label: "Cleanest (fewest additives)" },
+  { key: "low-carb", label: "Dry (under 2g sugar)" },
+  { key: "low-cal", label: "Light (under 125 cal/pour)" },
+];
+
 export default function AlcoholRankingsPage() {
   const [category, setCategory] = useState<AlcoholCategory>("Light Beers");
   const [filter, setFilter] = useState<FilterKey>("all");
 
+  const isWineTab = category === "Wines";
+
   useEffect(() => {
     trackAlcoholRankingViewed();
   }, []);
+
+  useEffect(() => {
+    setFilter("all");
+  }, [category]);
 
   const products = useMemo(() => {
     return ALCOHOL_PRODUCTS.filter((p) => p.category === category)
       .filter((p) => {
         switch (filter) {
           case "cleanest":
-            return p.additiveCount === 0;
+            return p.additiveCount === 0 || p.additiveCount === 1;
           case "low-carb":
-            return p.carbsPerCan < 5;
+            return isWineTab ? p.sugarPerCan < 2 : p.carbsPerCan < 5;
           case "low-cal":
-            return p.caloriesPerCan < 100;
+            return isWineTab ? p.caloriesPerCan < 125 : p.caloriesPerCan < 100;
           case "seltzer":
             return p.category === "Hard Seltzers";
           default:
@@ -42,58 +56,95 @@ export default function AlcoholRankingsPage() {
         }
       })
       .sort((a, b) => b.gorillaPour - a.gorillaPour || a.caloriesPerCan - b.caloriesPerCan);
-  }, [category, filter]);
+  }, [category, filter, isWineTab]);
+
+  const activeFilters = isWineTab ? WINE_FILTERS : FILTERS;
 
   return (
     <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
       <div className="max-w-2xl">
-        <p className="font-display text-sm tracking-[0.3em] text-amber-400">BEER &amp; ALCOHOL INTELLIGENCE</p>
-        <h1 className="mt-3 font-display text-5xl leading-[0.95] text-foreground sm:text-6xl">
-          The <span className="text-amber-400">Alcohol</span> Rankings.
-        </h1>
-        <p className="mt-4 text-muted">
-          {ALCOHOL_PRODUCTS.length} drinks across {ALCOHOL_CATEGORIES.length} categories, curated for the
-          fitness-minded drinker — ABV, calories, carbs, additive counts, and a Gorilla Pour rating for how
-          drinkable each one is without derailing your goals. All available at Beer Store or LCBO in Canada.
-        </p>
-        <p className="mt-3 inline-flex items-center gap-2 rounded-sm border border-amber-400/30 bg-amber-400/8 px-3 py-1.5 text-xs text-amber-300/80">
-          <span className="text-amber-400">✓</span>
-          Nutritional data last verified June 2026 — sourced from manufacturer disclosures and official product labels
-        </p>
+        {isWineTab ? (
+          <>
+            <p className="font-display text-sm tracking-[0.3em] text-rose-400">WINE INTELLIGENCE</p>
+            <h1 className="mt-3 font-display text-5xl leading-[0.95] text-foreground sm:text-6xl">
+              The <span className="text-rose-400">Wine</span> Rankings.
+            </h1>
+            <p className="mt-4 text-muted">
+              {ALCOHOL_PRODUCTS.filter((p) => p.category === "Wines").length} wines ranked by sugar, calories per
+              148mL pour, and additive count — the fitness drinker's guide to wine without the guesswork.
+            </p>
+            <p className="mt-3 inline-flex items-center gap-2 rounded-sm border border-rose-700/30 bg-rose-700/8 px-3 py-1.5 text-xs text-rose-300/80">
+              <span className="text-rose-400">🍷</span>
+              All values per standard 148mL pour · sourced from winery disclosures and lab analysis
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="font-display text-sm tracking-[0.3em] text-amber-400">BEER &amp; ALCOHOL INTELLIGENCE</p>
+            <h1 className="mt-3 font-display text-5xl leading-[0.95] text-foreground sm:text-6xl">
+              The <span className="text-amber-400">Alcohol</span> Rankings.
+            </h1>
+            <p className="mt-4 text-muted">
+              {ALCOHOL_PRODUCTS.length} drinks across {ALCOHOL_CATEGORIES.length} categories, curated for the
+              fitness-minded drinker — ABV, calories, carbs, additive counts, and a Gorilla Pour rating for how
+              drinkable each one is without derailing your goals. All available at Beer Store or LCBO in Canada.
+            </p>
+            <p className="mt-3 inline-flex items-center gap-2 rounded-sm border border-amber-400/30 bg-amber-400/8 px-3 py-1.5 text-xs text-amber-300/80">
+              <span className="text-amber-400">✓</span>
+              Nutritional data last verified June 2026 — sourced from manufacturer disclosures and official product labels
+            </p>
+          </>
+        )}
       </div>
 
-      <div className="mt-8 overflow-hidden rounded-sm border border-amber-400/20">
-        <AlcoholDisclaimer />
+      <div className="mt-8">
+        <UniversalSearch placeholder={isWineTab ? "Search wines by name or winery…" : "Search beers, seltzers, ciders…"} />
       </div>
+
+      {!isWineTab && (
+        <div className="mt-4 overflow-hidden rounded-sm border border-amber-400/20">
+          <AlcoholDisclaimer />
+        </div>
+      )}
 
       {/* CATEGORY TABS */}
       <div className="mt-10 flex flex-wrap gap-2">
-        {ALCOHOL_CATEGORIES.map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            onClick={() => setCategory(cat)}
-            className={`rounded-sm px-5 py-2.5 font-display text-lg tracking-widest transition-colors ${
-              category === cat
-                ? "bg-amber-400 text-slate-950"
-                : "border border-slate-700 text-slate-400 hover:border-amber-400/50 hover:text-foreground"
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
+        {ALCOHOL_CATEGORIES.map((cat) => {
+          const isWineCat = cat === "Wines";
+          const isActive = category === cat;
+          return (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setCategory(cat)}
+              className={`rounded-sm px-5 py-2.5 font-display text-lg tracking-widest transition-colors ${
+                isActive
+                  ? isWineCat
+                    ? "bg-rose-800 text-white"
+                    : "bg-amber-400 text-slate-950"
+                  : isWineCat
+                  ? "border border-rose-800/50 text-rose-400 hover:border-rose-700 hover:text-rose-300"
+                  : "border border-slate-700 text-slate-400 hover:border-amber-400/50 hover:text-foreground"
+              }`}
+            >
+              {cat === "Wines" ? "🍷 " : ""}{cat}
+            </button>
+          );
+        })}
       </div>
 
       {/* FILTERS */}
       <div className="mt-4 flex flex-wrap gap-2">
-        {FILTERS.map((f) => (
+        {activeFilters.map((f) => (
           <button
             key={f.key}
             type="button"
             onClick={() => setFilter(f.key)}
             className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-[0.2em] transition-colors ${
               filter === f.key
-                ? "border-amber-400 text-amber-400"
+                ? isWineTab
+                  ? "border-rose-500 text-rose-400"
+                  : "border-amber-400 text-amber-400"
                 : "border-slate-700 text-slate-400 hover:border-amber-400/50 hover:text-foreground"
             }`}
           >
@@ -101,6 +152,18 @@ export default function AlcoholRankingsPage() {
           </button>
         ))}
       </div>
+
+      {/* Wine scoring explanation */}
+      {isWineTab && (
+        <div className="mt-6 rounded-sm border border-rose-800/30 bg-rose-950/30 px-5 py-4">
+          <p className="text-xs leading-relaxed text-rose-300/70">
+            <span className="font-display tracking-wide text-rose-200">Wine scoring uses a different model from beer.</span>{" "}
+            Sugar accounts for 40% of the score, calories 30%, and additives 30% — each measured per standard 148mL pour.
+            Dry wines (under 2g sugar/pour) score highest. Gorilla Pour reflects how compatible a wine is with fitness goals
+            over a regular week of moderate consumption.
+          </p>
+        </div>
+      )}
 
       {/* PRODUCT LIST */}
       <div className="mt-8 grid gap-4 sm:grid-cols-2">

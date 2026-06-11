@@ -1240,6 +1240,68 @@ export function computeScore(
     positives.push("Certified organic — labels/categories carry organic certification, adding 10 points to the final score");
   }
 
+  // ── Universal junk food scoring caps ─────────────────────────────────────────
+  // Applied last, after all other scoring, as categorical overrides.
+  // These ensure credibility: a product's macro profile should never rescue it
+  // from being in an inherently-junk category.
+  {
+    const capCats = (context?.categoriesTags ?? []).join(" ").toLowerCase();
+
+    // Specific junk categories — deliberately excludes plain "snacks" to avoid
+    // capping granola bars, protein bars, and cereal bars (those are scored normally).
+    const JUNK_PATTERN =
+      /\b(chips?|crisps?|savoury[\s-]snacks?|salty[\s-]snacks?|cheese[\s-]snacks?|cheese[\s-]puffs?|cheese[\s-]sticks?|party[\s-]mix|snack[\s-]mix|nachos?|tortilla[\s-]chips?|corn[\s-]chips?|flavou?red[\s-]crackers?|savoury[\s-]crackers?|candy|candies|confectionery|chocolate[\s-]bars?|chocolate[\s-]candies?|ice[\s-]cream|frozen[\s-]desserts?|cookies?|sweet[\s-]biscuits?|flavou?red[\s-]popcorn|instant[\s-]noodles?|fast[\s-]food|junk[\s-]food)\b/;
+
+    const isJunkCap = JUNK_PATTERN.test(capCats);
+
+    // Rule 4: Junk category + completely missing nutrition → max 35
+    // (Reinforces the per-component cap applied earlier; ensures the final score lands low.)
+    if (isJunkCap && hasNoNutritionData && finalScore > 35) {
+      finalScore = 35;
+      flags.push("Junk food category with no nutrition data — score capped at 35. Incomplete data on ultra-processed food always defaults low.");
+    }
+
+    // Rule 3: NOVA Group 4 (ultra-processed) → max 50
+    if (asNovaGroup(context?.novaGroup ?? undefined) === 4 && finalScore > 50) {
+      finalScore = 50;
+      flags.push("Ultra-processed (NOVA Group 4) — score capped at 50 regardless of macros.");
+    }
+
+    // Rule 1 & 2: Junk category cap with plain-snack exception
+    // Use a tiered cap: cheese-puffs/sticks (most processed, artificial) are hardest-capped,
+    // then general chips/savoury-snacks, then broader junk categories.
+    const isHardJunk =
+      /\b(cheese[\s-]puffs?|cheese[\s-]sticks?|cheese[\s-]snacks?|party[\s-]mix|snack[\s-]mix|flavou?red[\s-]popcorn|instant[\s-]noodles?|fast[\s-]food|junk[\s-]food)\b/.test(capCats);
+    const isMediumJunk =
+      /\b(chips?|crisps?|savoury[\s-]snacks?|salty[\s-]snacks?|nachos?|tortilla[\s-]chips?|corn[\s-]chips?|flavou?red[\s-]crackers?|savoury[\s-]crackers?)\b/.test(capCats);
+    // hard cap: 25 / medium cap: 35 / standard cap: 45
+    const categoryCap = isHardJunk ? 25 : isMediumJunk ? 35 : 45;
+
+    if (isJunkCap && finalScore > categoryCap) {
+      // Rule 2: Plain single-ingredient snack — ≤3 ingredients, no artificial colours or flavours
+      const ingText = ingredientsText ?? "";
+      // Strip parenthetical sub-lists (e.g. "oil (sunflower, canola)") before
+      // counting ingredients to avoid false splits on commas inside parentheses.
+      const ingStripped = ingText.replace(/\([^)]*\)/g, "");
+      const ingredientCount = ingStripped.trim()
+        ? ingStripped.split(",").filter((s) => s.trim().length > 0).length
+        : 99;
+      const hasArtificialColor =
+        /artificial\s+colou?r|FD&C\s+|\bRed\s+\d+\b|\bYellow\s+\d+\b|\bBlue\s+\d+\b|tartrazine|allura\s+red|caramel\s+colou?r\s+(class\s+)?(III|IV)/i.test(ingText);
+      const hasArtificialFlavor = /artificial\s+flavou?r/i.test(ingText);
+      const isPlainSnack = ingredientCount <= 3 && !hasArtificialColor && !hasArtificialFlavor;
+
+      if (isPlainSnack) {
+        // Plain snack exception: allow up to 65 (e.g. plain Tostitos: corn, oil, salt)
+        finalScore = Math.min(finalScore, 65);
+        flags.push("Plain snack (≤3 ingredients, no artificial additives) — lenient junk-food cap applied (max 65).");
+      } else {
+        finalScore = categoryCap;
+        flags.push(`Junk food category cap — maximum score ${categoryCap}. This product category is inherently ultra-processed; no nutrition profile rescues it above ${categoryCap}.`);
+      }
+    }
+  }
+
   return {
     finalScore: Math.max(0, Math.min(100, finalScore)),
     nutritionScore: Math.round(effectiveNutritionScore),

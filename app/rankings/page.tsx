@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import CrossLinkBanner from "../components/CrossLinkBanner";
 import MethodologyModal from "../components/MethodologyModal";
 import ProductCard from "./components/ProductCard";
+import UniversalSearch from "../components/UniversalSearch";
 import {
   CATEGORIES,
   GRADE_COLORS,
@@ -63,6 +64,10 @@ export default function RankingsPage() {
         >
           How We Score
         </button>
+      </div>
+
+      <div className="mt-8 max-w-lg">
+        <UniversalSearch placeholder="Search supplements, proteins, creatine…" />
       </div>
 
       {/* CATEGORY TABS */}

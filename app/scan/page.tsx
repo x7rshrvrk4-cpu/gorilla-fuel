@@ -161,7 +161,7 @@ type LookupState =
   | { phase: "error"; barcode: string; message: string }
   | { phase: "found"; product: OffProduct; result: ScoreResult; lowConfidence?: boolean; dataSource: DataSource }
   | { phase: "found-beauty"; product: ObfProduct; result: BeautyScoreResult }
-  | { phase: "found-alcohol"; product: OffProduct; result: AlcoholScoreResult; fromCommunity?: boolean; dataSource: DataSource }
+  | { phase: "found-alcohol"; product: OffProduct; result: AlcoholScoreResult; fromCommunity?: boolean; dataSource: DataSource; lcboVerified?: boolean }
   | { phase: "found-generic"; product: GoUpcProduct }
   | { phase: "found-drug"; product: DrugProduct }
   | { phase: "found-supplement"; product: NihDsldProduct };
@@ -211,6 +211,17 @@ export default function ScanPage() {
 
   useEffect(() => {
     import("@zxing/library").catch(() => {});
+  }, []);
+
+  // ── URL param pre-load: /scan?b=<barcode> (from universal search links) ────
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const b = params.get("b");
+    if (b && b.trim().length > 0) {
+      runLookup(b.trim());
+    }
+    // Only fire once on mount; runLookup is stable via useCallback
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -416,6 +427,7 @@ export default function ScanPage() {
         console.log("[Gorilla] STEP 1 — curated alcohol check for:", trimmed);
         const curatedHit = lookupCuratedByBarcode(trimmed);
         if (curatedHit) {
+          console.log("[Gorilla] STEP 1 HIT:", curatedHit.name, "barcode:", trimmed);
           const servingMl = curatedHit.servingMl ?? 355;
           const kind = curatedHit.category === "IPAs" ? "beer"
             : curatedHit.category === "Hard Seltzers" ? "seltzer"
@@ -437,7 +449,7 @@ export default function ScanPage() {
           const alcoholResult = computeAlcoholScore(nutriments, undefined, kind, servingMl);
           trackProductFound("gorilla-curated", trimmed, curatedHit.name);
           trackScanModeAlcohol(trimmed, curatedHit.name);
-          setLookup({ phase: "found-alcohol", product: syntheticProduct, result: alcoholResult, dataSource: "gorilla-curated" });
+          setLookup({ phase: "found-alcohol", product: syntheticProduct, result: alcoholResult, dataSource: "gorilla-curated", lcboVerified: curatedHit.lcboVerified ?? false });
           setScannerActive(false);
           scrollToResult();
           const entry: HistoryEntry = {
@@ -1190,6 +1202,7 @@ export default function ScanPage() {
               result={lookup.result}
               fromCommunity={lookup.fromCommunity}
               dataSource={lookup.dataSource}
+              lcboVerified={lookup.lcboVerified}
             />
             {/* Show submit form below COLA cards so user can add missing nutrition */}
             {lookup.dataSource === "cola-verified" && !showSubmitForm && (

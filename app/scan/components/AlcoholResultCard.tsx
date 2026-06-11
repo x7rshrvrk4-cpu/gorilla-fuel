@@ -23,6 +23,7 @@ type Props = {
   result: AlcoholScoreResult;
   fromCommunity?: boolean;
   dataSource?: DataSource;
+  lcboVerified?: boolean;
 };
 
 const RISK_COLOR: Record<string, string> = {
@@ -83,7 +84,7 @@ function GorillaPour({ rating }: { rating: number }) {
   );
 }
 
-export default function AlcoholResultCard({ product, result, fromCommunity, dataSource }: Props) {
+export default function AlcoholResultCard({ product, result, fromCommunity, dataSource, lcboVerified }: Props) {
   const [additivesOpen, setAdditivesOpen] = useState(false);
 
   const image = productImage(product);
@@ -93,16 +94,29 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
   const glutenFree = isCertifiedGlutenFree(product.labels_tags);
   const organic = isCertifiedOrganic(product.labels_tags);
 
-  return (
-    <div className="animate-rise overflow-hidden rounded-sm border border-amber-400/20 bg-slate-950 shadow-[0_0_40px_-12px_rgba(251,191,36,0.15)]">
+  const isWine = kind === "wine";
 
-      {/* ALCOHOL BANNER */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-amber-400/25 bg-slate-900 px-6 py-3">
-        <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-amber-400" />
-        <p className="font-display text-sm uppercase tracking-[0.3em] text-amber-300">
-          {emoji} {kindLabel(kind)} · Alcohol Mode
+  return (
+    <div className={`animate-rise overflow-hidden rounded-sm border bg-slate-950 ${
+      isWine
+        ? "border-rose-800/30 shadow-[0_0_40px_-12px_rgba(136,19,55,0.25)]"
+        : "border-amber-400/20 shadow-[0_0_40px_-12px_rgba(251,191,36,0.15)]"
+    }`}>
+
+      {/* ALCOHOL / WINE BANNER */}
+      <div className={`flex flex-wrap items-center gap-2 border-b px-6 py-3 ${
+        isWine ? "border-rose-800/30 bg-rose-950/60" : "border-amber-400/25 bg-slate-900"
+      }`}>
+        <span className={`h-2 w-2 shrink-0 animate-pulse rounded-full ${isWine ? "bg-rose-500" : "bg-amber-400"}`} />
+        <p className={`font-display text-sm uppercase tracking-[0.3em] ${isWine ? "text-rose-300" : "text-amber-300"}`}>
+          {emoji} {kindLabel(kind)} · {isWine ? "Wine Mode" : "Alcohol Mode"}
         </p>
         <div className="ml-auto flex flex-wrap gap-2">
+          {lcboVerified && (
+            <span className="rounded-sm border border-sky-500/60 bg-sky-500/15 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.18em] text-sky-300">
+              LCBO Verified
+            </span>
+          )}
           {fromCommunity && (
             <SourceBadge source="community" />
           )}
@@ -124,12 +138,14 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
 
       {/* ALCOHOL NUTRITION GAP — shown when nutrition data is missing (common for Canadian alcohol) */}
       {(result.kcalPerServing === null || result.carbsPerServing === null) && (
-        <div className="border-b border-amber-400/20 bg-amber-400/5 px-6 py-3">
-          <p className="text-[10px] leading-relaxed text-amber-300/70">
-            <span className="font-display tracking-wide text-amber-300/90">Canadian alcohol labelling laws do not require breweries to disclose full nutrition information.</span>{" "}
-            ABV is government verified. Calorie and carb data where shown is sourced from brand websites and community submissions.
+        <div className={`border-b px-6 py-3 ${isWine ? "border-rose-800/20 bg-rose-950/30" : "border-amber-400/20 bg-amber-400/5"}`}>
+          <p className={`text-[10px] leading-relaxed ${isWine ? "text-rose-300/70" : "text-amber-300/70"}`}>
+            <span className={`font-display tracking-wide ${isWine ? "text-rose-300/90" : "text-amber-300/90"}`}>
+              {isWine ? "Full wine nutrition may not be available in our database yet." : "Canadian alcohol labelling laws do not require breweries to disclose full nutrition information."}
+            </span>{" "}
+            ABV is verified. Calorie and sugar data where shown is sourced from winery disclosures and community submissions.
             If you know the nutrition data for this product,{" "}
-            <span className="text-amber-300 underline decoration-1 underline-offset-2">tap Submit below</span>{" "}
+            <span className={`underline decoration-1 underline-offset-2 ${isWine ? "text-rose-300" : "text-amber-300"}`}>tap Submit below</span>{" "}
             to help build the database.
           </p>
         </div>

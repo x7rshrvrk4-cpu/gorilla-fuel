@@ -203,6 +203,106 @@ const targets: Target[] = [
     min: 85,
     max: 100,
   },
+  // ── New junk food cap test cases ────────────────────────────────────────────
+  {
+    name: "Old Dutch Ruffles",
+    nutriments: {
+      "energy-kcal_100g": 536,
+      sugars_100g: 0.5,
+      "saturated-fat_100g": 3.5,
+      salt_100g: 1.0,
+      proteins_100g: 6.5,
+      fiber_100g: 3.5,
+    },
+    ingredientsText:
+      "Potatoes, vegetable oil (sunflower, corn and/or canola), salt, seasoning (maltodextrin, salt, dextrose, monosodium glutamate, natural flavours)",
+    context: {
+      servingSize: "28g",
+      novaGroup: 4,
+      categoriesTags: ["en:snacks", "en:chips-and-crisps", "en:salty-snacks"],
+    },
+    min: 10,
+    max: 35,
+  },
+  {
+    name: "Old Dutch Party Mix",
+    nutriments: {
+      "energy-kcal_100g": 480,
+      sugars_100g: 2.0,
+      "saturated-fat_100g": 4.0,
+      salt_100g: 1.5,
+      proteins_100g: 7.0,
+      fiber_100g: 2.5,
+    },
+    ingredientsText:
+      "Enriched flour, vegetable oil, salt, maltodextrin, sugar, monosodium glutamate, artificial flavour, artificial colour (yellow 5, yellow 6)",
+    context: {
+      servingSize: "30g",
+      novaGroup: 4,
+      categoriesTags: ["en:snacks", "en:party-mix", "en:savoury-snacks"],
+    },
+    min: 0,
+    max: 30,
+  },
+  {
+    name: "Arriba Nacho Chips",
+    nutriments: {
+      "energy-kcal_100g": 490,
+      sugars_100g: 1.0,
+      "saturated-fat_100g": 3.0,
+      salt_100g: 1.2,
+      proteins_100g: 7.0,
+      fiber_100g: 4.0,
+    },
+    ingredientsText:
+      "Corn masa flour, vegetable oil, cheddar cheese powder, salt, maltodextrin, monosodium glutamate, artificial flavour, artificial colour (yellow 6, red 40)",
+    context: {
+      servingSize: "28g",
+      novaGroup: 4,
+      categoriesTags: ["en:snacks", "en:nachos", "en:tortilla-chips", "en:savoury-snacks"],
+    },
+    min: 0,
+    max: 35,
+  },
+  {
+    name: "Humpty Dumpty Cheese Sticks",
+    nutriments: {
+      "energy-kcal_100g": 520,
+      sugars_100g: 1.5,
+      "saturated-fat_100g": 5.0,
+      salt_100g: 1.8,
+      proteins_100g: 5.0,
+      fiber_100g: 0.5,
+    },
+    ingredientsText:
+      "Corn meal, vegetable oil, cheese powder (whey, cheddar cheese, salt, enzymes), salt, maltodextrin, monosodium glutamate, artificial colour (yellow 6), artificial flavour",
+    context: {
+      servingSize: "28g",
+      novaGroup: 4,
+      categoriesTags: ["en:snacks", "en:cheese-snacks", "en:cheese-puffs", "en:savoury-snacks"],
+    },
+    min: 0,
+    max: 25,
+  },
+  {
+    name: "Plain Tostitos Restaurant Style",
+    nutriments: {
+      "energy-kcal_100g": 480,
+      sugars_100g: 0,
+      "saturated-fat_100g": 1.0,
+      salt_100g: 0.6,
+      proteins_100g: 6.5,
+      fiber_100g: 4.5,
+    },
+    ingredientsText: "Corn, vegetable oil (sunflower, corn and/or canola oil), salt",
+    context: {
+      servingSize: "28g",
+      novaGroup: 3,
+      categoriesTags: ["en:snacks", "en:chips-and-crisps", "en:tortilla-chips"],
+    },
+    min: 45,
+    max: 65,
+  },
 ];
 
 // ── Run calibration ──────────────────────────────────────────────────────────

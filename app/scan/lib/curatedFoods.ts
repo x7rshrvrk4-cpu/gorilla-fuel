@@ -194,11 +194,102 @@ const PACKAGED_FOODS: CuratedFoodEntry[] = [
   },
 ];
 
-const ALL_ENTRIES: CuratedFoodEntry[] = [...SODAS, ...PACKAGED_FOODS];
+// ── Curated supplement fallback (guaranteed hits for top-selling supplements) ──
+// Nutrition values per 100g of product (not per serving).
+
+const SUPPLEMENTS: CuratedFoodEntry[] = [
+  {
+    barcode: "748927059380",
+    name: "Gold Standard Creatine Monohydrate",
+    brand: "Optimum Nutrition",
+    servingSize: "5g",
+    categoriesTags: ["en:dietary-supplements", "en:sports-nutrition", "en:creatine"],
+    ingredientsText: "Creatine Monohydrate, Silicon Dioxide",
+    novaGroup: 1,
+    nutriments: {
+      "energy-kcal_100g": 0,
+      carbohydrates_100g: 0,
+      sugars_100g: 0,
+      proteins_100g: 0,
+      salt_100g: 0,
+    },
+  },
+  {
+    barcode: "768990027710",
+    name: "Ultimate Omega Fish Oil",
+    brand: "Nordic Naturals",
+    servingSize: "2 softgels (2.6g)",
+    categoriesTags: ["en:dietary-supplements", "en:omega-3", "en:fish-oil"],
+    ingredientsText: "Fish oil concentrate (anchovy, sardine), gelatin, glycerin, water, natural lemon flavour",
+    novaGroup: 1,
+    nutriments: {
+      "energy-kcal_100g": 962,
+      carbohydrates_100g: 0,
+      sugars_100g: 0,
+      proteins_100g: 0,
+      "saturated-fat_100g": 19.2,
+      salt_100g: 0,
+    },
+  },
+  {
+    barcode: "689076626498",
+    name: "Whey+ Protein Powder",
+    brand: "Legion Athletics",
+    servingSize: "35g",
+    categoriesTags: ["en:dietary-supplements", "en:sports-nutrition", "en:protein-powders", "en:whey-protein"],
+    ingredientsText: "Whey protein isolate, whey protein concentrate, natural flavours, sunflower lecithin, stevia leaf extract",
+    novaGroup: 3,
+    nutriments: {
+      "energy-kcal_100g": 371,
+      carbohydrates_100g: 11.4,
+      sugars_100g: 5.7,
+      proteins_100g: 62.9,
+      "saturated-fat_100g": 2.9,
+      salt_100g: 0.4,
+    },
+  },
+  {
+    barcode: "850002454025",
+    name: "Creatine HMB",
+    brand: "Transparent Labs",
+    servingSize: "14.5g",
+    categoriesTags: ["en:dietary-supplements", "en:sports-nutrition", "en:creatine"],
+    ingredientsText: "Creatine monohydrate, calcium beta-hydroxy beta-methylbutyrate (HMB), malic acid, silicon dioxide, stevia leaf extract",
+    novaGroup: 1,
+    nutriments: {
+      "energy-kcal_100g": 0,
+      carbohydrates_100g: 0,
+      sugars_100g: 0,
+      proteins_100g: 0,
+      salt_100g: 0,
+    },
+  },
+];
+
+const ALL_ENTRIES: CuratedFoodEntry[] = [...SODAS, ...PACKAGED_FOODS, ...SUPPLEMENTS];
 
 // Normalise a barcode string: strip non-digits, strip leading zeros.
 function normBarcode(b: string): string {
   return b.replace(/\D/g, "").replace(/^0+/, "") || "0";
+}
+
+/** Search curated foods (non-supplement) by name or brand (case-insensitive). */
+export function searchCuratedFoods(query: string, limit = 5): CuratedFoodEntry[] {
+  const q = query.toLowerCase().trim();
+  if (q.length < 2) return [];
+  const nonSuppl = ALL_ENTRIES.filter((e) => !e.categoriesTags.includes("en:dietary-supplements"));
+  return nonSuppl.filter(
+    (e) => e.name.toLowerCase().includes(q) || e.brand.toLowerCase().includes(q)
+  ).slice(0, limit);
+}
+
+/** Search curated supplements by name or brand (case-insensitive). */
+export function searchCuratedSupplements(query: string, limit = 4): CuratedFoodEntry[] {
+  const q = query.toLowerCase().trim();
+  if (q.length < 2) return [];
+  return SUPPLEMENTS.filter(
+    (e) => e.name.toLowerCase().includes(q) || e.brand.toLowerCase().includes(q)
+  ).slice(0, limit);
 }
 
 /**

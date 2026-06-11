@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import CrossLinkBanner from "./components/CrossLinkBanner";
 import CommunityScansBanner from "./components/CommunityScansBanner";
+import UniversalSearch from "./components/UniversalSearch";
 
 const tickerItems = [
   "SCAN BEFORE YOU BUY",
@@ -106,6 +107,12 @@ export default function Home() {
             Scan any barcode and get an instant, no-BS health score — sugar,
             additives, and the data brands don&apos;t put on the front of the label.
           </p>
+          <div
+            className="animate-rise w-full max-w-lg"
+            style={{ animationDelay: "0.25s" }}
+          >
+            <UniversalSearch placeholder="Search any product by name…" />
+          </div>
           <div
             className="animate-rise flex flex-col items-center gap-3"
             style={{ animationDelay: "0.3s" }}
