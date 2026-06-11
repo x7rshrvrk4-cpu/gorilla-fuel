@@ -1271,6 +1271,42 @@ export function computeScore(
         "Certified gluten free — product is labelled gluten free with no gluten-containing ingredients detected"
       );
     }
+
+    // ── GF ingredient-quality flags ─────────────────────────────────────────
+    // "Gluten free" says nothing about nutrition: a GF product built from
+    // refined starches scores low, one built from whole-food flours scores well.
+    const topIngredients = ing
+      .replace(/\([^)]*\)/g, "") // drop parenthetical sub-ingredients
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 3);
+    const top3 = topIngredients.join(", ");
+    const first = topIngredients[0] ?? "";
+
+    const REFINED_STARCH_RE = /tapioca\s+(starch|flour)|potato\s+starch|corn\s*starch|white\s+rice\s+flour|^rice\s+flour|modified\s+(corn|tapioca|potato)\s+starch/;
+    const WHOLE_FLOUR_RE = /almond\s+flour|chickpea\s+flour|garbanzo\s+bean\s+flour|buckwheat\s+flour|quinoa\s+flour|lentil\s+flour|cassava\s+flour|coconut\s+flour/;
+    const isGfLabelled = gfLabelRe.test(labelStr) || gfLabelRe.test(ing);
+
+    if (/tapioca\s+(starch|flour)/.test(top3)) {
+      flags.push(
+        "PRIMARY INGREDIENT IS TAPIOCA STARCH — refined carbohydrate with no nutritional value. This product will score low regardless of GF label."
+      );
+    }
+    if (WHOLE_FLOUR_RE.test(first)) {
+      positives.push(
+        "WHOLE FOOD FLOUR BASE — this product uses nutritious whole food flour rather than refined starch."
+      );
+      if (isGfLabelled) {
+        positives.push(
+          "GENUINELY NUTRITIOUS GF OPTION — gluten free and built from whole food ingredients."
+        );
+      }
+    } else if (isGfLabelled && REFINED_STARCH_RE.test(top3)) {
+      flags.push(
+        "GF HEALTH HALO — this product is gluten free but is built primarily from refined starches. The GF label does not indicate nutritional quality."
+      );
+    }
   }
 
   // ── Universal junk food scoring caps ─────────────────────────────────────────

@@ -7,6 +7,7 @@
 import { ALCOHOL_PRODUCTS } from "../alcohol/lib/products";
 import { PRODUCTS } from "../rankings/lib/products";
 import { KIDS_TOTAL_COUNT } from "../kids/lib/products";
+import { GF_FOOD_TOTAL_COUNT } from "../glutenfree/lib/products";
 
 // ── Static counts from in-repo data ──────────────────────────────────────────
 const BEER_COUNT   = ALCOHOL_PRODUCTS.filter((p) => p.category !== "Wines").length;
@@ -61,6 +62,7 @@ export default async function StatsTicker() {
     `📦 ${cacheCount.toLocaleString("en-CA")} Products Scanned`,
     `🧒 ${KIDS_TOTAL_COUNT} Kids Snacks Reviewed`,
     `✓ ${GF_COUNT} Certified Gluten-Free Drinks`,
+    `🌾 ${GF_FOOD_TOTAL_COUNT} Gluten-Free Products Reviewed`,
     `🔬 15 Data Sources`,
     `🇨🇦 Canadian First`,
     `✓ No Brand Pays for Placement`,
