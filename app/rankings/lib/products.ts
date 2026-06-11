@@ -652,7 +652,7 @@ export const PRODUCTS: Product[] = [
     purityScore: 62,
     certifications: [],
     analysis:
-      "The 10mg melatonin dose is the problem. Regulatory-grade sleep research shows 0.3–1mg is effective for circadian rhythm support — 10mg is ten to thirty times that dose and is associated with next-day grogginess, hormonal receptor downregulation, and disrupted REM. This product is everywhere at pharmacies and almost entirely wrong for the purpose.",
+      "The 10mg melatonin dose is the problem. Strong consensus evidence supports 0.3–1mg for circadian rhythm support — 10mg is ten to thirty times that dose and is associated with next-day grogginess, hormonal receptor downregulation, and disrupted REM. This product is everywhere at pharmacies and almost entirely wrong for the purpose.",
     pros: [
       "Extremely cheap and widely available",
       "Fast-dissolve format has rapid absorption",
@@ -1468,7 +1468,7 @@ export const PRODUCTS: Product[] = [
     pricePerServing: 0.85,
     thirdPartyTested: true,
     purityScore: 97,
-    certifications: ["NSF Certified for Sport", "Wild-Caught Certified"],
+    certifications: ["NSF Certified for Sport", "Wild-Caught (label claim)"],
     analysis:
       "Marine collagen has the highest bioavailability of any collagen type due to its smaller peptide size. Vital Proteins sources from wild-caught fish — not farmed — which limits heavy metal bioaccumulation exposure. NSF Certified for Sport, single-ingredient label, and 10g collagen peptides per serving at the clinically studied dose range. The benchmark in this category.",
     pros: [
@@ -1567,7 +1567,7 @@ export const PRODUCTS: Product[] = [
     pricePerServing: 0.95,
     thirdPartyTested: true,
     purityScore: 91,
-    certifications: ["Informed Sport", "Wild-Caught Certified", "Non-GMO Project Verified"],
+    certifications: ["Informed Sport", "Wild-Caught (label claim)", "Non-GMO Project Verified"],
     analysis:
       "Further Food's marine collagen comes with third-party heavy metal testing documentation — a relevant concern given marine source contamination risks. Informed Sport certified, wild-caught, and 10g per serving. A solid marine alternative to the Vital Proteins benchmark, slightly more affordable and with comparable certification depth.",
     pros: [
@@ -1600,7 +1600,7 @@ export const PRODUCTS: Product[] = [
       "Established brand with decades of production history",
     ],
     cons: [
-      "6g collagen dose — below the 10g used in most positive clinical studies",
+      "6g collagen dose — below the 10g range where the evidence is strongest",
       "NSF Certified (not for Sport) — less rigorous than NSF Certified for Sport",
       "Tablet format requires high pill count per serving",
     ],
@@ -1618,7 +1618,7 @@ export const PRODUCTS: Product[] = [
     purityScore: 94,
     certifications: ["Informed Sport", "Certified Grass Fed", "Non-GMO Project Verified"],
     analysis:
-      "The original that launched the collagen category. Pasture-raised bovine peptides, Informed Sport certified, and formulated at the 20g serving size that falls within the higher end of clinical study doses. The hyaluronic acid addition has legitimate emerging research for joint lubrication. A consistently excellent product despite the category's proliferation.",
+      "The original that launched the collagen category. Pasture-raised bovine peptides, Informed Sport certified, and formulated at a full 20g serving size — the higher end of evidence-supported dosing. The hyaluronic acid addition sits in the emerging evidence tier for joint lubrication. A consistently excellent product despite the category's proliferation.",
     pros: [
       "20g collagen per serving — higher end of clinically studied doses",
       "Hyaluronic acid co-formulation supports joint health",

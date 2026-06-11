@@ -11,6 +11,7 @@ import { KIDS_TOTAL_COUNT } from "../kids/lib/products";
 // ── Static counts from in-repo data ──────────────────────────────────────────
 const BEER_COUNT   = ALCOHOL_PRODUCTS.filter((p) => p.category !== "Wines").length;
 const WINE_COUNT   = ALCOHOL_PRODUCTS.filter((p) => p.category === "Wines").length;
+const VQA_COUNT    = ALCOHOL_PRODUCTS.filter((p) => p.ontarioVQA).length;
 const SUPPL_COUNT  = PRODUCTS.length;
 
 // ── Hardcoded counts ──────────────────────────────────────────────────────────
@@ -52,6 +53,7 @@ export default async function StatsTicker() {
   const items: string[] = [
     `🍺 ${BEER_COUNT} Beer & Alcohol Products`,
     `🍷 ${WINE_COUNT} Wines Ranked`,
+    `🍁 ${VQA_COUNT} Ontario VQA Wines`,
     `💊 ${SUPPL_COUNT} Supplements Ranked`,
     `✅ ${APPROVED_COUNT} Gorilla Approved Snacks`,
     `⚠️ ${STAY_AWAY_COUNT} Stay Away Products`,

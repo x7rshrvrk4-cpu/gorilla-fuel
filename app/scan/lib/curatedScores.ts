@@ -87,7 +87,9 @@ const SPRITE_REGULAR     = o(24, "Bad");
 // ─────────────────────────────────────────────────────────────────────────────
 const BARCODE_OVERRIDES: BarcodeEntry[] = [
   // ── Products already in curatedFoods.ts ──
-  { barcode: "0028400090308", override: LAYS_CLASSIC },        // Lay's Classic
+  { barcode: "0028400090308", override: DORITOS },             // Doritos (corrected 2026-06: was misassigned to Lay's)
+  { barcode: "0028400090155", override: LAYS_CLASSIC },        // Lay's Classic (verified barcode)
+  { barcode: "0028400590679", override: TOSTITOS },            // Tostitos Restaurant Style (verified barcode)
   { barcode: "0044000030131", override: OREO },                // Oreo Original
   { barcode: "0062100012284", override: CANADA_DRY_ZERO },     // Canada Dry Zero Sugar
   { barcode: "0069000019832", override: COCA_COLA },           // Coca-Cola Classic

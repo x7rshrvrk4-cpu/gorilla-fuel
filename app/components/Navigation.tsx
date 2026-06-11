@@ -11,6 +11,7 @@ const links = [
   { href: "/rankings", label: "Rankings" },
   { href: "/alcohol", label: "Alcohol" },
   { href: "/kids", label: "Kids" },
+  { href: "/beauty", label: "Beauty" },
   { href: "/methodology", label: "Methodology" },
 ];
 

@@ -164,6 +164,13 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
         </div>
       )}
 
+      {product.gorillaAnalysis && (
+        <p className="mt-3 border-t border-slate-800 pt-3 text-xs leading-relaxed text-slate-300">
+          <span className="font-display uppercase tracking-[0.15em] text-gold/70">Gorilla Analysis — </span>
+          {product.gorillaAnalysis}
+        </p>
+      )}
+
       <p className="mt-3 border-t border-slate-800 pt-3 text-xs text-slate-400">{product.availability}</p>
     </div>
   );
