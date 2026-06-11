@@ -53,7 +53,11 @@ export default function RootLayout({
       lang="en"
       className={`${bebasNeue.variable} ${dmSans.variable} h-full antialiased`}
     >
-      <head>
+      <body className="min-h-full flex flex-col bg-background text-foreground font-body">
+        <Navigation />
+        <div className="flex-1 flex flex-col">{children}</div>
+        <SiteFooter />
+        <Analytics />
         {GA_ID && (
           <>
             <Script
@@ -65,12 +69,6 @@ export default function RootLayout({
             </Script>
           </>
         )}
-      </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground font-body">
-        <Navigation />
-        <div className="flex-1 flex flex-col">{children}</div>
-        <SiteFooter />
-        <Analytics />
       </body>
     </html>
   );
