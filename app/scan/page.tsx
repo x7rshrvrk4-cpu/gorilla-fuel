@@ -56,6 +56,7 @@ import {
   trackScanModeFood,
 } from "../lib/gtag";
 import ScanConfirmationOverlay from "./components/ScanConfirmationOverlay";
+import NotifyMeForm from "./components/NotifyMeForm";
 import SupplementResultCard from "./components/SupplementResultCard";
 import { lookupCuratedFood } from "./lib/curatedFoods";
 import { lookupCuratedScore, type ScoreOverride } from "./lib/curatedScores";
@@ -256,6 +257,19 @@ export default function ScanPage() {
       // storage unavailable — non-critical
     }
   }, []);
+
+  // ── Slow-search fallback: never spin past 2 s without showing something ──
+  // After 2 s of lookup, surface the not-yet-in-database message and email
+  // capture while the waterfall keeps running; a late hit replaces the panel.
+  const [slowSearch, setSlowSearch] = useState(false);
+  useEffect(() => {
+    if (lookup.phase !== "loading") {
+      setSlowSearch(false);
+      return;
+    }
+    const t = window.setTimeout(() => setSlowSearch(true), 2000);
+    return () => window.clearTimeout(t);
+  }, [lookup]);
 
   // ── Overlay: 5-second not-found timeout ─────────────────────────────────
   // If the API hasn't returned a result after 5 s, flip the overlay to NOT FOUND.
@@ -1113,10 +1127,30 @@ export default function ScanPage() {
 
       {/* RESULTS */}
       <div ref={resultRef} className={`mt-10${resultFromScan ? " animate-scan-result-rise" : ""}`}>
-        {lookup.phase === "loading" && (
+        {lookup.phase === "loading" && !slowSearch && (
           <div className="gorilla-card flex items-center gap-4 rounded-sm p-6">
             <span className="h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
             <p className="text-muted">Looking up barcode {lookup.barcode}…</p>
+          </div>
+        )}
+
+        {lookup.phase === "loading" && slowSearch && (
+          <div className="gorilla-card rounded-sm p-6">
+            <div className="flex items-center gap-3">
+              <span className="h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+              <p className="text-sm text-muted">
+                Still checking all 15 data sources for{" "}
+                <span className="font-mono text-gold/70">{lookup.barcode}</span>…
+              </p>
+            </div>
+            {fallbackProduct?.name && (
+              <p className="mt-3 font-display text-xl text-foreground">{fallbackProduct.name}</p>
+            )}
+            <p className="mt-3 text-sm leading-relaxed text-muted">
+              If we can&apos;t find it: this product is not yet in our database. We
+              have logged this scan and will add it soon.
+            </p>
+            <NotifyMeForm barcode={lookup.barcode} />
           </div>
         )}
 
@@ -1133,9 +1167,13 @@ export default function ScanPage() {
               </div>
               <div className="px-6 py-5">
                 <p className="font-mono text-xs text-gold/60">{lookup.barcode}</p>
+                {fallbackProduct?.name && (
+                  <p className="mt-2 font-display text-xl text-foreground">{fallbackProduct.name}</p>
+                )}
                 <p className="mt-2 text-sm leading-relaxed text-muted">
-                  {lookup.message ?? "We checked 8 databases and this product is not in any of them yet."}
+                  {lookup.message ?? "This product is not yet in our database. We have logged this scan and will add it soon."}
                 </p>
+                <NotifyMeForm barcode={lookup.barcode} />
                 <div className="mt-5 flex flex-wrap gap-3">
                   <button
                     type="button"

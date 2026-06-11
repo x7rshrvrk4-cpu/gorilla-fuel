@@ -77,6 +77,33 @@ export default function AlcoholRankingsPage() {
     trackAlcoholRankingViewed();
   }, []);
 
+  // ── Deep link: /alcohol?p=<product-id> from universal search results ──────
+  // Switch to the product's category tab, scroll to its card, and flash a
+  // gold highlight so the user lands directly on what they searched for.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const pid = params.get("p");
+    if (!pid) return;
+    const product = ALCOHOL_PRODUCTS.find((x) => x.id === pid);
+    if (!product) return;
+    setCategory(product.category);
+    setFilter("all");
+    // Wait for the tab's cards to render before scrolling
+    const t = window.setTimeout(() => {
+      const el = document.getElementById(`product-${pid}`);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.style.outline = "2px solid #ffd700";
+      el.style.outlineOffset = "2px";
+      window.setTimeout(() => {
+        el.style.outline = "";
+        el.style.outlineOffset = "";
+      }, 2500);
+    }, 350);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     setFilter("all");
   }, [category]);

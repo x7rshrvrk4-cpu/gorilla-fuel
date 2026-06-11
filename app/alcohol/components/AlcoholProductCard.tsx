@@ -81,7 +81,7 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
   const style = isWine ? wineStyle(product.sugarPerCan) : null;
 
   return (
-    <div className={`rounded-sm border bg-slate-900/60 p-5 transition-colors ${borderClass}`}>
+    <div id={`product-${product.id}`} className={`rounded-sm border bg-slate-900/60 p-5 transition-colors ${borderClass}`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.25em] text-slate-400">{product.brand}</p>
@@ -124,7 +124,7 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
             </span>
           )}
           {product.cityRegion && (
-            <span className={`inline-flex shrink-0 items-center rounded-sm border px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] ${CITY_BADGE_CLASS[product.cityRegion]}`}>
+            <span className={`inline-flex shrink-0 items-center rounded-sm border px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] ${CITY_BADGE_CLASS[product.cityRegion] ?? "border-slate-500/60 bg-slate-700/25 text-slate-300"}`}>
               {product.cityRegion}
             </span>
           )}

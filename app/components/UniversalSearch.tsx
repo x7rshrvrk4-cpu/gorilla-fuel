@@ -235,14 +235,15 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
     results.food.length + results.alcohol.length + results.wine.length + results.supplement.length;
 
   const getProductLink = (result: SearchResult): string => {
+    // Alcohol results deep-link to their card on the rankings page — the page
+    // switches to the right category tab, scrolls to the card and highlights it.
+    if (result.type === "alcohol") {
+      return `/alcohol?p=${encodeURIComponent(result.id)}`;
+    }
     const barcode = result.type === "food" || result.type === "supplement" || result.type === "beauty" || result.type === "curated-food"
       ? result.barcode
-      : (result as AlcoholResult).barcode;
+      : undefined;
     if (barcode) return `/scan?b=${encodeURIComponent(barcode)}`;
-    if (result.type === "alcohol" || result.type === "curated-food") {
-      const r = result as AlcoholResult;
-      return r.category === "Wines" ? "/alcohol" : "/alcohol";
-    }
     return "/scan";
   };
 
