@@ -16,6 +16,12 @@ type FilterKey =
   | "low-cal"
   | "london-on"
   | "ontario-craft"
+  | "toronto"
+  | "hamilton"
+  | "niagara-region"
+  | "ottawa"
+  | "guelph"
+  | "eastern-ontario"
   | "ipa"
   | "lager"
   | "stout"
@@ -33,6 +39,12 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "All" },
   { key: "gluten-free", label: "✓ Gluten Free" },
   { key: "london-on", label: "London ON" },
+  { key: "toronto", label: "Toronto" },
+  { key: "hamilton", label: "Hamilton" },
+  { key: "niagara-region", label: "Niagara" },
+  { key: "ottawa", label: "Ottawa" },
+  { key: "guelph", label: "Guelph" },
+  { key: "eastern-ontario", label: "Eastern Ontario" },
   { key: "ontario-craft", label: "Ontario Craft" },
   { key: "ipa", label: "IPA" },
   { key: "lager", label: "Lager" },
@@ -81,6 +93,19 @@ export default function AlcoholRankingsPage() {
             return isWineTab ? p.caloriesPerCan < 130 : p.caloriesPerCan < 100;
           case "london-on":
             return p.londonOntario === true;
+          case "toronto":
+            return p.cityRegion === "Toronto";
+          case "hamilton":
+            return p.cityRegion === "Hamilton";
+          case "niagara-region":
+            return p.cityRegion === "Niagara";
+          case "ottawa":
+            return p.cityRegion === "Ottawa";
+          case "guelph":
+            return p.cityRegion === "Guelph";
+          case "eastern-ontario":
+            // Ottawa is Eastern Ontario; extend as eastern breweries are added
+            return p.cityRegion === "Ottawa";
           case "ontario-craft":
             return p.ontarioCraft === true;
           case "ipa":

@@ -55,6 +55,14 @@ const WINE_STYLE_CLASS: Record<WineStyle, string> = {
   SWEET: "border-amber-500/50 bg-amber-500/10 text-amber-300",
 };
 
+const CITY_BADGE_CLASS: Record<string, string> = {
+  Toronto: "border-blue-500/60 bg-blue-800/25 text-blue-300",
+  Hamilton: "border-red-500/60 bg-red-900/25 text-red-300",
+  Niagara: "border-purple-500/60 bg-purple-900/25 text-purple-300",
+  Ottawa: "border-emerald-700/70 bg-emerald-950/40 text-emerald-400",
+  Guelph: "border-teal-500/60 bg-teal-900/25 text-teal-300",
+};
+
 export default function AlcoholProductCard({ product }: { product: AlcoholRankingProduct }) {
   const isWine = product.category === "Wines";
   const isIcewine = product.wineSubcategory === "Icewine";
@@ -113,6 +121,11 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
           {product.londonOntario && (
             <span className="inline-flex shrink-0 items-center rounded-sm border border-emerald-700/60 bg-emerald-800/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-emerald-400">
               London ON
+            </span>
+          )}
+          {product.cityRegion && (
+            <span className={`inline-flex shrink-0 items-center rounded-sm border px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] ${CITY_BADGE_CLASS[product.cityRegion]}`}>
+              {product.cityRegion}
             </span>
           )}
           {isWine && style && (
