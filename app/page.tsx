@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import CrossLinkBanner from "./components/CrossLinkBanner";
 import CommunityScansBanner from "./components/CommunityScansBanner";
-import UniversalSearch from "./components/UniversalSearch";
+import HeroSearchBlock from "./components/HeroSearchBlock";
 
 const tickerItems = [
   "SCAN BEFORE YOU BUY",
@@ -107,38 +107,7 @@ export default function Home() {
             Scan any barcode and get an instant, no-BS health score — sugar,
             additives, and the data brands don&apos;t put on the front of the label.
           </p>
-          <div
-            className="animate-rise w-full max-w-lg"
-            style={{ animationDelay: "0.25s" }}
-          >
-            <UniversalSearch placeholder="Search any product by name…" />
-          </div>
-          <div
-            className="animate-rise flex flex-col items-center gap-3"
-            style={{ animationDelay: "0.3s" }}
-          >
-            <Link
-              href="/scan"
-              className="pulse-glow rounded-sm bg-gold px-14 py-5 text-center font-display text-2xl tracking-widest text-background transition-transform hover:scale-105 sm:px-20 sm:py-6 sm:text-3xl"
-            >
-              Scan a Product →
-            </Link>
-            <div className="flex items-center gap-5">
-              <Link
-                href="/rankings"
-                className="font-display text-sm tracking-[0.3em] text-muted transition-colors hover:text-gold"
-              >
-                SUPPLEMENTS →
-              </Link>
-              <span className="text-muted/30">|</span>
-              <Link
-                href="/alcohol"
-                className="font-display text-sm tracking-[0.3em] text-muted transition-colors hover:text-gold"
-              >
-                ALCOHOL →
-              </Link>
-            </div>
-          </div>
+          <HeroSearchBlock />
         </div>
 
         {/* TICKER TAPE */}

@@ -66,9 +66,10 @@ function GorillaPourMini({ rating }: { rating: number }) {
 type Props = {
   placeholder?: string;
   className?: string;
+  onActiveChange?: (active: boolean) => void;
 };
 
-export default function UniversalSearch({ placeholder = "Search products, beers, wines…", className = "" }: Props) {
+export default function UniversalSearch({ placeholder = "Search products, beers, wines…", className = "", onActiveChange }: Props) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<GroupedResults>({ food: [], alcohol: [], wine: [], supplement: [] });
   const [loading, setLoading] = useState(false);
@@ -193,6 +194,11 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
     };
   }, [query, search]);
 
+  // Notify parent whether search is "active" (dropdown open + 2+ chars typed)
+  useEffect(() => {
+    onActiveChange?.(open && query.length >= 2);
+  }, [open, query, onActiveChange]);
+
   // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -256,7 +262,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
 
       {/* DROPDOWN */}
       {open && query.length >= 2 && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-[420px] overflow-y-auto rounded-sm border border-slate-700 bg-slate-900 shadow-2xl">
+        <div className="absolute left-0 right-0 top-full z-[9999] mt-1 max-h-[420px] overflow-y-auto rounded-sm border border-slate-700 bg-slate-900 shadow-2xl pb-20 sm:pb-0">
           {totalResults === 0 && !loading ? (
             <p className="px-5 py-4 text-sm text-slate-400">
               No results for &quot;{query}&quot; — try scanning the barcode directly.
