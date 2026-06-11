@@ -9,8 +9,11 @@ export default function HeroSearchBlock() {
 
   return (
     <>
+      {/* z-30: animate-rise's transform creates a stacking context, so the
+          dropdown's own z-index can't escape it — the wrapper must outrank
+          the button block below or the button paints over the results. */}
       <div
-        className="animate-rise w-full max-w-lg"
+        className="animate-rise relative z-30 w-full max-w-lg"
         style={{ animationDelay: "0.25s" }}
       >
         <UniversalSearch
@@ -19,13 +22,16 @@ export default function HeroSearchBlock() {
         />
       </div>
 
+      {/* The entrance animation lives on the outer div: animate-rise's
+          fill-mode pins opacity/transform on its own element forever, which
+          would override the hide-transition classes on the same node. */}
+      <div className="animate-rise" style={{ animationDelay: "0.3s" }}>
       <div
-        className={`animate-rise flex flex-col items-center gap-3 transition-all duration-300 ease-in-out ${
+        className={`flex flex-col items-center gap-3 transition-[transform,opacity] duration-200 ease-in-out ${
           isSearchActive
             ? "pointer-events-none translate-y-4 opacity-0"
             : "translate-y-0 opacity-100"
         }`}
-        style={{ animationDelay: "0.3s" }}
       >
         <Link
           href="/scan"
@@ -48,6 +54,7 @@ export default function HeroSearchBlock() {
             ALCOHOL →
           </Link>
         </div>
+      </div>
       </div>
     </>
   );

@@ -84,8 +84,8 @@ export default function Home() {
       {/* STATS TICKER — live scrolling stats, always above the fold */}
       <StatsTicker />
 
-      {/* HERO */}
-      <section className="relative overflow-hidden border-b border-line">
+      {/* HERO — no overflow-hidden: it would clip the search dropdown */}
+      <section className="relative border-b border-line">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,215,0,0.10),_transparent_60%)]" />
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-7 px-6 py-24 text-center sm:py-32">
           <span className="animate-fade rounded-full border border-gold-dim px-4 py-1.5 font-display text-sm tracking-[0.3em] text-gold">

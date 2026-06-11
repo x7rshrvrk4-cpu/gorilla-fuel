@@ -76,6 +76,23 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const blurCloseRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelBlurClose = useCallback(() => {
+    if (blurCloseRef.current) {
+      clearTimeout(blurCloseRef.current);
+      blurCloseRef.current = null;
+    }
+  }, []);
+
+  // Close shortly after the input loses focus. The delay lets a tap on a
+  // result row complete first — blur fires before click, and closing
+  // immediately would unmount the link out from under the tap (iOS Safari
+  // never focuses tapped links, so relatedTarget checks don't work there).
+  const handleBlur = useCallback(() => {
+    cancelBlurClose();
+    blurCloseRef.current = setTimeout(() => setOpen(false), 150);
+  }, [cancelBlurClose]);
 
   const search = useCallback(async (q: string) => {
     if (q.length < 2) {
@@ -199,15 +216,19 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
     onActiveChange?.(open && query.length >= 2);
   }, [open, query, onActiveChange]);
 
-  // Close on outside click
+  // Close on outside click/tap
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
+    const handler = (e: MouseEvent | TouchEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("touchstart", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("touchstart", handler);
+    };
   }, []);
 
   const totalResults =
@@ -244,7 +265,11 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => query.length >= 2 && setOpen(true)}
+          onFocus={() => {
+            cancelBlurClose();
+            if (query.length >= 2) setOpen(true);
+          }}
+          onBlur={handleBlur}
           placeholder={placeholder}
           className="w-full rounded-sm border border-slate-700 bg-slate-900 py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-slate-500 focus:border-gold/60 focus:outline-none focus:ring-1 focus:ring-gold/30 transition-colors"
         />
@@ -262,7 +287,11 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
 
       {/* DROPDOWN */}
       {open && query.length >= 2 && (
-        <div className="absolute left-0 right-0 top-full z-[9999] mt-1 max-h-[420px] overflow-y-auto rounded-sm border border-slate-700 bg-slate-900 shadow-2xl pb-20 sm:pb-0">
+        <div
+          onMouseDown={cancelBlurClose}
+          onTouchStart={cancelBlurClose}
+          className="absolute left-0 right-0 top-full z-[9999] mt-1 max-h-[420px] overflow-y-auto rounded-sm border border-slate-700 bg-slate-900 shadow-2xl pb-24 sm:pb-0"
+        >
           {totalResults === 0 && !loading ? (
             <p className="px-5 py-4 text-sm text-slate-400">
               No results for &quot;{query}&quot; — try scanning the barcode directly.
