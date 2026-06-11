@@ -16,6 +16,8 @@ type CameraStatus = "idle" | "starting" | "live" | "denied" | "unsupported" | "e
 type TorchCapabilities = MediaTrackCapabilities & { torch?: boolean };
 type TorchConstraintSet = MediaTrackConstraintSet & { torch?: boolean };
 
+const TOOLTIP_KEY = "gorilla-torch-tip-dismissed";
+
 export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const readerRef = useRef<BrowserMultiFormatReaderType | null>(null);
@@ -29,6 +31,8 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
   const [torchSupported, setTorchSupported] = useState(false);
   const [torchOn, setTorchOn] = useState(false);
   const [hit, setHit] = useState(false);
+  const [pressing, setPressing] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
     if (!active) {
@@ -114,7 +118,35 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
     };
   }, [active]);
 
+  // Show first-visit tooltip when torch is detected as supported
+  useEffect(() => {
+    if (!torchSupported) return;
+    try {
+      if (!localStorage.getItem(TOOLTIP_KEY)) setShowTooltip(true);
+    } catch {}
+  }, [torchSupported]);
+
+  // Auto-dismiss tooltip after 3 seconds
+  useEffect(() => {
+    if (!showTooltip) return;
+    const t = window.setTimeout(() => {
+      setShowTooltip(false);
+      try { localStorage.setItem(TOOLTIP_KEY, "1"); } catch {}
+    }, 3000);
+    return () => window.clearTimeout(t);
+  }, [showTooltip]);
+
   const toggleTorch = useCallback(async () => {
+    // Dismiss first-visit tooltip on first tap
+    if (showTooltip) {
+      setShowTooltip(false);
+      try { localStorage.setItem(TOOLTIP_KEY, "1"); } catch {}
+    }
+
+    // Tap pulse animation
+    setPressing(true);
+    window.setTimeout(() => setPressing(false), 350);
+
     const stream = videoRef.current?.srcObject;
     if (!(stream instanceof MediaStream)) return;
     const track = stream.getVideoTracks()[0];
@@ -125,9 +157,10 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
       await track.applyConstraints({ advanced: [{ torch: next } as TorchConstraintSet] });
       setTorchOn(next);
     } catch {
-      // device claims torch support but rejected the constraint — leave state untouched
+      // Torch activation failed (common on iOS Safari) — hide the button silently
+      setTorchSupported(false);
     }
-  }, [torchOn]);
+  }, [torchOn, showTooltip]);
 
   const displayStatus: CameraStatus = active ? status : "idle";
 
@@ -157,23 +190,79 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
         </svg>
       </button>
 
-      {/* Torch toggle — top left */}
+      {/* Torch toggle — bottom right corner */}
       {displayStatus === "live" && torchSupported && (
-        <button
-          type="button"
-          onClick={toggleTorch}
-          aria-label={torchOn ? "Turn off flashlight" : "Turn on flashlight"}
-          className={`absolute left-5 z-20 flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur transition-colors ${
-            torchOn
-              ? "border-gold bg-gold text-background"
-              : "border-white/25 bg-black/40 text-gold hover:border-gold"
-          }`}
-          style={{ top: "max(1.25rem, env(safe-area-inset-top))" }}
+        <div
+          className="absolute right-5 z-20 flex flex-col items-end gap-2"
+          style={{ bottom: "max(2rem, env(safe-area-inset-bottom, 2rem))" }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 18h6M10 22h4M12 2a6 6 0 0 0-6 6c0 2.2 1.1 3.7 2 4.8.6.7 1 1.3 1 2.2h6c0-.9.4-1.5 1-2.2.9-1.1 2-2.6 2-4.8a6 6 0 0 0-6-6Z" />
-          </svg>
-        </button>
+          {/* First-visit tooltip */}
+          {showTooltip && (
+            <div className="animate-fade flex flex-col items-end">
+              <div className="whitespace-nowrap rounded border border-gold/30 bg-black/85 px-3 py-1.5 text-xs text-white/90 backdrop-blur">
+                Tap for flashlight — helps with shiny cans
+              </div>
+              {/* Arrow pointing down toward button */}
+              <div className="mr-4 h-0 w-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent border-t-black/85" />
+            </div>
+          )}
+
+          {/* Button */}
+          <button
+            type="button"
+            onClick={toggleTorch}
+            aria-label={torchOn ? "Turn off flashlight" : "Turn on flashlight"}
+            className={`flex h-12 w-12 items-center justify-center rounded-full border backdrop-blur transition-all duration-200 ${
+              torchOn
+                ? "border-gold bg-gold text-background"
+                : "border-white/25 bg-black/50 text-gold hover:border-gold"
+            } ${pressing ? "torch-tap" : ""}`}
+          >
+            {torchOn ? (
+              /* ON — outline flashlight with light rays, drop-shadow glow */
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ filter: "drop-shadow(0 0 5px currentColor)" }}
+              >
+                {/* Light rays above head */}
+                <line x1="12" y1="1" x2="12" y2="2.8" />
+                <line x1="8.2" y1="2.2" x2="9.4" y2="3.8" />
+                <line x1="15.8" y1="2.2" x2="14.6" y2="3.8" />
+                {/* Head top bar */}
+                <line x1="9" y1="5" x2="15" y2="5" />
+                {/* Head trapezoidal shoulder */}
+                <path d="M8 5l1.5 4.5h5L16 5" />
+                {/* Body */}
+                <rect x="9.5" y="9.5" width="5" height="11" rx="1.5" />
+                {/* Lens indicator lit */}
+                <circle cx="12" cy="16.5" r="1.5" fill="currentColor" />
+              </svg>
+            ) : (
+              /* OFF — filled solid flashlight silhouette */
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                stroke="none"
+              >
+                {/* Top bar */}
+                <rect x="9" y="4" width="6" height="1.5" rx="0.75" />
+                {/* Head shoulder (trapezoid as filled path) */}
+                <path d="M8 5.5h8l-1.5 5H9.5L8 5.5z" />
+                {/* Body cylinder */}
+                <rect x="9.5" y="10.5" width="5" height="10" rx="1.5" />
+              </svg>
+            )}
+          </button>
+        </div>
       )}
 
       {/* Targeting overlay */}
