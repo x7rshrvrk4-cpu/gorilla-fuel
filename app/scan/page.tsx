@@ -111,8 +111,8 @@ function productNameIndicatesAlcohol(name: string): boolean {
 }
 
 const ALCOHOL_CATEGORY_TERMS = new Set([
-  "beers", "beer", "ales", "lagers", "stouts", "porters", "pilsners", "ipas",
-  "ciders", "wines", "red-wines", "white-wines", "rose-wines", "sparkling-wines",
+  "beers", "beer", "ales", "lagers", "stouts", "porters", "pilsners", "IPA & Craft Ale",
+  "Cider", "wines", "red-wines", "white-wines", "rose-wines", "sparkling-wines",
   "spirits", "whiskeys", "whisky", "bourbon", "vodka", "rum", "gin", "tequila",
   "meads", "hard-seltzers", "seltzers", "alcoholic-beverages", "alcoholic-drinks",
   "alcopops", "fermented-beverages",
@@ -429,9 +429,9 @@ export default function ScanPage() {
         if (curatedHit) {
           console.log("[Gorilla] STEP 1 HIT:", curatedHit.name, "barcode:", trimmed);
           const servingMl = curatedHit.servingMl ?? 355;
-          const kind = curatedHit.category === "IPAs" ? "beer"
-            : curatedHit.category === "Hard Seltzers" ? "seltzer"
-            : curatedHit.category === "Ciders" ? "cider"
+          const kind = curatedHit.category === "IPA & Craft Ale" ? "beer"
+            : curatedHit.category === "Hard Seltzer" ? "seltzer"
+            : curatedHit.category === "Cider" ? "cider"
             : "beer";
           const nutriments = {
             "energy-kcal_100g": (curatedHit.caloriesPerCan / servingMl) * 100,
@@ -592,7 +592,7 @@ export default function ScanPage() {
               const curatedNameHit = overrideWithCurated(product.product_name || "", product.brands);
               if (curatedNameHit) {
                 const servingMl = curatedNameHit.servingMl ?? 355;
-                const kind = curatedNameHit.category === "IPAs" ? "beer" as const : curatedNameHit.category === "Hard Seltzers" ? "seltzer" as const : curatedNameHit.category === "Ciders" ? "cider" as const : "beer" as const;
+                const kind = curatedNameHit.category === "IPA & Craft Ale" ? "beer" as const : curatedNameHit.category === "Hard Seltzer" ? "seltzer" as const : curatedNameHit.category === "Cider" ? "cider" as const : "beer" as const;
                 const curatedNutriments = {
                   "energy-kcal_100g": (curatedNameHit.caloriesPerCan / servingMl) * 100,
                   carbohydrates_100g: (curatedNameHit.carbsPerCan / servingMl) * 100,
@@ -706,7 +706,7 @@ export default function ScanPage() {
           const curatedOverride = overrideWithCurated(hit.product_name || "", hit.brands);
           if (curatedOverride) {
             const servingMl = curatedOverride.servingMl ?? 355;
-            const kind = curatedOverride.category === "IPAs" ? "beer" as const : curatedOverride.category === "Hard Seltzers" ? "seltzer" as const : curatedOverride.category === "Ciders" ? "cider" as const : "beer" as const;
+            const kind = curatedOverride.category === "IPA & Craft Ale" ? "beer" as const : curatedOverride.category === "Hard Seltzer" ? "seltzer" as const : curatedOverride.category === "Cider" ? "cider" as const : "beer" as const;
             const cn = { "energy-kcal_100g": (curatedOverride.caloriesPerCan / servingMl) * 100, carbohydrates_100g: (curatedOverride.carbsPerCan / servingMl) * 100, sugars_100g: (curatedOverride.sugarPerCan / servingMl) * 100, alcohol_100g: curatedOverride.abv };
             const overrideResult = computeAlcoholScore(cn, undefined, kind, servingMl);
             const overriddenProduct: OffProduct = { ...hit, nutriments: cn, product_name: curatedOverride.name, brands: curatedOverride.brand };

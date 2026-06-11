@@ -84,14 +84,19 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {product.londonOntario && (
+            <span className="inline-flex shrink-0 items-center rounded-sm border border-emerald-700/60 bg-emerald-800/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-emerald-400">
+              London ON
+            </span>
+          )}
           {isWine && style && (
             <span className={`inline-flex shrink-0 items-center rounded-sm border px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] ${WINE_STYLE_CLASS[style]}`}>
               {style}
             </span>
           )}
-          {product.lcboVerified && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-sky-500/50 bg-sky-500/10 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-sky-300">
-              LCBO Verified
+          {product.nutritionEstimated && (
+            <span className="inline-flex shrink-0 items-center rounded-sm border border-slate-600/50 bg-slate-700/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-slate-400">
+              Est.
             </span>
           )}
           <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-sm border px-2.5 py-1 text-[10px] font-display uppercase tracking-[0.18em] ${abvBadgeClass}`}>

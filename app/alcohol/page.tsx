@@ -13,7 +13,11 @@ type FilterKey =
   | "cleanest"
   | "low-carb"
   | "low-cal"
-  | "seltzer"
+  | "london-on"
+  | "ontario-craft"
+  | "ipa"
+  | "lager"
+  | "stout"
   | "red"
   | "white"
   | "rose"
@@ -23,10 +27,14 @@ type FilterKey =
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "All" },
+  { key: "london-on", label: "London ON" },
+  { key: "ontario-craft", label: "Ontario Craft" },
+  { key: "ipa", label: "IPA" },
+  { key: "lager", label: "Lager" },
+  { key: "stout", label: "Stout" },
   { key: "cleanest", label: "Cleanest" },
-  { key: "low-carb", label: "Low Carb (under 5g)" },
-  { key: "low-cal", label: "Low Cal (under 100 cal/serving)" },
-  { key: "seltzer", label: "Seltzer Only" },
+  { key: "low-carb", label: "Low Carb (<5g)" },
+  { key: "low-cal", label: "Low Cal (<100 cal)" },
 ];
 
 const WINE_FILTERS: { key: FilterKey; label: string }[] = [
@@ -41,7 +49,7 @@ const WINE_FILTERS: { key: FilterKey; label: string }[] = [
 ];
 
 export default function AlcoholRankingsPage() {
-  const [category, setCategory] = useState<AlcoholCategory>("Light Beers");
+  const [category, setCategory] = useState<AlcoholCategory>("Light Beer");
   const [filter, setFilter] = useState<FilterKey>("all");
 
   const isWineTab = category === "Wines";
@@ -64,8 +72,16 @@ export default function AlcoholRankingsPage() {
             return isWineTab ? p.sugarPerCan < 2 : p.carbsPerCan < 5;
           case "low-cal":
             return isWineTab ? p.caloriesPerCan < 130 : p.caloriesPerCan < 100;
-          case "seltzer":
-            return p.category === "Hard Seltzers";
+          case "london-on":
+            return p.londonOntario === true;
+          case "ontario-craft":
+            return p.ontarioCraft === true;
+          case "ipa":
+            return p.beerStyle?.toLowerCase().includes("ipa") || p.category === "IPA & Craft Ale";
+          case "lager":
+            return p.beerStyle?.toLowerCase().includes("lager") || p.beerStyle?.toLowerCase().includes("pilsner") || p.category === "Lager";
+          case "stout":
+            return p.beerStyle?.toLowerCase().includes("stout") || p.beerStyle?.toLowerCase().includes("porter");
           case "red":
             return p.wineSubcategory === "Red";
           case "white":
@@ -82,7 +98,14 @@ export default function AlcoholRankingsPage() {
             return true;
         }
       })
-      .sort((a, b) => b.gorillaPour - a.gorillaPour || a.caloriesPerCan - b.caloriesPerCan);
+      .sort((a, b) => {
+        // London ON first, then Ontario craft, then alphabetical by brand
+        if (a.londonOntario && !b.londonOntario) return -1;
+        if (!a.londonOntario && b.londonOntario) return 1;
+        if (a.ontarioCraft && !b.ontarioCraft) return -1;
+        if (!a.ontarioCraft && b.ontarioCraft) return 1;
+        return a.brand.localeCompare(b.brand) || a.name.localeCompare(b.name);
+      });
   }, [category, filter, isWineTab]);
 
   const activeFilters = isWineTab ? WINE_FILTERS : FILTERS;
@@ -112,9 +135,9 @@ export default function AlcoholRankingsPage() {
               The <span className="text-amber-400">Alcohol</span> Rankings.
             </h1>
             <p className="mt-4 text-muted">
-              {ALCOHOL_PRODUCTS.length} drinks across {ALCOHOL_CATEGORIES.length} categories, curated for the
-              fitness-minded drinker — ABV, calories, carbs, additive counts, and a Gorilla Pour rating for how
-              drinkable each one is without derailing your goals. All available at Beer Store or LCBO in Canada.
+              {ALCOHOL_PRODUCTS.filter((p) => p.category !== "Wines").length} beers, seltzers, ciders, and RTDs
+              across {ALCOHOL_CATEGORIES.length - 1} categories — including London Ontario craft breweries, Ontario
+              craft, and national brands. Filter by style, origin, or macros.
             </p>
             <p className="mt-3 inline-flex items-center gap-2 rounded-sm border border-amber-400/30 bg-amber-400/8 px-3 py-1.5 text-xs text-amber-300/80">
               <span className="text-amber-400">✓</span>
@@ -169,7 +192,9 @@ export default function AlcoholRankingsPage() {
             onClick={() => setFilter(f.key)}
             className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-[0.2em] transition-colors ${
               filter === f.key
-                ? isWineTab
+                ? f.key === "london-on"
+                  ? "border-emerald-500 text-emerald-400"
+                  : isWineTab
                   ? "border-rose-500 text-rose-400"
                   : "border-amber-400 text-amber-400"
                 : "border-slate-700 text-slate-400 hover:border-amber-400/50 hover:text-foreground"
@@ -179,6 +204,17 @@ export default function AlcoholRankingsPage() {
           </button>
         ))}
       </div>
+
+      {/* London ON spotlight note */}
+      {filter === "london-on" && !isWineTab && (
+        <div className="mt-4 rounded-sm border border-emerald-700/30 bg-emerald-900/20 px-5 py-4">
+          <p className="text-xs leading-relaxed text-emerald-300/80">
+            <span className="font-display tracking-wide text-emerald-200">London Ontario craft — home turf.</span>{" "}
+            Forked River, Toboggan, Anderson, London Brewing, Powerhouse, Storm Stayed, Dundas &amp; Sons, and Black Fly all
+            brew right here in London ON. Support local.
+          </p>
+        </div>
+      )}
 
       {/* Wine helpful note + scoring explanation */}
       {isWineTab && (
