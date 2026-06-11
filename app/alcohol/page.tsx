@@ -23,6 +23,8 @@ type FilterKey =
   | "rose"
   | "sparkling"
   | "sweet"
+  | "icewine"
+  | "ontario-vqa"
   | "dry-only";
 
 const FILTERS: { key: FilterKey; label: string }[] = [
@@ -39,11 +41,13 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 
 const WINE_FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "All Wines" },
+  { key: "ontario-vqa", label: "🍁 Ontario VQA" },
   { key: "red", label: "Red" },
   { key: "white", label: "White" },
   { key: "rose", label: "Rosé" },
   { key: "sparkling", label: "Sparkling" },
   { key: "sweet", label: "Sweet" },
+  { key: "icewine", label: "Icewine" },
   { key: "dry-only", label: "Dry Only (<4g sugar)" },
   { key: "low-cal", label: "Low Cal (<130 cal)" },
 ];
@@ -92,6 +96,10 @@ export default function AlcoholRankingsPage() {
             return p.wineSubcategory === "Sparkling";
           case "sweet":
             return p.wineSubcategory === "Sweet";
+          case "icewine":
+            return p.wineSubcategory === "Icewine";
+          case "ontario-vqa":
+            return p.ontarioVQA === true;
           case "dry-only":
             return p.sugarPerCan < 4;
           default:
@@ -99,7 +107,9 @@ export default function AlcoholRankingsPage() {
         }
       })
       .sort((a, b) => {
-        // London ON first, then Ontario craft, then alphabetical by brand
+        // Ontario VQA wines first, then London ON, then Ontario craft, then brand
+        if (a.ontarioVQA && !b.ontarioVQA) return -1;
+        if (!a.ontarioVQA && b.ontarioVQA) return 1;
         if (a.londonOntario && !b.londonOntario) return -1;
         if (!a.londonOntario && b.londonOntario) return 1;
         if (a.ontarioCraft && !b.ontarioCraft) return -1;
@@ -212,6 +222,31 @@ export default function AlcoholRankingsPage() {
             <span className="font-display tracking-wide text-emerald-200">London Ontario craft — home turf.</span>{" "}
             Forked River, Toboggan, Anderson, London Brewing, Powerhouse, Storm Stayed, Dundas &amp; Sons, and Black Fly all
             brew right here in London ON. Support local.
+          </p>
+        </div>
+      )}
+
+      {/* Ontario VQA note */}
+      {isWineTab && (filter === "all" || filter === "ontario-vqa") && (
+        <div className="mt-4 rounded-sm border border-emerald-700/40 bg-gradient-to-r from-emerald-900/25 to-yellow-900/15 px-5 py-4">
+          <p className="text-xs leading-relaxed text-emerald-300/90">
+            <span className="font-display tracking-wide text-emerald-200">🍁 ONTARIO VQA — </span>
+            Ontario VQA wines are 100% Ontario-grown grapes verified by the Vintners
+            Quality Alliance. Every bottle represents a local Ontario winery and
+            Canadian farming families.
+          </p>
+        </div>
+      )}
+
+      {/* Icewine note */}
+      {isWineTab && filter === "icewine" && (
+        <div className="mt-4 rounded-sm border border-amber-500/40 bg-amber-900/20 px-5 py-4">
+          <p className="text-xs leading-relaxed text-amber-300/90">
+            <span className="font-display tracking-wide text-amber-200">🧊 ICEWINE — </span>
+            Icewine is a dessert wine served in 60mL portions, so nutrition is shown
+            per 60mL pour rather than the standard 148mL glass. It is naturally high
+            in sugar due to the concentration that happens when grapes freeze on the
+            vine — that&apos;s the style, not an additive.
           </p>
         </div>
       )}

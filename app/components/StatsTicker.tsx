@@ -6,6 +6,7 @@
 
 import { ALCOHOL_PRODUCTS } from "../alcohol/lib/products";
 import { PRODUCTS } from "../rankings/lib/products";
+import { KIDS_TOTAL_COUNT } from "../kids/lib/products";
 
 // ── Static counts from in-repo data ──────────────────────────────────────────
 const BEER_COUNT   = ALCOHOL_PRODUCTS.filter((p) => p.category !== "Wines").length;
@@ -55,6 +56,7 @@ export default async function StatsTicker() {
     `✅ ${APPROVED_COUNT} Gorilla Approved Snacks`,
     `⚠️ ${STAY_AWAY_COUNT} Stay Away Products`,
     `📦 ${cacheCount.toLocaleString("en-CA")} Products Scanned`,
+    `🧒 ${KIDS_TOTAL_COUNT} Kids Snacks Reviewed`,
     `🔬 15 Data Sources`,
     `🇨🇦 Canadian First`,
     `✓ No Brand Pays for Placement`,

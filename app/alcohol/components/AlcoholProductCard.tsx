@@ -57,7 +57,8 @@ const WINE_STYLE_CLASS: Record<WineStyle, string> = {
 
 export default function AlcoholProductCard({ product }: { product: AlcoholRankingProduct }) {
   const isWine = product.category === "Wines";
-  const servingLabel = isWine ? "per 148mL pour" : "per can";
+  const isIcewine = product.wineSubcategory === "Icewine";
+  const servingLabel = isWine ? (isIcewine ? "per 60mL pour" : "per 148mL pour") : "per can";
   const borderClass = isWine
     ? "border-rose-700/20 hover:border-rose-700/40"
     : "border-amber-400/15 hover:border-amber-400/30";
@@ -84,6 +85,16 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {product.ontarioVQA && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-emerald-600/70 bg-gradient-to-r from-emerald-800/30 to-yellow-700/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-emerald-300">
+              🍁 <span className="text-yellow-300/90">Ontario</span> VQA
+            </span>
+          )}
+          {product.organicCertified && (
+            <span className="inline-flex shrink-0 items-center rounded-sm border border-lime-600/60 bg-lime-800/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-lime-300">
+              Organic
+            </span>
+          )}
           {product.londonOntario && (
             <span className="inline-flex shrink-0 items-center rounded-sm border border-emerald-700/60 bg-emerald-800/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-emerald-400">
               London ON
