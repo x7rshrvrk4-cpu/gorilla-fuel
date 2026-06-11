@@ -8,7 +8,18 @@ import { ALCOHOL_CATEGORIES, ALCOHOL_PRODUCTS, type AlcoholCategory } from "./li
 import { trackAlcoholRankingViewed } from "../lib/gtag";
 import UniversalSearch from "../components/UniversalSearch";
 
-type FilterKey = "all" | "cleanest" | "low-carb" | "low-cal" | "seltzer";
+type FilterKey =
+  | "all"
+  | "cleanest"
+  | "low-carb"
+  | "low-cal"
+  | "seltzer"
+  | "red"
+  | "white"
+  | "rose"
+  | "sparkling"
+  | "sweet"
+  | "dry-only";
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "All" },
@@ -20,9 +31,13 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 
 const WINE_FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "All Wines" },
-  { key: "cleanest", label: "Cleanest (fewest additives)" },
-  { key: "low-carb", label: "Dry (under 2g sugar)" },
-  { key: "low-cal", label: "Light (under 125 cal/pour)" },
+  { key: "red", label: "Red" },
+  { key: "white", label: "White" },
+  { key: "rose", label: "Rosé" },
+  { key: "sparkling", label: "Sparkling" },
+  { key: "sweet", label: "Sweet" },
+  { key: "dry-only", label: "Dry Only (<4g sugar)" },
+  { key: "low-cal", label: "Low Cal (<130 cal)" },
 ];
 
 export default function AlcoholRankingsPage() {
@@ -48,9 +63,21 @@ export default function AlcoholRankingsPage() {
           case "low-carb":
             return isWineTab ? p.sugarPerCan < 2 : p.carbsPerCan < 5;
           case "low-cal":
-            return isWineTab ? p.caloriesPerCan < 125 : p.caloriesPerCan < 100;
+            return isWineTab ? p.caloriesPerCan < 130 : p.caloriesPerCan < 100;
           case "seltzer":
             return p.category === "Hard Seltzers";
+          case "red":
+            return p.wineSubcategory === "Red";
+          case "white":
+            return p.wineSubcategory === "White";
+          case "rose":
+            return p.wineSubcategory === "Rosé";
+          case "sparkling":
+            return p.wineSubcategory === "Sparkling";
+          case "sweet":
+            return p.wineSubcategory === "Sweet";
+          case "dry-only":
+            return p.sugarPerCan < 4;
           default:
             return true;
         }
@@ -153,15 +180,22 @@ export default function AlcoholRankingsPage() {
         ))}
       </div>
 
-      {/* Wine scoring explanation */}
+      {/* Wine helpful note + scoring explanation */}
       {isWineTab && (
-        <div className="mt-6 rounded-sm border border-rose-800/30 bg-rose-950/30 px-5 py-4">
-          <p className="text-xs leading-relaxed text-rose-300/70">
-            <span className="font-display tracking-wide text-rose-200">Wine scoring uses a different model from beer.</span>{" "}
-            Sugar accounts for 40% of the score, calories 30%, and additives 30% — each measured per standard 148mL pour.
-            Dry wines (under 2g sugar/pour) score highest. Gorilla Pour reflects how compatible a wine is with fitness goals
-            over a regular week of moderate consumption.
-          </p>
+        <div className="mt-6 space-y-3">
+          <div className="rounded-sm border border-rose-800/30 bg-rose-950/30 px-5 py-4">
+            <p className="text-xs leading-relaxed text-rose-300/80">
+              <span className="font-display tracking-wide text-rose-200">🍷 Standard glass = 148mL.</span>{" "}
+              Calories and carbs shown per glass. Dry wines score highest on Gorilla Fuel due to lower sugar content.
+            </p>
+          </div>
+          <div className="rounded-sm border border-slate-800 bg-slate-900/40 px-5 py-4">
+            <p className="text-xs leading-relaxed text-slate-400">
+              <span className="font-display tracking-wide text-slate-300">Wine Score methodology:</span>{" "}
+              Sugar 40% · Calorie density 30% · Additives 30% — each measured per standard 148mL pour.
+              Dry wines (&lt;4g sugar) score highest. Semi-dry 4–8g. Sweet over 8g.
+            </p>
+          </div>
         </div>
       )}
 
