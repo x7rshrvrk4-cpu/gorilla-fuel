@@ -58,6 +58,7 @@ import {
 import ScanConfirmationOverlay from "./components/ScanConfirmationOverlay";
 import SupplementResultCard from "./components/SupplementResultCard";
 import { lookupCuratedFood } from "./lib/curatedFoods";
+import { lookupCuratedScore, type ScoreOverride } from "./lib/curatedScores";
 import {
   lookupProductCache,
   upsertProductCache,
@@ -108,6 +109,16 @@ const ALCOHOL_TERMS_REGEX = /\b(beer|lager|ale|ipa|stout|porter|pilsner|wheat\s*
 /** Returns true when a product name contains alcohol-related language. */
 function productNameIndicatesAlcohol(name: string): boolean {
   return ALCOHOL_TERMS_REGEX.test(name);
+}
+
+function applyScoreOverride(base: ScoreResult, ov: ScoreOverride): ScoreResult {
+  return {
+    ...base,
+    finalScore: ov.score,
+    grade: ov.grade as ScoreResult["grade"],
+    ...(ov.flags.length > 0 ? { flags: ov.flags } : {}),
+    ...(ov.positives.length > 0 ? { positives: ov.positives } : {}),
+  };
 }
 
 const ALCOHOL_CATEGORY_TERMS = new Set([
@@ -332,13 +343,13 @@ export default function ScanPage() {
               // UI needs the full breakdown object (additivesFound, penalties, etc).
               // The cached score is used for the history entry so history stays
               // consistent even if scoring weights change between runs.
-              const cachedResult = computeScore(
+              const cachedResultBase = computeScore(
                 cachedProduct.nutriments ?? {},
                 cachedProduct.ingredients_text,
                 scoringContext(cachedProduct)
               );
-              const displayScore = cached.gorilla_score ?? cachedResult.finalScore;
-              const displayGrade = (cached.score_grade ?? cachedResult.grade) as typeof cachedResult.grade;
+              const cachedScoreOv = lookupCuratedScore(trimmed, cachedProduct.product_name ?? "");
+              const cachedResult = cachedScoreOv ? applyScoreOverride(cachedResultBase, cachedScoreOv) : cachedResultBase;
               trackProductFound("gorilla-cache", trimmed, cachedProduct.product_name);
               trackScanModeFood(trimmed, cachedProduct.product_name);
               setLookup({ phase: "found", product: cachedProduct, result: cachedResult, dataSource: "gorilla-cache" });
@@ -349,8 +360,8 @@ export default function ScanPage() {
                   name: cachedProduct.product_name || "Unknown Product",
                   brand: cachedProduct.brands || "Unknown Brand",
                   image: productImage(cachedProduct),
-                  score: displayScore,
-                  color: GRADE_COLORS[displayGrade],
+                  score: cachedResult.finalScore,
+                  color: GRADE_COLORS[cachedResult.grade],
                   scannedAt: Date.now(),
                 },
                 ...history.filter((h) => h.barcode !== trimmed),
@@ -509,11 +520,13 @@ export default function ScanPage() {
         const curatedFoodHit = lookupCuratedFood(trimmed);
         if (curatedFoodHit) {
           console.log("[Gorilla] STEP 2b HIT:", curatedFoodHit.product_name);
-          const cfResult = computeScore(
+          const cfBase = computeScore(
             curatedFoodHit.nutriments ?? {},
             curatedFoodHit.ingredients_text,
             scoringContext(curatedFoodHit)
           );
+          const cfOv = lookupCuratedScore(trimmed, curatedFoodHit.product_name ?? "");
+          const cfResult = cfOv ? applyScoreOverride(cfBase, cfOv) : cfBase;
           trackProductFound("gorilla-curated", trimmed, curatedFoodHit.product_name);
           trackScanModeFood(trimmed, curatedFoodHit.product_name);
           setLookup({ phase: "found", product: curatedFoodHit, result: cfResult, dataSource: "gorilla-curated" });
@@ -637,11 +650,13 @@ export default function ScanPage() {
             }
           } else {
             // Food / supplement path
-            const result = computeScore(
+            const resultBase = computeScore(
               product.nutriments ?? {},
               product.ingredients_text || product.ingredients_text_en,
               scoringContext(product)
             );
+            const resultOv = lookupCuratedScore(trimmed, product.product_name ?? "");
+            const result = resultOv ? applyScoreOverride(resultBase, resultOv) : resultBase;
             const lowConfidence = isCanadianBarcode(trimmed) && !hasCanadianOrGlobalMarketData(product);
             trackProductFound("open-food-facts", trimmed, product.product_name);
             trackScanModeFood(trimmed, product.product_name);
@@ -715,7 +730,9 @@ export default function ScanPage() {
             persistHistory([{ barcode: trimmed, name: curatedOverride.name, brand: curatedOverride.brand, image: null, score: overrideResult.score, color: ALCOHOL_GRADE_COLORS[overrideResult.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
             return;
           }
-          const result = computeScore(hit.nutriments ?? {}, hit.ingredients_text, scoringContext(hit));
+          const hitBase = computeScore(hit.nutriments ?? {}, hit.ingredients_text, scoringContext(hit));
+          const hitOv = lookupCuratedScore(trimmed, hit.product_name ?? "");
+          const result = hitOv ? applyScoreOverride(hitBase, hitOv) : hitBase;
           upsertProductCache({ barcode: trimmed, product_name: hit.product_name, brand: hit.brands ?? null, categories: JSON.stringify(hit.categories_tags ?? []), ingredients_text: hit.ingredients_text, nutrition_data: hit.nutriments ?? null, gorilla_score: result.finalScore, score_grade: result.grade, nova_group: null, data_source: source, image_url: productImage(hit) ?? null });
           trackProductFound(source, trimmed, hit.product_name);
           trackScanModeFood(trimmed, hit.product_name);

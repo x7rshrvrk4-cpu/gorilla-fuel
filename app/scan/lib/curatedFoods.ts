@@ -194,6 +194,225 @@ const PACKAGED_FOODS: CuratedFoodEntry[] = [
   },
 ];
 
+// ── Gorilla Approved whole foods (Canadian brands + international staples) ────
+
+const APPROVED_FOODS: CuratedFoodEntry[] = [
+  {
+    barcode: "0628451026059",
+    name: "Nomz Energy Bites",
+    brand: "Nomz",
+    servingSize: "30g",
+    categoriesTags: ["en:snacks", "en:energy-bars", "en:snack-bars"],
+    ingredientsText: "Dates, almonds, cashews, coconut, cacao",
+    novaGroup: 1,
+    nutriments: {
+      "energy-kcal_100g": 470,
+      carbohydrates_100g: 55,
+      sugars_100g: 44,
+      proteins_100g: 8,
+      "saturated-fat_100g": 6,
+      salt_100g: 0.03,
+    },
+  },
+  {
+    barcode: "0058755001231",
+    name: "Liberté Greek Yogurt Plain 0%",
+    brand: "Liberté",
+    servingSize: "175g",
+    categoriesTags: ["en:dairy", "en:fermented-foods", "en:yogurts", "en:greek-yogurts"],
+    ingredientsText: "Skim milk, live active cultures (Lactobacillus bulgaricus, Streptococcus thermophilus)",
+    novaGroup: 1,
+    nutriments: {
+      "energy-kcal_100g": 51,
+      carbohydrates_100g: 3.9,
+      sugars_100g: 3.9,
+      proteins_100g: 8.6,
+      "saturated-fat_100g": 0,
+      salt_100g: 0.1,
+    },
+  },
+  {
+    barcode: "0067040303010",
+    name: "Hardbite Chips Sea Salt",
+    brand: "Hardbite",
+    servingSize: "28g",
+    categoriesTags: ["en:snacks", "en:chips-and-crisps", "en:salty-snacks"],
+    ingredientsText: "Potatoes, sunflower oil, sea salt",
+    novaGroup: 3,
+    nutriments: {
+      "energy-kcal_100g": 536,
+      carbohydrates_100g: 58,
+      sugars_100g: 0.5,
+      proteins_100g: 7,
+      "saturated-fat_100g": 1.5,
+      salt_100g: 1.2,
+    },
+  },
+  {
+    barcode: "0041660300047",
+    name: "SkinnyPop Original Popcorn",
+    brand: "SkinnyPop",
+    servingSize: "28g",
+    categoriesTags: ["en:snacks", "en:popcorn", "en:salty-snacks"],
+    ingredientsText: "Popcorn, sunflower oil, salt",
+    novaGroup: 2,
+    nutriments: {
+      "energy-kcal_100g": 536,
+      carbohydrates_100g: 64,
+      sugars_100g: 0,
+      proteins_100g: 11,
+      "saturated-fat_100g": 3.5,
+      salt_100g: 0.9,
+    },
+  },
+  {
+    barcode: "0858547004149",
+    name: "RXBAR Chocolate Sea Salt",
+    brand: "RXBAR",
+    servingSize: "52g",
+    categoriesTags: ["en:snacks", "en:energy-bars", "en:snack-bars", "en:protein-bars"],
+    ingredientsText: "Dates, egg whites, almonds, cashews, cocoa, sea salt, natural chocolate flavour",
+    novaGroup: 1,
+    nutriments: {
+      "energy-kcal_100g": 404,
+      carbohydrates_100g: 46,
+      sugars_100g: 25,
+      proteins_100g: 23,
+      "saturated-fat_100g": 3.8,
+      salt_100g: 0.5,
+    },
+  },
+  {
+    barcode: "0021908516890",
+    name: "Larabar Apple Pie",
+    brand: "Larabar",
+    servingSize: "45g",
+    categoriesTags: ["en:snacks", "en:energy-bars", "en:snack-bars"],
+    ingredientsText: "Dates, almonds, unsweetened apples, walnuts, cinnamon",
+    novaGroup: 1,
+    nutriments: {
+      "energy-kcal_100g": 422,
+      carbohydrates_100g: 71,
+      sugars_100g: 47,
+      proteins_100g: 6.7,
+      "saturated-fat_100g": 1.1,
+      salt_100g: 0,
+    },
+  },
+];
+
+// ── Cheat list Canadian products ──────────────────────────────────────────────
+
+const CHEAT_LIST_FOODS: CuratedFoodEntry[] = [
+  {
+    barcode: "0060410016476",
+    name: "Miss Vickie's Sea Salt & Malt Vinegar",
+    brand: "Miss Vickie's",
+    servingSize: "28g",
+    categoriesTags: ["en:snacks", "en:chips-and-crisps", "en:kettle-chips", "en:salty-snacks"],
+    ingredientsText: "Potatoes, sunflower oil, seasoning (malt vinegar powder, sea salt, maltodextrin, yeast extract)",
+    novaGroup: 3,
+    nutriments: {
+      "energy-kcal_100g": 536,
+      carbohydrates_100g: 62,
+      sugars_100g: 1.5,
+      proteins_100g: 7,
+      "saturated-fat_100g": 1.8,
+      salt_100g: 1.4,
+    },
+  },
+  {
+    barcode: "0063600013113",
+    name: "Breton Original Crackers",
+    brand: "Dare Foods",
+    servingSize: "30g",
+    categoriesTags: ["en:snacks", "en:crackers", "en:biscuits-and-cakes"],
+    ingredientsText: "Wheat flour, vegetable oil (palm, canola), whole wheat flour, sugar, salt, leavening agents, soy lecithin",
+    novaGroup: 4,
+    nutriments: {
+      "energy-kcal_100g": 444,
+      carbohydrates_100g: 65,
+      sugars_100g: 5,
+      proteins_100g: 8,
+      "saturated-fat_100g": 4,
+      salt_100g: 1.6,
+    },
+  },
+  {
+    barcode: "0607813037016",
+    name: "Boom Chicka Pop White Cheddar Popcorn",
+    brand: "Angie's Boomchickapop",
+    servingSize: "28g",
+    categoriesTags: ["en:snacks", "en:popcorn", "en:salty-snacks"],
+    ingredientsText: "Popcorn, sunflower oil, white cheddar seasoning (whey, cheddar cheese, salt, natural flavours, lactic acid)",
+    novaGroup: 3,
+    nutriments: {
+      "energy-kcal_100g": 536,
+      carbohydrates_100g: 57,
+      sugars_100g: 3.6,
+      proteins_100g: 10.7,
+      "saturated-fat_100g": 6,
+      salt_100g: 1.4,
+    },
+  },
+];
+
+// ── Stay Away Canadian products ───────────────────────────────────────────────
+
+const STAY_AWAY_FOODS: CuratedFoodEntry[] = [
+  {
+    barcode: "0060383060019",
+    name: "Old Dutch Party Mix",
+    brand: "Old Dutch Foods",
+    servingSize: "28g",
+    categoriesTags: ["en:snacks", "en:salty-snacks", "en:snack-mixes"],
+    ingredientsText: "Corn meal, vegetable oil, potato starch, salt, sugar, seasonings, artificial colour, TBHQ",
+    novaGroup: 4,
+    nutriments: {
+      "energy-kcal_100g": 480,
+      carbohydrates_100g: 65,
+      sugars_100g: 3,
+      proteins_100g: 7,
+      "saturated-fat_100g": 5,
+      salt_100g: 1.5,
+    },
+  },
+  {
+    barcode: "0060383070025",
+    name: "Humpty Dumpty Cheese Sticks",
+    brand: "Old Dutch Foods",
+    servingSize: "28g",
+    categoriesTags: ["en:snacks", "en:salty-snacks", "en:chips-and-crisps"],
+    ingredientsText: "Cornmeal, vegetable oil, cheddar cheese seasoning (whey powder, cheddar cheese, maltodextrin, salt, natural cheese flavour, Yellow 5, Yellow 6)",
+    novaGroup: 4,
+    nutriments: {
+      "energy-kcal_100g": 536,
+      carbohydrates_100g: 60,
+      sugars_100g: 2,
+      proteins_100g: 7,
+      "saturated-fat_100g": 8,
+      salt_100g: 1.5,
+    },
+  },
+  {
+    barcode: "0060383089027",
+    name: "Arriba Nacho Chips",
+    brand: "Old Dutch Foods",
+    servingSize: "28g",
+    categoriesTags: ["en:snacks", "en:chips-and-crisps", "en:salty-snacks", "en:tortilla-chips"],
+    ingredientsText: "Corn masa flour, vegetable oil, salt, seasoning (maltodextrin, monosodium glutamate, artificial colour)",
+    novaGroup: 4,
+    nutriments: {
+      "energy-kcal_100g": 500,
+      carbohydrates_100g: 62,
+      sugars_100g: 1,
+      proteins_100g: 7,
+      "saturated-fat_100g": 4,
+      salt_100g: 1.4,
+    },
+  },
+];
+
 // ── Curated supplement fallback (guaranteed hits for top-selling supplements) ──
 // Nutrition values per 100g of product (not per serving).
 
@@ -266,7 +485,7 @@ const SUPPLEMENTS: CuratedFoodEntry[] = [
   },
 ];
 
-const ALL_ENTRIES: CuratedFoodEntry[] = [...SODAS, ...PACKAGED_FOODS, ...SUPPLEMENTS];
+const ALL_ENTRIES: CuratedFoodEntry[] = [...SODAS, ...PACKAGED_FOODS, ...APPROVED_FOODS, ...CHEAT_LIST_FOODS, ...STAY_AWAY_FOODS, ...SUPPLEMENTS];
 
 // Normalise a barcode string: strip non-digits, strip leading zeros.
 function normBarcode(b: string): string {
