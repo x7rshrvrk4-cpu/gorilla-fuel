@@ -238,48 +238,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* GORILLA SPORTS CROSS-LINK */}
-      <section className="border-b border-line bg-background">
-        <div className="mx-auto max-w-6xl px-6 py-20">
-          <p className="font-display text-sm tracking-[0.3em] text-gold">
-            FROM THE SAME PLAYBOOK — APPLIED TO SPORTS
-          </p>
-          <div className="mt-6 overflow-hidden rounded-sm border border-gold/40 bg-gradient-to-br from-[#1a1500] via-[#110f00] to-[#0a0a00]">
-            <div className="flex flex-col items-start gap-8 p-10 sm:flex-row sm:items-center sm:justify-between">
-              <div className="max-w-xl">
-                <h2 className="font-display text-4xl text-foreground sm:text-5xl">
-                  Gorilla <span className="gold-gradient-text">Sports</span>
-                </h2>
-                <p className="mt-4 text-base leading-relaxed text-muted">
-                  The same obsessive, data-first methodology we apply to your food —
-                  now applied to Canadian sports betting. Sharp picks, model-backed analysis,
-                  and zero fluff. No sponsored garbage, no gut-feel takes.
-                </p>
-                <ul className="mt-5 flex flex-col gap-2">
-                  {["Model-driven picks across NHL, NBA & CFL", "Bankroll-aware staking — not blind unit betting", "No sportsbook affiliates. No pay-to-win rankings"].map((point) => (
-                    <li key={point} className="flex items-start gap-2 text-sm text-muted">
-                      <span className="mt-0.5 text-gold">▸</span>
-                      {point}
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-5 text-xs uppercase tracking-[0.2em] text-gold/50">
-                  gorillasports.ca
-                </p>
-              </div>
-              <a
-                href="https://gorillasports.ca"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="pulse-glow shrink-0 rounded-sm bg-gold px-10 py-5 font-display text-xl tracking-widest text-background transition-transform hover:scale-105"
-              >
-                Visit Gorilla Sports ↗
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      {/* Single Gorilla Sports cross-promotion — no duplicates */}
       <CrossLinkBanner />
     </>
   );

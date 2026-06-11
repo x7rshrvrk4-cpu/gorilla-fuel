@@ -236,6 +236,26 @@ function AlcoholTab() {
         </div>
       </section>
 
+      {/* THE BEER STORE RULE */}
+      <section className="mt-14">
+        <h2 className="font-display text-3xl text-foreground">The Beer Store Rule</h2>
+        <div className="mt-3 max-w-3xl rounded-sm border border-amber-500/40 bg-amber-900/15 p-6">
+          <p className="text-sm leading-relaxed text-muted">
+            By law, The Beer Store can only sell malt based alcoholic beverages.
+            This means every hard seltzer you buy at Beer Store — White Claw,
+            Truly, Cottage Springs, Coors Seltzer, Arizona Hard — is a malt based
+            version. The LCBO version of the same brand may be vodka based or
+            spirit based, with different ingredients, different nutrition, and
+            different gluten status.{" "}
+            <span className="text-amber-300">Same can. Same label. Different
+            product.</span> If you have celiac disease or gluten sensitivity, buy
+            your seltzers at the LCBO — not at Beer Store. Gorilla Fuel flags
+            every Beer Store seltzer with a MALT BASED warning so you always know
+            what you are actually drinking.
+          </p>
+        </div>
+      </section>
+
       {/* SECTION 2 — THE CORONA MYTH */}
       <section className="mt-14">
         <h2 className="font-display text-3xl text-foreground">The Corona Myth</h2>

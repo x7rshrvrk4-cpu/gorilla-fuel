@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CrossLinkBanner from "../components/CrossLinkBanner";
 import MethodologyModal from "../components/MethodologyModal";
 import ProductCard from "./components/ProductCard";
@@ -27,6 +27,29 @@ export default function RankingsPage() {
   const [category, setCategory] = useState<Category>("Creatine");
   const [filter, setFilter] = useState<FilterKey>("all");
   const [methodologyOpen, setMethodologyOpen] = useState(false);
+
+  // ── Deep link: /rankings?p=<product-id> from universal search ─────────────
+  // Switch to the product's category tab, scroll to its card, gold-highlight.
+  useEffect(() => {
+    const pid = new URLSearchParams(window.location.search).get("p");
+    if (!pid) return;
+    const product = PRODUCTS.find((x) => x.id === pid);
+    if (!product) return;
+    setCategory(product.category);
+    setFilter("all");
+    const t = window.setTimeout(() => {
+      const el = document.getElementById(`product-${pid}`);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.style.outline = "2px solid #ffd700";
+      el.style.outlineOffset = "2px";
+      window.setTimeout(() => {
+        el.style.outline = "";
+        el.style.outlineOffset = "";
+      }, 2500);
+    }, 350);
+    return () => window.clearTimeout(t);
+  }, []);
 
   const products = useMemo(() => {
     return PRODUCTS.filter((p) => p.category === category)

@@ -54,6 +54,12 @@ export type AlcoholRankingProduct = {
   canadianCertifiedGf?: boolean;
   /** City/region badge for breweries (Toronto, Hamilton, Niagara, Ottawa, Guelph, Windsor, Sarnia, …). */
   cityRegion?: string;
+  /**
+   * True for seltzers/RTDs sold at The Beer Store — Beer Store versions may be
+   * malt-based even when the LCBO version of the same brand is spirit-based
+   * with different ingredients and gluten status.
+   */
+  maltBasedBeerStore?: boolean;
 };
 
 // Nutritional data from manufacturer disclosures and Open Food Facts records,
@@ -1026,6 +1032,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "white-claw-black-cherry",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     brand: "Mark Anthony Brands",
     name: "White Claw Hard Seltzer (Black Cherry)",
@@ -1046,6 +1053,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "truly-hard-seltzer",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     brand: "Boston Beer Company",
     name: "Truly Hard Seltzer (Wild Berry)",
@@ -1082,6 +1090,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "white-claw-original",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     brand: "Mark Anthony Brands",
     name: "White Claw Hard Seltzer (Original)",
@@ -1098,6 +1107,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "white-claw-surge",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     brand: "Mark Anthony Brands",
     name: "White Claw Surge",
@@ -1114,6 +1124,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "vizzy-hard-seltzer",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Molson Coors",
     name: "Vizzy Hard Seltzer",
     abv: 5.0,
@@ -1144,6 +1155,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "nude-vodka-soda",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     brand: "Nude Beverages",
     name: "Nude Vodka Soda",
@@ -1160,6 +1172,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "palm-bay",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Labatt / AB InBev",
     name: "Palm Bay",
     abv: 4.0,
@@ -1175,6 +1188,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "waterloo-sparkling",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     brand: "Waterloo Brewing",
     name: "Waterloo Sparkling",
@@ -1191,6 +1205,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "motts-clamato-caesar",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Mott's",
     name: "Mott's Clamato Caesar (Original, 5.5%)",
     abv: 5.5,
@@ -1210,6 +1225,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "motts-clamato-caesar-bold",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Mott's",
     name: "Mott's Clamato Caesar Bold",
     abv: 5.5,
@@ -1225,6 +1241,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "bacardi-breezer",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Bacardi",
     name: "Bacardi Breezer",
     abv: 4.0,
@@ -1240,6 +1257,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "mikes-hard-lemonade",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Mark Anthony Brands",
     name: "Mike's Hard Lemonade",
     abv: 5.0,
@@ -1255,6 +1273,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "smirnoff-ice",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Diageo",
     name: "Smirnoff Ice",
     abv: 5.0,
@@ -1270,6 +1289,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "seagrams-coolers",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Seagram's",
     name: "Seagram's Coolers",
     abv: 5.0,
@@ -1491,8 +1511,9 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "nutrl-vodka-soda",
     category: "Hard Seltzer",
-    brand: "NÃœTRL",
-    name: "NÃœTRL Vodka Soda",
+    maltBasedBeerStore: true,
+    brand: "NÜTRL",
+    name: "NÜTRL Vodka Soda",
     abv: 5.0,
     caloriesPerCan: 100,
     carbsPerCan: 0,
@@ -1504,10 +1525,12 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     availability: "LCBO & Beer Store -- wide availability in Canada",
     lcboVerified: true,
     barcodes: ["0628055400164", "0628055400171"],
+    gorillaAnalysis: "Canadian zero sugar vodka soda. Clean base spirit, no malt (LCBO version). One of the top selling RTDs in Ontario. Zero carbs, zero sugar.",
   },
   {
     id: "cottage-springs-vodka-water",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     brand: "Cottage Springs",
     name: "Cottage Springs Vodka Water",
@@ -1525,6 +1548,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "twisted-tea-original",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Boston Beer Company",
     name: "Twisted Tea Original Hard Iced Tea",
     abv: 5.0,
@@ -1574,6 +1598,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "coors-slice-lemon",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Molson Coors",
     name: "Coors Slice Lemon Lime",
     abv: 4.0,
@@ -1608,6 +1633,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "black-fly-vodka-lemon-iced-tea",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Black Fly Beverage",
     name: "Black Fly Vodka Lemon Iced Tea",
     abv: 5.0,
@@ -1624,6 +1650,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "black-fly-vodka-cranberry",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Black Fly Beverage",
     name: "Black Fly Vodka Cranberry",
     abv: 5.0,
@@ -1640,6 +1667,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "black-fly-whisky-sour",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Black Fly Beverage",
     name: "Black Fly Whisky Sour",
     abv: 5.0,
@@ -1656,6 +1684,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "black-fly-tequila-sunrise",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Black Fly Beverage",
     name: "Black Fly Tequila Sunrise",
     abv: 5.0,
@@ -1672,6 +1701,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "black-fly-vodka-iced-tea-zero",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     brand: "Black Fly Beverage",
     name: "Black Fly Vodka Iced Tea Zero Sugar",
     abv: 5.0,
@@ -7433,6 +7463,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "arizona-hard-lemon-iced-tea-473ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Hard Iced Tea",
     brand: "Arizona Hard",
     name: "Arizona Hard Lemon Iced Tea 473ml",
@@ -7450,6 +7481,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "arizona-hard-green-tea-473ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Hard Iced Tea",
     brand: "Arizona Hard",
     name: "Arizona Hard Green Tea 473ml",
@@ -7466,6 +7498,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "arizona-hard-half-and-half-473ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Hard Iced Tea",
     brand: "Arizona Hard",
     name: "Arizona Hard Half and Half 473ml",
@@ -7482,6 +7515,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "coors-seltzer-slush-cherry-473ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     beerStyle: "Hard Seltzer",
     brand: "Molson Coors",
@@ -7500,6 +7534,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "coors-seltzer-slush-grape-473ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     beerStyle: "Hard Seltzer",
     brand: "Molson Coors",
@@ -7517,6 +7552,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "coors-seltzer-7-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     beerStyle: "Hard Seltzer",
     brand: "Molson Coors",
@@ -7552,6 +7588,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "cottage-springs-vodka-soda-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     beerStyle: "Vodka Soda",
     brand: "Cottage Springs",
@@ -7570,6 +7607,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "cottage-springs-hard-iced-tea-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Hard Iced Tea",
     brand: "Cottage Springs",
     name: "Cottage Springs Hard Iced Tea 355ml",
@@ -7587,6 +7625,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "twisted-tea-original-473ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Hard Iced Tea",
     brand: "Twisted Tea (Boston Beer)",
     name: "Twisted Tea Original 473ml",
@@ -7604,6 +7643,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "twisted-tea-original-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Hard Iced Tea",
     brand: "Twisted Tea (Boston Beer)",
     name: "Twisted Tea Original 355ml",
@@ -7621,6 +7661,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "twisted-tea-half-and-half-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Hard Iced Tea",
     brand: "Twisted Tea (Boston Beer)",
     name: "Twisted Tea Half and Half 355ml",
@@ -7638,6 +7679,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "twisted-tea-rocket-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Hard Iced Tea",
     brand: "Twisted Tea (Boston Beer)",
     name: "Twisted Tea Rocket 355ml",
@@ -7655,6 +7697,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "twisted-tea-blue-raspberry-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Hard Iced Tea",
     brand: "Twisted Tea (Boston Beer)",
     name: "Twisted Tea Blue Raspberry 355ml",
@@ -7672,6 +7715,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "twisted-tea-extreme-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Hard Iced Tea",
     brand: "Twisted Tea (Boston Beer)",
     name: "Twisted Tea Extreme 355ml",
@@ -7689,6 +7733,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "bud-light-strawberry-lemon-473ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Flavoured Light Lager",
     brand: "Labatt / AB InBev",
     name: "Bud Light Strawberry Lemon 473ml",
@@ -7814,6 +7859,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "johnny-bootlegger-200ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Flavoured Malt Beverage",
     brand: "Johnny Bootlegger",
     name: "Johnny Bootlegger 200ml",
@@ -9300,6 +9346,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "simply-spiked-lemonade-473ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Spiked Lemonade",
     brand: "Molson Coors",
     name: "Simply Spiked Lemonade 473ml",
@@ -9317,6 +9364,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "simply-spiked-limeade-473ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Spiked Limeade",
     brand: "Molson Coors",
     name: "Simply Spiked Limeade 473ml",
@@ -9334,6 +9382,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "simply-spiked-lemon-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Spiked Lemonade",
     brand: "Molson Coors",
     name: "Simply Spiked Lemon 355ml",
@@ -9351,6 +9400,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "simply-spiked-lime-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Spiked Limeade",
     brand: "Molson Coors",
     name: "Simply Spiked Lime 355ml",
@@ -9368,6 +9418,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "truly-punch-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     beerStyle: "Hard Seltzer",
     brand: "Truly (Boston Beer)",
@@ -9385,6 +9436,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "vizzy-blueberry-pomegranate-473ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     beerStyle: "Hard Seltzer",
     brand: "Molson Coors",
@@ -9402,6 +9454,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "vizzy-orange-cream-473ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     beerStyle: "Hard Seltzer",
     brand: "Molson Coors",
@@ -9700,6 +9753,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "pabst-iced-tea-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Hard Iced Tea",
     brand: "Pabst (Sleeman)",
     name: "Pabst Iced Tea 355ml",
@@ -10113,6 +10167,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "bud-light-chelada-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Chelada",
     brand: "Labatt / AB InBev",
     name: "Bud Light Chelada 355ml",
@@ -10867,6 +10922,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "bangarang-pink-lemonade-473ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Spiked Lemonade",
     brand: "Equals Brewing",
     name: "Bangarang Pink Lemonade 473ml",
@@ -10938,6 +10994,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "black-fly-vodka-soda-zero-sugar-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
     beerStyle: "Vodka Soda",
     brand: "Black Fly Beverage",
@@ -11379,6 +11436,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "turbo-salted-lemon-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Spiked Lemonade",
     brand: "Refined Fool",
     name: "Turbo Salted Lemon 355ml",
@@ -12160,6 +12218,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "poppers-cranberry-ice-473ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Vodka Cooler",
     brand: "Poppers",
     name: "Poppers Cranberry Ice 473ml",
@@ -12176,6 +12235,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jb-sour-grape-200ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Flavoured Malt Beverage",
     brand: "Johnny Bootlegger",
     name: "JB Sour Grape 200ml",
@@ -12192,6 +12252,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jb-sour-apple-200ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Flavoured Malt Beverage",
     brand: "Johnny Bootlegger",
     name: "JB Sour Apple 200ml",
@@ -12209,6 +12270,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jb-peach-200ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Flavoured Malt Beverage",
     brand: "Johnny Bootlegger",
     name: "JB Peach 200ml",
@@ -12226,6 +12288,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jb-sour-raspberry-200ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Flavoured Malt Beverage",
     brand: "Johnny Bootlegger",
     name: "JB Sour Raspberry 200ml",
@@ -12243,6 +12306,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jb-lemonade-200ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Flavoured Malt Beverage",
     brand: "Johnny Bootlegger",
     name: "JB Lemonade 200ml",
@@ -12260,6 +12324,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jb-watermelon-200ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "Flavoured Malt Beverage",
     brand: "Johnny Bootlegger",
     name: "JB Watermelon 200ml",
@@ -12277,6 +12342,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "rev-original-355ml",
     category: "Hard Seltzer",
+    maltBasedBeerStore: true,
     beerStyle: "High ABV RTD",
     brand: "Rev",
     name: "Rev Original 355ml",
@@ -12323,6 +12389,124 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     additiveCount: 0,
     gorillaPour: 2,
     availability: "Beer Store Ontario",
+  },
+
+  // ───────── RUNNING TAB ADDITIONS (2026-06) ─────────
+  {
+    id: "cut-vodka-soda",
+    category: "Hard Seltzer",
+    glutenStatus: "certified-gf",
+    brand: "Cut",
+    name: "Cut Vodka Soda",
+    abv: 5.0,
+    caloriesPerCan: 100,
+    carbsPerCan: 1,
+    sugarPerCan: 0,
+    servingMl: 355,
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 5,
+    availability: "LCBO -- wide availability",
+    gorillaAnalysis: "Canadian clean vodka soda. Minimal sugar. Top 10 Ontario RTD seller.",
+  },
+  {
+    id: "stoneleigh-sauvignon-blanc",
+    category: "Wines",
+    glutenStatus: "certified-gf",
+    wineSubcategory: "White",
+    varietal: "Sauvignon Blanc",
+    region: "Marlborough, New Zealand",
+    brand: "Stoneleigh",
+    name: "Stoneleigh Sauvignon Blanc",
+    abv: 12.5,
+    caloriesPerCan: 130,
+    carbsPerCan: 3.1,
+    sugarPerCan: 0.8,
+    servingMl: 148,
+    knownAdditives: ["Sulphites (E220)"],
+    additiveCount: 1,
+    gorillaPour: 5,
+    availability: "LCBO -- wide availability",
+    gorillaAnalysis: "New Zealand Sauvignon Blanc — the number one best selling wine in Ontario by LCBO Q2 2025 data. Clean, dry, crisp. Excellent value. Wine Quality 88 (Wine Enthusiast).",
+  },
+  {
+    id: "cote-des-roses-rose",
+    category: "Wines",
+    glutenStatus: "certified-gf",
+    wineSubcategory: "Rosé",
+    varietal: "Rosé",
+    region: "Languedoc, France",
+    brand: "Gérard Bertrand",
+    name: "Côte des Roses Rosé",
+    abv: 12.5,
+    caloriesPerCan: 128,
+    carbsPerCan: 3.5,
+    sugarPerCan: 1.2,
+    servingMl: 148,
+    knownAdditives: ["Sulphites (E220)"],
+    additiveCount: 1,
+    gorillaPour: 4,
+    availability: "LCBO -- wide availability",
+    gorillaAnalysis: "French Provence-style rosé with the distinctive rose bottle design. Dry style — lower sugar than most rosés. Available at LCBO across Ontario. Wine Quality 88 (Wine Enthusiast).",
+  },
+  {
+    id: "peller-family-chardonnay",
+    category: "Wines",
+    glutenStatus: "certified-gf",
+    wineSubcategory: "White",
+    varietal: "Chardonnay",
+    region: "Ontario",
+    brand: "Peller Family Vineyards",
+    name: "Peller Family Vineyards Chardonnay",
+    abv: 13.0,
+    caloriesPerCan: 135,
+    carbsPerCan: 4.0,
+    sugarPerCan: 1.1,
+    servingMl: 148,
+    knownAdditives: ["Sulphites (E220)"],
+    additiveCount: 1,
+    gorillaPour: 4,
+    availability: "LCBO & Beer Store -- Ontario",
+    ontarioVQA: true,
+    vqaAppellation: "Ontario",
+    gorillaAnalysis: "Wine Quality 87 (WineAlign).",
+  },
+  {
+    id: "peller-family-cabernet-merlot",
+    category: "Wines",
+    glutenStatus: "certified-gf",
+    wineSubcategory: "Red",
+    varietal: "Cabernet Merlot",
+    region: "Ontario",
+    brand: "Peller Family Vineyards",
+    name: "Peller Family Vineyards Cabernet Merlot",
+    abv: 13.5,
+    caloriesPerCan: 142,
+    carbsPerCan: 4.4,
+    sugarPerCan: 1.2,
+    servingMl: 148,
+    knownAdditives: ["Sulphites (E220)"],
+    additiveCount: 1,
+    gorillaPour: 4,
+    availability: "LCBO & Beer Store -- Ontario",
+    ontarioVQA: true,
+    vqaAppellation: "Ontario",
+    gorillaAnalysis: "Wine Quality 87 (WineAlign).",
+  },
+  {
+    id: "ace-hill-wine-spritzer",
+    category: "Hard Seltzer",
+    brand: "Ace Hill",
+    name: "Ace Hill Wine Spritzer",
+    abv: 5.0,
+    caloriesPerCan: 120,
+    carbsPerCan: 8.0,
+    sugarPerCan: 5.0,
+    servingMl: 355,
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 3,
+    availability: "LCBO -- Ontario",
   },
 ];
 

@@ -1,22 +1,25 @@
 "use client";
 
 /*
- * Email capture for missed scans. Requires this Supabase table (run once):
+ * Email capture for missed scans. Requires this Supabase table (run once —
+ * also included in supabase/score-protection.sql):
  *
- * create table if not exists public.notify_requests (
- *   id         uuid        primary key default gen_random_uuid(),
- *   barcode    text        not null,
- *   email      text        not null,
- *   created_at timestamptz not null default now()
+ * create table if not exists public.scan_notifications (
+ *   id                    uuid        primary key default gen_random_uuid(),
+ *   email                 text        not null,
+ *   barcode               text        not null,
+ *   product_name_if_known text,
+ *   scanned_at            timestamptz not null default now(),
+ *   notified              boolean     not null default false
  * );
- * alter table public.notify_requests enable row level security;
- * create policy "Anon insert notify requests"
- *   on public.notify_requests for insert to anon with check (true);
+ * alter table public.scan_notifications enable row level security;
+ * create policy "Anon insert scan notifications"
+ *   on public.scan_notifications for insert to anon with check (true);
  */
 
 import { useState } from "react";
 
-export default function NotifyMeForm({ barcode }: { barcode: string }) {
+export default function NotifyMeForm({ barcode, productName }: { barcode: string; productName?: string | null }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
 
@@ -29,7 +32,7 @@ export default function NotifyMeForm({ barcode }: { barcode: string }) {
       const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
       const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
       if (url && key) {
-        await fetch(`${url}/rest/v1/notify_requests`, {
+        await fetch(`${url}/rest/v1/scan_notifications`, {
           method: "POST",
           headers: {
             apikey: key,
@@ -37,7 +40,11 @@ export default function NotifyMeForm({ barcode }: { barcode: string }) {
             "Content-Type": "application/json",
             Prefer: "return=minimal",
           },
-          body: JSON.stringify({ barcode, email: trimmed }),
+          body: JSON.stringify({
+            email: trimmed,
+            barcode,
+            product_name_if_known: productName ?? null,
+          }),
         });
       }
     } catch {
@@ -49,7 +56,7 @@ export default function NotifyMeForm({ barcode }: { barcode: string }) {
   if (status === "done") {
     return (
       <p className="mt-4 rounded-sm border border-emerald-700/40 bg-emerald-900/15 px-4 py-3 text-sm text-emerald-300">
-        ✓ You&apos;re on the list — we&apos;ll email you when this product is added.
+        ✓ Got it. We will notify you at that email when this product is scored.
       </p>
     );
   }
@@ -67,7 +74,7 @@ export default function NotifyMeForm({ barcode }: { barcode: string }) {
       <button
         type="submit"
         disabled={status === "sending"}
-        className="shrink-0 rounded-sm border border-gold/60 px-5 py-2.5 font-display text-sm tracking-widest text-gold transition-colors hover:bg-gold hover:text-background disabled:opacity-50"
+        className="shrink-0 rounded-sm bg-gold px-5 py-2.5 font-display text-sm tracking-widest text-background transition-colors hover:bg-gold/90 disabled:opacity-50"
       >
         Notify Me
       </button>

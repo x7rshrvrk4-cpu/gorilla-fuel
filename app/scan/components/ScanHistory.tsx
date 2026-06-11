@@ -14,9 +14,10 @@ export type HistoryEntry = {
 type Props = {
   entries: HistoryEntry[];
   onSelect: (barcode: string) => void;
+  onClear?: () => void;
 };
 
-export default function ScanHistory({ entries, onSelect }: Props) {
+export default function ScanHistory({ entries, onSelect, onClear }: Props) {
   if (entries.length === 0) return null;
 
   return (
@@ -52,6 +53,15 @@ export default function ScanHistory({ entries, onSelect }: Props) {
           );
         })}
       </div>
+      {onClear && (
+        <button
+          type="button"
+          onClick={onClear}
+          className="mt-4 rounded-sm border border-line px-4 py-2 text-xs uppercase tracking-[0.2em] text-muted transition-colors hover:border-red-500/60 hover:text-red-400"
+        >
+          Clear History
+        </button>
+      )}
     </div>
   );
 }

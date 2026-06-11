@@ -46,6 +46,19 @@ insert into public.gorilla_curated_scores (barcode, score) values
   ('0069000019849', 24)   -- Sprite
 on conflict (barcode) do update set score = excluded.score;
 
+-- ── Scan notifications — email capture for missed scans ──────────────────────
+create table if not exists public.scan_notifications (
+  id                    uuid        primary key default gen_random_uuid(),
+  email                 text        not null,
+  barcode               text        not null,
+  product_name_if_known text,
+  scanned_at            timestamptz not null default now(),
+  notified              boolean     not null default false
+);
+alter table public.scan_notifications enable row level security;
+create policy "Anon insert scan notifications"
+  on public.scan_notifications for insert to anon with check (true);
+
 -- ── 3. Protection trigger ─────────────────────────────────────────────────────
 create or replace function public.protect_curated_scores()
 returns trigger language plpgsql security definer as $$

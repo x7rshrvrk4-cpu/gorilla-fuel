@@ -1,5 +1,6 @@
 import Link from "next/link";
 import CrossLinkBanner from "../../components/CrossLinkBanner";
+import DeepLinkHighlighter from "../../components/DeepLinkHighlighter";
 import { amazonUrl, type IntelProduct, type IntelTier } from "../lib/products";
 
 const TIER_META: Record<IntelTier, { eyebrow: string; title: string; accent: string; intro: string }> = {
@@ -41,7 +42,7 @@ function scoreColor(score: number): string {
 
 function IntelCard({ product, tier }: { product: IntelProduct; tier: IntelTier }) {
   return (
-    <div className="gorilla-card rounded-sm p-5">
+    <div id={`product-${product.id}`} className="gorilla-card rounded-sm p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs uppercase tracking-[0.25em] text-muted">{product.brand}</p>
@@ -93,6 +94,7 @@ export default function IntelTierPage({ tier, products }: { tier: IntelTier; pro
   const meta = TIER_META[tier];
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-12 sm:px-8 sm:py-16">
+      <DeepLinkHighlighter />
       <p className={`font-display text-sm tracking-[0.3em] ${meta.accent}`}>{meta.eyebrow}</p>
       <h1 className="mt-3 font-display text-5xl leading-[0.95] text-foreground sm:text-6xl">{meta.title}</h1>
       <p className="mt-4 max-w-2xl text-muted">{meta.intro}</p>

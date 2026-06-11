@@ -69,7 +69,7 @@ import {
 import type { Nutriments } from "./lib/scoring";
 
 const HISTORY_KEY = "gorilla-fuel-scan-history";
-const MAX_HISTORY = 6;
+const MAX_HISTORY = 10;
 
 const NON_ALCOHOL_NAME_WORDS = new Set([
   "shampoo", "conditioner", "lotion", "cream", "moisturizer", "serum",
@@ -1145,9 +1145,35 @@ export default function ScanPage() {
       {/* RESULTS */}
       <div ref={resultRef} className={`mt-10${resultFromScan ? " animate-scan-result-rise" : ""}`}>
         {lookup.phase === "loading" && !slowSearch && (
-          <div className="gorilla-card flex items-center gap-4 rounded-sm p-6">
-            <span className="h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
-            <p className="text-muted">Looking up barcode {lookup.barcode}…</p>
+          // Skeleton result card — instant visual confirmation the barcode was
+          // detected, shaped like the product card that will replace it.
+          <div className="gorilla-card overflow-hidden rounded-sm">
+            <div className="flex items-center gap-2 border-b border-line bg-surface px-6 py-3">
+              <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-gold" />
+              <p className="font-mono text-xs text-gold/70">{lookup.barcode}</p>
+              <p className="ml-auto text-[10px] uppercase tracking-[0.2em] text-muted">Barcode detected — scoring…</p>
+            </div>
+            <div className="flex items-start justify-between gap-6 p-6">
+              <div className="flex-1 space-y-3">
+                <div className="h-6 w-3/4 animate-pulse rounded-sm bg-surface-2" />
+                <div className="h-4 w-1/2 animate-pulse rounded-sm bg-surface-2" />
+                <div className="mt-4 flex gap-2">
+                  <div className="h-6 w-20 animate-pulse rounded-sm bg-surface-2" />
+                  <div className="h-6 w-24 animate-pulse rounded-sm bg-surface-2" />
+                </div>
+              </div>
+              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border-4 border-surface-2">
+                <span className="h-7 w-7 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-px border-t border-line bg-line">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="bg-surface p-5">
+                  <div className="h-3 w-2/3 animate-pulse rounded-sm bg-surface-2" />
+                  <div className="mt-2 h-7 w-1/3 animate-pulse rounded-sm bg-surface-2" />
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -1164,10 +1190,10 @@ export default function ScanPage() {
               <p className="mt-3 font-display text-xl text-foreground">{fallbackProduct.name}</p>
             )}
             <p className="mt-3 text-sm leading-relaxed text-muted">
-              If we can&apos;t find it: this product is not yet in our database. We
+              If we can&apos;t find it: this product is not in our database yet. We
               have logged this scan and will add it soon.
             </p>
-            <NotifyMeForm barcode={lookup.barcode} />
+            <NotifyMeForm barcode={lookup.barcode} productName={fallbackProduct?.name} />
           </div>
         )}
 
@@ -1188,9 +1214,9 @@ export default function ScanPage() {
                   <p className="mt-2 font-display text-xl text-foreground">{fallbackProduct.name}</p>
                 )}
                 <p className="mt-2 text-sm leading-relaxed text-muted">
-                  {lookup.message ?? "This product is not yet in our database. We have logged this scan and will add it soon."}
+                  {lookup.message ?? "This product is not in our database yet. We have logged your scan and will add it soon."}
                 </p>
-                <NotifyMeForm barcode={lookup.barcode} />
+                <NotifyMeForm barcode={lookup.barcode} productName={fallbackProduct?.name} />
                 <div className="mt-5 flex flex-wrap gap-3">
                   <button
                     type="button"
@@ -1316,7 +1342,7 @@ export default function ScanPage() {
         )}
       </div>
 
-      <ScanHistory entries={history} onSelect={runLookup} />
+      <ScanHistory entries={history} onSelect={runLookup} onClear={() => persistHistory([])} />
 
       {/* Manual entry */}
       <div className="mt-16 border-t border-line pt-6 text-center">

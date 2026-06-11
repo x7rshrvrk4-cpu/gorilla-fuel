@@ -3,8 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ALCOHOL_PRODUCTS } from "../alcohol/lib/products";
+import { PRODUCTS as RANKED_SUPPLEMENTS } from "../rankings/lib/products";
+import { INTEL_APPROVED, INTEL_CHEAT, INTEL_AVOID, type IntelProduct } from "../intel/lib/products";
 import { searchCuratedFoods, searchCuratedSupplements } from "../scan/lib/curatedFoods";
 import type { SearchProduct } from "../api/search/route";
+
+const INTEL_ALL: { product: IntelProduct; path: string }[] = [
+  ...INTEL_APPROVED.map((product) => ({ product, path: "/approved" })),
+  ...INTEL_CHEAT.map((product) => ({ product, path: "/cheat" })),
+  ...INTEL_AVOID.map((product) => ({ product, path: "/avoid" })),
+];
 
 type AlcoholResult = {
   type: "alcohol";
@@ -33,13 +41,31 @@ type CuratedFoodResult = {
   brand: string;
 };
 
-type SearchResult = AlcoholResult | CacheResult | CuratedFoodResult;
+type RankedSupplementResult = {
+  type: "ranked-supplement";
+  id: string;
+  name: string;
+  brand: string;
+  grade: string;
+};
+
+type IntelResult = {
+  type: "intel";
+  id: string;
+  name: string;
+  path: string;
+  score: number;
+};
+
+type SearchResult = AlcoholResult | CacheResult | CuratedFoodResult | RankedSupplementResult | IntelResult;
 
 type GroupedResults = {
   food: (CacheResult | CuratedFoodResult)[];
   alcohol: AlcoholResult[];
   wine: AlcoholResult[];
   supplement: CacheResult[];
+  ranked: RankedSupplementResult[];
+  intel: IntelResult[];
 };
 
 function gradeColor(grade: string | null): string {
@@ -71,12 +97,30 @@ type Props = {
 
 export default function UniversalSearch({ placeholder = "Search products, beers, wines…", className = "", onActiveChange }: Props) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<GroupedResults>({ food: [], alcohol: [], wine: [], supplement: [] });
+  const [results, setResults] = useState<GroupedResults>({ food: [], alcohol: [], wine: [], supplement: [], ranked: [], intel: [] });
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const blurCloseRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Mobile keyboard height (iOS Safari + Android Chrome) via visualViewport —
+  // applied as dropdown bottom padding so results aren't hidden behind it.
+  const [keyboardPad, setKeyboardPad] = useState(0);
+
+  useEffect(() => {
+    const vv = typeof window !== "undefined" ? window.visualViewport : null;
+    if (!vv) return;
+    const update = () => {
+      const overlap = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setKeyboardPad(overlap > 80 ? overlap : 0); // ignore tiny browser-chrome shifts
+    };
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
+  }, []);
 
   const cancelBlurClose = useCallback(() => {
     if (blurCloseRef.current) {
@@ -96,7 +140,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
 
   const search = useCallback(async (q: string) => {
     if (q.length < 2) {
-      setResults({ food: [], alcohol: [], wine: [], supplement: [] });
+      setResults({ food: [], alcohol: [], wine: [], supplement: [], ranked: [], intel: [] });
       setOpen(false);
       return;
     }
@@ -144,14 +188,36 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
       grade: null,
     }));
 
+    // Token matching: every query word must appear somewhere in name+brand,
+    // so "Thorne Creatine" finds brand "Thorne" + name "Creatine".
+    const tokens = ql.split(/\s+/).filter(Boolean);
+    const matchesTokens = (hay: string) => tokens.every((t) => hay.includes(t));
+
+    // ── Client-side: ranked supplements (rankings hub) ───────────────────────
+    const rankedHits: RankedSupplementResult[] = RANKED_SUPPLEMENTS.filter((p) =>
+      matchesTokens(`${p.name} ${p.brand}`.toLowerCase())
+    )
+      .slice(0, 4)
+      .map((p) => ({ type: "ranked-supplement", id: p.id, name: p.name, brand: p.brand, grade: p.grade }));
+
+    // ── Client-side: Gorilla Intel tiers ─────────────────────────────────────
+    const intelHits: IntelResult[] = INTEL_ALL.filter(({ product }) =>
+      matchesTokens(`${product.name} ${product.brand}`.toLowerCase())
+    )
+      .slice(0, 3)
+      .map(({ product, path }) => ({ type: "intel", id: product.id, name: product.name, path, score: product.score }));
+
     // Optimistically render what we have before Supabase returns
-    setResults({ food: curatedHits, alcohol: beerHits, wine: wineHits, supplement: curatedSupplHits });
+    setResults({ food: curatedHits, alcohol: beerHits, wine: wineHits, supplement: curatedSupplHits, ranked: rankedHits, intel: intelHits });
 
     // ── Async: Supabase cache search ─────────────────────────────────────────
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`, { signal: AbortSignal.timeout(5000) });
       if (res.ok) {
         const cacheRows: SearchProduct[] = await res.json();
+        // No new data — skip the second render so dropdown rows aren't
+        // replaced mid-tap (the cause of "tapping a result does nothing").
+        if (cacheRows.length === 0) return;
 
         const cacheFood: CacheResult[] = cacheRows
           .filter((r) => !r.is_alcohol && !r.is_supplement && !r.is_beauty)
@@ -194,6 +260,8 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
           alcohol: beerHits,
           wine: wineHits,
           supplement: mergedSuppl,
+          ranked: rankedHits,
+          intel: intelHits,
         });
       }
     } catch {
@@ -232,13 +300,19 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
   }, []);
 
   const totalResults =
-    results.food.length + results.alcohol.length + results.wine.length + results.supplement.length;
+    results.food.length + results.alcohol.length + results.wine.length +
+    results.supplement.length + results.ranked.length + results.intel.length;
 
   const getProductLink = (result: SearchResult): string => {
-    // Alcohol results deep-link to their card on the rankings page — the page
-    // switches to the right category tab, scrolls to the card and highlights it.
+    // Deep links: every result lands on its own card, never the homepage.
     if (result.type === "alcohol") {
       return `/alcohol?p=${encodeURIComponent(result.id)}`;
+    }
+    if (result.type === "ranked-supplement") {
+      return `/rankings?p=${encodeURIComponent(result.id)}`;
+    }
+    if (result.type === "intel") {
+      return `${result.path}?p=${encodeURIComponent(result.id)}`;
     }
     const barcode = result.type === "food" || result.type === "supplement" || result.type === "beauty" || result.type === "curated-food"
       ? result.barcode
@@ -292,6 +366,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
           onMouseDown={cancelBlurClose}
           onTouchStart={cancelBlurClose}
           className="absolute left-0 right-0 top-full z-[9999] mt-1 max-h-[420px] overflow-y-auto rounded-sm border border-slate-700 bg-slate-900 shadow-2xl pb-24 sm:pb-0"
+          style={keyboardPad > 0 ? { paddingBottom: keyboardPad } : undefined}
         >
           {totalResults === 0 && !loading ? (
             <p className="px-5 py-4 text-sm text-slate-400">
@@ -345,6 +420,38 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
                       name={r.name}
                       sub={`${r.brand} · ${r.abv}% ABV`}
                       right={<GorillaPourMini rating={r.gorillaPour} />}
+                      onClick={() => setOpen(false)}
+                    />
+                  ))}
+                </ResultGroup>
+              )}
+
+              {/* RANKED SUPPLEMENTS */}
+              {results.ranked.length > 0 && (
+                <ResultGroup label="Supplement Rankings">
+                  {results.ranked.map((r) => (
+                    <ResultRow
+                      key={r.id}
+                      href={getProductLink(r)}
+                      name={r.name}
+                      sub={r.brand}
+                      right={<span className="font-display text-base text-gold">{r.grade}</span>}
+                      onClick={() => setOpen(false)}
+                    />
+                  ))}
+                </ResultGroup>
+              )}
+
+              {/* GORILLA INTEL */}
+              {results.intel.length > 0 && (
+                <ResultGroup label="Gorilla Intel" accentClass="text-emerald-400/80">
+                  {results.intel.map((r) => (
+                    <ResultRow
+                      key={`intel-${r.id}`}
+                      href={getProductLink(r)}
+                      name={r.name}
+                      sub={r.path === "/approved" ? "Gorilla Approved" : r.path === "/cheat" ? "Cheat List" : "Stay Away"}
+                      right={<span className={`font-display text-base ${r.score >= 70 ? "text-emerald-400" : r.score >= 50 ? "text-amber-400" : "text-red-400"}`}>{r.score}</span>}
                       onClick={() => setOpen(false)}
                     />
                   ))}

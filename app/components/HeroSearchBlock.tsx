@@ -29,7 +29,7 @@ export default function HeroSearchBlock() {
       <div
         className={`flex flex-col items-center gap-3 transition-[transform,opacity] duration-200 ease-in-out ${
           isSearchActive
-            ? "pointer-events-none translate-y-4 opacity-0"
+            ? "pointer-events-none translate-y-[100px] opacity-0"
             : "translate-y-0 opacity-100"
         }`}
       >

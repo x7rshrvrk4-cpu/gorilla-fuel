@@ -53,14 +53,6 @@ export default function Navigation() {
               {link.label}
             </Link>
           ))}
-          <a
-            href="https://gorillasports.ca"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-sm border border-gold px-4 py-2 font-display text-base tracking-widest text-gold transition-colors hover:bg-gold hover:text-background"
-          >
-            Gorilla Sports ↗
-          </a>
         </div>
 
         <button
@@ -99,15 +91,6 @@ export default function Navigation() {
                 {link.label}
               </Link>
             ))}
-            <a
-              href="https://gorillasports.ca"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setOpen(false)}
-              className="mt-2 rounded-sm border border-gold px-3 py-3 text-center font-display text-xl tracking-widest text-gold"
-            >
-              Gorilla Sports ↗
-            </a>
           </div>
         </div>
       )}

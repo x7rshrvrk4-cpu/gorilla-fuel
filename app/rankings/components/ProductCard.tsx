@@ -36,7 +36,7 @@ export default function ProductCard({ product }: Props) {
   }
 
   return (
-    <div className="gorilla-card overflow-hidden rounded-sm transition-colors">
+    <div id={`product-${product.id}`} className="gorilla-card overflow-hidden rounded-sm transition-colors">
       <button
         type="button"
         onClick={handleToggle}

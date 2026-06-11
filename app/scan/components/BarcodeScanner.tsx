@@ -18,6 +18,11 @@ type TorchConstraintSet = MediaTrackConstraintSet & { torch?: boolean };
 
 const TOOLTIP_KEY = "gorilla-torch-tip-dismissed";
 
+// Torch preference persists across scanner open/close cycles within the
+// session, so scanning multiple shiny cans doesn't require re-tapping the
+// torch every time. Module-scoped on purpose — survives component remounts.
+let torchPreferred = false;
+
 export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const readerRef = useRef<BrowserMultiFormatReaderType | null>(null);
@@ -96,7 +101,17 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
         if (stream instanceof MediaStream) {
           const track = stream.getVideoTracks()[0];
           const capabilities = track?.getCapabilities?.() as TorchCapabilities | undefined;
-          setTorchSupported(Boolean(capabilities?.torch));
+          const supported = Boolean(capabilities?.torch);
+          setTorchSupported(supported);
+          // Restore the user's torch preference from the previous scan session
+          if (supported && torchPreferred && track) {
+            try {
+              await track.applyConstraints({ advanced: [{ torch: true } as TorchConstraintSet] });
+              setTorchOn(true);
+            } catch {
+              // restore failed — leave torch off, user can re-tap
+            }
+          }
         }
       } catch (err) {
         if (cancelled) return;
@@ -156,6 +171,7 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
     try {
       await track.applyConstraints({ advanced: [{ torch: next } as TorchConstraintSet] });
       setTorchOn(next);
+      torchPreferred = next; // persist across scans until manually toggled off
     } catch {
       // Torch activation failed (common on iOS Safari) — hide the button silently
       setTorchSupported(false);

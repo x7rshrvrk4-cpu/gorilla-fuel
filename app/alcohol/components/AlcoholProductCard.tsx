@@ -93,6 +93,11 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {product.maltBasedBeerStore && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-amber-500/70 bg-amber-500/15 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-amber-300">
+              ⚠ Malt Based — Beer Store Version
+            </span>
+          )}
           {product.glutenStatus === "certified-gf" && (
             <span className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-green-500/70 bg-green-500/15 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-green-300">
               {product.canadianCertifiedGf ? "🍁 Canadian Certified GF" : "✓ Certified GF"}
@@ -190,6 +195,15 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
           <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Known Additives</p>
           <p className="mt-0.5 text-[11px] text-emerald-400">None found in public ingredient disclosures</p>
         </div>
+      )}
+
+      {product.maltBasedBeerStore && (
+        <p className="mt-3 rounded-sm border border-amber-500/30 bg-amber-900/15 px-3 py-2 text-[11px] leading-relaxed text-amber-300/90">
+          This is the Beer Store malt based version of this product. The LCBO may
+          carry a spirit based version with different ingredients and gluten
+          status. If you have celiac disease or gluten sensitivity, buy seltzers
+          at the LCBO — not at Beer Store.
+        </p>
       )}
 
       {product.gorillaAnalysis && (
