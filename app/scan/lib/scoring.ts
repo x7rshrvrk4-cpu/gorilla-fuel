@@ -823,6 +823,10 @@ export type ScoreResult = {
   flags: string[];
   positives: string[];
   detectedAdditives: AdditiveInfo[];
+  /** How the final score was determined (curated/capped/algorithm) — set by the scoring gate. */
+  scoreSource?: "gorilla-verified" | "brand-capped" | "ingredient-flagged" | "category-scored" | "algorithm";
+  /** Human-readable reason when a cap reduced the score. */
+  capReason?: string;
 };
 
 export function gradeFromScore(score: number): Grade {

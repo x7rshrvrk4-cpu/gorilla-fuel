@@ -74,6 +74,27 @@ export default function ProductResultCard({ product, result, alternatives, alter
             </span>
             <NhpBadge productName={product.product_name} categoryTags={product.categories_tags} />
             {dataSource && <SourceBadge source={dataSource} />}
+            {/* Score-source transparency badge — how this score was determined */}
+            {result.scoreSource === "gorilla-verified" && (
+              <span className="inline-flex items-center gap-1 rounded-sm border border-gold/70 bg-gold/15 px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.18em] text-gold" title="Score comes from the hand-verified Gorilla curated database">
+                🦍 Gorilla Verified
+              </span>
+            )}
+            {result.scoreSource === "brand-capped" && (
+              <span className="inline-flex items-center rounded-sm border border-amber-500/60 bg-amber-500/12 px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.18em] text-amber-300" title={result.capReason}>
+                Brand Capped
+              </span>
+            )}
+            {result.scoreSource === "ingredient-flagged" && (
+              <span className="inline-flex items-center rounded-sm border border-red-500/60 bg-red-900/25 px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.18em] text-red-300" title={result.capReason}>
+                Ingredient Flagged
+              </span>
+            )}
+            {result.scoreSource === "category-scored" && (
+              <span className="inline-flex items-center rounded-sm border border-slate-500/60 bg-slate-700/25 px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.18em] text-slate-300" title={result.capReason}>
+                Category Scored
+              </span>
+            )}
           </div>
           <div className="mt-3 max-w-md">
             <LabdoorCrossCheck productName={product.product_name} brand={product.brands} categoryTags={product.categories_tags} />

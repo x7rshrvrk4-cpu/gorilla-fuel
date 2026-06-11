@@ -59,7 +59,7 @@ import ScanConfirmationOverlay from "./components/ScanConfirmationOverlay";
 import NotifyMeForm from "./components/NotifyMeForm";
 import SupplementResultCard from "./components/SupplementResultCard";
 import { lookupCuratedFood } from "./lib/curatedFoods";
-import { lookupCuratedScore, type ScoreOverride } from "./lib/curatedScores";
+import { applyScoringGate } from "./lib/curatedScores";
 import {
   lookupProductCache,
   upsertProductCache,
@@ -112,13 +112,30 @@ function productNameIndicatesAlcohol(name: string): boolean {
   return ALCOHOL_TERMS_REGEX.test(name);
 }
 
-function applyScoreOverride(base: ScoreResult, ov: ScoreOverride): ScoreResult {
+/**
+ * CURATED OVERRIDE — DO NOT REMOVE.
+ * Every food ScoreResult passes through the scoring gate before display:
+ * curated lookup (hard return) → brand caps → category caps → ingredient
+ * sanity check. See applyScoringGate() in lib/curatedScores.ts.
+ */
+function gateResult(base: ScoreResult, barcode: string, product: OffProduct): ScoreResult {
+  const outcome = applyScoringGate(base.finalScore, {
+    barcode,
+    productName: product.product_name ?? "",
+    brand: product.brands,
+    ingredientsText: product.ingredients_text || product.ingredients_text_en,
+    categoriesTags: product.categories_tags,
+    novaGroup: product.nova_group ?? base.novaGroup,
+  });
   return {
     ...base,
-    finalScore: ov.score,
-    grade: ov.grade as ScoreResult["grade"],
-    ...(ov.flags.length > 0 ? { flags: ov.flags } : {}),
-    ...(ov.positives.length > 0 ? { positives: ov.positives } : {}),
+    finalScore: outcome.score,
+    grade: outcome.grade as ScoreResult["grade"],
+    scoreSource: outcome.scoreSource,
+    capReason: outcome.capReason,
+    ...(outcome.flags && outcome.flags.length > 0 ? { flags: outcome.flags } : {}),
+    ...(outcome.positives && outcome.positives.length > 0 ? { positives: outcome.positives } : {}),
+    ...(outcome.capReason ? { flags: [...base.flags, `Score capped: ${outcome.capReason}`] } : {}),
   };
 }
 
@@ -362,8 +379,8 @@ export default function ScanPage() {
                 cachedProduct.ingredients_text,
                 scoringContext(cachedProduct)
               );
-              const cachedScoreOv = lookupCuratedScore(trimmed, cachedProduct.product_name ?? "");
-              const cachedResult = cachedScoreOv ? applyScoreOverride(cachedResultBase, cachedScoreOv) : cachedResultBase;
+              // CURATED OVERRIDE — DO NOT REMOVE: every score passes the gate.
+              const cachedResult = gateResult(cachedResultBase, trimmed, cachedProduct);
               trackProductFound("gorilla-cache", trimmed, cachedProduct.product_name);
               trackScanModeFood(trimmed, cachedProduct.product_name);
               setLookup({ phase: "found", product: cachedProduct, result: cachedResult, dataSource: "gorilla-cache" });
@@ -539,8 +556,8 @@ export default function ScanPage() {
             curatedFoodHit.ingredients_text,
             scoringContext(curatedFoodHit)
           );
-          const cfOv = lookupCuratedScore(trimmed, curatedFoodHit.product_name ?? "");
-          const cfResult = cfOv ? applyScoreOverride(cfBase, cfOv) : cfBase;
+          // CURATED OVERRIDE — DO NOT REMOVE: every score passes the gate.
+          const cfResult = gateResult(cfBase, trimmed, curatedFoodHit);
           trackProductFound("gorilla-curated", trimmed, curatedFoodHit.product_name);
           trackScanModeFood(trimmed, curatedFoodHit.product_name);
           setLookup({ phase: "found", product: curatedFoodHit, result: cfResult, dataSource: "gorilla-curated" });
@@ -669,8 +686,8 @@ export default function ScanPage() {
               product.ingredients_text || product.ingredients_text_en,
               scoringContext(product)
             );
-            const resultOv = lookupCuratedScore(trimmed, product.product_name ?? "");
-            const result = resultOv ? applyScoreOverride(resultBase, resultOv) : resultBase;
+            // CURATED OVERRIDE — DO NOT REMOVE: every score passes the gate.
+            const result = gateResult(resultBase, trimmed, product);
             const lowConfidence = isCanadianBarcode(trimmed) && !hasCanadianOrGlobalMarketData(product);
             trackProductFound("open-food-facts", trimmed, product.product_name);
             trackScanModeFood(trimmed, product.product_name);
@@ -745,8 +762,8 @@ export default function ScanPage() {
             return;
           }
           const hitBase = computeScore(hit.nutriments ?? {}, hit.ingredients_text, scoringContext(hit));
-          const hitOv = lookupCuratedScore(trimmed, hit.product_name ?? "");
-          const result = hitOv ? applyScoreOverride(hitBase, hitOv) : hitBase;
+          // CURATED OVERRIDE — DO NOT REMOVE: every score passes the gate.
+          const result = gateResult(hitBase, trimmed, hit);
           upsertProductCache({ barcode: trimmed, product_name: hit.product_name, brand: hit.brands ?? null, categories: JSON.stringify(hit.categories_tags ?? []), ingredients_text: hit.ingredients_text, nutrition_data: hit.nutriments ?? null, gorilla_score: result.finalScore, score_grade: result.grade, nova_group: null, data_source: source, image_url: productImage(hit) ?? null });
           trackProductFound(source, trimmed, hit.product_name);
           trackScanModeFood(trimmed, hit.product_name);
