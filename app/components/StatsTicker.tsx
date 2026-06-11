@@ -12,6 +12,7 @@ import { KIDS_TOTAL_COUNT } from "../kids/lib/products";
 const BEER_COUNT   = ALCOHOL_PRODUCTS.filter((p) => p.category !== "Wines").length;
 const WINE_COUNT   = ALCOHOL_PRODUCTS.filter((p) => p.category === "Wines").length;
 const VQA_COUNT    = ALCOHOL_PRODUCTS.filter((p) => p.ontarioVQA).length;
+const GF_COUNT     = ALCOHOL_PRODUCTS.filter((p) => p.glutenStatus === "certified-gf").length;
 const SUPPL_COUNT  = PRODUCTS.length;
 
 // ── Hardcoded counts ──────────────────────────────────────────────────────────
@@ -59,6 +60,7 @@ export default async function StatsTicker() {
     `⚠️ ${STAY_AWAY_COUNT} Stay Away Products`,
     `📦 ${cacheCount.toLocaleString("en-CA")} Products Scanned`,
     `🧒 ${KIDS_TOTAL_COUNT} Kids Snacks Reviewed`,
+    `✓ ${GF_COUNT} Certified Gluten-Free Drinks`,
     `🔬 15 Data Sources`,
     `🇨🇦 Canadian First`,
     `✓ No Brand Pays for Placement`,

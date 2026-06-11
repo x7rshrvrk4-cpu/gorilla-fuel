@@ -12,6 +12,7 @@ const links = [
   { href: "/alcohol", label: "Alcohol" },
   { href: "/kids", label: "Kids" },
   { href: "/beauty", label: "Beauty" },
+  { href: "/glutenfree", label: "Gluten Free" },
   { href: "/methodology", label: "Methodology" },
 ];
 

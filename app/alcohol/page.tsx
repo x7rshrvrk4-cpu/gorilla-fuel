@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import CrossLinkBanner from "../components/CrossLinkBanner";
 import AlcoholDisclaimer from "../scan/components/AlcoholDisclaimer";
 import AlcoholProductCard from "./components/AlcoholProductCard";
@@ -25,10 +26,12 @@ type FilterKey =
   | "sweet"
   | "icewine"
   | "ontario-vqa"
+  | "gluten-free"
   | "dry-only";
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "All" },
+  { key: "gluten-free", label: "✓ Gluten Free" },
   { key: "london-on", label: "London ON" },
   { key: "ontario-craft", label: "Ontario Craft" },
   { key: "ipa", label: "IPA" },
@@ -100,6 +103,8 @@ export default function AlcoholRankingsPage() {
             return p.wineSubcategory === "Icewine";
           case "ontario-vqa":
             return p.ontarioVQA === true;
+          case "gluten-free":
+            return p.glutenStatus === "certified-gf";
           case "dry-only":
             return p.sugarPerCan < 4;
           default:
@@ -214,6 +219,20 @@ export default function AlcoholRankingsPage() {
           </button>
         ))}
       </div>
+
+      {/* Gluten free filter note */}
+      {filter === "gluten-free" && (
+        <div className="mt-4 rounded-sm border border-green-600/40 bg-green-900/20 px-5 py-4">
+          <p className="text-xs leading-relaxed text-green-300/90">
+            <span className="font-display tracking-wide text-green-200">✓ CERTIFIED GLUTEN FREE — </span>
+            Showing only products made entirely from gluten-free ingredients — never
+            barley, wheat or rye — and safe for celiac disease. &ldquo;Gluten removed&rdquo;
+            beers are deliberately excluded: Health Canada does not permit them to be
+            labelled gluten free, and they are not recommended for celiac disease.{" "}
+            <Link href="/glutenfree" className="underline hover:text-green-100">Full gluten-free guide →</Link>
+          </p>
+        </div>
+      )}
 
       {/* London ON spotlight note */}
       {filter === "london-on" && !isWineTab && (

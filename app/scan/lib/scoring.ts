@@ -1240,6 +1240,39 @@ export function computeScore(
     positives.push("Certified organic — labels/categories carry organic certification, adding 10 points to the final score");
   }
 
+  // ── Gluten detection — informational celiac-safety flags (no score impact) ──
+  // Health Canada requires gluten sources (wheat, barley, rye, triticale, malt)
+  // to be declared on Canadian labels. "Gluten removed" products cannot legally
+  // be labelled gluten free in Canada and are not recommended for celiac disease.
+  {
+    const ing = (ingredientsText ?? "").toLowerCase();
+    const labelStr = [...(context?.labelsTags ?? []), ...(context?.categoriesTags ?? [])]
+      .join(" ")
+      .toLowerCase();
+    const glutenRemovedRe = /gluten[\s-]?removed|crafted to remove gluten|gluten[\s-]?reduced/;
+    // "malt" with lookahead so maltodextrin/maltitol/maltose (gluten-free) don't
+    // false-positive. "Enriched/all-purpose flour" on North American labels is
+    // wheat flour even when the word "wheat" is omitted; durum/semolina/graham
+    // are wheat by definition.
+    const glutenGrainRe =
+      /\b(barley|wheat|rye|triticale|spelt|kamut|durum|semolina|graham flour|(?:unbleached\s+)?enriched\s+flour|all[\s-]?purpose\s+flour|malt(?!odextrin|itol|ose|ic))\b/;
+    const gfLabelRe = /gluten[\s-]?free|sans[\s-]?gluten|en:no-gluten/;
+
+    if (glutenRemovedRe.test(ing) || glutenRemovedRe.test(labelStr)) {
+      flags.push(
+        "GLUTEN REMOVED — NOT certified gluten free: made from gluten grains then enzyme treated. Health Canada does not permit these products to be labelled gluten free. Not recommended for celiac disease."
+      );
+    } else if (glutenGrainRe.test(ing)) {
+      flags.push(
+        "Contains gluten — ingredients include wheat, barley, rye, triticale or malt. Not suitable for celiac disease or a gluten-free diet."
+      );
+    } else if (gfLabelRe.test(labelStr) || gfLabelRe.test(ing)) {
+      positives.push(
+        "Certified gluten free — product is labelled gluten free with no gluten-containing ingredients detected"
+      );
+    }
+  }
+
   // ── Universal junk food scoring caps ─────────────────────────────────────────
   // Applied last, after all other scoring, as categorical overrides.
   // These ensure credibility: a product's macro profile should never rescue it

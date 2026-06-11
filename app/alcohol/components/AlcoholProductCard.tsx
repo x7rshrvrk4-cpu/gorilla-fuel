@@ -85,6 +85,21 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {product.glutenStatus === "certified-gf" && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-green-500/70 bg-green-500/15 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-green-300">
+              {product.canadianCertifiedGf ? "🍁 Canadian Certified GF" : "✓ Certified GF"}
+            </span>
+          )}
+          {product.glutenStatus === "gluten-removed" && (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-amber-500/60 bg-amber-500/12 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-amber-300">
+              ⚠ Gluten Removed
+            </span>
+          )}
+          {product.glutenStatus === "contains-gluten" && (
+            <span className="inline-flex shrink-0 items-center rounded-sm border border-slate-600/50 bg-slate-700/25 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-slate-400">
+              Contains Gluten
+            </span>
+          )}
           {product.ontarioVQA && (
             <span className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-emerald-600/70 bg-gradient-to-r from-emerald-800/30 to-yellow-700/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-emerald-300">
               🍁 <span className="text-yellow-300/90">Ontario</span> VQA

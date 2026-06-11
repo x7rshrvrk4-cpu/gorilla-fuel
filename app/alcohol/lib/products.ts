@@ -43,6 +43,15 @@ export type AlcoholRankingProduct = {
   organicCertified?: boolean;
   /** Optional editorial writeup shown on the product card. */
   gorillaAnalysis?: string;
+  /**
+   * Celiac-safety tier per Health Canada/CFIA framing:
+   * certified-gf = made entirely from gluten-free ingredients (celiac safe);
+   * gluten-removed = barley/wheat brewed then enzyme treated (NOT celiac safe);
+   * contains-gluten = standard barley/wheat product.
+   */
+  glutenStatus?: "certified-gf" | "gluten-removed" | "contains-gluten";
+  /** True for Canadian-made certified gluten-free products — special badge. */
+  canadianCertifiedGf?: boolean;
 };
 
 // Nutritional data from manufacturer disclosures and Open Food Facts records,
@@ -50,10 +59,86 @@ export type AlcoholRankingProduct = {
 // Additive data researched from publicly available brewery ingredient statements,
 // LCBO product listings, and Open Food Facts contributor data.
 export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
+  // ───────── GLUTENBERG — CANADIAN CERTIFIED GLUTEN FREE ─────────
+  // Montreal brewery; brewed from millet, buckwheat and corn — never barley/wheat.
+  {
+    id: "glutenberg-blonde",
+    category: "IPA & Craft Ale",
+    glutenStatus: "certified-gf",
+    canadianCertifiedGf: true,
+    beerStyle: "Blonde Ale",
+    brand: "Glutenberg",
+    name: "Glutenberg Blonde",
+    abv: 4.5,
+    caloriesPerCan: 160,
+    carbsPerCan: 15,
+    sugarPerCan: 0,
+    servingMl: 473,
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 4,
+    availability: "LCBO -- wide availability",
+    gorillaAnalysis: "Montreal Quebec brewery making genuinely gluten free beer from millet, buckwheat and corn. Never touched a gluten containing grain. The Gorilla pick for anyone with celiac disease who wants a real beer. Available at LCBO.",
+  },
+  {
+    id: "glutenberg-american-pale-ale",
+    category: "IPA & Craft Ale",
+    glutenStatus: "certified-gf",
+    canadianCertifiedGf: true,
+    beerStyle: "American Pale Ale",
+    brand: "Glutenberg",
+    name: "Glutenberg American Pale Ale",
+    abv: 5.0,
+    caloriesPerCan: 165,
+    carbsPerCan: 16,
+    sugarPerCan: 0,
+    servingMl: 473,
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 4,
+    availability: "LCBO -- wide availability",
+  },
+  {
+    id: "glutenberg-ipa",
+    category: "IPA & Craft Ale",
+    glutenStatus: "certified-gf",
+    canadianCertifiedGf: true,
+    beerStyle: "IPA",
+    brand: "Glutenberg",
+    name: "Glutenberg IPA",
+    abv: 6.0,
+    caloriesPerCan: 175,
+    carbsPerCan: 17,
+    sugarPerCan: 0,
+    servingMl: 473,
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 3,
+    availability: "LCBO -- wide availability",
+  },
+  {
+    id: "glutenberg-white",
+    category: "IPA & Craft Ale",
+    glutenStatus: "certified-gf",
+    canadianCertifiedGf: true,
+    beerStyle: "White Ale",
+    brand: "Glutenberg",
+    name: "Glutenberg White",
+    abv: 4.5,
+    caloriesPerCan: 158,
+    carbsPerCan: 15,
+    sugarPerCan: 0,
+    servingMl: 473,
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 4,
+    availability: "LCBO -- wide availability",
+  },
   // â"€â"€â"€â"€â"€â"€â"€â"€â"€ LIGHT BEERS â"€â"€â"€â"€â"€â"€â"€â"€â"€
   {
     id: "coors-light",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Molson Coors",
     name: "Coors Light",
     abv: 4.0,
@@ -69,6 +154,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "bud-light",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Labatt / AB InBev",
     name: "Bud Light",
     abv: 4.0,
@@ -85,6 +171,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "michelob-ultra",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Labatt / AB InBev",
     name: "Michelob Ultra",
     abv: 4.2,
@@ -102,6 +189,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "sleeman-clear",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Sleeman Breweries",
     name: "Sleeman Clear",
     abv: 4.0,
@@ -118,6 +206,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "labatt-blue-light",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Labatt",
     name: "Labatt Blue Light",
     abv: 4.0,
@@ -134,6 +223,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "busch-light",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Anheuser-Busch / Labatt",
     name: "Busch Light",
     abv: 4.1,
@@ -149,6 +239,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "natural-light",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Anheuser-Busch / Labatt",
     name: "Natural Light",
     abv: 4.2,
@@ -165,6 +256,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "carling",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Molson Coors",
     name: "Carling",
     abv: 4.0,
@@ -183,6 +275,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "busch",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Anheuser-Busch / Labatt",
     name: "Busch",
     abv: 4.3,
@@ -198,6 +291,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "molson-export",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Molson Coors",
     name: "Molson Export",
     abv: 5.0,
@@ -213,6 +307,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "molson-dry",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Molson Coors",
     name: "Molson Dry",
     abv: 5.5,
@@ -228,6 +323,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "labatt-blue",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Labatt",
     name: "Labatt Blue",
     abv: 5.0,
@@ -243,6 +339,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "labatt-50",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Labatt",
     name: "Labatt 50",
     abv: 5.0,
@@ -258,6 +355,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "molson-canadian-67",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Molson Coors",
     name: "Molson Canadian 67",
     abv: 3.0,
@@ -273,6 +371,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "labatt-premier",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Labatt",
     name: "Labatt Premier",
     abv: 4.0,
@@ -288,6 +387,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "bud-light-next",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Labatt / AB InBev",
     name: "Bud Light Next",
     abv: 4.0,
@@ -303,6 +403,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "budweiser-zero",
     category: "Non-Alcoholic",
+    glutenStatus: "contains-gluten",
     brand: "Labatt / AB InBev",
     name: "Budweiser Zero",
     abv: 0.0,
@@ -319,6 +420,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "molson-ultra",
     category: "Non-Alcoholic",
+    glutenStatus: "contains-gluten",
     brand: "Molson Coors",
     name: "Molson Ultra",
     abv: 0.0,
@@ -335,6 +437,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "partake-ipa",
     category: "Non-Alcoholic",
+    glutenStatus: "contains-gluten",
     brand: "Partake Brewing",
     name: "Partake Brewing IPA",
     abv: 0.5,
@@ -354,6 +457,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "collective-arts-ipa",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Collective Arts Brewing",
     name: "Collective Arts IPA",
     abv: 5.5,
@@ -370,6 +474,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "alexander-keiths-ipa",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Labatt / AB InBev",
     name: "Alexander Keith's IPA",
     abv: 5.0,
@@ -388,6 +493,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "wellington-brewery-ipa",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Wellington Brewery",
     name: "Wellington IPA",
     abv: 5.8,
@@ -406,6 +512,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "heineken",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Heineken N.V.",
     name: "Heineken Original",
     abv: 5.0,
@@ -423,6 +530,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "corona-extra",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Constellation Brands",
     name: "Corona Extra",
     abv: 4.6,
@@ -438,6 +546,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "molson-canadian",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Molson Coors",
     name: "Molson Canadian",
     abv: 5.0,
@@ -453,6 +562,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "stella-artois",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "AB InBev",
     name: "Stella Artois",
     abv: 5.0,
@@ -469,6 +579,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "guinness-draught",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Diageo",
     name: "Guinness Draught",
     abv: 4.2,
@@ -488,6 +599,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "kokanee",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Molson Coors",
     name: "Kokanee Glacier Beer",
     abv: 5.0,
@@ -504,6 +616,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "steam-whistle-pilsner",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Steam Whistle Brewing",
     name: "Steam Whistle Pilsner",
     abv: 5.0,
@@ -521,6 +634,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "mill-street-organic",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Mill Street Brewery",
     name: "Mill Street Organic Lager",
     abv: 5.0,
@@ -538,6 +652,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "beaus-all-natural-lug-tread",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Beau's All Natural",
     name: "Beau's Lug Tread Lagered Ale",
     abv: 5.2,
@@ -555,6 +670,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "budweiser",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Labatt / AB InBev",
     name: "Budweiser",
     abv: 5.0,
@@ -570,6 +686,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "coors-banquet",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Molson Coors",
     name: "Coors Banquet",
     abv: 5.0,
@@ -587,6 +704,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "rickards-red",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Molson Coors",
     name: "Rickard's Red",
     abv: 5.2,
@@ -604,6 +722,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "moosehead-lager",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Moosehead Breweries",
     name: "Moosehead Lager",
     abv: 5.0,
@@ -621,6 +740,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "lakeport-honey-lager",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Labatt / AB InBev",
     name: "Lakeport Honey Lager",
     abv: 5.0,
@@ -638,6 +758,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "corona-light",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Constellation Brands",
     name: "Corona Light",
     abv: 3.6,
@@ -653,6 +774,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "heineken-00",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Heineken N.V.",
     name: "Heineken 0.0",
     abv: 0.0,
@@ -668,6 +790,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "guinness-extra-stout",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Diageo",
     name: "Guinness Extra Stout",
     abv: 5.6,
@@ -683,6 +806,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "modelo-especial",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Constellation Brands",
     name: "Modelo Especial",
     abv: 4.4,
@@ -698,6 +822,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "dos-equis-lager",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Heineken N.V.",
     name: "Dos Equis Lager",
     abv: 4.2,
@@ -713,6 +838,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "peroni",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Asahi / Peroni",
     name: "Peroni Nastro Azzurro",
     abv: 5.1,
@@ -728,6 +854,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "becks",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "AB InBev",
     name: "Beck's",
     abv: 5.0,
@@ -743,6 +870,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "hoegaarden",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "AB InBev",
     name: "Hoegaarden",
     abv: 4.9,
@@ -758,6 +886,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "leffe-blonde",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "AB InBev",
     name: "Leffe Blonde",
     abv: 6.6,
@@ -773,6 +902,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "newcastle-brown-ale",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Heineken N.V.",
     name: "Newcastle Brown Ale",
     abv: 4.7,
@@ -788,6 +918,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "boddingtons-pub-ale",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "AB InBev",
     name: "Boddingtons Pub Ale",
     abv: 4.7,
@@ -803,6 +934,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "mill-street-100th-meridian",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Mill Street Brewery",
     name: "Mill Street 100th Meridian Organic Amber Ale",
     abv: 5.0,
@@ -820,6 +952,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "alexander-keiths-light",
     category: "Light Beer",
+    glutenStatus: "contains-gluten",
     brand: "Labatt / AB InBev",
     name: "Alexander Keith's Light",
     abv: 4.0,
@@ -835,6 +968,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "rickards-white",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Molson Coors",
     name: "Rickard's White",
     abv: 5.4,
@@ -850,6 +984,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "granville-island-english-bay",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Granville Island Brewing",
     name: "Granville Island English Bay Pale Ale",
     abv: 5.0,
@@ -866,6 +1001,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "wellington-arkell-bitter",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Wellington Brewery",
     name: "Wellington County Arkell Best Bitter",
     abv: 4.5,
@@ -883,6 +1019,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "corona-sunbrew-00",
     category: "Non-Alcoholic",
+    glutenStatus: "contains-gluten",
     brand: "Constellation Brands",
     name: "Corona Sunbrew 0.0",
     abv: 0.0,
@@ -901,6 +1038,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "white-claw-black-cherry",
     category: "Hard Seltzer",
+    glutenStatus: "certified-gf",
     brand: "Mark Anthony Brands",
     name: "White Claw Hard Seltzer (Black Cherry)",
     abv: 5.0,
@@ -920,6 +1058,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "truly-hard-seltzer",
     category: "Hard Seltzer",
+    glutenStatus: "certified-gf",
     brand: "Boston Beer Company",
     name: "Truly Hard Seltzer (Wild Berry)",
     abv: 5.0,
@@ -955,6 +1094,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "white-claw-original",
     category: "Hard Seltzer",
+    glutenStatus: "certified-gf",
     brand: "Mark Anthony Brands",
     name: "White Claw Hard Seltzer (Original)",
     abv: 5.0,
@@ -970,6 +1110,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "white-claw-surge",
     category: "Hard Seltzer",
+    glutenStatus: "certified-gf",
     brand: "Mark Anthony Brands",
     name: "White Claw Surge",
     abv: 8.0,
@@ -1015,6 +1156,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "nude-vodka-soda",
     category: "Hard Seltzer",
+    glutenStatus: "certified-gf",
     brand: "Nude Beverages",
     name: "Nude Vodka Soda",
     abv: 5.0,
@@ -1045,6 +1187,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "waterloo-sparkling",
     category: "Hard Seltzer",
+    glutenStatus: "certified-gf",
     brand: "Waterloo Brewing",
     name: "Waterloo Sparkling",
     abv: 5.0,
@@ -1156,6 +1299,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "strongbow-original-dry",
     category: "Cider",
+    glutenStatus: "certified-gf",
     brand: "Heineken / Strongbow",
     name: "Strongbow Original Dry Apple Cider",
     abv: 5.0,
@@ -1175,6 +1319,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "strongbow-gold",
     category: "Cider",
+    glutenStatus: "certified-gf",
     brand: "Heineken / Strongbow",
     name: "Strongbow Gold Apple Cider",
     abv: 4.5,
@@ -1190,6 +1335,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "magners-original",
     category: "Cider",
+    glutenStatus: "certified-gf",
     brand: "C&C Group",
     name: "Magners Original Irish Cider",
     abv: 4.5,
@@ -1205,6 +1351,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "somersby-apple",
     category: "Cider",
+    glutenStatus: "certified-gf",
     brand: "Carlsberg Group",
     name: "Somersby Apple Cider",
     abv: 4.5,
@@ -1220,6 +1367,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "bulmers",
     category: "Cider",
+    glutenStatus: "certified-gf",
     brand: "Heineken N.V.",
     name: "Bulmers Original Cider",
     abv: 4.7,
@@ -1235,6 +1383,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "molson-cider",
     category: "Cider",
+    glutenStatus: "certified-gf",
     brand: "Molson Coors",
     name: "Molson Cider",
     abv: 5.0,
@@ -1250,6 +1399,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "growers-apple-cider",
     category: "Cider",
+    glutenStatus: "certified-gf",
     brand: "Growers Cider Co.",
     name: "Growers Apple Cider",
     abv: 6.0,
@@ -1266,6 +1416,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "thornbury-village-cider",
     category: "Cider",
+    glutenStatus: "certified-gf",
     brand: "Thornbury Village Craft Cider",
     name: "Thornbury Village Premium Craft Cider",
     abv: 7.0,
@@ -1282,6 +1433,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "county-cider-apple",
     category: "Cider",
+    glutenStatus: "certified-gf",
     brand: "County Cider Company",
     name: "County Cider Company Apple",
     abv: 6.9,
@@ -1298,6 +1450,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "kopparberg-strawberry-lime",
     category: "Cider",
+    glutenStatus: "certified-gf",
     brand: "Kopparberg",
     name: "Kopparberg Strawberry-Lime Cider",
     abv: 4.0,
@@ -1314,6 +1467,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "angry-orchard-crisp-apple",
     category: "Cider",
+    glutenStatus: "certified-gf",
     brand: "Angry Orchard",
     name: "Angry Orchard Crisp Apple",
     abv: 5.0,
@@ -1330,6 +1484,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "rekorderlig-strawberry-lime",
     category: "Cider",
+    glutenStatus: "certified-gf",
     brand: "Rekorderlig",
     name: "Rekorderlig Strawberry-Lime Premium Cider",
     abv: 4.5,
@@ -1365,6 +1520,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "cottage-springs-vodka-water",
     category: "Hard Seltzer",
+    glutenStatus: "certified-gf",
     brand: "Cottage Springs",
     name: "Cottage Springs Vodka Water",
     abv: 5.0,
@@ -1546,6 +1702,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "toboggan-blueberry-cider",
     category: "Cider",
+    glutenStatus: "certified-gf",
     brand: "Toboggan Brewing Company",
     name: "Toboggan Blueberry Cider",
     abv: 5.0,
@@ -1564,6 +1721,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "toboggan-workhorse-ipa",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Toboggan Brewing Company",
     name: "Toboggan Workhorse IPA",
     abv: 6.0,
@@ -1583,6 +1741,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "toboggan-london-organic-lager",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Toboggan Brewing Company",
     name: "Toboggan London Organic Lager",
     abv: 4.8,
@@ -1602,6 +1761,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "toboggan-tolpuddle-porter",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Toboggan Brewing Company",
     name: "Toboggan Tolpuddle Porter",
     abv: 5.5,
@@ -1621,6 +1781,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "toboggan-downtown-coconut-brown",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Toboggan Brewing Company",
     name: "Toboggan Downtown Coconut Brown",
     abv: 5.2,
@@ -1640,6 +1801,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "toboggan-vanilla-stout",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Toboggan Brewing Company",
     name: "Toboggan Vanilla Stout",
     abv: 6.0,
@@ -1661,6 +1823,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "forked-river-interstellar-ipa",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Forked River Brewing",
     name: "Forked River Interstellar IPA",
     abv: 6.5,
@@ -1680,6 +1843,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "forked-river-loco-hazy-ipa",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Forked River Brewing",
     name: "Forked River LOCO Hazy Kveik IPA",
     abv: 5.5,
@@ -1699,6 +1863,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "forked-river-bravo-session-ipa",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Forked River Brewing",
     name: "Forked River Bravo Session IPA",
     abv: 4.5,
@@ -1718,6 +1883,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "forked-river-capital-blonde",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Forked River Brewing",
     name: "Forked River Capital Blonde Ale",
     abv: 4.7,
@@ -1737,6 +1903,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "forked-river-louies-lager",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Forked River Brewing",
     name: "Forked River Louies Lager",
     abv: 4.5,
@@ -1756,6 +1923,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "forked-river-riptide-pale-ale",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Forked River Brewing",
     name: "Forked River Riptide Pale Ale",
     abv: 5.7,
@@ -1775,6 +1943,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "forked-river-bullpen-pale-ale",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Forked River Brewing",
     name: "Forked River Bullpen Pale Ale",
     abv: 5.2,
@@ -1794,6 +1963,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "forked-river-chocolate-raspberry-stout",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Forked River Brewing",
     name: "Forked River Chocolate Raspberry Sweet Stout",
     abv: 6.0,
@@ -1815,6 +1985,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "anderson-craft-session-pale",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Anderson Craft Ales",
     name: "Anderson Craft Ales Session Pale Ale",
     abv: 4.5,
@@ -1834,6 +2005,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "anderson-craft-amber-ale",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Anderson Craft Ales",
     name: "Anderson Craft Ales Amber Ale",
     abv: 5.0,
@@ -1853,6 +2025,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "anderson-craft-ipa",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Anderson Craft Ales",
     name: "Anderson Craft Ales IPA",
     abv: 5.8,
@@ -1874,6 +2047,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "london-brewing-workhorse-ipa",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "London Brewing Co-operative",
     name: "London Brewing Workhorse IPA Organic",
     abv: 5.5,
@@ -1893,6 +2067,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "london-brewing-organic-lager",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "London Brewing Co-operative",
     name: "London Brewing Organic Lager",
     abv: 4.5,
@@ -1912,6 +2087,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "london-brewing-coconut-brown",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "London Brewing Co-operative",
     name: "London Brewing Downtown Coconut Brown Organic",
     abv: 5.2,
@@ -1933,6 +2109,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "powerhouse-session-ipa",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Powerhouse Brewing",
     name: "Powerhouse Brewing Session IPA",
     abv: 4.8,
@@ -1952,6 +2129,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "powerhouse-pale-ale",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Powerhouse Brewing",
     name: "Powerhouse Brewing Pale Ale",
     abv: 5.2,
@@ -1973,6 +2151,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "storm-stayed-session-ale",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Storm Stayed Brewing",
     name: "Storm Stayed Session Ale",
     abv: 4.5,
@@ -1992,6 +2171,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "storm-stayed-ipa",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Storm Stayed Brewing",
     name: "Storm Stayed IPA",
     abv: 5.8,
@@ -2013,6 +2193,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "dundas-and-sons-pale-ale",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Dundas and Sons Brewing",
     name: "Dundas and Sons Pale Ale",
     abv: 5.0,
@@ -2032,6 +2213,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "dundas-and-sons-lager",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Dundas and Sons Brewing",
     name: "Dundas and Sons Lager",
     abv: 4.8,
@@ -2053,6 +2235,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "camerons-rye-pale-ale",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Cameron's Brewing",
     name: "Cameron's Rye Pale Ale",
     abv: 5.0,
@@ -2071,6 +2254,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "camerons-auburn-ale",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Cameron's Brewing",
     name: "Cameron's Auburn Ale",
     abv: 4.8,
@@ -2091,6 +2275,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "collective-arts-ransack",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Collective Arts Brewing",
     name: "Collective Arts Ransack the Universe IPA",
     abv: 6.0,
@@ -2109,6 +2294,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "collective-arts-life-in-the-clouds",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Collective Arts Brewing",
     name: "Collective Arts Life in the Clouds Hazy IPA",
     abv: 5.8,
@@ -2127,6 +2313,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "collective-arts-st-ambrose",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Collective Arts Brewing",
     name: "Collective Arts St Ambrose Organic Pale Ale",
     abv: 4.9,
@@ -2147,6 +2334,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "creemore-springs-premium-lager",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Creemore Springs Brewery",
     name: "Creemore Springs Premium Lager",
     abv: 5.0,
@@ -2164,6 +2352,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "creemore-lot-9-pilsner",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Creemore Springs Brewery",
     name: "Creemore Springs Lot 9 Pilsner",
     abv: 5.0,
@@ -2181,6 +2370,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "creemore-urbock",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Creemore Springs Brewery",
     name: "Creemore Springs Urbock",
     abv: 6.2,
@@ -2200,6 +2390,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "flying-monkeys-smashbomb",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Flying Monkeys Craft Brewery",
     name: "Flying Monkeys Smashbomb Atomic IPA",
     abv: 7.0,
@@ -2218,6 +2409,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "flying-monkeys-genius-suburbia",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Flying Monkeys Craft Brewery",
     name: "Flying Monkeys Genius of Suburbia IPA",
     abv: 6.5,
@@ -2236,6 +2428,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "flying-monkeys-hopsecutioner",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Flying Monkeys Craft Brewery",
     name: "Flying Monkeys Hopsecutioner IPA",
     abv: 7.5,
@@ -2256,6 +2449,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "granville-island-lions-winter",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Granville Island Brewing",
     name: "Granville Island Lions Winter Ale",
     abv: 5.5,
@@ -2272,6 +2466,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "granville-island-hefeweizen",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Granville Island Brewing",
     name: "Granville Island Robson Street Hefeweizen",
     abv: 5.0,
@@ -2290,6 +2485,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "hop-city-barking-squirrel",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Hop City Brewing",
     name: "Hop City Barking Squirrel Amber Lager",
     abv: 5.0,
@@ -2307,6 +2503,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "hop-city-8th-sin",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Hop City Brewing",
     name: "Hop City 8th Sin Black Lager",
     abv: 5.0,
@@ -2326,6 +2523,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "lake-of-bays-crosswind",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Lake of Bays Brewing",
     name: "Lake of Bays Crosswind Pale Ale",
     abv: 5.0,
@@ -2343,6 +2541,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "lake-of-bays-moose-knuckle",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Lake of Bays Brewing",
     name: "Lake of Bays Moose Knuckle Oatmeal Stout",
     abv: 5.8,
@@ -2362,6 +2561,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "mill-street-cobblestone-stout",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Mill Street Brewery",
     name: "Mill Street Cobblestone Stout",
     abv: 5.0,
@@ -2379,6 +2579,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "mill-street-tankhouse",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Mill Street Brewery",
     name: "Mill Street Tankhouse Pale Ale",
     abv: 5.2,
@@ -2398,6 +2599,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "muskoka-detour-session-ipa",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Muskoka Brewery",
     name: "Muskoka Detour Session IPA",
     abv: 4.3,
@@ -2415,6 +2617,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "muskoka-hazed-and-confused",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Muskoka Brewery",
     name: "Muskoka Hazed and Confused Hazy IPA",
     abv: 6.0,
@@ -2432,6 +2635,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "muskoka-mad-tom-ipa",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Muskoka Brewery",
     name: "Muskoka Mad Tom IPA",
     abv: 6.4,
@@ -2449,6 +2653,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "muskoka-cream-ale",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Muskoka Brewery",
     name: "Muskoka Cream Ale",
     abv: 5.0,
@@ -2466,6 +2671,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "muskoka-winter-beard-stout",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Muskoka Brewery",
     name: "Muskoka Winter Beard Double Chocolate Cranberry Stout",
     abv: 8.0,
@@ -2485,6 +2691,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "beaus-nightmarzen",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Beau's All Natural",
     name: "Beau's Nightmärzen Oktoberfest Lager",
     abv: 5.1,
@@ -2502,6 +2709,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "beaus-kissmeyer",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Beau's All Natural",
     name: "Beau's Kissmeyer Nordic Pale Ale",
     abv: 5.0,
@@ -2521,6 +2729,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "nickel-brook-headstock-ipa",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Nickel Brook Brewing",
     name: "Nickel Brook Headstock IPA",
     abv: 6.0,
@@ -2538,6 +2747,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "nickel-brook-cause-and-effect",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Nickel Brook Brewing",
     name: "Nickel Brook Cause and Effect Organic IPA",
     abv: 5.5,
@@ -2555,6 +2765,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "nickel-brook-green-apple-pilsner",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Nickel Brook Brewing",
     name: "Nickel Brook Green Apple Pilsner",
     abv: 5.0,
@@ -2574,6 +2785,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "steam-whistle-organic-lager",
     category: "Lager",
+    glutenStatus: "contains-gluten",
     brand: "Steam Whistle Brewing",
     name: "Steam Whistle Organic Lager",
     abv: 5.0,
@@ -2593,6 +2805,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "wellington-imperial-stout",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Wellington Brewery",
     name: "Wellington Imperial Stout",
     abv: 8.0,
@@ -2610,6 +2823,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "wellington-special-pale-ale",
     category: "IPA & Craft Ale",
+    glutenStatus: "contains-gluten",
     brand: "Wellington Brewery",
     name: "Wellington Special Pale Ale",
     abv: 4.8,
@@ -2629,6 +2843,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "athletic-free-wave-ipa",
     category: "Non-Alcoholic",
+    glutenStatus: "contains-gluten",
     brand: "Athletic Brewing",
     name: "Athletic Brewing Free Wave Hazy IPA",
     abv: 0.4,
@@ -2645,6 +2860,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "athletic-run-wild-ipa",
     category: "Non-Alcoholic",
+    glutenStatus: "contains-gluten",
     brand: "Athletic Brewing",
     name: "Athletic Brewing Run Wild IPA",
     abv: 0.4,
@@ -2661,6 +2877,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "heineken-00",
     category: "Non-Alcoholic",
+    glutenStatus: "contains-gluten",
     brand: "Heineken N.V.",
     name: "Heineken 0.0",
     abv: 0.0,
@@ -2677,6 +2894,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "corona-cero",
     category: "Non-Alcoholic",
+    glutenStatus: "contains-gluten",
     brand: "Constellation Brands",
     name: "Corona Cero",
     abv: 0.0,
@@ -2693,6 +2911,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "stella-artois-libre",
     category: "Non-Alcoholic",
+    glutenStatus: "contains-gluten",
     brand: "AB InBev",
     name: "Stella Artois Liberte",
     abv: 0.0,
@@ -2709,6 +2928,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "carlsberg-0",
     category: "Non-Alcoholic",
+    glutenStatus: "contains-gluten",
     brand: "Carlsberg",
     name: "Carlsberg 0.0",
     abv: 0.0,
@@ -2725,6 +2945,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "sober-carpenter-ipa",
     category: "Non-Alcoholic",
+    glutenStatus: "contains-gluten",
     brand: "Sober Carpenter",
     name: "Sober Carpenter Non-Alcoholic IPA",
     abv: 0.4,
@@ -2742,6 +2963,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "sober-carpenter-wheat",
     category: "Non-Alcoholic",
+    glutenStatus: "contains-gluten",
     brand: "Sober Carpenter",
     name: "Sober Carpenter Non-Alcoholic Wheat Ale",
     abv: 0.4,
@@ -2767,6 +2989,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "kim-crawford-pinot-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Pinot Noir",
     region: "Marlborough, New Zealand",
@@ -2786,6 +3009,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "apothic-red",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Red Blend",
     region: "California, USA",
@@ -2805,6 +3029,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "josh-cellars-cabernet-sauvignon",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Sauvignon",
     region: "California, USA",
@@ -2824,6 +3049,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "yellowtail-shiraz",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Shiraz",
     region: "South Eastern Australia",
@@ -2843,6 +3069,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jackson-triggs-cabernet-sauvignon",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Sauvignon",
     region: "Canada (Niagara / Okanagan)",
@@ -2862,6 +3089,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "woodbridge-cabernet-sauvignon",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Sauvignon",
     region: "California, USA",
@@ -2881,6 +3109,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "barefoot-cabernet-sauvignon",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Sauvignon",
     region: "California, USA",
@@ -2900,6 +3129,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "19-crimes-cabernet-sauvignon",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Sauvignon",
     region: "South Australia",
@@ -2919,6 +3149,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "bota-box-cabernet-sauvignon",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Sauvignon",
     region: "California, USA",
@@ -2938,6 +3169,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "black-box-cabernet-sauvignon",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Sauvignon",
     region: "California, USA",
@@ -2957,6 +3189,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "menage-a-trois-red",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Red Blend",
     region: "California, USA",
@@ -2976,6 +3209,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "robert-mondavi-cabernet-sauvignon",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Sauvignon",
     region: "Napa Valley, California",
@@ -2995,6 +3229,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "stags-leap-cabernet-sauvignon",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Sauvignon",
     region: "Napa Valley, California",
@@ -3014,6 +3249,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "wolf-blass-red-label-shiraz",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Shiraz",
     region: "South Australia",
@@ -3033,6 +3269,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jacobs-creek-shiraz",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Shiraz",
     region: "South Eastern Australia",
@@ -3052,6 +3289,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "penfolds-koonunga-hill-shiraz",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Shiraz-Cabernet",
     region: "South Australia",
@@ -3071,6 +3309,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "ruffino-chianti",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Sangiovese Blend",
     region: "Tuscany, Italy (DOC)",
@@ -3090,6 +3329,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "santa-margherita-chianti-classico",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Sangiovese",
     region: "Tuscany, Italy (DOCG)",
@@ -3109,6 +3349,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "meiomi-pinot-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Pinot Noir",
     region: "Coastal California",
@@ -3128,6 +3369,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "la-crema-pinot-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Pinot Noir",
     region: "Sonoma Coast, California",
@@ -3149,6 +3391,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "kim-crawford-sauvignon-blanc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Sauvignon Blanc",
     region: "Marlborough, New Zealand",
@@ -3168,6 +3411,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "santa-margherita-pinot-grigio",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Grigio",
     region: "Alto Adige, Italy",
@@ -3187,6 +3431,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "barefoot-pinot-grigio",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Grigio",
     region: "California, USA",
@@ -3206,6 +3451,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "yellowtail-pinot-grigio",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Grigio",
     region: "South Eastern Australia",
@@ -3225,6 +3471,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "woodbridge-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "California, USA",
@@ -3244,6 +3491,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "kendall-jackson-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "California, USA",
@@ -3263,6 +3511,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "robert-mondavi-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "California, USA",
@@ -3282,6 +3531,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jackson-triggs-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "Canada (Niagara / Okanagan)",
@@ -3301,6 +3551,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "oyster-bay-sauvignon-blanc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Sauvignon Blanc",
     region: "Marlborough, New Zealand",
@@ -3320,6 +3571,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "cloudy-bay-sauvignon-blanc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Sauvignon Blanc",
     region: "Marlborough, New Zealand",
@@ -3339,6 +3591,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "nobilo-sauvignon-blanc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Sauvignon Blanc",
     region: "Marlborough, New Zealand",
@@ -3358,6 +3611,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "whitehaven-sauvignon-blanc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Sauvignon Blanc",
     region: "Marlborough, New Zealand",
@@ -3377,6 +3631,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "matua-sauvignon-blanc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Sauvignon Blanc",
     region: "Marlborough, New Zealand",
@@ -3396,6 +3651,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "meiomi-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "Coastal California",
@@ -3415,6 +3671,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "ruffino-pinot-grigio",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Grigio",
     region: "Veneto, Italy",
@@ -3434,6 +3691,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "santa-margherita-pinot-grigio-alto-adige",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Grigio",
     region: "Alto Adige, Italy (DOC)",
@@ -3453,6 +3711,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "bota-box-pinot-grigio",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Grigio",
     region: "California, USA",
@@ -3472,6 +3731,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "black-box-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "California, USA",
@@ -3491,6 +3751,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "cavit-pinot-grigio",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Grigio",
     region: "Trentino, Italy",
@@ -3510,6 +3771,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "ecco-domani-pinot-grigio",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Grigio",
     region: "Delle Venezie, Italy",
@@ -3531,6 +3793,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "whispering-angel-rose",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Rosé",
     varietal: "Rosé",
     region: "Provence, France (AOC)",
@@ -3550,6 +3813,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "miraval-rose",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Rosé",
     varietal: "Rosé",
     region: "Provence, France (AOC)",
@@ -3569,6 +3833,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "kim-crawford-rose",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Rosé",
     varietal: "Rosé",
     region: "Hawke's Bay, New Zealand",
@@ -3588,6 +3853,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "barefoot-rose",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Rosé",
     varietal: "Rosé",
     region: "California, USA",
@@ -3610,6 +3876,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "yellowtail-rose",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Rosé",
     varietal: "Rosé",
     region: "South Eastern Australia",
@@ -3629,6 +3896,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "bota-box-rose",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Rosé",
     varietal: "Rosé",
     region: "California, USA",
@@ -3648,6 +3916,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "dark-horse-rose",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Rosé",
     varietal: "Rosé",
     region: "California, USA",
@@ -3667,6 +3936,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "josh-cellars-rose",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Rosé",
     varietal: "Rosé",
     region: "California, USA",
@@ -3686,6 +3956,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jacobs-creek-rose",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Rosé",
     varietal: "Rosé",
     region: "South Eastern Australia",
@@ -3705,6 +3976,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "woodbridge-rose",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Rosé",
     varietal: "Rosé",
     region: "California, USA",
@@ -3728,6 +4000,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "la-marca-prosecco",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sparkling",
     varietal: "Prosecco (Glera)",
     region: "Veneto, Italy (DOC)",
@@ -3747,6 +4020,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "freixenet-cava-brut",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sparkling",
     varietal: "Cava (Macabeo, XarelÂ·lo, Parellada)",
     region: "PenedÃ¨s, Spain (DO Cava)",
@@ -3766,6 +4040,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "mionetto-prosecco",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sparkling",
     varietal: "Prosecco (Glera)",
     region: "Veneto, Italy (DOC)",
@@ -3785,6 +4060,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "zonin-prosecco",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sparkling",
     varietal: "Prosecco (Glera)",
     region: "Veneto, Italy (DOC)",
@@ -3804,6 +4080,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "martini-rossi-asti",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sparkling",
     varietal: "Moscato Bianco",
     region: "Piedmont, Italy (DOCG)",
@@ -3823,6 +4100,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "barefoot-bubbly-brut",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sparkling",
     varietal: "Sparkling Blend",
     region: "California, USA",
@@ -3842,6 +4120,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "andre-brut",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sparkling",
     varietal: "Sparkling Blend",
     region: "California, USA",
@@ -3861,6 +4140,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "mumm-napa-brut-prestige",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sparkling",
     varietal: "Sparkling Blend (Pinot Noir, Chardonnay)",
     region: "Napa Valley, California",
@@ -3880,6 +4160,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "veuve-clicquot-brut",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sparkling",
     varietal: "Champagne (Pinot Noir, Chardonnay, Pinot Meunier)",
     region: "Champagne, France (AOC)",
@@ -3899,6 +4180,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "moet-chandon-imperial-brut",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sparkling",
     varietal: "Champagne Blend",
     region: "Champagne, France (AOC)",
@@ -3920,6 +4202,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "barefoot-moscato",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sweet",
     varietal: "Moscato",
     region: "California, USA",
@@ -3939,6 +4222,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "yellowtail-moscato",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sweet",
     varietal: "Moscato",
     region: "South Eastern Australia",
@@ -3958,6 +4242,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "riunite-lambrusco",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sweet",
     varietal: "Lambrusco",
     region: "Emilia-Romagna, Italy",
@@ -3977,6 +4262,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "beringer-white-zinfandel",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sweet",
     varietal: "White Zinfandel (Blush)",
     region: "California, USA",
@@ -3996,6 +4282,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "sutter-home-white-zinfandel",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sweet",
     varietal: "White Zinfandel (Blush)",
     region: "California, USA",
@@ -4015,6 +4302,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jacobs-creek-moscato",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Sweet",
     varietal: "Moscato",
     region: "South Eastern Australia",
@@ -4036,6 +4324,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "j-lohr-cabernet-sauvignon",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Sauvignon",
     region: "Paso Robles, California",
@@ -4058,6 +4347,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "lindemans-bin65-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "South Eastern Australia",
@@ -4077,6 +4367,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "copper-moon-pinot-grigio",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Grigio",
     region: "Canada",
@@ -4100,6 +4391,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "pelee-island-pinot-grigio",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Grigio",
     region: "Lake Erie North Shore, Ontario",
@@ -4121,6 +4413,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "pelee-island-cabernet-franc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Franc",
     region: "Lake Erie North Shore, Ontario",
@@ -4142,6 +4435,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "pelee-island-riesling",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Riesling",
     region: "Lake Erie North Shore, Ontario",
@@ -4163,6 +4457,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "pelee-island-merlot",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Merlot",
     region: "Lake Erie North Shore, Ontario",
@@ -4184,6 +4479,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "pelee-island-gewurztraminer",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Gewürztraminer",
     region: "Lake Erie North Shore, Ontario",
@@ -4205,6 +4501,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "pelee-island-pinot-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Pinot Noir",
     region: "Lake Erie North Shore, Ontario",
@@ -4226,6 +4523,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "henry-of-pelham-baco-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Baco Noir",
     region: "Niagara Peninsula, Ontario",
@@ -4247,6 +4545,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "henry-of-pelham-riesling",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Riesling",
     region: "Niagara Peninsula, Ontario",
@@ -4268,6 +4567,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "henry-of-pelham-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "Niagara Peninsula, Ontario",
@@ -4289,6 +4589,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "henry-of-pelham-cabernet-merlot",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Merlot",
     region: "Niagara Peninsula, Ontario",
@@ -4310,6 +4611,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "henry-of-pelham-pinot-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Pinot Noir",
     region: "Niagara Peninsula, Ontario",
@@ -4331,6 +4633,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "chateau-des-charmes-chardonnay-estate",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "Niagara-on-the-Lake, Ontario",
@@ -4352,6 +4655,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "chateau-des-charmes-pinot-noir-estate",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Pinot Noir",
     region: "Niagara-on-the-Lake, Ontario",
@@ -4373,6 +4677,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "chateau-des-charmes-cabernet-franc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Franc",
     region: "Niagara-on-the-Lake, Ontario",
@@ -4394,6 +4699,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "chateau-des-charmes-riesling",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Riesling",
     region: "Niagara-on-the-Lake, Ontario",
@@ -4415,6 +4721,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "chateau-des-charmes-gamay-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Gamay Noir",
     region: "Niagara-on-the-Lake, Ontario",
@@ -4436,6 +4743,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jackson-triggs-niagara-pinot-grigio",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Grigio",
     region: "Niagara-on-the-Lake, Ontario",
@@ -4457,6 +4765,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jackson-triggs-niagara-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "Niagara-on-the-Lake, Ontario",
@@ -4478,6 +4787,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jackson-triggs-niagara-cabernet-sauvignon",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Sauvignon",
     region: "Niagara-on-the-Lake, Ontario",
@@ -4499,6 +4809,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "jackson-triggs-niagara-sauvignon-blanc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Sauvignon Blanc",
     region: "Niagara-on-the-Lake, Ontario",
@@ -4520,6 +4831,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "inniskillin-pinot-grigio",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Grigio",
     region: "Niagara-on-the-Lake, Ontario",
@@ -4541,6 +4853,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "inniskillin-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "Niagara-on-the-Lake, Ontario",
@@ -4562,6 +4875,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "inniskillin-cabernet-franc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Franc",
     region: "Niagara-on-the-Lake, Ontario",
@@ -4583,6 +4897,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "inniskillin-vidal-icewine",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Icewine",
     varietal: "Vidal Icewine",
     region: "Niagara-on-the-Lake, Ontario",
@@ -4604,6 +4919,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "malivoire-ladybug-rose",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Rosé",
     varietal: "Rosé Blend",
     region: "Beamsville Bench, Niagara, Ontario",
@@ -4625,6 +4941,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "malivoire-pinot-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Pinot Noir",
     region: "Beamsville Bench, Niagara, Ontario",
@@ -4646,6 +4963,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "malivoire-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "Beamsville Bench, Niagara, Ontario",
@@ -4667,6 +4985,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "tawse-quarry-road-pinot-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Pinot Noir",
     region: "Vineland, Niagara, Ontario",
@@ -4689,6 +5008,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "tawse-sketches-of-niagara-riesling",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Riesling",
     region: "Vineland, Niagara, Ontario",
@@ -4711,6 +5031,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "tawse-sketches-of-niagara-pinot-gris",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Gris",
     region: "Vineland, Niagara, Ontario",
@@ -4733,6 +5054,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "tawse-growers-blend-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "Vineland, Niagara, Ontario",
@@ -4755,6 +5077,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "huff-estates-pinot-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Pinot Noir",
     region: "Prince Edward County, Ontario",
@@ -4776,6 +5099,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "huff-estates-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "Prince Edward County, Ontario",
@@ -4797,6 +5121,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "grange-of-prince-edward-sauvignon-blanc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Sauvignon Blanc",
     region: "Prince Edward County, Ontario",
@@ -4818,6 +5143,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "grange-of-prince-edward-pinot-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Pinot Noir",
     region: "Prince Edward County, Ontario",
@@ -4839,6 +5165,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "norman-hardie-pinot-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Pinot Noir",
     region: "Prince Edward County, Ontario",
@@ -4860,6 +5187,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "norman-hardie-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "Prince Edward County, Ontario",
@@ -4881,6 +5209,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "closson-chase-pinot-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Pinot Noir",
     region: "Prince Edward County, Ontario",
@@ -4902,6 +5231,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "sandbanks-estate-baco-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Baco Noir",
     region: "Prince Edward County, Ontario",
@@ -4923,6 +5253,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "sandbanks-estate-pinot-gris",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Gris",
     region: "Prince Edward County, Ontario",
@@ -4944,6 +5275,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "sprucewood-shores-cabernet-franc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Franc",
     region: "Lake Erie North Shore, Ontario",
@@ -4965,6 +5297,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "sprucewood-shores-pinot-gris",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Pinot Gris",
     region: "Lake Erie North Shore, Ontario",
@@ -4986,6 +5319,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "muscedere-vineyards-cabernet-sauvignon",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Sauvignon",
     region: "Lake Erie North Shore, Ontario",
@@ -5007,6 +5341,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "muscedere-vineyards-meritage",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Meritage",
     region: "Lake Erie North Shore, Ontario",
@@ -5028,6 +5363,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "fielding-estate-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "Niagara Peninsula, Ontario",
@@ -5049,6 +5385,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "fielding-estate-cabernet-franc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Franc",
     region: "Niagara Peninsula, Ontario",
@@ -5070,6 +5407,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "megalomaniac-selfie-riesling",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Riesling",
     region: "Niagara Peninsula, Ontario",
@@ -5091,6 +5429,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "megalomaniac-homegrown-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "Niagara Peninsula, Ontario",
@@ -5112,6 +5451,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "redstone-cabernet-franc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Franc",
     region: "Niagara Peninsula, Ontario",
@@ -5133,6 +5473,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "redstone-rose",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Rosé",
     varietal: "Rosé Blend",
     region: "Niagara Peninsula, Ontario",
@@ -5154,6 +5495,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "thirty-bench-riesling",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Riesling",
     region: "Beamsville Bench, Niagara, Ontario",
@@ -5175,6 +5517,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "stratus-white",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "White Blend",
     region: "Niagara-on-the-Lake, Ontario",
@@ -5196,6 +5539,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "wayne-gretzky-no-99-chardonnay",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Chardonnay",
     region: "Niagara-on-the-Lake, Ontario",
@@ -5217,6 +5561,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "wayne-gretzky-no-99-cabernet-merlot",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Merlot",
     region: "Niagara-on-the-Lake, Ontario",
@@ -5238,6 +5583,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "wayne-gretzky-red-cask-whisky-barrel-aged-red",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Red Blend (Whisky Barrel Aged)",
     region: "Niagara-on-the-Lake, Ontario",
@@ -5259,6 +5605,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "wayne-gretzky-baco-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Baco Noir",
     region: "Niagara Peninsula, Ontario",
@@ -5280,6 +5627,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "wayne-gretzky-signature-baco-noir",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Baco Noir",
     region: "Niagara Peninsula, Ontario",
@@ -5301,6 +5649,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "pillitteri-cabernet-franc-icewine",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Icewine",
     varietal: "Cabernet Franc Icewine",
     region: "Niagara-on-the-Lake, Ontario",
@@ -5322,6 +5671,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "peninsula-ridge-sauvignon-blanc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "White",
     varietal: "Sauvignon Blanc",
     region: "Niagara Peninsula, Ontario",
@@ -5343,6 +5693,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   {
     id: "lakeview-cabernet-franc",
     category: "Wines",
+    glutenStatus: "certified-gf",
     wineSubcategory: "Red",
     varietal: "Cabernet Franc",
     region: "Niagara Peninsula, Ontario",
