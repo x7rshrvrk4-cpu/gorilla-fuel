@@ -53,9 +53,12 @@ export default function RankingsPage() {
           The Rankings.
         </h1>
         <p className="mt-4 text-muted">
-          80+ products, 10 categories, zero sponsorships. Every entry gets the
-          full Gorilla Analysis treatment — purity, pricing, pros, cons, and
-          the certifications that actually matter.
+          140+ products across 13 categories — whey, casein, plant protein,
+          creatine, pre-workout, BCAAs/EAAs, sleep &amp; recovery, fish oil,
+          greens, electrolytes, collagen, vitamins &amp; minerals, and protein
+          bars. Zero sponsorships. Every entry gets the full Gorilla Analysis
+          treatment — purity, pricing, pros, cons, and the certifications that
+          actually matter.
         </p>
         <button
           type="button"

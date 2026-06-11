@@ -16,9 +16,9 @@ const tickerItems = [
 ];
 
 const stats = [
-  { value: "100+", label: "Products Ranked" },
+  { value: "370+", label: "Products Ranked" },
   { value: "90+", label: "Additives Tracked" },
-  { value: "10", label: "Categories Covered" },
+  { value: "13", label: "Supplement Categories" },
   { value: "100%", label: "Independent Scoring" },
 ];
 
@@ -72,7 +72,7 @@ const categories = [
   },
   {
     name: "Beer & Alcohol",
-    description: "ABV, calorie density, artificial sweeteners, sulfites, and clarity agents — 22 Canadian favourites ranked.",
+    description: "ABV, calorie density, artificial sweeteners, sulfites, and clarity agents — 228 beers, ciders, seltzers, and wines ranked.",
     href: "/alcohol",
     accent: "from-[#3b2e05] to-[#0f0d08]",
   },

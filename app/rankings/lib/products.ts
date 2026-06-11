@@ -3,6 +3,8 @@ import type { EvidenceTier } from "../../scan/lib/scoring";
 export type Category =
   | "Creatine"
   | "Whey Protein"
+  | "Casein Protein"
+  | "Plant Protein"
   | "Pre-Workout"
   | "BCAAs/EAAs"
   | "Sleep & Recovery"
@@ -10,9 +12,10 @@ export type Category =
   | "Greens Powders"
   | "Electrolytes"
   | "Collagen"
-  | "Vitamins & Minerals";
+  | "Vitamins & Minerals"
+  | "Protein Bars";
 
-export type Grade = "S" | "A+" | "A" | "B" | "C" | "D";
+export type Grade = "S" | "A+" | "A" | "B+" | "B" | "C" | "D";
 
 export type Product = {
   id: string;
@@ -36,6 +39,8 @@ export type Product = {
 export const CATEGORIES: Category[] = [
   "Creatine",
   "Whey Protein",
+  "Casein Protein",
+  "Plant Protein",
   "Pre-Workout",
   "BCAAs/EAAs",
   "Sleep & Recovery",
@@ -44,14 +49,16 @@ export const CATEGORIES: Category[] = [
   "Electrolytes",
   "Collagen",
   "Vitamins & Minerals",
+  "Protein Bars",
 ];
 
-export const GRADE_RANK: Record<Grade, number> = { S: 6, "A+": 5, A: 4, B: 3, C: 2, D: 1 };
+export const GRADE_RANK: Record<Grade, number> = { S: 7, "A+": 6, A: 5, "B+": 4, B: 3, C: 2, D: 1 };
 
 export const GRADE_COLORS: Record<Grade, string> = {
   S: "#3ddc84",
   "A+": "#7be37b",
   A: "#ffd700",
+  "B+": "#ffc760",
   B: "#ffb84d",
   C: "#ff9d2e",
   D: "#ff4d4d",
@@ -61,6 +68,7 @@ export const GRADE_LEGEND: { grade: Grade; label: string; description: string }[
   { grade: "S", label: "Elite", description: "Exceptional purity, full label transparency, independently verified. The benchmark." },
   { grade: "A+", label: "Excellent", description: "Near-flawless formulation and testing. Tiny nitpicks at most." },
   { grade: "A", label: "Very Good", description: "Strong, trustworthy product with minor caveats worth knowing." },
+  { grade: "B+", label: "Good+", description: "Above average — solid product with one or two gaps in certification or transparency." },
   { grade: "B", label: "Good", description: "Solid choice, but carries tradeoffs — dosing, sweeteners, or value." },
   { grade: "C", label: "Average", description: "Gets the job done. Expect some red flags: blends, fillers, or weak claims." },
   { grade: "D", label: "Below Average", description: "Proprietary blends, underdosed actives, or additive-heavy. Buyer beware." },
@@ -2060,6 +2068,1384 @@ export const PRODUCTS: Product[] = [
     cons: [
       "20g carbohydrates per serving — not appropriate for keto or low-carb athletes",
       "Sugar content means this is a fueling product, not a pure hydration product",
+    ],
+  },
+
+  // ───────── WHEY PROTEIN (expanded) ─────────
+  {
+    id: "whey-momentous-grassfed-isolate",
+    category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Grass Fed Whey Isolate",
+    brand: "Momentous",
+    grade: "S",
+    pricePerServing: 2.80,
+    thirdPartyTested: true,
+    purityScore: 99,
+    certifications: ["NSF Certified for Sport"],
+    analysis:
+      "If you are a competitive athlete who cannot risk a positive test, this is your only move alongside Thorne. NSF certified grass fed isolate with verified purity at every batch. The premium price buys you certainty, not just quality.",
+    pros: [
+      "NSF Certified for Sport — cleanest sourcing available for tested athletes",
+      "Grass fed isolate with zero artificial sweeteners or dyes",
+      "Batch-verified purity used by professional sports programs",
+    ],
+    cons: [
+      "Most expensive whey on this list",
+    ],
+  },
+  {
+    id: "whey-kaged-isolate",
+    category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Whey Isolate",
+    brand: "Kaged",
+    grade: "A+",
+    pricePerServing: 2.20,
+    thirdPartyTested: true,
+    purityScore: 97,
+    certifications: ["Informed Sport"],
+    analysis:
+      "Kaged does the science correctly. Leucine is optimized for muscle protein synthesis and digestive enzymes are added so you actually absorb what you pay for. Informed Sport certified. Solid A+ tier choice for athletes who want performance without the NSF premium.",
+    pros: [
+      "Optimized leucine content for muscle protein synthesis",
+      "Digestive enzymes added for superior absorption",
+      "Informed Sport certified",
+    ],
+    cons: [
+      "Slightly higher price than comparable isolates",
+    ],
+  },
+  {
+    id: "whey-garden-of-life-sport-organic",
+    category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Sport Organic Whey",
+    brand: "Garden of Life",
+    grade: "A+",
+    pricePerServing: 2.10,
+    thirdPartyTested: true,
+    purityScore: 95,
+    certifications: ["NSF Certified for Sport", "USDA Organic"],
+    analysis:
+      "The only USDA Organic and NSF dual-certified whey on this list. If clean sourcing and organic certification matter to you, this is the pick. Lower protein density than isolates, but the certification stack is unmatched at this price point.",
+    pros: [
+      "USDA Organic and NSF Certified for Sport — dual certification",
+      "Grass fed sourcing with no artificial sweeteners or colours",
+      "30g protein per serving from organic grass fed cows",
+    ],
+    cons: [
+      "Lower protein percentage per gram of powder than pure isolates",
+    ],
+  },
+  {
+    id: "whey-dymatize-iso100",
+    category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "ISO 100 Hydrolyzed",
+    brand: "Dymatize",
+    grade: "A",
+    pricePerServing: 1.60,
+    thirdPartyTested: true,
+    purityScore: 95,
+    certifications: ["Informed Choice"],
+    analysis:
+      "Hydrolyzed means pre-digested for faster absorption — relevant when speed of amino delivery matters post-workout. 25g protein per serving, gluten free, Informed Choice certified. The artificial sweeteners are the only reason this sits at A instead of higher.",
+    pros: [
+      "Hydrolyzed isolate — fastest absorption available in this category",
+      "25g protein per serving, gluten free formulation",
+      "Informed Choice certified for purity",
+    ],
+    cons: [
+      "Artificial sweeteners throughout",
+    ],
+  },
+  {
+    id: "whey-rivalus-clean",
+    category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Clean Whey",
+    brand: "Rivalus",
+    grade: "A",
+    pricePerServing: 1.50,
+    thirdPartyTested: true,
+    purityScore: 94,
+    certifications: ["Informed Sport"],
+    analysis:
+      "Canadian brand that actually passes third party testing. Informed Sport certified with a clean ingredient list. Supporting a Canadian company while getting a quality product. The Gorilla pick for Canadian brand loyalty in the whey category.",
+    pros: [
+      "Canadian brand with Informed Sport certification",
+      "Clean ingredient list with good macros",
+      "Strong value for a certified protein",
+    ],
+    cons: [
+      "Slightly lower protein per serving than some isolates",
+    ],
+  },
+  {
+    id: "whey-pescience-select",
+    category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Select Protein",
+    brand: "PEScience",
+    grade: "A",
+    pricePerServing: 1.30,
+    thirdPartyTested: false,
+    purityScore: 93,
+    certifications: [],
+    analysis:
+      "The whey and casein blend gives you fast and slow protein release simultaneously — ideal for a meal replacement shake or between-meal protein hit. Great taste, wide flavour selection, good value. The lack of third party certification is the only knock on an otherwise solid product.",
+    pros: [
+      "Whey and casein blend for sustained amino acid release",
+      "Best taste and widest flavour selection in this tier",
+      "Strong value pricing",
+    ],
+    cons: [
+      "No third party certification",
+    ],
+  },
+  {
+    id: "whey-allmax-isoflex",
+    category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Isoflex",
+    brand: "Allmax Nutrition",
+    grade: "A",
+    pricePerServing: 1.40,
+    thirdPartyTested: false,
+    purityScore: 93,
+    certifications: [],
+    analysis:
+      "Canadian brand with ultra filtered isolate technology. 27g protein per serving is solid. Would be A+ with an Informed Sport certification — the brand quality is clearly there, the third party verification is the gap.",
+    pros: [
+      "Canadian brand with ultra filtered isolate technology",
+      "27g protein per serving at a competitive price",
+    ],
+    cons: [
+      "No third party certification",
+      "Artificial sweeteners",
+    ],
+  },
+  {
+    id: "whey-bsn-syntha6",
+    category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Syntha-6",
+    brand: "BSN",
+    grade: "B",
+    pricePerServing: 1.20,
+    thirdPartyTested: false,
+    purityScore: 85,
+    certifications: [],
+    analysis:
+      "BSN Syntha-6 is the beer with the best commercials but average contents inside. Tastes great. Only 22g protein per serving with a high calorie count, and the proprietary blend means you cannot verify actual ingredient ratios. Fine for casual gym-goers who prioritise taste. Not the Gorilla standard.",
+    pros: [
+      "One of the best tasting proteins on the market",
+      "Affordable and widely available",
+    ],
+    cons: [
+      "Only 22g protein with high calorie count per serving",
+      "Artificial flavours and sweeteners throughout",
+      "Proprietary blend hides actual ingredient amounts",
+    ],
+  },
+  {
+    id: "whey-muscle-milk-genuine",
+    category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Genuine Protein",
+    brand: "Muscle Milk",
+    grade: "B",
+    pricePerServing: 1.10,
+    thirdPartyTested: false,
+    purityScore: 83,
+    certifications: [],
+    analysis:
+      "More of a meal replacement than a protein supplement. The macros tell the story — too many calories, too little protein per dollar. Fine as a weight gainer not as a lean protein source. No third party testing at a mid-range price is hard to justify.",
+    pros: [
+      "Affordable and widely available",
+      "Good calorie density for weight gain goals",
+    ],
+    cons: [
+      "Low protein percentage relative to total calories",
+      "High fat and carb ratio for a protein supplement",
+      "No third party certification",
+    ],
+  },
+  {
+    id: "whey-six-star-protein",
+    category: "Whey Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "100% Whey Protein Plus",
+    brand: "Six Star",
+    grade: "B",
+    pricePerServing: 0.80,
+    thirdPartyTested: false,
+    purityScore: 80,
+    certifications: [],
+    analysis:
+      "You get what you pay for. 80 cents a serving sounds great until you look at the protein percentage. The cheapest option at Walmart is not the smartest option for your goals. The value story falls apart under scrutiny.",
+    pros: [
+      "Cheapest whey on this list — widely available at Walmart Canada",
+    ],
+    cons: [
+      "Low protein percentage with significant filler content",
+      "Proprietary blend hides actual ingredient ratios",
+      "No third party certification",
+    ],
+  },
+
+  // ───────── CASEIN PROTEIN ─────────
+  {
+    id: "casein-transparent-labs",
+    category: "Casein Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Casein Protein",
+    brand: "Transparent Labs",
+    grade: "S",
+    pricePerServing: 1.90,
+    thirdPartyTested: true,
+    purityScore: 98,
+    certifications: ["Informed Sport"],
+    analysis:
+      "Casein is the overnight protein — slow digesting with 7 to 8 hour amino acid release. Transparent Labs applies the same clean no-proprietary-blend standard to casein as their whey. Published third party lab results, 25g protein, zero artificial colours. The best casein on the market right now.",
+    pros: [
+      "Informed Sport certified with published lab testing results",
+      "25g protein per serving with zero artificial colours or sweeteners",
+      "Micellar casein for maximum slow-release overnight recovery",
+    ],
+    cons: [
+      "Limited flavours compared to mass-market competitors",
+    ],
+  },
+  {
+    id: "casein-legion-plus",
+    category: "Casein Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Casein+",
+    brand: "Legion Athletics",
+    grade: "S",
+    pricePerServing: 1.80,
+    thirdPartyTested: true,
+    purityScore: 97,
+    certifications: ["Informed Sport"],
+    analysis:
+      "Same Gorilla-approved standard as Legion Whey Plus but engineered for nighttime recovery. Informed Sport certified, naturally sweetened micellar casein. The pick for athletes who take overnight recovery as seriously as their training.",
+    pros: [
+      "Micellar casein with Informed Sport certification",
+      "Naturally sweetened — no sucralose or acesulfame-K",
+      "Great taste profile for a casein product",
+    ],
+    cons: [
+      "Premium price",
+    ],
+  },
+  {
+    id: "casein-on-gold-standard",
+    category: "Casein Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Gold Standard 100% Casein",
+    brand: "Optimum Nutrition",
+    grade: "A+",
+    pricePerServing: 1.50,
+    thirdPartyTested: true,
+    purityScore: 94,
+    certifications: ["Informed Sport"],
+    analysis:
+      "The same trusted standard as Gold Standard Whey but in slow-release form. Informed Sport certified. The reliable choice available at every supplement store in Canada. Artificial sweeteners are the only strike against an otherwise excellent product.",
+    pros: [
+      "Industry benchmark for casein with 24g protein per serving",
+      "Informed Sport certified",
+      "Widely available at every Canadian supplement retailer",
+    ],
+    cons: [
+      "Artificial sweeteners",
+    ],
+  },
+  {
+    id: "casein-dymatize-elite",
+    category: "Casein Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Elite Casein",
+    brand: "Dymatize",
+    grade: "A",
+    pricePerServing: 1.40,
+    thirdPartyTested: true,
+    purityScore: 92,
+    certifications: ["Informed Choice"],
+    analysis:
+      "Solid casein option with third party certification. Mixes noticeably better than most casein powders — a meaningful quality of life improvement for a product you're taking before bed every night. Informed Choice certified.",
+    pros: [
+      "25g micellar casein per serving",
+      "Informed Choice certified",
+      "Best mixability of any casein on this list",
+    ],
+    cons: [
+      "Artificial sweeteners",
+    ],
+  },
+  {
+    id: "casein-muscle-feast-micellar",
+    category: "Casein Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Micellar Casein",
+    brand: "Muscle Feast",
+    grade: "A",
+    pricePerServing: 1.10,
+    thirdPartyTested: false,
+    purityScore: 91,
+    certifications: [],
+    analysis:
+      "The budget play in casein. Simple ingredient list, good protein per dollar, true micellar form. The lack of certification is the only reason this sits below A+. For someone on a budget who understands the tradeoff, this is the honest choice.",
+    pros: [
+      "Best value casein on this list",
+      "Simple ingredient list in genuine micellar form",
+    ],
+    cons: [
+      "No third party certification",
+      "Limited flavours",
+    ],
+  },
+
+  // ───────── PLANT PROTEIN ─────────
+  {
+    id: "plant-transparent-labs-organic",
+    category: "Plant Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Organic Vegan Protein",
+    brand: "Transparent Labs",
+    grade: "S",
+    pricePerServing: 1.80,
+    thirdPartyTested: true,
+    purityScore: 97,
+    certifications: ["Informed Sport", "USDA Organic"],
+    analysis:
+      "The cleanest plant protein on the market. USDA Organic and Informed Sport certified. Pea and rice blend covers all essential amino acids. The slightly gritty texture is the price of clean ingredients — mix in a blender and it disappears entirely.",
+    pros: [
+      "USDA Organic and Informed Sport dual certified",
+      "Pea and rice blend for complete essential amino acid coverage",
+      "24g protein with zero artificial ingredients",
+    ],
+    cons: [
+      "Slightly gritty texture common to all pea protein products",
+    ],
+  },
+  {
+    id: "plant-garden-of-life-sport",
+    category: "Plant Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Sport Organic Plant-Based Protein",
+    brand: "Garden of Life",
+    grade: "S",
+    pricePerServing: 2.00,
+    thirdPartyTested: true,
+    purityScore: 96,
+    certifications: ["NSF Certified for Sport", "USDA Organic"],
+    analysis:
+      "The only NSF Certified for Sport plant protein on this list. 30g protein from a blend of organic pea, brown rice, and navy bean. Probiotics included for gut health. The athlete-grade plant protein for tested competitors.",
+    pros: [
+      "NSF Certified for Sport — the only certified plant protein in this category",
+      "30g protein from multiple organic plant sources",
+      "Probiotics added for gut health support",
+    ],
+    cons: [
+      "Premium price point",
+    ],
+  },
+  {
+    id: "plant-kaged-plant-based",
+    category: "Plant Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Plant Protein",
+    brand: "Kaged",
+    grade: "A+",
+    pricePerServing: 1.70,
+    thirdPartyTested: true,
+    purityScore: 95,
+    certifications: ["Informed Sport"],
+    analysis:
+      "Kaged applies their science-first approach to plant protein. Fermented proteins absorb significantly better — that matters when pea protein bioavailability is already lower than whey. Informed Sport certified. The best tasting plant protein on this list by a clear margin.",
+    pros: [
+      "Fermented plant proteins for dramatically better absorption",
+      "Informed Sport certified",
+      "Best taste in the plant protein category",
+    ],
+    cons: [
+      "More expensive than basic pea protein options",
+    ],
+  },
+  {
+    id: "plant-vega-sport-premium",
+    category: "Plant Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Sport Premium Protein",
+    brand: "Vega",
+    grade: "A",
+    pricePerServing: 1.60,
+    thirdPartyTested: true,
+    purityScore: 92,
+    certifications: ["Informed Sport"],
+    analysis:
+      "Canadian brand that has led the plant protein space for years. Informed Sport certified, 30g protein with tart cherry extract for inflammation management. Vega has been doing plant protein right since before it was mainstream. The Gorilla pick for Canadian plant protein.",
+    pros: [
+      "Canadian brand with Informed Sport certification",
+      "30g protein with tart cherry extract for recovery",
+    ],
+    cons: [
+      "Proprietary blend for some ingredients",
+    ],
+  },
+  {
+    id: "plant-genuine-health-fermented",
+    category: "Plant Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Fermented Vegan Proteins+",
+    brand: "Genuine Health",
+    grade: "A",
+    pricePerServing: 1.50,
+    thirdPartyTested: false,
+    purityScore: 91,
+    certifications: [],
+    analysis:
+      "Another strong Canadian brand. Fermentation is the right approach for plant protein — your gut absorbs fermented proteins significantly better than standard pea protein. Whole food ingredients. No certification is the gap, but the formulation philosophy is correct.",
+    pros: [
+      "Canadian brand with fermented proteins for superior absorption",
+      "20g protein from whole food ingredients",
+    ],
+    cons: [
+      "No third party certification",
+      "Lower protein per serving than some competitors",
+    ],
+  },
+  {
+    id: "plant-nuzest-clean-lean",
+    category: "Plant Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Clean Lean Protein",
+    brand: "Nuzest",
+    grade: "A",
+    pricePerServing: 1.90,
+    thirdPartyTested: false,
+    purityScore: 91,
+    certifications: [],
+    analysis:
+      "The purest pea protein on this list. One ingredient. European grown peas operate under stricter quality standards than Chinese grown alternatives. Simple, clean, and honest. No certification is the gap for the price.",
+    pros: [
+      "Single ingredient pea protein isolate",
+      "European grown peas with higher quality standards",
+      "Neutral taste profile",
+    ],
+    cons: [
+      "No third party certification",
+      "Premium price for what is a single ingredient product",
+    ],
+  },
+  {
+    id: "plant-now-pea-protein",
+    category: "Plant Protein",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Pea Protein",
+    brand: "NOW Foods",
+    grade: "B+",
+    pricePerServing: 0.70,
+    thirdPartyTested: true,
+    purityScore: 88,
+    certifications: [],
+    analysis:
+      "The budget plant protein pick. 70 cents a serving for pure pea protein from a trusted manufacturer. No frills, no certification, but also no junk. If you are cost-conscious and just need a clean plant protein, this does the job without compromise.",
+    pros: [
+      "Best value plant protein on this list",
+      "Pure pea protein with no unnecessary additives",
+      "NOW Foods quality manufacturing track record",
+    ],
+    cons: [
+      "No third party sport certification",
+      "Gritty texture common to pea protein",
+      "Basic flavour options only",
+    ],
+  },
+
+  // ───────── CREATINE (expanded) ─────────
+  {
+    id: "creatine-muscletech-platinum",
+    category: "Creatine",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Platinum 100% Creatine",
+    brand: "MuscleTech",
+    grade: "A",
+    pricePerServing: 0.20,
+    thirdPartyTested: false,
+    purityScore: 93,
+    certifications: [],
+    analysis:
+      "The budget creatine from a recognisable brand widely available at Walmart Canada. 20 cents a serving is hard to argue with on cost alone. The gap between this and the top picks is purely the absence of third party certification — if you can spend five cents more per serving, the ON Micronized gets you NSF verification.",
+    pros: [
+      "Cheapest widely available creatine at Walmart Canada",
+      "Micronized for better mixing and dissolution",
+    ],
+    cons: [
+      "No third party certification",
+    ],
+  },
+  {
+    id: "creatine-bulksupplements-mono",
+    category: "Creatine",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Creatine Monohydrate",
+    brand: "BulkSupplements",
+    grade: "A",
+    pricePerServing: 0.18,
+    thirdPartyTested: false,
+    purityScore: 92,
+    certifications: [],
+    analysis:
+      "Pure creatine monohydrate at essentially the raw ingredient cost. No flavour, no frills, no certification. The serious bulk buyer pick for someone who understands what they are getting. 18 cents per serving is the floor of this category.",
+    pros: [
+      "Absolute lowest price per serving on this entire list",
+      "Pure monohydrate with no fillers or additives",
+      "Ideal for bulk buying and long-term stacking",
+    ],
+    cons: [
+      "No third party certification",
+      "Bulk packaging format only",
+    ],
+  },
+  {
+    id: "creatine-cellucor-c4-ultimate",
+    category: "Creatine",
+    evidenceTier: "precautionary",
+    lastVerified: "2026-06-08",
+    name: "C4 Ultimate Creatine",
+    brand: "Cellucor",
+    grade: "B",
+    pricePerServing: 0.80,
+    thirdPartyTested: false,
+    purityScore: 84,
+    certifications: [],
+    analysis:
+      "The creatine blend with the best marketing. Four forms of creatine sounds impressive until you realise the proprietary blend means you have no idea how much of each form you are actually getting. Stick to monohydrate — it has 30 years of research and you can verify what you are taking.",
+    pros: [
+      "Popular brand with wide retail availability",
+      "Multiple creatine forms blended in one product",
+    ],
+    cons: [
+      "Proprietary blend hides actual amounts of each creatine form",
+      "No third party certification",
+      "Significantly overpriced relative to pure monohydrate alternatives",
+    ],
+  },
+
+  // ───────── PRE-WORKOUT (expanded) ─────────
+  {
+    id: "pre-transparent-labs-bulk-black",
+    category: "Pre-Workout",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-08",
+    name: "BULK Black Pre-Workout",
+    brand: "Transparent Labs",
+    grade: "S",
+    pricePerServing: 2.50,
+    thirdPartyTested: true,
+    purityScore: 98,
+    certifications: ["Informed Sport"],
+    analysis:
+      "The strongest clean pre-workout on this list. 400mg caffeine from natural sources, clinical citrulline, beta-alanine, and betaine all at research-backed doses. Transparent Labs shows you everything — nothing hidden, no proprietary blends. For advanced athletes who want maximum performance from a certified product.",
+    pros: [
+      "400mg caffeine from natural sources at clinically verified doses",
+      "All ingredients fully disclosed with zero proprietary blends",
+      "Informed Sport certified for competitive athletes",
+    ],
+    cons: [
+      "400mg caffeine — not for beginners or stimulant-sensitive users",
+    ],
+  },
+  {
+    id: "pre-kaged-elite",
+    category: "Pre-Workout",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-08",
+    name: "Pre-Kaged Elite",
+    brand: "Kaged",
+    grade: "A+",
+    pricePerServing: 2.20,
+    thirdPartyTested: true,
+    purityScore: 96,
+    certifications: ["Informed Sport"],
+    analysis:
+      "Kaged keeps winning with applied science. Fermented citrulline absorbs significantly better than standard L-citrulline. Informed Sport certified with clinical doses across every key ingredient. If you want the cleanest performance you can actually feel, this is the pick.",
+    pros: [
+      "Fermented citrulline for significantly better absorption",
+      "Informed Sport certified at clinical doses",
+      "All ingredients fully transparent",
+    ],
+    cons: [
+      "Premium price at the top of the category",
+    ],
+  },
+  {
+    id: "pre-ghost-legend-v3",
+    category: "Pre-Workout",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-08",
+    name: "Legend V3",
+    brand: "Ghost",
+    grade: "A",
+    pricePerServing: 1.80,
+    thirdPartyTested: true,
+    purityScore: 91,
+    certifications: ["Informed Sport"],
+    analysis:
+      "Ghost Legend has the best taste profile in the category by a wide margin. Informed Sport certified with a transparent label. Ingredient doses are slightly below clinical benchmarks on some compounds, but for most gym-goers this hits the right balance of performance and enjoyment. The fun pick that also passes muster.",
+    pros: [
+      "Best taste profile in the pre-workout category",
+      "Informed Sport certified with fully transparent label",
+      "Natural caffeine sources at a reasonable dose",
+    ],
+    cons: [
+      "Some ingredient doses slightly below full clinical benchmarks",
+    ],
+  },
+  {
+    id: "pre-alani-nu",
+    category: "Pre-Workout",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-08",
+    name: "Pre-Workout",
+    brand: "Alani Nu",
+    grade: "A",
+    pricePerServing: 1.60,
+    thirdPartyTested: true,
+    purityScore: 90,
+    certifications: ["Informed Sport"],
+    analysis:
+      "The entry-level Gorilla-approved pre-workout. 200mg caffeine, Informed Sport certified, clean ingredients. Perfect for someone new to pre-workout or those sensitive to stimulants. Alani Nu does not cut corners on certification despite the accessible price.",
+    pros: [
+      "Informed Sport certified at a competitive price",
+      "200mg caffeine — ideal entry dose for most users",
+      "Clean ingredient list with no artificial dyes",
+    ],
+    cons: [
+      "Lower stimulant dose may not satisfy experienced pre-workout users",
+    ],
+  },
+  {
+    id: "pre-cellucor-c4-original",
+    category: "Pre-Workout",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-08",
+    name: "C4 Original",
+    brand: "Cellucor",
+    grade: "B",
+    pricePerServing: 0.90,
+    thirdPartyTested: false,
+    purityScore: 82,
+    certifications: [],
+    analysis:
+      "C4 Original is the Toyota Camry of pre-workouts. Reliable, common, nothing special. Proprietary blend and lack of certification keep it at B tier. You can do better for a similar price — see Alani Nu or Naked Energy one tier up.",
+    pros: [
+      "Most popular pre-workout in North America — widely available",
+      "Affordable entry-level price point",
+    ],
+    cons: [
+      "Proprietary blend conceals ingredient amounts",
+      "150mg caffeine is underwhelming for experienced users",
+      "No third party certification",
+    ],
+  },
+  {
+    id: "pre-bucked-up",
+    category: "Pre-Workout",
+    evidenceTier: "contested",
+    lastVerified: "2026-06-08",
+    name: "Bucked Up Pre-Workout",
+    brand: "DAS Labs",
+    grade: "B",
+    pricePerServing: 1.50,
+    thirdPartyTested: false,
+    purityScore: 85,
+    certifications: [],
+    analysis:
+      "The deer antler velvet claim puts this firmly in contested-evidence territory. 200mg caffeine is a reasonable dose. No certification. The marketing budget is larger than the ingredient evidence base, and the price reflects that imbalance.",
+    pros: [
+      "200mg caffeine at a reasonable dose",
+      "Available in Canadian supplement stores",
+    ],
+    cons: [
+      "No third party certification",
+      "Deer antler velvet has minimal credible research support",
+      "Marketing story outpaces ingredient evidence",
+    ],
+  },
+
+  // ───────── BCAAs / EAAs (expanded) ─────────
+  {
+    id: "amino-kaged-bcaa",
+    category: "BCAAs/EAAs",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-08",
+    name: "BCAA 2:1:1",
+    brand: "Kaged",
+    grade: "S",
+    pricePerServing: 0.60,
+    thirdPartyTested: true,
+    purityScore: 97,
+    certifications: ["Informed Sport"],
+    analysis:
+      "Fermented BCAAs from plant sources absorb significantly better than synthetic alternatives. Informed Sport certified. The 2:1:1 leucine to isoleucine to valine ratio is the research-backed standard. The top BCAA pick for athletes who want both performance and certification.",
+    pros: [
+      "Fermented BCAAs — significantly better absorption than synthetic alternatives",
+      "Informed Sport certified",
+      "Research-backed 2:1:1 ratio at full clinical dose",
+    ],
+    cons: [
+      "Unflavored version is notably bitter",
+      "Flavored versions contain sucralose",
+    ],
+  },
+  {
+    id: "amino-transparent-labs-bcaa-glut",
+    category: "BCAAs/EAAs",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-08",
+    name: "BCAA Glutamine",
+    brand: "Transparent Labs",
+    grade: "A+",
+    pricePerServing: 0.70,
+    thirdPartyTested: true,
+    purityScore: 96,
+    certifications: ["Informed Sport"],
+    analysis:
+      "BCAAs plus glutamine for enhanced recovery in one product. Transparent Labs publishes their lab results. No artificial colours or sweeteners. The recovery-focused BCAA stack that covers both muscle protein synthesis and gut recovery.",
+    pros: [
+      "BCAAs plus glutamine for comprehensive recovery support",
+      "Informed Sport certified with published lab results",
+      "No artificial colours or sweeteners",
+    ],
+    cons: [
+      "Slightly more expensive than basic BCAA-only products",
+    ],
+  },
+  {
+    id: "amino-on-essential-amino-energy",
+    category: "BCAAs/EAAs",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-08",
+    name: "Essential Amin.O. Energy",
+    brand: "Optimum Nutrition",
+    grade: "B+",
+    pricePerServing: 0.70,
+    thirdPartyTested: true,
+    purityScore: 88,
+    certifications: ["Informed Sport"],
+    analysis:
+      "The Swiss army knife of amino products — BCAAs, EAAs, and caffeine combined in one product. Informed Sport certified. The doses are lower than dedicated BCAA products, but the convenience factor is real for lighter training days or pre-workout amino loading.",
+    pros: [
+      "BCAAs plus EAAs plus caffeine in one convenient product",
+      "Informed Sport certified",
+      "Great for lighter training days as a pre-workout amino stack",
+    ],
+    cons: [
+      "Lower BCAA dose than dedicated BCAA products",
+      "Proprietary blend for some minor ingredients",
+    ],
+  },
+
+  // ───────── SLEEP & RECOVERY (expanded) ─────────
+  {
+    id: "sleep-jarrow-ksm66",
+    category: "Sleep & Recovery",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-08",
+    name: "KSM-66 Ashwagandha",
+    brand: "Jarrow Formulas",
+    grade: "A+",
+    pricePerServing: 0.50,
+    thirdPartyTested: false,
+    purityScore: 95,
+    certifications: [],
+    analysis:
+      "KSM-66 is the gold standard ashwagandha extract with over 22 human clinical trials — not the generic ashwagandha root powder in most budget products. 600mg is the research-backed effective dose. Jarrow is a trusted brand. Available at iHerb and health food stores across Canada.",
+    pros: [
+      "KSM-66 extract — most researched ashwagandha form with 22+ clinical trials",
+      "600mg at the full research-backed effective dose",
+      "Available in Canada through iHerb and health food retailers",
+    ],
+    cons: [
+      "No third party sport certification",
+      "Capsule format only",
+    ],
+  },
+  {
+    id: "sleep-now-magnesium-glycinate",
+    category: "Sleep & Recovery",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Magnesium Glycinate",
+    brand: "NOW Foods",
+    grade: "A",
+    pricePerServing: 0.25,
+    thirdPartyTested: true,
+    purityScore: 93,
+    certifications: [],
+    analysis:
+      "Magnesium glycinate is the form that actually absorbs and improves sleep quality. Magnesium oxide is cheap and largely useless. Glycinate works. NOW Foods makes it affordable at 25 cents a serving for a supplement with genuine clinical evidence.",
+    pros: [
+      "Glycinate form — highest bioavailable magnesium without GI distress",
+      "Best value magnesium on this list",
+      "NOW Foods trusted quality manufacturing",
+    ],
+    cons: [
+      "No third party sport certification",
+    ],
+  },
+  {
+    id: "sleep-life-extension-melatonin",
+    category: "Sleep & Recovery",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Melatonin 300 mcg",
+    brand: "Life Extension",
+    grade: "A",
+    pricePerServing: 0.10,
+    thirdPartyTested: false,
+    purityScore: 92,
+    certifications: [],
+    analysis:
+      "The dirty secret of the supplement industry: most melatonin products contain 5-10mg when the research clearly shows 300mcg is the effective dose for sleep initiation. Higher doses cause next-day grogginess and potential receptor downregulation. This product gets the dose right. Everything else on pharmacy shelves is ten to thirty times overdosed.",
+    pros: [
+      "300mcg — the research-backed effective dose for sleep initiation",
+      "Lowest price per correctly-dosed melatonin on this list",
+      "Avoids next-day grogginess caused by melatonin overdosing",
+    ],
+    cons: [
+      "No third party certification",
+    ],
+  },
+
+  // ───────── FISH OIL & OMEGA-3 (expanded) ─────────
+  {
+    id: "fishoil-momentous-omega3",
+    category: "Fish Oil & Omega-3",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Omega-3",
+    brand: "Momentous",
+    grade: "S",
+    pricePerServing: 1.20,
+    thirdPartyTested: true,
+    purityScore: 98,
+    certifications: ["NSF Certified for Sport"],
+    analysis:
+      "NSF certified fish oil in triglyceride form — a form that absorbs approximately 70% better than the ethyl ester form found in most budget fish oils. 1.6g combined EPA and DHA per serving hits the clinical target for inflammation and cardiovascular health. The athlete-grade fish oil.",
+    pros: [
+      "NSF Certified for Sport",
+      "Triglyceride form — 70% better absorption than ethyl ester",
+      "1.6g EPA and DHA combined — hits the clinical intervention target",
+    ],
+    cons: [
+      "Premium price reflects the certification and form quality",
+    ],
+  },
+  {
+    id: "fishoil-now-ultra-omega3",
+    category: "Fish Oil & Omega-3",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Ultra Omega-3",
+    brand: "NOW Foods",
+    grade: "A",
+    pricePerServing: 0.40,
+    thirdPartyTested: true,
+    purityScore: 90,
+    certifications: ["IFOS Certified"],
+    analysis:
+      "40 cents per serving, IFOS certified. The value champion in the fish oil category. 500mg EPA and 250mg DHA per serving — a solid combined dose at a price that makes daily compliance easy. If you want certified fish oil at the lowest possible price, this is it.",
+    pros: [
+      "Best value IFOS certified fish oil on this list",
+      "500mg EPA and 250mg DHA per serving",
+      "Widely available in Canada at pharmacies and health stores",
+    ],
+    cons: [
+      "Ethyl ester form — lower absorption than triglyceride options",
+    ],
+  },
+
+  // ───────── GREENS POWDERS (expanded) ─────────
+  {
+    id: "greens-transparent-labs-prebiotic",
+    category: "Greens Powders",
+    evidenceTier: "precautionary",
+    lastVerified: "2026-06-08",
+    name: "Prebiotic Greens",
+    brand: "Transparent Labs",
+    grade: "A+",
+    pricePerServing: 1.50,
+    thirdPartyTested: true,
+    purityScore: 95,
+    certifications: ["Informed Sport"],
+    analysis:
+      "Transparent Labs applies their no-proprietary-blend standard to greens. You can see exactly what you are getting and at what dose — which disqualifies most greens powders from comparison. Informed Sport certified with prebiotic fibre added. The honest greens powder in a dishonest category.",
+    pros: [
+      "No proprietary blends — all ingredient amounts fully disclosed",
+      "Informed Sport certified",
+      "Prebiotic fibre added for gut health support",
+    ],
+    cons: [
+      "Fewer flavour options than market leaders like AG1",
+    ],
+  },
+  {
+    id: "greens-genuine-health-greens-plus",
+    category: "Greens Powders",
+    evidenceTier: "precautionary",
+    lastVerified: "2026-06-08",
+    name: "Greens+",
+    brand: "Genuine Health",
+    grade: "A",
+    pricePerServing: 1.20,
+    thirdPartyTested: false,
+    purityScore: 91,
+    certifications: [],
+    analysis:
+      "Canadian brand that has been formulating greens since before greens were a trend. Fermented greens absorb better than raw powder — a meaningful advantage. Whole food ingredients you can actually recognise. The Gorilla pick for Canadian greens.",
+    pros: [
+      "Canadian brand with 23 years of greens formulation experience",
+      "Fermented greens for better nutrient bioavailability",
+      "Whole food based ingredients throughout",
+    ],
+    cons: [
+      "No third party sport certification",
+    ],
+  },
+  {
+    id: "greens-nested-naturals-super",
+    category: "Greens Powders",
+    evidenceTier: "precautionary",
+    lastVerified: "2026-06-08",
+    name: "Super Greens",
+    brand: "Nested Naturals",
+    grade: "B+",
+    pricePerServing: 0.80,
+    thirdPartyTested: false,
+    purityScore: 86,
+    certifications: [],
+    analysis:
+      "Decent value greens with probiotics included. The proprietary blend on some ingredients is frustrating at this price — you should be able to see what you are paying for. Not the worst product in the category, but not the Gorilla standard either.",
+    pros: [
+      "Good value pricing with probiotics included",
+      "Solid overall ingredient list",
+    ],
+    cons: [
+      "No third party certification",
+      "Proprietary blend obscures individual ingredient amounts",
+    ],
+  },
+
+  // ───────── ELECTROLYTES (expanded) ─────────
+  {
+    id: "electrolyte-precision-ph1500",
+    category: "Electrolytes",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "PH 1500 Electrolyte Tablet",
+    brand: "Precision Hydration",
+    grade: "S",
+    pricePerServing: 1.50,
+    thirdPartyTested: true,
+    purityScore: 97,
+    certifications: ["NSF Certified for Sport"],
+    analysis:
+      "The high-sodium option for heavy sweaters and long-duration events. Used by elite endurance athletes worldwide. NSF certified. 1500mg sodium per serving is engineered for people losing significant sodium through sweat in events over 90 minutes. The science is serious and the certification matches.",
+    pros: [
+      "NSF Certified for Sport",
+      "1500mg sodium — designed for heavy sweaters and long-duration events",
+      "Science team publishes peer-reviewed sweat-rate research",
+    ],
+    cons: [
+      "Expensive for daily use",
+      "High sodium dose inappropriate for light activity or casual hydration",
+    ],
+  },
+  {
+    id: "electrolyte-momentous-absolute-zero",
+    category: "Electrolytes",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Absolute Zero Electrolytes",
+    brand: "Momentous",
+    grade: "A+",
+    pricePerServing: 1.20,
+    thirdPartyTested: true,
+    purityScore: 96,
+    certifications: ["NSF Certified for Sport"],
+    analysis:
+      "NSF certified electrolytes with zero sugar, zero artificial sweeteners, and zero fillers. The cleanest electrolyte product on this list. The pick for athletes who want proper hydration support without anything extra in the formula.",
+    pros: [
+      "NSF Certified for Sport",
+      "Zero sugar and zero artificial sweeteners",
+      "Complete electrolyte profile with nothing unnecessary added",
+    ],
+    cons: [
+      "Premium price at the top of the electrolyte category",
+    ],
+  },
+  {
+    id: "electrolyte-hydralyte-sport",
+    category: "Electrolytes",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Hydralyte Sport",
+    brand: "Hydralyte",
+    grade: "A",
+    pricePerServing: 0.90,
+    thirdPartyTested: false,
+    purityScore: 89,
+    certifications: [],
+    analysis:
+      "Pharmacist formulated to WHO Oral Rehydration Salt standards. Available at Shoppers Drug Mart and Rexall across Canada. The medical-grade electrolyte for illness recovery, post-race dehydration, or extreme heat situations where the clinical standard matters.",
+    pros: [
+      "Pharmacist formulated to WHO oral rehydration standard",
+      "Available at Canadian pharmacies nationwide",
+      "Clinically proven electrolyte ratios",
+    ],
+    cons: [
+      "No third party sport certification",
+      "Higher sugar content than keto-friendly options",
+    ],
+  },
+
+  // ───────── COLLAGEN (expanded) ─────────
+  {
+    id: "collagen-great-lakes-wellness",
+    category: "Collagen",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-08",
+    name: "Collagen Peptides",
+    brand: "Great Lakes Wellness",
+    grade: "A",
+    pricePerServing: 0.80,
+    thirdPartyTested: false,
+    purityScore: 91,
+    certifications: [],
+    analysis:
+      "Clean grass-fed collagen at excellent value. Available at Costco Canada. Add your own vitamin C supplement for optimal collagen synthesis — without vitamin C, collagen absorption is significantly reduced. Simple, effective, honest pricing.",
+    pros: [
+      "Grass fed bovine collagen at outstanding value",
+      "Available at Costco Canada for easy access",
+      "Simple and clean ingredient list",
+    ],
+    cons: [
+      "No third party sport certification",
+      "No added vitamin C — you must supplement separately for optimal synthesis",
+    ],
+  },
+
+  // ───────── VITAMINS & MINERALS (expanded) ─────────
+  {
+    id: "vitamins-pure-encap-magnesium-glycinate",
+    category: "Vitamins & Minerals",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Magnesium (Glycinate)",
+    brand: "Pure Encapsulations",
+    grade: "S",
+    pricePerServing: 0.40,
+    thirdPartyTested: true,
+    purityScore: 99,
+    certifications: ["NSF Certified"],
+    analysis:
+      "The brand that integrative medicine practitioners and physicians recommend when they want pharmaceutical-grade quality without the pharmaceutical price. NSF certified. Zero fillers, zero unnecessary excipients, pure magnesium glycinate. The gold standard for the most important mineral most athletes are deficient in.",
+    pros: [
+      "NSF Certified — pharmaceutical grade manufacturing",
+      "Glycinate form — highest bioavailable magnesium with no GI distress",
+      "Zero fillers, dyes, or unnecessary additives",
+    ],
+    cons: [
+      "Most expensive magnesium option on this list",
+    ],
+  },
+  {
+    id: "vitamins-now-d3-5000",
+    category: "Vitamins & Minerals",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Vitamin D-3 5,000 IU",
+    brand: "NOW Foods",
+    grade: "A+",
+    pricePerServing: 0.05,
+    thirdPartyTested: true,
+    purityScore: 95,
+    certifications: [],
+    analysis:
+      "Five cents per serving for vitamin D3 5000IU from a trusted manufacturer available at every Canadian pharmacy. For most Canadians this is the highest-impact, lowest-cost supplement purchase on this entire list. Take it daily from October to April at minimum.",
+    pros: [
+      "Lowest cost vitamin D3 on this list at every Canadian pharmacy",
+      "5000 IU dose appropriate for addressing deficiency",
+      "NOW Foods quality manufacturing with decades of track record",
+    ],
+    cons: [
+      "No third party sport certification — use Thorne D3+K2 if NSF is required",
+    ],
+  },
+  {
+    id: "vitamins-garden-of-life-vitamin-code-d3",
+    category: "Vitamins & Minerals",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Vitamin Code Raw D3",
+    brand: "Garden of Life",
+    grade: "A",
+    pricePerServing: 0.25,
+    thirdPartyTested: true,
+    purityScore: 93,
+    certifications: ["USDA Organic", "NSF Certified"],
+    analysis:
+      "Whole food sourced D3 that comes packaged with the natural co-factors found in food, potentially improving absorption over isolated synthetic D3. USDA Organic and NSF certified. The premium whole food D3 pick for those who want organic certification alongside their vitamin D.",
+    pros: [
+      "Raw whole food D3 with natural absorption co-factors",
+      "USDA Organic and NSF Certified",
+      "Better absorption profile than isolated synthetic D3",
+    ],
+    cons: [
+      "Lower IU per serving — requires multiple capsules for higher therapeutic doses",
+    ],
+  },
+  {
+    id: "vitamins-thorne-basic-b-complex",
+    category: "Vitamins & Minerals",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Basic B Complex",
+    brand: "Thorne Research",
+    grade: "A+",
+    pricePerServing: 0.50,
+    thirdPartyTested: true,
+    purityScore: 97,
+    certifications: ["NSF Certified for Sport"],
+    analysis:
+      "Most B complex supplements use inactive, cheap forms that a significant portion of the population cannot properly convert due to MTHFR gene variants. Thorne uses methylated forms that work for everyone. NSF Certified for Sport. The pick if you have energy or mood issues that have not responded to standard B vitamin supplementation.",
+    pros: [
+      "NSF Certified for Sport",
+      "Methylated B12 and folate — bioavailable for MTHFR gene variant carriers",
+      "Active vitamin forms throughout at therapeutic doses",
+    ],
+    cons: [
+      "Premium price compared to basic B complex alternatives",
+    ],
+  },
+  {
+    id: "vitamins-genuine-health-fermented-multi",
+    category: "Vitamins & Minerals",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Fermented Multi+",
+    brand: "Genuine Health",
+    grade: "A",
+    pricePerServing: 1.00,
+    thirdPartyTested: false,
+    purityScore: 91,
+    certifications: [],
+    analysis:
+      "Canadian brand that ferments their multivitamin nutrients for better bioavailability. Whole food based ingredients you can actually recognise. The pick for someone who wants a comprehensive multivitamin from a trusted Canadian company without spending twice the price for premium brands.",
+    pros: [
+      "Canadian brand with fermented vitamins for better bioavailability",
+      "Comprehensive whole food based formula",
+    ],
+    cons: [
+      "No third party sport certification",
+    ],
+  },
+
+  // ───────── PROTEIN BARS ─────────
+  {
+    id: "bar-rxbar",
+    category: "Protein Bars",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "RXBAR",
+    brand: "RXBAR",
+    grade: "A+",
+    pricePerServing: 3.50,
+    thirdPartyTested: false,
+    purityScore: 88,
+    certifications: [],
+    analysis:
+      "Already on the Gorilla Approved snack list. The cleanest protein bar on the market. 12g protein from whole foods — dates, egg whites, nuts. Nothing artificial. Nothing fake. The benchmark that every other protein bar should be judged against.",
+    pros: [
+      "Whole food ingredients only — dates, egg whites, nuts",
+      "Zero artificial sweeteners, colours, or preservatives",
+      "12g protein from real, recognisable food sources",
+    ],
+    cons: [
+      "Dense texture that some users find too chewy",
+      "Lower protein count than whey-based processed bars",
+    ],
+  },
+  {
+    id: "bar-quest",
+    category: "Protein Bars",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Quest Bar",
+    brand: "Quest Nutrition",
+    grade: "A",
+    pricePerServing: 3.00,
+    thirdPartyTested: false,
+    purityScore: 84,
+    certifications: [],
+    analysis:
+      "Quest wins on macros and loses on ingredients. 20g protein, near-zero sugar, and high fibre. But erythritol, sucralose, and a highly processed protein matrix tell a more complicated story. Fine as an occasional high-protein snack. Better macros than any candy bar, not a health food.",
+    pros: [
+      "20g protein with near zero sugar",
+      "High fibre content — useful for satiety",
+      "Widely available at Canadian supplement and grocery stores",
+    ],
+    cons: [
+      "Erythritol and sucralose artificial sweeteners",
+      "Highly processed protein matrix",
+    ],
+  },
+  {
+    id: "bar-kind-protein",
+    category: "Protein Bars",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Protein Bar",
+    brand: "KIND",
+    grade: "A",
+    pricePerServing: 3.00,
+    thirdPartyTested: false,
+    purityScore: 83,
+    certifications: [],
+    analysis:
+      "KIND applies their real ingredients philosophy to protein bars. Nuts are the first ingredient. 12g protein from quality whole food sources. Lower sugar than most competitors. The ingredient quality is significantly higher than whey-based processed bars at equivalent protein.",
+    pros: [
+      "Real nuts as first ingredient",
+      "12g protein from quality whole food sources",
+      "Lower sugar than most protein bars",
+    ],
+    cons: [
+      "Lower total protein than whey-based bars",
+    ],
+  },
+  {
+    id: "bar-one-bar",
+    category: "Protein Bars",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "ONE Bar",
+    brand: "ONE",
+    grade: "A",
+    pricePerServing: 3.50,
+    thirdPartyTested: false,
+    purityScore: 82,
+    certifications: [],
+    analysis:
+      "ONE bar tastes like a Snickers. That should tell you something. 20g protein, 1g sugar — impressive macros. But the ingredient list is long and the artificial sweetener stack is aggressive. The cheat meal that also hits your protein target.",
+    pros: [
+      "20g protein with only 1g sugar per bar",
+      "Tastes like a candy bar — very high compliance",
+      "Widely available across Canada",
+    ],
+    cons: [
+      "Aggressive artificial sweetener stack",
+      "Highly processed — long ingredient list",
+    ],
+  },
+  {
+    id: "bar-larabar-protein",
+    category: "Protein Bars",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Protein Snack Bar",
+    brand: "Larabar",
+    grade: "A",
+    pricePerServing: 3.00,
+    thirdPartyTested: false,
+    purityScore: 81,
+    certifications: [],
+    analysis:
+      "Larabar takes their whole food standard and adds pea protein. Every gram of sugar comes from dates — no added sugar, no artificial sweeteners. 11g protein is modest, but the ingredients are as clean as the bar category gets.",
+    pros: [
+      "Whole food date and nut base with added pea protein",
+      "Sugar exclusively from natural fruit sources — no added sugar",
+      "Clean, minimal ingredient list",
+    ],
+    cons: [
+      "Higher total sugar from dates",
+      "Lower protein count at 11g per bar",
+    ],
+  },
+  {
+    id: "bar-clif-bar",
+    category: "Protein Bars",
+    evidenceTier: "emerging-evidence",
+    lastVerified: "2026-06-08",
+    name: "CLIF Bar",
+    brand: "CLIF",
+    grade: "B",
+    pricePerServing: 2.50,
+    thirdPartyTested: false,
+    purityScore: 62,
+    certifications: [],
+    analysis:
+      "Already on the Gorilla Stay Away list for desk snacking, but earns B tier when used correctly. 11g protein, 21g sugar. If you are cycling, running, or hiking for over 90 minutes, this is appropriate carbohydrate fuel. If you are not exercising at that intensity, it is a candy bar with an outdoor brand.",
+    pros: [
+      "Organic ingredients",
+      "Widely available across Canada",
+      "Appropriate fuel for 90+ minute endurance activities",
+    ],
+    cons: [
+      "21g sugar — inappropriate for sedentary or low-activity contexts",
+      "Low protein relative to total sugar and calorie load",
+    ],
+  },
+  {
+    id: "bar-built-bar",
+    category: "Protein Bars",
+    evidenceTier: "strong-consensus",
+    lastVerified: "2026-06-08",
+    name: "Built Bar",
+    brand: "Built Bar",
+    grade: "B+",
+    pricePerServing: 2.50,
+    thirdPartyTested: false,
+    purityScore: 74,
+    certifications: [],
+    analysis:
+      "Better macros than most in this tier — 17g protein and 6g sugar is a solid ratio. The processing is heavy, the sweetener stack is present, but the overall macro profile puts it above most similarly priced alternatives. The value pick for high-protein macro targets.",
+    pros: [
+      "17g protein with only 6g sugar",
+      "Strong macro profile for the price point",
+      "Great taste — high compliance for daily use",
+    ],
+    cons: [
+      "Artificial sweeteners throughout",
+      "Heavily processed coating and structure",
     ],
   },
 ];
