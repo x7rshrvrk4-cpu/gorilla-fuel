@@ -3,6 +3,7 @@ import Link from "next/link";
 import CrossLinkBanner from "./components/CrossLinkBanner";
 import CommunityScansBanner from "./components/CommunityScansBanner";
 import HeroSearchBlock from "./components/HeroSearchBlock";
+import StatsTicker from "./components/StatsTicker";
 
 const tickerItems = [
   "SCAN BEFORE YOU BUY",
@@ -13,13 +14,6 @@ const tickerItems = [
   "KNOW YOUR INGREDIENTS",
   "BEER · SPIRITS · SUPPLEMENTS",
   "GORILLA FUEL — NO BS",
-];
-
-const stats = [
-  { value: "370+", label: "Products Ranked" },
-  { value: "90+", label: "Additives Tracked" },
-  { value: "13", label: "Supplement Categories" },
-  { value: "100%", label: "Independent Scoring" },
 ];
 
 const methodology = [
@@ -87,6 +81,9 @@ const categories = [
 export default function Home() {
   return (
     <>
+      {/* STATS TICKER — live scrolling stats, always above the fold */}
+      <StatsTicker />
+
       {/* HERO */}
       <section className="relative overflow-hidden border-b border-line">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,215,0,0.10),_transparent_60%)]" />
@@ -123,22 +120,6 @@ export default function Home() {
               </span>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* STAT BAR */}
-      <section className="border-b border-line bg-background">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-6 py-14 sm:grid-cols-4">
-          {stats.map((stat) => (
-            <div key={stat.label} className="text-center sm:text-left">
-              <p className="font-display text-5xl text-gold sm:text-6xl">
-                {stat.value}
-              </p>
-              <p className="mt-1 text-sm uppercase tracking-[0.2em] text-muted">
-                {stat.label}
-              </p>
-            </div>
-          ))}
         </div>
       </section>
 

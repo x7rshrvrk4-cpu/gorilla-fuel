@@ -197,6 +197,26 @@ h1, h2, h3, h4, .display {
   animation: scan-result-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* ── Stats ticker — scrolling live stats row below nav ───────────────── */
+@keyframes stats-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.stats-ticker-track {
+  display: flex;
+  width: max-content;
+  /* 13 items — 60s is a comfortable read pace on desktop */
+  animation: stats-scroll 60s linear infinite;
+  /* prevent touch events from pausing the animation */
+  pointer-events: none;
+}
+
+@media (max-width: 639px) {
+  /* slightly faster on mobile as requested */
+  .stats-ticker-track { animation-duration: 40s; }
+}
+
 /* Torch button tap pulse — brief gold ring that expands and fades */
 @keyframes torch-tap {
   0%   { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.75); }
