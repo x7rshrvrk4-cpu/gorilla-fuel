@@ -8,7 +8,6 @@ import MethodologyModal from "../components/MethodologyModal";
 import ProductCard from "./components/ProductCard";
 import UniversalSearch from "../components/UniversalSearch";
 import {
-  CATEGORIES,
   GRADE_COLORS,
   GRADE_LEGEND,
   GRADE_RANK,
@@ -16,63 +15,91 @@ import {
   type Category,
 } from "./lib/products";
 
+// ── Group tab configuration ───────────────────────────────────────────────────
+
+type GroupTab = "PROTEIN" | "PERFORMANCE" | "RECOVERY" | "VITAMINS";
+
+const GROUP_TABS: GroupTab[] = ["PROTEIN", "PERFORMANCE", "RECOVERY", "VITAMINS"];
+
+const GROUP_CATEGORIES: Record<GroupTab, Category[]> = {
+  PROTEIN:     ["Whey Protein", "Casein Protein", "Plant Protein", "Protein Bars"],
+  PERFORMANCE: ["Creatine", "Pre-Workout", "BCAAs/EAAs"],
+  RECOVERY:    ["Sleep & Recovery", "Fish Oil & Omega-3", "Greens Powders", "Electrolytes", "Collagen"],
+  VITAMINS:    ["Vitamins & Minerals"],
+};
+
+function categoryToGroup(cat: Category): GroupTab {
+  for (const [group, cats] of Object.entries(GROUP_CATEGORIES) as [GroupTab, Category[]][]) {
+    if (cats.includes(cat)) return group;
+  }
+  return "PROTEIN";
+}
+
+// ── Product filters ───────────────────────────────────────────────────────────
+
 type FilterKey = "all" | "top" | "tested" | "value";
 
 const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "top", label: "S & A+ Only" },
+  { key: "all",    label: "All" },
+  { key: "top",    label: "S & A+ Only" },
   { key: "tested", label: "3rd Party Tested" },
-  { key: "value", label: "Under $1 / Serving" },
+  { key: "value",  label: "Under $1 / Serving" },
 ];
 
+// ── Component ─────────────────────────────────────────────────────────────────
+
 export default function RankingsClient({ initialCategory = "Creatine" }: { initialCategory?: Category }) {
-  const [category, setCategory] = useState<Category>(initialCategory);
+  const initialGroup = categoryToGroup(initialCategory);
+
+  const [group, setGroup] = useState<GroupTab>(initialGroup);
+  const [category, setCategory] = useState<Category | "all">("all");
   const [filter, setFilter] = useState<FilterKey>("all");
   const [methodologyOpen, setMethodologyOpen] = useState(false);
 
-  // ── Deep link: /rankings?p=<product-id> from universal search ─────────────
-  // Switch to the product's category tab, scroll to its card, gold-highlight.
+  // Reset category chip to "all" when group changes
+  useEffect(() => { setCategory("all"); setFilter("all"); }, [group]);
+
+  // Deep link: /rankings?p=<id> → switch to correct group tab and scroll
   useEffect(() => {
     const pid = new URLSearchParams(window.location.search).get("p");
     if (!pid) return;
     const product = PRODUCTS.find((x) => x.id === pid);
     if (!product) return;
-    setCategory(product.category);
+    setGroup(categoryToGroup(product.category));
+    setCategory("all");
     setFilter("all");
     return scrollToProduct(pid);
   }, []);
 
+  const groupCats = GROUP_CATEGORIES[group];
+
   const products = useMemo(() => {
-    return PRODUCTS.filter((p) => p.category === category)
+    return PRODUCTS
+      .filter((p) => groupCats.includes(p.category))
+      .filter((p) => category === "all" || p.category === category)
       .filter((p) => {
         switch (filter) {
-          case "top":
-            return p.grade === "S" || p.grade === "A+";
-          case "tested":
-            return p.thirdPartyTested;
-          case "value":
-            return p.pricePerServing < 1;
-          default:
-            return true;
+          case "top":    return p.grade === "S" || p.grade === "A+";
+          case "tested": return p.thirdPartyTested;
+          case "value":  return p.pricePerServing < 1;
+          default:       return true;
         }
       })
       .sort((a, b) => GRADE_RANK[b.grade] - GRADE_RANK[a.grade] || a.pricePerServing - b.pricePerServing);
-  }, [category, filter]);
+  }, [group, category, filter, groupCats]);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
+      {/* PAGE HEADER */}
       <div className="max-w-2xl">
         <p className="font-display text-sm tracking-[0.3em] text-gold">SUPPLEMENT INTELLIGENCE HUB</p>
         <h1 className="mt-3 font-display text-5xl leading-[0.95] text-foreground sm:text-6xl">
           The Rankings.
         </h1>
         <p className="mt-4 text-muted">
-          140+ products across 13 categories — whey, casein, plant protein,
-          creatine, pre-workout, BCAAs/EAAs, sleep &amp; recovery, fish oil,
-          greens, electrolytes, collagen, vitamins &amp; minerals, and protein
-          bars. Zero sponsorships. Every entry gets the full Gorilla Analysis
-          treatment — purity, pricing, pros, cons, and the certifications that
-          actually matter.
+          140+ products across 13 categories — whey, casein, plant protein, creatine, pre-workout, BCAAs/EAAs,
+          sleep &amp; recovery, fish oil, greens, electrolytes, collagen, vitamins &amp; minerals, and protein bars.
+          Zero sponsorships. Every entry gets the full Gorilla Analysis treatment.
         </p>
         <button
           type="button"
@@ -87,17 +114,46 @@ export default function RankingsClient({ initialCategory = "Creatine" }: { initi
         <UniversalSearch placeholder="Search supplements, proteins, creatine…" />
       </div>
 
-      {/* CATEGORY TABS */}
+      {/* GROUP TABS */}
       <div className="mt-10 flex flex-wrap gap-2">
-        {CATEGORIES.map((cat) => (
+        {GROUP_TABS.map((g) => (
+          <button
+            key={g}
+            type="button"
+            onClick={() => setGroup(g)}
+            className={`rounded-sm px-5 py-2.5 font-display text-lg tracking-widest transition-colors ${
+              group === g
+                ? "bg-gold text-background"
+                : "border border-line text-muted hover:border-gold-dim hover:text-foreground"
+            }`}
+          >
+            {g}
+          </button>
+        ))}
+      </div>
+
+      {/* CATEGORY CHIPS — sub-categories within this group */}
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setCategory("all")}
+          className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-[0.2em] transition-colors ${
+            category === "all"
+              ? "border-gold text-gold"
+              : "border-line text-muted hover:border-gold-dim hover:text-foreground"
+          }`}
+        >
+          All {group.charAt(0) + group.slice(1).toLowerCase()}
+        </button>
+        {groupCats.map((cat) => (
           <button
             key={cat}
             type="button"
             onClick={() => setCategory(cat)}
-            className={`rounded-sm px-5 py-2.5 font-display text-lg tracking-widest transition-colors ${
+            className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-[0.2em] transition-colors ${
               category === cat
-                ? "bg-gold text-background"
-                : "border border-line text-muted hover:border-gold-dim hover:text-foreground"
+                ? "border-gold text-gold"
+                : "border-line text-muted hover:border-gold-dim hover:text-foreground"
             }`}
           >
             {cat}
@@ -105,8 +161,8 @@ export default function RankingsClient({ initialCategory = "Creatine" }: { initi
         ))}
       </div>
 
-      {/* FILTERS */}
-      <div className="mt-4 flex flex-wrap gap-2">
+      {/* QUALITY FILTERS */}
+      <div className="mt-3 flex flex-wrap gap-2">
         {FILTERS.map((f) => (
           <button
             key={f.key}
@@ -129,7 +185,7 @@ export default function RankingsClient({ initialCategory = "Creatine" }: { initi
           products.map((product) => <ProductCard key={product.id} product={product} />)
         ) : (
           <div className="gorilla-card rounded-sm p-8 text-center">
-            <p className="text-muted">No products in {category} match this filter. Try another combination.</p>
+            <p className="text-muted">No products match this filter combination. Try another.</p>
           </div>
         )}
       </div>
@@ -158,11 +214,10 @@ export default function RankingsClient({ initialCategory = "Creatine" }: { initi
 
       <div className="mt-10 rounded-sm border border-line bg-surface p-5">
         <p className="text-xs leading-relaxed text-muted">
-          Supplement rankings reflect our assessment of publicly available laboratory testing
-          data, certification status, and ingredient research at time of publication. Rankings
-          are updated periodically but may not reflect the most current product formulations.
-          Third-party certification status should be independently verified directly with the
-          certifying body.
+          Supplement rankings reflect our assessment of publicly available laboratory testing data, certification
+          status, and ingredient research at time of publication. Rankings are updated periodically but may not
+          reflect the most current product formulations. Third-party certification status should be independently
+          verified directly with the certifying body.
         </p>
       </div>
 

@@ -7,195 +7,202 @@ import CrossLinkBanner from "../components/CrossLinkBanner";
 import BackToTop from "../components/BackToTop";
 import AlcoholDisclaimer from "../scan/components/AlcoholDisclaimer";
 import AlcoholProductCard from "./components/AlcoholProductCard";
-import { ALCOHOL_CATEGORIES, ALCOHOL_PRODUCTS, wineGorillaScore, type AlcoholCategory } from "./lib/products";
+import { ALCOHOL_PRODUCTS, wineGorillaScore, type AlcoholCategory } from "./lib/products";
 import { trackAlcoholRankingViewed } from "../lib/gtag";
 import UniversalSearch from "../components/UniversalSearch";
 
-type FilterKey =
-  | "all"
-  | "cleanest"
-  | "low-carb"
-  | "low-cal"
-  | "london-on"
-  | "ontario-craft"
-  | "toronto"
-  | "hamilton"
-  | "niagara-region"
-  | "ottawa"
-  | "guelph"
-  | "eastern-ontario"
-  | "ipa"
-  | "lager"
-  | "stout"
-  | "red"
-  | "white"
-  | "rose"
-  | "sparkling"
-  | "sweet"
-  | "icewine"
-  | "ontario-vqa"
-  | "gluten-free"
-  | "dry-only";
+// ── Page-level tab groupings ──────────────────────────────────────────────────
 
-const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "gluten-free", label: "✓ Gluten Free" },
-  { key: "london-on", label: "London ON" },
-  { key: "toronto", label: "Toronto" },
-  { key: "hamilton", label: "Hamilton" },
+type PageTab = "BEER" | "WINE" | "SELTZER & RTD" | "NON-ALCOHOLIC";
+
+const PAGE_TABS: PageTab[] = ["BEER", "WINE", "SELTZER & RTD", "NON-ALCOHOLIC"];
+
+const TAB_CATEGORIES: Record<PageTab, AlcoholCategory[]> = {
+  "BEER":          ["Light Beer", "IPA & Craft Ale", "Lager"],
+  "WINE":          ["Wines"],
+  "SELTZER & RTD": ["Hard Seltzer", "Cider"],
+  "NON-ALCOHOLIC": ["Non-Alcoholic"],
+};
+
+/** Map any AlcoholCategory to its parent page tab */
+function categoryToTab(cat: AlcoholCategory): PageTab {
+  for (const [tab, cats] of Object.entries(TAB_CATEGORIES) as [PageTab, AlcoholCategory[]][]) {
+    if (cats.includes(cat)) return tab;
+  }
+  return "BEER";
+}
+
+// ── Beer filter chips ─────────────────────────────────────────────────────────
+
+type BeerFilter =
+  | "all" | "cleanest" | "low-carb" | "low-cal" | "gluten-free"
+  | "london-on" | "ontario-craft" | "toronto" | "hamilton"
+  | "niagara-region" | "ottawa" | "eastern-ontario"
+  | "ipa" | "lager" | "stout";
+
+const BEER_FILTERS: { key: BeerFilter; label: string }[] = [
+  { key: "all",            label: "All" },
+  { key: "cleanest",       label: "Cleanest" },
+  { key: "low-carb",       label: "Low Carb (<5g)" },
+  { key: "low-cal",        label: "Low Cal (<100 cal)" },
+  { key: "gluten-free",    label: "✓ Gluten Free" },
+  { key: "ipa",            label: "IPA" },
+  { key: "lager",          label: "Lager" },
+  { key: "stout",          label: "Stout" },
+  { key: "london-on",      label: "London ON" },
+  { key: "ontario-craft",  label: "Ontario Craft" },
+  { key: "toronto",        label: "Toronto" },
+  { key: "hamilton",       label: "Hamilton" },
   { key: "niagara-region", label: "Niagara" },
-  { key: "ottawa", label: "Ottawa" },
-  { key: "guelph", label: "Guelph" },
-  { key: "eastern-ontario", label: "Eastern Ontario" },
-  { key: "ontario-craft", label: "Ontario Craft" },
-  { key: "ipa", label: "IPA" },
-  { key: "lager", label: "Lager" },
-  { key: "stout", label: "Stout" },
-  { key: "cleanest", label: "Cleanest" },
-  { key: "low-carb", label: "Low Carb (<5g)" },
-  { key: "low-cal", label: "Low Cal (<100 cal)" },
+  { key: "ottawa",         label: "Ottawa" },
+  { key: "eastern-ontario",label: "Eastern Ontario" },
 ];
 
-const WINE_FILTERS: { key: FilterKey; label: string }[] = [
-  { key: "all", label: "All Wines" },
+// ── RTD filter chips ──────────────────────────────────────────────────────────
+
+type RtdFilter = "all" | "cleanest" | "low-cal" | "low-carb" | "gluten-free" | "cider" | "seltzer";
+
+const RTD_FILTERS: { key: RtdFilter; label: string }[] = [
+  { key: "all",         label: "All" },
+  { key: "seltzer",     label: "Hard Seltzer" },
+  { key: "cider",       label: "Cider" },
+  { key: "low-cal",     label: "Low Cal (<100 cal)" },
+  { key: "low-carb",    label: "Low Carb (<5g)" },
+  { key: "cleanest",    label: "Cleanest" },
+  { key: "gluten-free", label: "✓ Gluten Free" },
+];
+
+// ── Wine filter chips ─────────────────────────────────────────────────────────
+
+type WineFilter =
+  | "all" | "ontario-vqa" | "red" | "white" | "rose"
+  | "sparkling" | "sweet" | "icewine" | "dry-only" | "low-cal";
+
+const WINE_FILTERS: { key: WineFilter; label: string }[] = [
+  { key: "all",         label: "All Wines" },
   { key: "ontario-vqa", label: "🍁 Ontario VQA" },
-  { key: "red", label: "Red" },
-  { key: "white", label: "White" },
-  { key: "rose", label: "Rosé" },
-  { key: "sparkling", label: "Sparkling" },
-  { key: "sweet", label: "Sweet" },
-  { key: "icewine", label: "Icewine" },
-  { key: "dry-only", label: "Dry Only (<4g sugar)" },
-  { key: "low-cal", label: "Low Cal (<130 cal)" },
+  { key: "red",         label: "Red" },
+  { key: "white",       label: "White" },
+  { key: "rose",        label: "Rosé" },
+  { key: "sparkling",   label: "Sparkling" },
+  { key: "sweet",       label: "Sweet" },
+  { key: "icewine",     label: "Icewine" },
+  { key: "dry-only",    label: "Dry Only (<4g sugar)" },
+  { key: "low-cal",     label: "Low Cal (<130 cal)" },
 ];
 
 type WineSort = "gorilla" | "quality" | "sweet-spot";
 
 const WINE_SORTS: { key: WineSort; label: string }[] = [
-  { key: "gorilla", label: "🦍 Sort by Gorilla Score" },
-  { key: "quality", label: "⭐ Sort by Wine Quality" },
-  { key: "sweet-spot", label: "THE GORILLA SWEET SPOT" },
+  { key: "gorilla",     label: "🦍 Sort by Gorilla Score" },
+  { key: "quality",     label: "⭐ Sort by Wine Quality" },
+  { key: "sweet-spot",  label: "THE GORILLA SWEET SPOT" },
 ];
 
+// ── Component ─────────────────────────────────────────────────────────────────
+
 export default function AlcoholClient() {
-  const [category, setCategory] = useState<AlcoholCategory>("Light Beer");
-  const [filter, setFilter] = useState<FilterKey>("all");
+  const [tab, setTab] = useState<PageTab>("BEER");
+  const [beerFilter, setBeerFilter] = useState<BeerFilter>("all");
+  const [rtdFilter, setRtdFilter] = useState<RtdFilter>("all");
+  const [wineFilter, setWineFilter] = useState<WineFilter>("all");
   const [wineSort, setWineSort] = useState<WineSort>("gorilla");
 
-  const isWineTab = category === "Wines";
+  const isWine = tab === "WINE";
+  const isRtd = tab === "SELTZER & RTD";
+  const isBeer = tab === "BEER";
+  const isNonAlc = tab === "NON-ALCOHOLIC";
 
-  useEffect(() => {
-    trackAlcoholRankingViewed();
-  }, []);
+  useEffect(() => { trackAlcoholRankingViewed(); }, []);
 
-  // ── Deep link: /alcohol?p=<product-id> from universal search results ──────
-  // Switch to the product's category tab, scroll to its card, and flash a
-  // gold highlight so the user lands directly on what they searched for.
+  // Deep link: /alcohol?p=<id> → switch to correct tab and scroll
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const pid = params.get("p");
+    const pid = new URLSearchParams(window.location.search).get("p");
     if (!pid) return;
     const product = ALCOHOL_PRODUCTS.find((x) => x.id === pid);
     if (!product) return;
-    setCategory(product.category);
-    setFilter("all");
-    // Repeated scroll handles long tabs that keep reflowing after first
-    // paint - a single early scroll gets pushed back out of view.
+    setTab(categoryToTab(product.category));
     return scrollToProduct(pid);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    setFilter("all");
-  }, [category]);
-
   const products = useMemo(() => {
-    return ALCOHOL_PRODUCTS.filter((p) => p.category === category)
-      .filter((p) => {
-        switch (filter) {
-          case "cleanest":
-            return p.additiveCount === 0 || p.additiveCount === 1;
-          case "low-carb":
-            return isWineTab ? p.sugarPerCan < 2 : p.carbsPerCan < 5;
-          case "low-cal":
-            return isWineTab ? p.caloriesPerCan < 130 : p.caloriesPerCan < 100;
-          case "london-on":
-            return p.londonOntario === true;
-          case "toronto":
-            return p.cityRegion === "Toronto";
-          case "hamilton":
-            return p.cityRegion === "Hamilton";
-          case "niagara-region":
-            return p.cityRegion === "Niagara";
-          case "ottawa":
-            return p.cityRegion === "Ottawa";
-          case "guelph":
-            return p.cityRegion === "Guelph";
-          case "eastern-ontario":
-            // Ottawa is Eastern Ontario; extend as eastern breweries are added
-            return p.cityRegion === "Ottawa";
-          case "ontario-craft":
-            return p.ontarioCraft === true;
-          case "ipa":
-            return p.beerStyle?.toLowerCase().includes("ipa") || p.category === "IPA & Craft Ale";
-          case "lager":
-            return p.beerStyle?.toLowerCase().includes("lager") || p.beerStyle?.toLowerCase().includes("pilsner") || p.category === "Lager";
-          case "stout":
-            return p.beerStyle?.toLowerCase().includes("stout") || p.beerStyle?.toLowerCase().includes("porter");
-          case "red":
-            return p.wineSubcategory === "Red";
-          case "white":
-            return p.wineSubcategory === "White";
-          case "rose":
-            return p.wineSubcategory === "Rosé";
-          case "sparkling":
-            return p.wineSubcategory === "Sparkling";
-          case "sweet":
-            return p.wineSubcategory === "Sweet";
-          case "icewine":
-            return p.wineSubcategory === "Icewine";
-          case "ontario-vqa":
-            return p.ontarioVQA === true;
-          case "gluten-free":
-            return p.glutenStatus === "certified-gf";
-          case "dry-only":
-            return p.sugarPerCan < 4;
-          default:
-            return true;
-        }
-      })
-      .sort((a, b) => {
-        // Wine tab: explicit sort modes (Gorilla / Quality / Sweet Spot avg)
-        if (isWineTab) {
-          if (wineSort === "gorilla") {
-            return wineGorillaScore(b) - wineGorillaScore(a) || a.name.localeCompare(b.name);
-          }
-          if (wineSort === "quality") {
-            return (b.wineQuality ?? -1) - (a.wineQuality ?? -1) || a.name.localeCompare(b.name);
-          }
-          // sweet-spot: combined average of Gorilla Score + Wine Quality;
-          // unrated wines sort below everything rated.
-          const combined = (p: typeof a) =>
-            p.wineQuality !== undefined ? (wineGorillaScore(p) + p.wineQuality) / 2 : -1;
-          return combined(b) - combined(a) || a.name.localeCompare(b.name);
-        }
-        // Beer tabs: Ontario VQA first, then London ON, then Ontario craft, then brand
-        if (a.ontarioVQA && !b.ontarioVQA) return -1;
-        if (!a.ontarioVQA && b.ontarioVQA) return 1;
-        if (a.londonOntario && !b.londonOntario) return -1;
-        if (!a.londonOntario && b.londonOntario) return 1;
-        if (a.ontarioCraft && !b.ontarioCraft) return -1;
-        if (!a.ontarioCraft && b.ontarioCraft) return 1;
-        return a.brand.localeCompare(b.brand) || a.name.localeCompare(b.name);
-      });
-  }, [category, filter, isWineTab, wineSort]);
+    const cats = TAB_CATEGORIES[tab];
+    const base = ALCOHOL_PRODUCTS.filter((p) => cats.includes(p.category));
 
-  const activeFilters = isWineTab ? WINE_FILTERS : FILTERS;
+    const filtered = base.filter((p) => {
+      if (isBeer) {
+        switch (beerFilter) {
+          case "cleanest":        return p.additiveCount <= 1;
+          case "low-carb":        return p.carbsPerCan < 5;
+          case "low-cal":         return p.caloriesPerCan < 100;
+          case "gluten-free":     return p.glutenStatus === "certified-gf";
+          case "london-on":       return p.londonOntario === true;
+          case "ontario-craft":   return p.ontarioCraft === true;
+          case "toronto":         return p.cityRegion === "Toronto";
+          case "hamilton":        return p.cityRegion === "Hamilton";
+          case "niagara-region":  return p.cityRegion === "Niagara";
+          case "ottawa":          return p.cityRegion === "Ottawa";
+          case "eastern-ontario": return p.cityRegion === "Ottawa";
+          case "ipa":             return p.beerStyle?.toLowerCase().includes("ipa") || p.category === "IPA & Craft Ale";
+          case "lager":           return p.beerStyle?.toLowerCase().includes("lager") || p.beerStyle?.toLowerCase().includes("pilsner") || p.category === "Lager";
+          case "stout":           return p.beerStyle?.toLowerCase().includes("stout") || p.beerStyle?.toLowerCase().includes("porter");
+          default:                return true;
+        }
+      }
+      if (isRtd) {
+        switch (rtdFilter) {
+          case "seltzer":     return p.category === "Hard Seltzer";
+          case "cider":       return p.category === "Cider";
+          case "cleanest":    return p.additiveCount <= 1;
+          case "low-cal":     return p.caloriesPerCan < 100;
+          case "low-carb":    return p.carbsPerCan < 5;
+          case "gluten-free": return p.glutenStatus === "certified-gf";
+          default:            return true;
+        }
+      }
+      if (isWine) {
+        switch (wineFilter) {
+          case "ontario-vqa": return p.ontarioVQA === true;
+          case "red":         return p.wineSubcategory === "Red";
+          case "white":       return p.wineSubcategory === "White";
+          case "rose":        return p.wineSubcategory === "Rosé";
+          case "sparkling":   return p.wineSubcategory === "Sparkling";
+          case "sweet":       return p.wineSubcategory === "Sweet";
+          case "icewine":     return p.wineSubcategory === "Icewine";
+          case "dry-only":    return p.sugarPerCan < 4;
+          case "low-cal":     return p.caloriesPerCan < 130;
+          default:            return true;
+        }
+      }
+      return true;
+    });
+
+    return filtered.sort((a, b) => {
+      if (isWine) {
+        if (wineSort === "gorilla")    return wineGorillaScore(b) - wineGorillaScore(a) || a.name.localeCompare(b.name);
+        if (wineSort === "quality")    return (b.wineQuality ?? -1) - (a.wineQuality ?? -1) || a.name.localeCompare(b.name);
+        const combined = (p: typeof a) => p.wineQuality !== undefined ? (wineGorillaScore(p) + p.wineQuality) / 2 : -1;
+        return combined(b) - combined(a) || a.name.localeCompare(b.name);
+      }
+      // Beer / RTD / Non-alc: local first, then brand
+      if (a.ontarioVQA && !b.ontarioVQA) return -1;
+      if (!a.ontarioVQA && b.ontarioVQA) return 1;
+      if (a.londonOntario && !b.londonOntario) return -1;
+      if (!a.londonOntario && b.londonOntario) return 1;
+      if (a.ontarioCraft && !b.ontarioCraft) return -1;
+      if (!a.ontarioCraft && b.ontarioCraft) return 1;
+      return a.brand.localeCompare(b.brand) || a.name.localeCompare(b.name);
+    });
+  }, [tab, beerFilter, rtdFilter, wineFilter, wineSort, isBeer, isRtd, isWine]);
+
+  const searchPlaceholder = isWine ? "Search wines by name or winery…" : "Search beers, seltzers, ciders…";
 
   return (
     <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
+      {/* PAGE HEADER */}
       <div className="max-w-2xl">
-        {isWineTab ? (
+        {isWine ? (
           <>
             <p className="font-display text-sm tracking-[0.3em] text-rose-400">WINE INTELLIGENCE</p>
             <h1 className="mt-3 font-display text-5xl leading-[0.95] text-foreground sm:text-6xl">
@@ -217,9 +224,9 @@ export default function AlcoholClient() {
               The <span className="text-amber-400">Alcohol</span> Rankings.
             </h1>
             <p className="mt-4 text-muted">
-              {ALCOHOL_PRODUCTS.filter((p) => p.category !== "Wines").length} beers, seltzers, ciders, and RTDs
-              across {ALCOHOL_CATEGORIES.length - 1} categories — including London Ontario craft breweries, Ontario
-              craft, and national brands. Filter by style, origin, or macros.
+              {ALCOHOL_PRODUCTS.filter((p) => p.category !== "Wines" && p.category !== "Non-Alcoholic").length} beers,
+              seltzers, and ciders — plus London Ontario craft, Ontario craft, and national brands. Filter by style,
+              origin, or macros.
             </p>
             <p className="mt-3 inline-flex items-center gap-2 rounded-sm border border-amber-400/30 bg-amber-400/8 px-3 py-1.5 text-xs text-amber-300/80">
               <span className="text-amber-400">✓</span>
@@ -239,79 +246,113 @@ export default function AlcoholClient() {
       </div>
 
       <div className="mt-6">
-        <UniversalSearch placeholder={isWineTab ? "Search wines by name or winery…" : "Search beers, seltzers, ciders…"} />
+        <UniversalSearch placeholder={searchPlaceholder} />
       </div>
 
-      {!isWineTab && (
+      {!isWine && !isNonAlc && (
         <div className="mt-4 overflow-hidden rounded-sm border border-amber-400/20">
           <AlcoholDisclaimer />
         </div>
       )}
 
-      {/* CATEGORY TABS */}
+      {/* PAGE TABS */}
       <div className="mt-10 flex flex-wrap gap-2">
-        {ALCOHOL_CATEGORIES.map((cat) => {
-          const isWineCat = cat === "Wines";
-          const isActive = category === cat;
-          return (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setCategory(cat)}
-              className={`rounded-sm px-5 py-2.5 font-display text-lg tracking-widest transition-colors ${
-                isActive
-                  ? isWineCat
-                    ? "bg-rose-800 text-white"
-                    : "bg-amber-400 text-slate-950"
-                  : isWineCat
-                  ? "border border-rose-800/50 text-rose-400 hover:border-rose-700 hover:text-rose-300"
-                  : "border border-slate-700 text-slate-400 hover:border-amber-400/50 hover:text-foreground"
-              }`}
-            >
-              {cat === "Wines" ? "🍷 " : ""}{cat}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* FILTERS */}
-      <div className="mt-4 flex flex-wrap gap-2">
-        {activeFilters.map((f) => (
+        {PAGE_TABS.map((t) => (
           <button
-            key={f.key}
+            key={t}
             type="button"
-            onClick={() => setFilter(f.key)}
-            className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-[0.2em] transition-colors ${
-              filter === f.key
-                ? f.key === "london-on"
-                  ? "border-emerald-500 text-emerald-400"
-                  : isWineTab
-                  ? "border-rose-500 text-rose-400"
-                  : "border-amber-400 text-amber-400"
-                : "border-slate-700 text-slate-400 hover:border-amber-400/50 hover:text-foreground"
+            onClick={() => setTab(t)}
+            className={`rounded-sm px-5 py-2.5 font-display text-lg tracking-widest transition-colors ${
+              tab === t
+                ? t === "WINE"
+                  ? "bg-rose-800 text-white"
+                  : "bg-amber-400 text-slate-950"
+                : t === "WINE"
+                ? "border border-rose-800/50 text-rose-400 hover:border-rose-700 hover:text-rose-300"
+                : "border border-slate-700 text-slate-400 hover:border-amber-400/50 hover:text-foreground"
             }`}
           >
-            {f.label}
+            {t === "WINE" ? "🍷 " : ""}{t}
           </button>
         ))}
       </div>
 
-      {/* Gluten free filter note */}
-      {filter === "gluten-free" && (
+      {/* FILTER CHIPS — beer */}
+      {isBeer && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {BEER_FILTERS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              onClick={() => setBeerFilter(f.key)}
+              className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-[0.2em] transition-colors ${
+                beerFilter === f.key
+                  ? f.key === "london-on"
+                    ? "border-emerald-500 text-emerald-400"
+                    : "border-amber-400 text-amber-400"
+                  : "border-slate-700 text-slate-400 hover:border-amber-400/50 hover:text-foreground"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* FILTER CHIPS — RTD */}
+      {isRtd && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {RTD_FILTERS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              onClick={() => setRtdFilter(f.key)}
+              className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-[0.2em] transition-colors ${
+                rtdFilter === f.key
+                  ? "border-amber-400 text-amber-400"
+                  : "border-slate-700 text-slate-400 hover:border-amber-400/50 hover:text-foreground"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* FILTER CHIPS — wine */}
+      {isWine && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {WINE_FILTERS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              onClick={() => setWineFilter(f.key)}
+              className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-[0.2em] transition-colors ${
+                wineFilter === f.key
+                  ? "border-rose-500 text-rose-400"
+                  : "border-slate-700 text-slate-400 hover:border-rose-500/60 hover:text-foreground"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Contextual notes */}
+      {isBeer && beerFilter === "gluten-free" && (
         <div className="mt-4 rounded-sm border border-green-600/40 bg-green-900/20 px-5 py-4">
           <p className="text-xs leading-relaxed text-green-300/90">
             <span className="font-display tracking-wide text-green-200">✓ CERTIFIED GLUTEN FREE — </span>
-            Showing only products made entirely from gluten-free ingredients — never
-            barley, wheat or rye — and safe for celiac disease. &ldquo;Gluten removed&rdquo;
-            beers are deliberately excluded: Health Canada does not permit them to be
-            labelled gluten free, and they are not recommended for celiac disease.{" "}
+            Showing only products made entirely from gluten-free ingredients. &ldquo;Gluten removed&rdquo; beers are
+            deliberately excluded: Health Canada does not permit them to be labelled gluten free, and they are not
+            recommended for celiac disease.{" "}
             <Link href="/glutenfree" className="underline hover:text-green-100">Full gluten-free guide →</Link>
           </p>
         </div>
       )}
 
-      {/* London ON spotlight note */}
-      {filter === "london-on" && !isWineTab && (
+      {isBeer && beerFilter === "london-on" && (
         <div className="mt-4 rounded-sm border border-emerald-700/30 bg-emerald-900/20 px-5 py-4">
           <p className="text-xs leading-relaxed text-emerald-300/80">
             <span className="font-display tracking-wide text-emerald-200">London Ontario craft — home turf.</span>{" "}
@@ -322,7 +363,7 @@ export default function AlcoholClient() {
       )}
 
       {/* Wine sort buttons */}
-      {isWineTab && (
+      {isWine && (
         <div className="mt-4 flex flex-wrap gap-2">
           {WINE_SORTS.map((s) => (
             <button
@@ -346,33 +387,27 @@ export default function AlcoholClient() {
         </div>
       )}
 
-      {/* Ontario VQA note */}
-      {isWineTab && (filter === "all" || filter === "ontario-vqa") && (
+      {isWine && (wineFilter === "all" || wineFilter === "ontario-vqa") && (
         <div className="mt-4 rounded-sm border border-emerald-700/40 bg-gradient-to-r from-emerald-900/25 to-yellow-900/15 px-5 py-4">
           <p className="text-xs leading-relaxed text-emerald-300/90">
             <span className="font-display tracking-wide text-emerald-200">🍁 ONTARIO VQA — </span>
-            Ontario VQA wines are 100% Ontario-grown grapes verified by the Vintners
-            Quality Alliance. Every bottle represents a local Ontario winery and
-            Canadian farming families.
+            Ontario VQA wines are 100% Ontario-grown grapes verified by the Vintners Quality Alliance. Every bottle
+            represents a local Ontario winery and Canadian farming families.
           </p>
         </div>
       )}
 
-      {/* Icewine note */}
-      {isWineTab && filter === "icewine" && (
+      {isWine && wineFilter === "icewine" && (
         <div className="mt-4 rounded-sm border border-amber-500/40 bg-amber-900/20 px-5 py-4">
           <p className="text-xs leading-relaxed text-amber-300/90">
             <span className="font-display tracking-wide text-amber-200">🧊 ICEWINE — </span>
-            Icewine is a dessert wine served in 60mL portions, so nutrition is shown
-            per 60mL pour rather than the standard 148mL glass. It is naturally high
-            in sugar due to the concentration that happens when grapes freeze on the
-            vine — that&apos;s the style, not an additive.
+            Served in 60mL portions; nutrition is shown per 60mL pour. Naturally high in sugar from grapes freezing on
+            the vine — that&apos;s the style, not an additive.
           </p>
         </div>
       )}
 
-      {/* Wine helpful note + scoring explanation */}
-      {isWineTab && (
+      {isWine && (
         <div className="mt-6 space-y-3">
           <div className="rounded-sm border border-rose-800/30 bg-rose-950/30 px-5 py-4">
             <p className="text-xs leading-relaxed text-rose-300/80">
@@ -389,12 +424,8 @@ export default function AlcoholClient() {
           </div>
           <div className="rounded-sm border border-slate-800 bg-slate-900/40 px-5 py-4">
             <p className="text-xs leading-relaxed text-slate-400">
-              Wine quality scores sourced from critic ratings displayed on LCBO
-              product pages including James Suckling, Wine Spectator, Wine
-              Enthusiast, WineAlign, Decanter, and National Wine Awards of
-              Canada. Scores reflect the most recent vintage reviewed. Gorilla
-              nutrition scores calculated using our publicly documented
-              methodology at gorillafuel.ca/methodology. No brand pays for
+              Wine quality scores sourced from critic ratings on LCBO product pages including James Suckling, Wine
+              Spectator, Wine Enthusiast, WineAlign, Decanter, and National Wine Awards of Canada. No brand pays for
               placement on this page.
             </p>
           </div>
@@ -407,7 +438,7 @@ export default function AlcoholClient() {
           products.map((product) => <AlcoholProductCard key={product.id} product={product} />)
         ) : (
           <div className="col-span-full rounded-sm border border-slate-800 bg-slate-900/60 p-8 text-center">
-            <p className="text-slate-400">No drinks in {category} match this filter. Try another combination.</p>
+            <p className="text-slate-400">No drinks in {tab} match this filter. Try another combination.</p>
           </div>
         )}
       </div>

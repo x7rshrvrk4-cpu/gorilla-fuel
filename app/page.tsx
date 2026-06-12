@@ -1,251 +1,341 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import StatsTicker from "./components/StatsTicker";
+import CrossLinkBanner from "./components/CrossLinkBanner";
+import { ALCOHOL_PRODUCTS } from "./alcohol/lib/products";
+import { INTEL_APPROVED, amazonUrl } from "./intel/lib/products";
+import { PRODUCTS, GRADE_RANK } from "./rankings/lib/products";
 
 export const metadata: Metadata = {
   description:
     "Canada's free barcode scanner for food, supplements and alcohol. Scan any product and get an instant no-BS health score. No ads. No sponsors. Just data.",
   alternates: { canonical: "/" },
 };
-import CrossLinkBanner from "./components/CrossLinkBanner";
-import CommunityScansBanner from "./components/CommunityScansBanner";
-import HeroSearchBlock from "./components/HeroSearchBlock";
-import StatsTicker from "./components/StatsTicker";
 
-const tickerItems = [
-  "SCAN BEFORE YOU BUY",
-  "100+ PRODUCTS RANKED",
-  "ADDITIVES EXPOSED",
-  "NO SPONSORED RESULTS",
-  "BLACK & GOLD STANDARD",
-  "KNOW YOUR INGREDIENTS",
-  "BEER · SPIRITS · SUPPLEMENTS",
-  "GORILLA FUEL — NO BS",
-];
+// ── Auto picks — computed server-side from live data arrays ──────────────────
 
-const methodology = [
-  {
-    step: "01",
-    title: "Scan the Code",
-    body: "Point your camera at any barcode. We pull live product data straight from Open Food Facts — no guesswork, no marketing spin.",
-  },
-  {
-    step: "02",
-    title: "Score the Nutrition",
-    body: "Sugar, saturated fat, salt, calories, fiber, and protein get weighed against hard thresholds. Hidden junk doesn't slide past us.",
-  },
-  {
-    step: "03",
-    title: "Expose the Additives",
-    body: "We scan the ingredients list for flagged additives — colorants, preservatives, sweeteners — and grade each one by real risk level.",
-  },
-  {
-    step: "04",
-    title: "Deliver the Verdict",
-    body: "Nutrition (60%), additives (30%), and an organic bonus (10%) combine into one score: Excellent, Good, Poor, or Bad. Plus better alternatives, instantly.",
-  },
-];
+/** Alcohol pick: highest gorillaPour, non-alcoholic excluded, lowest cal as tiebreaker. */
+function getAlcoholPick() {
+  return [...ALCOHOL_PRODUCTS]
+    .filter(
+      (p) =>
+        p.category !== "Non-Alcoholic" &&
+        p.gorillaPour >= 4 &&
+        !!p.gorillaAnalysis
+    )
+    .sort(
+      (a, b) =>
+        b.gorillaPour - a.gorillaPour || a.caloriesPerCan - b.caloriesPerCan
+    )[0];
+}
 
-const categories = [
+/** Food pick: highest score in Gorilla Approved. */
+function getFoodPick() {
+  return [...INTEL_APPROVED].sort((a, b) => b.score - a.score)[0];
+}
+
+/** Supplement pick: best grade first, then highest purity score. */
+function getSuppPick() {
+  return [...PRODUCTS].sort(
+    (a, b) =>
+      GRADE_RANK[b.grade] - GRADE_RANK[a.grade] ||
+      b.purityScore - a.purityScore
+  )[0];
+}
+
+// ── Category doors data ───────────────────────────────────────────────────────
+const DOORS = [
   {
-    name: "Creatine",
-    description: "Purity, mesh size, and third-party testing — separating the proven from the proprietary blends.",
-    href: "/rankings",
-    accent: "from-[#3a3216] to-[#0f0d08]",
-  },
-  {
-    name: "Whey Protein",
-    description: "Protein-per-dollar, amino profiles, and what's really hiding behind 'natural flavors.'",
-    href: "/rankings",
-    accent: "from-[#352d12] to-[#0f0d08]",
-  },
-  {
-    name: "Pre-Workout",
-    description: "Stimulant loads, dosage transparency, and the additives brands hope you'll skim past.",
-    href: "/rankings",
-    accent: "from-[#3d300f] to-[#0f0d08]",
-  },
-  {
-    name: "BCAAs / EAAs",
-    description: "Whether your amino formula is actually doing anything — or just dressed-up sugar water.",
-    href: "/rankings",
-    accent: "from-[#332b13] to-[#0f0d08]",
-  },
-  {
-    name: "Beer & Alcohol",
-    description: "ABV, calorie density, artificial sweeteners, sulfites, and clarity agents — 228 beers, ciders, seltzers, and wines ranked.",
     href: "/alcohol",
-    accent: "from-[#3b2e05] to-[#0f0d08]",
+    label: "ALCOHOL",
+    sub: "Beer · Wine · Seltzer · Non-Alcoholic",
+    tagline: "500+ products scored",
   },
   {
-    name: "Beauty Scanner",
-    description: "Parabens, sulfates, silicones, and 11 flagged chemicals — scan any cosmetic barcode for an instant safety score.",
-    href: "/scan",
-    accent: "from-[#1e1e2e] to-[#0f0d08]",
+    href: "/approved",
+    label: "FOOD & SNACKS",
+    sub: "Approved · Cheat List · Stay Away · Kids · Gluten Free",
+    tagline: "Scan anything instantly",
+  },
+  {
+    href: "/rankings",
+    label: "SUPPLEMENTS",
+    sub: "Protein · Performance · Recovery · Vitamins",
+    tagline: "150+ products ranked",
+  },
+];
+
+// ── Pillars data ──────────────────────────────────────────────────────────────
+const PILLARS = [
+  {
+    title: "CANADIAN FIRST",
+    body: "Built specifically for Beer Store and LCBO shoppers. Every product you actually buy in Ontario is in here.",
+  },
+  {
+    title: "NO BRAND PAYS FOR PLACEMENT",
+    body: "Your Gorilla Score is based on ingredients, not marketing budgets. It has never been any other way and it never will be.",
+  },
+  {
+    title: "15 DATA SOURCES",
+    body: "Open Food Facts, USDA, Health Canada, WineAlign, Wine Spectator, and more. One scan pulls from all of them simultaneously.",
   },
 ];
 
 export default function Home() {
+  const alcoholPick = getAlcoholPick();
+  const foodPick = getFoodPick();
+  const suppPick = getSuppPick();
+
   return (
     <>
-      {/* STATS TICKER — live scrolling stats, always above the fold */}
+      {/* STATS TICKER */}
       <StatsTicker />
 
-      {/* HERO — no overflow-hidden: it would clip the search dropdown */}
-      <section className="relative border-b border-line">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,215,0,0.10),_transparent_60%)]" />
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-7 px-6 py-24 text-center sm:py-32">
-          <span className="animate-fade rounded-full border border-gold-dim px-4 py-1.5 font-display text-sm tracking-[0.3em] text-gold">
-            FOOD · ALCOHOL · SUPPLEMENT · BEAUTY
-          </span>
-          <h1 className="animate-rise font-display text-5xl leading-[0.95] text-foreground sm:text-7xl md:text-8xl">
-            STOP GUESSING
-            <br />
-            WHAT YOU{" "}
-            <span className="gold-gradient-text">SWALLOW.</span>
+      {/* ── HERO ─────────────────────────────────────────────────────────── */}
+      <section className="relative border-b border-line bg-background">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,215,0,0.08),_transparent_60%)]" />
+        <div className="mx-auto flex max-w-3xl flex-col items-center gap-8 px-6 py-24 text-center sm:py-32">
+          <h1 className="font-display text-6xl leading-[0.9] text-gold sm:text-8xl md:text-9xl">
+            SCAN IT.<br />SCORE IT.<br />KNOW IT.
           </h1>
-          <p
-            className="animate-rise max-w-xl text-lg text-muted sm:text-xl"
-            style={{ animationDelay: "0.15s" }}
-          >
-            Scan any barcode and get an instant, no-BS health score — sugar,
-            additives, and the data brands don&apos;t put on the front of the label.
+          <p className="max-w-lg text-lg leading-relaxed text-muted sm:text-xl">
+            Free Canadian product intelligence for beer, wine, supplements and
+            food. No brand pays for placement. Ever.
           </p>
-          <HeroSearchBlock />
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <Link
+              href="/scan"
+              className="rounded-sm bg-gold px-8 py-4 font-display text-xl tracking-widest text-background transition-opacity hover:opacity-90"
+            >
+              SCAN A PRODUCT
+            </Link>
+            <Link
+              href="/rankings"
+              className="rounded-sm border border-gold px-8 py-4 font-display text-xl tracking-widest text-gold transition-colors hover:bg-gold hover:text-background"
+            >
+              BROWSE RANKINGS
+            </Link>
+          </div>
         </div>
+      </section>
 
-        {/* TICKER TAPE */}
-        <div className="overflow-hidden border-t border-line bg-surface py-3">
-          <div className="ticker-track">
-            {[...tickerItems, ...tickerItems].map((item, i) => (
-              <span
-                key={i}
-                className="mx-6 flex items-center gap-6 whitespace-nowrap font-display text-lg tracking-[0.25em] text-gold/80"
+      {/* ── THREE CATEGORY DOORS ─────────────────────────────────────────── */}
+      <section className="border-b border-line bg-background">
+        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
+          <div className="grid gap-4 sm:grid-cols-3">
+            {DOORS.map((door) => (
+              <Link
+                key={door.href}
+                href={door.href}
+                className="group flex min-h-[220px] flex-col justify-between rounded-sm border border-gold/40 bg-surface p-8 transition-all hover:border-gold hover:shadow-[0_0_24px_rgba(255,215,0,0.12)]"
               >
-                {item}
-                <span className="text-gold/30">●</span>
-              </span>
+                <div>
+                  <h2 className="font-display text-3xl tracking-widest text-gold sm:text-4xl">
+                    {door.label}
+                  </h2>
+                  <p className="mt-3 text-sm leading-relaxed text-muted">
+                    {door.sub}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-[0.2em] text-muted/70">
+                    {door.tagline}
+                  </span>
+                  <span className="font-display text-gold opacity-0 transition-opacity group-hover:opacity-100">
+                    →
+                  </span>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* METHODOLOGY */}
+      {/* ── THIS WEEK'S GORILLA PICKS ─────────────────────────────────────── */}
       <section className="border-b border-line bg-surface">
-        <div className="mx-auto max-w-6xl px-6 py-20">
-          <div className="mb-12 max-w-2xl">
-            <p className="font-display text-sm tracking-[0.3em] text-gold">
-              HOW THE SCORE WORKS
-            </p>
-            <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
-              Our Methodology
-            </h2>
-            <p className="mt-4 text-muted">
-              Every product gets the same cold, consistent treatment. No brand
-              gets a pass — the numbers do the talking.
-            </p>
-          </div>
-          <div className="grid gap-px overflow-hidden rounded-sm border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
-            {methodology.map((item) => (
-              <div
-                key={item.step}
-                className="flex flex-col gap-3 bg-surface p-6 transition-colors hover:bg-surface-2"
-              >
-                <span className="font-display text-3xl text-gold-dim">
-                  {item.step}
-                </span>
-                <h3 className="font-display text-2xl text-foreground">
-                  {item.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-muted">
-                  {item.body}
+        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
+          <p className="font-display text-sm tracking-[0.3em] text-gold">
+            AUTO-GENERATED FROM CURATED DATABASE
+          </p>
+          <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
+            This Week&apos;s Gorilla Picks
+          </h2>
+          <p className="mt-3 text-sm text-muted">
+            Highest scoring product in each category, updated automatically as scores change.
+          </p>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            {/* Alcohol pick */}
+            {alcoholPick && (
+              <div className="gorilla-card flex flex-col rounded-sm p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <span className="inline-flex rounded-sm border border-amber-600/40 bg-amber-900/20 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-amber-400">
+                      Alcohol
+                    </span>
+                    <h3 className="mt-2 font-display text-2xl leading-tight text-foreground">
+                      {alcoholPick.name}
+                    </h3>
+                    <p className="text-sm text-muted">{alcoholPick.brand}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="font-display text-4xl text-gold leading-none">
+                      {alcoholPick.gorillaPour}
+                    </p>
+                    <p className="mt-0.5 text-[10px] uppercase tracking-widest text-muted">
+                      / 5 Pour
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-4 flex-1 text-sm leading-relaxed text-muted">
+                  {alcoholPick.gorillaAnalysis}
                 </p>
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center rounded-sm border border-gold/40 bg-gold/10 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.15em] text-gold">
+                    🦍 Gorilla Verified
+                  </span>
+                  <Link
+                    href="/alcohol"
+                    className="ml-auto font-display text-xs tracking-widest text-gold hover:underline"
+                  >
+                    See all alcohol →
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Food pick */}
+            {foodPick && (
+              <div className="gorilla-card flex flex-col rounded-sm p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <span className="inline-flex rounded-sm border border-emerald-600/40 bg-emerald-900/20 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-emerald-400">
+                      Food
+                    </span>
+                    <h3 className="mt-2 font-display text-2xl leading-tight text-foreground">
+                      {foodPick.name}
+                    </h3>
+                    <p className="text-sm text-muted">{foodPick.brand}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p
+                      className={`font-display text-4xl leading-none ${
+                        foodPick.score >= 70
+                          ? "text-emerald-400"
+                          : foodPick.score >= 50
+                          ? "text-amber-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {foodPick.score}
+                    </p>
+                    <p className="mt-0.5 text-[10px] uppercase tracking-widest text-muted">
+                      / 100
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-4 flex-1 text-sm leading-relaxed text-muted">
+                  {foodPick.blurb}
+                </p>
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center rounded-sm border border-gold/40 bg-gold/10 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.15em] text-gold">
+                    🦍 Gorilla Verified
+                  </span>
+                  {foodPick.amazonQuery && (
+                    <a
+                      href={amazonUrl(foodPick.amazonQuery)}
+                      target="_blank"
+                      rel="noopener noreferrer sponsored"
+                      className="ml-auto font-display text-xs tracking-widest text-gold hover:underline"
+                    >
+                      Buy on Amazon →
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Supplement pick */}
+            {suppPick && (
+              <div className="gorilla-card flex flex-col rounded-sm p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <span className="inline-flex rounded-sm border border-blue-600/40 bg-blue-900/20 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-blue-400">
+                      Supplement
+                    </span>
+                    <h3 className="mt-2 font-display text-2xl leading-tight text-foreground">
+                      {suppPick.name}
+                    </h3>
+                    <p className="text-sm text-muted">{suppPick.brand}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="font-display text-4xl leading-none text-emerald-400">
+                      {suppPick.grade}
+                    </p>
+                    <p className="mt-0.5 text-[10px] uppercase tracking-widest text-muted">
+                      Grade
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-4 flex-1 text-sm leading-relaxed text-muted">
+                  {suppPick.analysis}
+                </p>
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center rounded-sm border border-gold/40 bg-gold/10 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.15em] text-gold">
+                    🦍 Gorilla Verified
+                  </span>
+                  <a
+                    href={`https://www.amazon.ca/s?k=${encodeURIComponent(suppPick.brand + " " + suppPick.name)}&tag=gorillafuel-20`}
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                    className="ml-auto font-display text-xs tracking-widest text-gold hover:underline"
+                  >
+                    Buy on Amazon →
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ── THREE PILLARS ─────────────────────────────────────────────────── */}
+      <section className="border-b border-line bg-background">
+        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
+          <div className="grid gap-0 divide-y divide-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+            {PILLARS.map((p) => (
+              <div key={p.title} className="px-0 py-8 sm:px-8 sm:py-0">
+                <h3 className="font-display text-2xl leading-tight text-gold sm:text-3xl">
+                  {p.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted">{p.body}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CATEGORY PREVIEW CARDS */}
-      <section className="border-b border-line bg-background">
-        <div className="mx-auto max-w-6xl px-6 py-20">
-          <div className="mb-12 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="font-display text-sm tracking-[0.3em] text-gold">
-                THE INTELLIGENCE HUB
-              </p>
-              <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
-                Ranked by Category
-              </h2>
-            </div>
-            <div className="flex items-center gap-5">
-              <Link
-                href="/rankings"
-                className="font-display text-lg tracking-widest text-gold hover:underline"
-              >
-                Supplements →
-              </Link>
-              <Link
-                href="/alcohol"
-                className="font-display text-lg tracking-widest text-gold hover:underline"
-              >
-                Alcohol →
-              </Link>
-            </div>
-          </div>
-          <div className="grid gap-6 sm:grid-cols-2">
-            {categories.map((cat) => (
-              <Link
-                key={cat.name}
-                href={cat.href}
-                className={`group relative overflow-hidden rounded-sm border border-line bg-gradient-to-br ${cat.accent} p-8 transition-colors hover:border-gold-dim`}
-              >
-                <h3 className="font-display text-3xl text-foreground transition-colors group-hover:text-gold">
-                  {cat.name}
-                </h3>
-                <p className="mt-3 max-w-md text-sm leading-relaxed text-muted">
-                  {cat.description}
-                </p>
-                <span className="mt-6 inline-block font-display text-base tracking-widest text-gold opacity-0 transition-opacity group-hover:opacity-100">
-                  EXPLORE RANKINGS →
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* COMMUNITY SCANS THIS WEEK */}
-      <CommunityScansBanner />
-
-      {/* GORILLA QUOTE */}
+      {/* ── SCAN ANYTHING CALLOUT ─────────────────────────────────────────── */}
       <section className="border-b border-line bg-surface">
-        <div className="mx-auto max-w-4xl px-6 py-24 text-center">
-          <div className="relative mx-auto mb-2 inline-block">
-            <div className="pointer-events-none absolute inset-0 -z-10 scale-125 rounded-full bg-gold/20 blur-[50px]" />
-            <Image
-              src="/gorilla-fuel-hero.png"
-              alt="Gorilla Fuel — flexing gorilla"
-              width={144}
-              height={144}
-              unoptimized
-              className="relative h-24 w-24 object-contain drop-shadow-[0_0_30px_rgba(255,215,0,0.3)] sm:h-28 sm:w-28"
-            />
-          </div>
-          <p className="font-display text-sm tracking-[0.3em] text-gold">
-            THE GORILLA STANDARD
+        <div className="mx-auto max-w-4xl px-5 py-20 text-center sm:px-8">
+          <h2 className="font-display text-5xl text-foreground sm:text-6xl md:text-7xl">
+            SCAN ANYTHING
+          </h2>
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted">
+            Point your camera at any barcode on any beer can, wine bottle,
+            supplement tub, or food package and get an instant Gorilla Score.
+            Free. No account needed. No app to download. Works on any phone
+            browser.
           </p>
-          <blockquote className="mt-6 font-display text-3xl leading-tight text-foreground sm:text-5xl">
-            &ldquo;Read the label. Question the science. Trust the data —
-            <span className="text-gold"> not the marketing.</span>&rdquo;
-          </blockquote>
-          <p className="mt-6 text-sm uppercase tracking-[0.3em] text-muted">
-            — The Gorilla Fuel Standard
-          </p>
+          <Link
+            href="/scan"
+            className="mt-8 inline-block rounded-sm bg-gold px-10 py-5 font-display text-2xl tracking-widest text-background transition-opacity hover:opacity-90"
+          >
+            SCAN A PRODUCT
+          </Link>
         </div>
       </section>
 
-      {/* Single Gorilla Sports cross-promotion — no duplicates */}
       <CrossLinkBanner />
     </>
   );
