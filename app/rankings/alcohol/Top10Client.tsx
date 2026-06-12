@@ -80,7 +80,7 @@ const SWEET_SPOT_CROSS: { name: string; list: string; rank: number; score: numbe
   { name: "Stella Artois", list: "Beer", rank: 9, score: 60, tier: "borderline" },
   { name: "Kim Crawford Sauvignon Blanc", list: "Wine", rank: 2, score: 70, tier: "sweet" },
   { name: "Oyster Bay Sauvignon Blanc", list: "Wine", rank: 7, score: 70, tier: "sweet" },
-  { name: "Cottage Springs", list: "RTD", rank: 1, score: 72, tier: "sweet" },
+  { name: "Cottage Springs", list: "RTD", rank: 1, score: 78, tier: "sweet" },
   { name: "White Claw", list: "RTD", rank: 3, score: 75, tier: "sweet" },
 ];
 
