@@ -127,9 +127,24 @@ function gateResult(base: ScoreResult, barcode: string, product: OffProduct): Sc
     categoriesTags: product.categories_tags,
     novaGroup: product.nova_group ?? base.novaGroup,
   });
+
+  // When the gate reduces the final score (curated override, brand cap, category cap),
+  // proportionally scale the sub-scores so they never show 100/100 while the final
+  // score is 22. UPC DB products often return with no NOVA/ingredients, leaving the
+  // algorithm sub-scores inflated. Curated score takes priority; sub-scores follow.
+  let nutritionScore = base.nutritionScore;
+  let additiveScore = base.additiveScore;
+  if (outcome.score < base.finalScore && base.finalScore > 0) {
+    const ratio = outcome.score / base.finalScore;
+    nutritionScore = Math.max(5, Math.round(base.nutritionScore * ratio));
+    additiveScore = Math.max(5, Math.min(100, Math.round(base.additiveScore * ratio)));
+  }
+
   return {
     ...base,
     finalScore: outcome.score,
+    nutritionScore,
+    additiveScore,
     grade: outcome.grade as ScoreResult["grade"],
     scoreSource: outcome.scoreSource,
     capReason: outcome.capReason,

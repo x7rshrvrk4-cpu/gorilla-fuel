@@ -1166,6 +1166,20 @@ export function computeScore(
     effectiveAdditiveScore = 60;
   }
 
+  // "No additives detected" ≠ "zero additives" for any processed food.
+  // Only minimally processed whole foods (NOVA 1/2 or ≤3 short ingredients) can
+  // score 100 on additives. Processed products with clean-looking ingredient scans
+  // cap at 88 — there's almost always something we didn't catch or that wasn't listed.
+  if (effectiveAdditiveScore === 100 && !inferredSweeteners) {
+    const nova = asNovaGroup(context?.novaGroup ?? undefined);
+    const ing = (ingredientsText ?? "").trim();
+    const ingCount = ing ? ing.replace(/\([^)]*\)/g, "").split(",").filter((s) => s.trim()).length : 0;
+    const isSimple = (nova === 1 || nova === 2) || (ingCount > 0 && ingCount <= 3);
+    if (!isSimple) {
+      effectiveAdditiveScore = 88;
+    }
+  }
+
   // ── Problem 8: missing nutrition data in inherently-junk categories ───────
   // When a product is in a category known for high sugar/fat/additives but has
   // no nutrition data at all, default to a LOW score not a falsely clean one.

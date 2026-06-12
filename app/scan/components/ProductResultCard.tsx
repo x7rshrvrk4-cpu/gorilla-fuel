@@ -75,7 +75,11 @@ export default function ProductResultCard({ product, result, alternatives, alter
             <NhpBadge productName={product.product_name} categoryTags={product.categories_tags} />
             {dataSource && <SourceBadge source={dataSource} />}
             {/* Score-source transparency badge — how this score was determined */}
-            {result.scoreSource === "gorilla-verified" && (
+            {/* GORILLA VERIFIED: only when data came from our own systems (not 3rd-party APIs).
+                When UPC DB/OFF returns the product but the score is curated, the data source
+                badge (UPC DATABASE / OPEN FOOD FACTS) already shows — adding Gorilla Verified
+                on top is misleading since we didn't verify the product data, only the score. */}
+            {result.scoreSource === "gorilla-verified" && (!dataSource || dataSource === "gorilla-cache" || dataSource === "gorilla-curated") && (
               <span className="inline-flex items-center gap-1 rounded-sm border border-gold/70 bg-gold/15 px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.18em] text-gold" title="Score comes from the hand-verified Gorilla curated database">
                 🦍 Gorilla Verified
               </span>

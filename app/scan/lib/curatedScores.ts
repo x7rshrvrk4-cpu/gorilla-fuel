@@ -113,6 +113,15 @@ const LAKER_LIGHT        = o(52, "Good",  [], ["Light lager", "Lower calorie"]);
 const LAKER_PREMIUM      = o(48, "Poor",  [], ["Value premium lager"]);
 
 // ─────────────────────────────────────────────────────────────────────────────
+// SNACK CALIBRATION TARGETS — confirmed via real-world scanning 2026-06
+// Christie/Nabisco/Mondelez biscuit line. These barcodes came from Canadian
+// UPC labels returned by the UPC database with inflated algorithm scores.
+// ─────────────────────────────────────────────────────────────────────────────
+const RITZ              = o(48, "Poor", [], ["Enriched flour first ingredient", "Palm oil", "Moderately processed biscuit"]);
+const CHIPS_AHOY        = o(28, "Bad",  [], ["High sugar", "Palm oil", "Artificial flavour", "Christie/Nabisco ultra-processed cookie"]);
+const BTS_OREO          = o(30, "Bad",  [], ["Novelty cookie high sugar", "Ultra-processed", "Christie limited edition"]);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // BARCODE LOOKUP TABLE  (first match wins — exact after stripping leading zeros)
 // ─────────────────────────────────────────────────────────────────────────────
 const BARCODE_OVERRIDES: BarcodeEntry[] = [
@@ -120,7 +129,12 @@ const BARCODE_OVERRIDES: BarcodeEntry[] = [
   { barcode: "0028400090308", override: DORITOS },             // Doritos (corrected 2026-06: was misassigned to Lay's)
   { barcode: "0028400090155", override: LAYS_CLASSIC },        // Lay's Classic (verified barcode)
   { barcode: "0028400590679", override: TOSTITOS },            // Tostitos Restaurant Style (verified barcode)
-  { barcode: "0044000030131", override: OREO },                // Oreo Original
+  { barcode: "0044000030131", override: OREO },                // Oreo Original (US Nabisco)
+  { barcode: "066721028105",  override: OREO },                // Oreo Original Christie Canada
+  { barcode: "0066721028105", override: OREO },                // Oreo Original Christie Canada (with leading zero)
+  { barcode: "066721031020",  override: RITZ },                // Ritz Soccer Shapes Christie Canada
+  { barcode: "0066721031020", override: RITZ },                // Ritz Soccer Shapes Christie Canada (with leading zero)
+  { barcode: "0066721030153", override: BTS_OREO },            // BTS Brown Sugar Pancake Oreo Christie
   { barcode: "0062100012284", override: CANADA_DRY_ZERO },     // Canada Dry Zero Sugar
   { barcode: "0069000019832", override: COCA_COLA },           // Coca-Cola Classic
   { barcode: "0069000008947", override: PEPSI_REGULAR },       // Pepsi
@@ -241,6 +255,9 @@ const NAME_OVERRIDES: NameEntry[] = [
   { patterns: [/old\s*dutch.*ketchup/i],                                         override: OLD_DUTCH_KETCHUP },
   { patterns: [/old\s*dutch.*all\s*dressed/i],                                   override: OLD_DUTCH_DRESSED },
   { patterns: [/oreo.*double\s*stuf/i],                                          override: OREO_DOUBLE },
+  { patterns: [/bts.*oreo/i, /oreo.*brown\s*sugar.*pancake/i, /oreo.*pancake/i], override: BTS_OREO },
+  { patterns: [/chips\s*ahoy/i],                                                 override: CHIPS_AHOY },
+  { patterns: [/\britz\b.*cracker/i, /\britz\b.*soccer/i, /\britz\b.*shapes/i, /^ritz$/i, /^ritz\s+(original|crackers?)$/i], override: RITZ },
   { patterns: [/lucky\s*charms/i],                                               override: LUCKY_CHARMS },
   { patterns: [/froot\s*loops/i],                                                override: FROOT_LOOPS },
   { patterns: [/fruit\s*by\s*the\s*foot/i],                                      override: FRUIT_BY_FOOT },
@@ -336,6 +353,13 @@ const BRAND_CAPS: { pattern: RegExp; cap: number; except?: RegExp; label: string
   { pattern: /\bvelveeta\b/i, cap: 35, label: "Velveeta" },
   // Laker — value ice beer brand, hard cap regardless of food-path scoring
   { pattern: /\blaker\b/i, cap: 55, label: "Laker" },
+  // Major processed-snack manufacturers — algorithm results on UPC DB products
+  // from these brands frequently inflate due to missing NOVA/ingredient data.
+  { pattern: /\bchristie\b/i, cap: 60, label: "Christie" },
+  { pattern: /\bmondelez\b/i, cap: 60, label: "Mondelez" },
+  { pattern: /\bnabisco\b/i, cap: 60, label: "Nabisco" },
+  { pattern: /\bkellogg'?s?\b/i, cap: 60, label: "Kellogg's" },
+  { pattern: /\bgeneral\s*mills\b/i, cap: 60, label: "General Mills" },
 ];
 
 // ── TASK 3: CATEGORY-LEVEL CAPS — CURATED OVERRIDE — DO NOT REMOVE ───────────
@@ -350,13 +374,31 @@ function categoryCap(name: string, cats: string, ing: string): { cap: number; re
   const hasFlavour = ARTIFICIAL_FLAVOUR_RE.test(ing);
   const hasMsg = MSG_RE.test(ing);
 
+  // Count ingredients (after stripping parenthetical sub-lists) for clean-exception
+  const ingStripped = ing.replace(/\([^)]*\)/g, "");
+  const ingCount = ingStripped.trim() ? ingStripped.split(",").filter((s) => s.trim()).length : 99;
+  const hasNoAdditives = !hasColour && !hasFlavour && !hasMsg &&
+    !/partially\s*hydrogenated|high\s*fructose|glucose[\s-]?fructose|\btbhq\b|\bbha\b|\bbht\b/i.test(ing);
+  const isClean = ingCount < 5 && hasNoAdditives;
+
   if (/cheese\s*(puffs?|curls?|doodles?)/.test(hay)) return { cap: 25, reason: "cheese puff/curl category" };
   if (/(chips?|crisps?|puffs?|curls?)\b/.test(hay) && (hasColour || hasFlavour || hasMsg))
     return { cap: 45, reason: "chips/puffs with artificial colours/flavours/MSG" };
   if (/\b(candy|candies|confectionery|sweets)\b/.test(hay)) return { cap: 35, reason: "candy/confectionery category" };
-  if (/(cookies?|biscuits?)\b/.test(hay) && hasColour) return { cap: 40, reason: "cookies with artificial colours" };
+  // Cookies — capped unconditionally; clean ≤4-ingredient exceptions are in curated DB
+  if (/(cookies?)\b/.test(hay) && hasColour) return { cap: 38, reason: "cookies with artificial colours" };
+  if (/(cookies?)\b/.test(hay)) return { cap: 45, reason: "cookies category — ultra-processed baked good" };
+  // Crackers and biscuits — capped at 62 unless very few clean ingredients
+  if (/(crackers?|biscuits?)\b/.test(hay) && !isClean) return { cap: 62, reason: "crackers/biscuits — processed grain product" };
+  // Sugary cereals with artificial colour — hard cap
   if (/(cereal)/.test(hay) && /sugar|frosted|honey|choc/.test(hay) && hasColour)
     return { cap: 35, reason: "sugary cereal with artificial colours" };
+  // General cereals (not plain oats or similar)
+  if (/(cereal)/.test(hay) && !/plain\s*oat|rolled\s*oat|steel[\s-]?cut|100\s*%\s*oat|bran\s*flakes?\b/.test(hay))
+    return { cap: 60, reason: "cereal category — typically processed grain product" };
+  // Snack cakes and pastries
+  if (/(snack[\s-]?cake|pastri|pastry|muffin\s*cake|swiss\s*roll)\b/.test(hay))
+    return { cap: 40, reason: "snack cake/pastry category" };
   if (/(party\s*mix|snack\s*mix)/.test(hay) && hasColour) return { cap: 30, reason: "party/snack mix with artificial colours" };
   if (/frozen[\s-]?(dessert|novelty)|ice[\s-]?cream/.test(hay)) return { cap: 50, reason: "frozen dessert category" };
   if (/instant\s*noodles?|\bramen\b/.test(hay)) return { cap: 35, reason: "instant noodles category" };
@@ -397,6 +439,16 @@ export function ingredientSanityCap(
   if (/acesulfame/i.test(ing) && /aspartame/i.test(ing))
     caps.push({ cap: 48, reason: "acesulfame potassium + aspartame together" });
   if (novaGroup === 4) caps.push({ cap: 50, reason: "NOVA Group 4 ultra-processed" });
+
+  // Palm oil in the first 3 ingredients — high sat fat sourcing signal
+  if (ing.trim()) {
+    const top3 = ing.split(",").slice(0, 3).join(" ");
+    if (/\bpalm\s+(kernel\s+)?oil\b/i.test(top3)) caps.push({ cap: 45, reason: "palm oil in top 3 ingredients" });
+    // Enriched/bleached flour as first ingredient — refined grain base
+    const firstIng = ing.split(",")[0]?.trim() ?? "";
+    if (/enriched\s+(wheat\s+)?flour|bleached\s+enriched|enriched\s+white\s+flour/i.test(firstIng))
+      caps.push({ cap: 55, reason: "enriched flour as first ingredient" });
+  }
 
   const ingredientCount = ing.split(",").filter((s) => s.trim()).length;
   if (ingredientCount > 25) caps.push({ cap: 55, reason: `${ingredientCount} ingredients (over 25)` });
