@@ -7,7 +7,7 @@ import type { OffProduct } from "./openFoodFacts";
  */
 export async function lookupUsda(barcode: string): Promise<OffProduct | null> {
   try {
-    const res = await fetch(`/api/usda?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(8000) });
+    const res = await fetch(`/api/usda?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(1500) });
     if (!res.ok) return null;
     const data: OffProduct | null = await res.json();
     return data?.product_name ? data : null;
@@ -24,7 +24,7 @@ export async function lookupUsda(barcode: string): Promise<OffProduct | null> {
  */
 export async function lookupNutritionix(barcode: string): Promise<OffProduct | null> {
   try {
-    const res = await fetch(`/api/nutritionix?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(8000) });
+    const res = await fetch(`/api/nutritionix?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(1500) });
     if (!res.ok) return null;
     const data: OffProduct | null = await res.json();
     return data?.product_name ? data : null;
@@ -41,7 +41,7 @@ export async function lookupNutritionix(barcode: string): Promise<OffProduct | n
  */
 export async function lookupFatSecret(barcode: string): Promise<OffProduct | null> {
   try {
-    const res = await fetch(`/api/fatsecret?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(8000) });
+    const res = await fetch(`/api/fatsecret?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(1500) });
     if (!res.ok) return null;
     const data: OffProduct | null = await res.json();
     return data?.product_name ? data : null;

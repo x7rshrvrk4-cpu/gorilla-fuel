@@ -16,7 +16,7 @@ export type FallbackAlcoholProduct = {
  */
 export async function lookupColaCloud(barcode: string): Promise<FallbackAlcoholProduct | null> {
   try {
-    const res = await fetch(`/api/cola?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(8000) });
+    const res = await fetch(`/api/cola?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(1500) });
     if (!res.ok) return null;
     const data: ColaProduct | null = await res.json();
     if (!data) return null;
@@ -41,7 +41,7 @@ export async function lookupColaCloud(barcode: string): Promise<FallbackAlcoholP
  */
 export async function lookupWineVybe(barcode: string): Promise<FallbackAlcoholProduct | null> {
   try {
-    const res = await fetch(`/api/winevybe?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(8000) });
+    const res = await fetch(`/api/winevybe?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(1500) });
     if (!res.ok) return null;
     const data: WineVybeProduct | null = await res.json();
     if (!data || !data.name) return null;
@@ -64,7 +64,7 @@ export async function lookupWineVybe(barcode: string): Promise<FallbackAlcoholPr
  */
 export async function lookupWineAnalyzer(barcode: string): Promise<FallbackAlcoholProduct | null> {
   try {
-    const res = await fetch(`/api/wineanalyzer?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(8000) });
+    const res = await fetch(`/api/wineanalyzer?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(1500) });
     if (!res.ok) return null;
     const data: WineAnalyzerProduct | null = await res.json();
     if (!data || !data.name) return null;

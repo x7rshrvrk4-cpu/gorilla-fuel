@@ -25,7 +25,7 @@ export async function lookupBeautyBarcode(barcode: string): Promise<ObfLookupRes
   try {
     const res = await fetch(
       `https://world.openbeautyfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json`,
-      { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(4000) }
+      { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(1500) }
     );
 
     if (!res.ok) {

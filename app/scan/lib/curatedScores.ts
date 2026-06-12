@@ -103,6 +103,16 @@ const PEPSI_REGULAR      = o(22, "Bad");
 const SPRITE_REGULAR     = o(24, "Bad");
 
 // ─────────────────────────────────────────────────────────────────────────────
+// LAKER — Carlsberg Canada / Waterloo Brewing. Any Laker that ends up in
+// the food scoring path (rare, but possible if OFF lacks alcohol categories)
+// gets a hard score override rather than the algorithm's default ~90.
+// ─────────────────────────────────────────────────────────────────────────────
+const LAKER_ICE          = o(38, "Poor",  [], ["High ABV ice beer", "High calorie", "NOVA Group 4"]);
+const LAKER_LAGER        = o(45, "Poor",  [], ["Mainstream value lager", "Moderate calorie"]);
+const LAKER_LIGHT        = o(52, "Good",  [], ["Light lager", "Lower calorie"]);
+const LAKER_PREMIUM      = o(48, "Poor",  [], ["Value premium lager"]);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // BARCODE LOOKUP TABLE  (first match wins — exact after stripping leading zeros)
 // ─────────────────────────────────────────────────────────────────────────────
 const BARCODE_OVERRIDES: BarcodeEntry[] = [
@@ -256,6 +266,11 @@ const NAME_OVERRIDES: NameEntry[] = [
   { patterns: [/coca[\s-]?cola(?!\s*zero|\s*diet|\s*life)/i],                    override: COCA_COLA },
   { patterns: [/^pepsi$/i, /pepsi(?!\s*diet|\s*max|\s*zero|\s*wild)/i],          override: PEPSI_REGULAR },
   { patterns: [/^sprite$/i, /sprite(?!\s*zero|\s*cranberry|\s*tropical)/i],      override: SPRITE_REGULAR },
+  // Laker — hard overrides so ice beer never scores 90 via the food path
+  { patterns: [/\blaker\s*ice\b/i],                                              override: LAKER_ICE },
+  { patterns: [/\blaker\s*light\b/i],                                            override: LAKER_LIGHT },
+  { patterns: [/\blaker\s*(premium|gold|red)\b/i],                               override: LAKER_PREMIUM },
+  { patterns: [/\blaker\s*(lager|beer|original)?\b/i],                           override: LAKER_LAGER },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -319,6 +334,8 @@ const BRAND_CAPS: { pattern: RegExp; cap: number; except?: RegExp; label: string
   { pattern: /\bfunyuns\b/i, cap: 30, label: "Funyuns" },
   { pattern: /cheez\s*whiz/i, cap: 35, label: "Cheez Whiz" },
   { pattern: /\bvelveeta\b/i, cap: 35, label: "Velveeta" },
+  // Laker — value ice beer brand, hard cap regardless of food-path scoring
+  { pattern: /\blaker\b/i, cap: 55, label: "Laker" },
 ];
 
 // ── TASK 3: CATEGORY-LEVEL CAPS — CURATED OVERRIDE — DO NOT REMOVE ───────────

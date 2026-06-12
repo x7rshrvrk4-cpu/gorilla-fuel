@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
           "X-RapidAPI-Host": "barcodelookup.p.rapidapi.com",
           Accept: "application/json",
         },
-        signal: AbortSignal.timeout(4000),
+        signal: AbortSignal.timeout(1500),
         next: { revalidate: 86400 },
       }
     );
