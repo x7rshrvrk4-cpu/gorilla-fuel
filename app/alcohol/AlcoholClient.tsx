@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { scrollToProduct } from "../lib/scrollHighlight";
 import CrossLinkBanner from "../components/CrossLinkBanner";
 import AlcoholDisclaimer from "../scan/components/AlcoholDisclaimer";
 import AlcoholProductCard from "./components/AlcoholProductCard";
@@ -97,19 +98,9 @@ export default function AlcoholClient() {
     if (!product) return;
     setCategory(product.category);
     setFilter("all");
-    // Wait for the tab's cards to render before scrolling
-    const t = window.setTimeout(() => {
-      const el = document.getElementById(`product-${pid}`);
-      if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      el.style.outline = "2px solid #ffd700";
-      el.style.outlineOffset = "2px";
-      window.setTimeout(() => {
-        el.style.outline = "";
-        el.style.outlineOffset = "";
-      }, 2500);
-    }, 350);
-    return () => window.clearTimeout(t);
+    // Repeated scroll handles long tabs that keep reflowing after first
+    // paint - a single early scroll gets pushed back out of view.
+    return scrollToProduct(pid);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

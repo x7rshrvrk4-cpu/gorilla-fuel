@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import CrossLinkBanner from "../components/CrossLinkBanner";
+import { scrollToProduct } from "../lib/scrollHighlight";
 import MethodologyModal from "../components/MethodologyModal";
 import ProductCard from "./components/ProductCard";
 import UniversalSearch from "../components/UniversalSearch";
@@ -37,18 +38,7 @@ export default function RankingsClient({ initialCategory = "Creatine" }: { initi
     if (!product) return;
     setCategory(product.category);
     setFilter("all");
-    const t = window.setTimeout(() => {
-      const el = document.getElementById(`product-${pid}`);
-      if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      el.style.outline = "2px solid #ffd700";
-      el.style.outlineOffset = "2px";
-      window.setTimeout(() => {
-        el.style.outline = "";
-        el.style.outlineOffset = "";
-      }, 2500);
-    }, 350);
-    return () => window.clearTimeout(t);
+    return scrollToProduct(pid);
   }, []);
 
   const products = useMemo(() => {

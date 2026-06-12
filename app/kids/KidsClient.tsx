@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import CrossLinkBanner from "../components/CrossLinkBanner";
+import { scrollToProduct } from "../lib/scrollHighlight";
 import {
   KIDS_APPROVED,
   KIDS_CHEAT,
@@ -170,15 +171,7 @@ export default function KidsClient() {
     if (!inApproved && !inCheat && !inStayAway) return;
     setTab(inApproved ? "approved" : inCheat ? "cheat" : "stay-away");
     setAllergen("all");
-    const t = window.setTimeout(() => {
-      const el = document.getElementById(`product-${pid}`);
-      if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      el.style.outline = "2px solid #ffd700";
-      el.style.outlineOffset = "2px";
-      window.setTimeout(() => { el.style.outline = ""; el.style.outlineOffset = ""; }, 2500);
-    }, 350);
-    return () => window.clearTimeout(t);
+    return scrollToProduct(pid);
   }, []);
 
   const allProducts =

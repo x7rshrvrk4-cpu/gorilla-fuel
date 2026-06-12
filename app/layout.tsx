@@ -1,3 +1,10 @@
+/**
+ * DO NOT ADD MANUAL <head> ELEMENTS HERE — causes a hydration crash and
+ * breaks ALL client-side navigation site-wide (every link appears to "return
+ * to the homepage"). Next.js manages <head> itself in the App Router. Put
+ * scripts in <body> using next/script with strategy="afterInteractive".
+ * Root cause history: commit 627f7b9.
+ */
 import type { Metadata } from "next";
 import { Bebas_Neue, DM_Sans } from "next/font/google";
 import Script from "next/script";
