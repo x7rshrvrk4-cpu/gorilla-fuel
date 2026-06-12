@@ -27,9 +27,6 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const readerRef = useRef<BrowserMultiFormatReaderType | null>(null);
   const lastCodeRef = useRef<{ code: string; at: number } | null>(null);
-  // Frame-accumulation: require 3 consecutive detections within 500ms before firing.
-  // Prevents nearby shelf barcodes from triggering a lookup on a single fleeting frame.
-  const frameAccRef = useRef<{ code: string; count: number; firstAt: number } | null>(null);
   // Stable ref so the ZXing effect never tears down and restarts just because
   // the parent re-renders and hands us a new onDetected function reference.
   const onDetectedRef = useRef(onDetected);
@@ -83,47 +80,8 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
           const now = Date.now();
           const last = lastCodeRef.current;
 
-          // Suppress re-fire of a recently confirmed barcode (3 s cooldown)
+          // Debounce: ignore the same code re-fired within 3 seconds
           if (last && last.code === code && now - last.at < 3000) return;
-
-          // Center zone filter — reject barcodes whose centroid falls outside the
-          // center 60% of the frame. This prevents neighboring shelf products from
-          // hijacking the result when the camera sweeps across a store shelf.
-          try {
-            type RP = { getX(): number; getY(): number };
-            const pts = (result as unknown as { getResultPoints(): RP[] }).getResultPoints();
-            if (pts && pts.length >= 2 && videoRef.current) {
-              const vw = videoRef.current.videoWidth || videoRef.current.clientWidth || 640;
-              const vh = videoRef.current.videoHeight || videoRef.current.clientHeight || 480;
-              const xs = pts.map((p) => p.getX());
-              const ys = pts.map((p) => p.getY());
-              const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
-              const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
-              if (cx < vw * 0.2 || cx > vw * 0.8 || cy < vh * 0.2 || cy > vh * 0.8) {
-                frameAccRef.current = null; // reset accumulator on edge detection
-                return;
-              }
-            }
-          } catch {
-            // getResultPoints unavailable for some formats — skip center check
-          }
-
-          // Frame accumulation — require 3 consecutive detections of the same barcode
-          // within a 500 ms window before triggering a lookup. A single fleeting
-          // detection (e.g. a shelf neighbour briefly in frame) resets the counter.
-          const acc = frameAccRef.current;
-          if (!acc || acc.code !== code) {
-            frameAccRef.current = { code, count: 1, firstAt: now };
-            return;
-          }
-          if (now - acc.firstAt > 500) {
-            // Window expired — restart accumulation fresh
-            frameAccRef.current = { code, count: 1, firstAt: now };
-            return;
-          }
-          acc.count += 1;
-          if (acc.count < 3) return; // still accumulating
-          frameAccRef.current = null; // reset for next scan cycle
 
           lastCodeRef.current = { code, at: now };
 
@@ -325,13 +283,12 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
 
       {/* Targeting overlay */}
       {displayStatus === "live" && (
-        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-5 px-6">
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-7 px-6">
           <p className="font-display text-2xl tracking-[0.4em] text-gold drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] sm:text-3xl">
             POINT AT BARCODE
           </p>
 
-          <div className="relative h-64 w-64 sm:h-80 sm:w-80">
-            {/* Outer corner brackets — gold frame */}
+          <div className="relative h-64 w-64 overflow-hidden rounded-2xl sm:h-80 sm:w-80">
             <span
               className={`absolute left-0 top-0 h-16 w-16 rounded-tl-2xl border-l-[6px] border-t-[6px] transition-colors duration-150 ${
                 hit ? "border-emerald-400" : "border-gold"
@@ -353,13 +310,6 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
               }`}
             />
 
-            {/* Inner barcode targeting reticle — sized for a standard barcode */}
-            <span
-              className={`absolute inset-x-8 inset-y-[30%] rounded-sm border transition-colors duration-150 ${
-                hit ? "border-emerald-400/60" : "border-gold/40"
-              }`}
-            />
-
             {hit && <span className="absolute inset-3 rounded-xl bg-emerald-400/15 transition-opacity duration-150" />}
 
             {!hit && (
@@ -367,10 +317,7 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
             )}
           </div>
 
-          <div className="text-center">
-            <p className="text-sm font-medium text-white/90">Center barcode in frame</p>
-            <p className="mt-0.5 text-xs text-white/50">Hold steady — scans automatically</p>
-          </div>
+          <p className="text-sm text-white/70">Hold steady — Gorilla Fuel scans automatically</p>
         </div>
       )}
 
