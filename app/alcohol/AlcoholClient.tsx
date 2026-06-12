@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { scrollToProduct } from "../lib/scrollHighlight";
 import CrossLinkBanner from "../components/CrossLinkBanner";
+import BackToTop from "../components/BackToTop";
 import AlcoholDisclaimer from "../scan/components/AlcoholDisclaimer";
 import AlcoholProductCard from "./components/AlcoholProductCard";
 import { ALCOHOL_CATEGORIES, ALCOHOL_PRODUCTS, wineGorillaScore, type AlcoholCategory } from "./lib/products";
@@ -403,6 +404,7 @@ export default function AlcoholClient() {
       <div className="mt-16 -mx-5 sm:-mx-8">
         <CrossLinkBanner />
       </div>
+      <BackToTop />
     </div>
   );
 }

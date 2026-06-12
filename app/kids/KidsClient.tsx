@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import CrossLinkBanner from "../components/CrossLinkBanner";
+import BackToTop from "../components/BackToTop";
 import { scrollToProduct } from "../lib/scrollHighlight";
 import {
   KIDS_APPROVED,
@@ -355,6 +356,7 @@ export default function KidsClient() {
       <div className="mt-16 -mx-5 sm:-mx-8">
         <CrossLinkBanner />
       </div>
+      <BackToTop />
     </div>
   );
 }

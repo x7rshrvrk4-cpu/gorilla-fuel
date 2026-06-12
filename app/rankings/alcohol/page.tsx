@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CrossLinkBanner from "../../components/CrossLinkBanner";
+import BackToTop from "../../components/BackToTop";
 import { ALCOHOL_PRODUCTS, wineGorillaScore } from "../../alcohol/lib/products";
 
 export const metadata: Metadata = {
@@ -284,6 +285,7 @@ export default function AlcoholTop10Page() {
       <div className="mt-16 -mx-5 sm:-mx-8">
         <CrossLinkBanner />
       </div>
+      <BackToTop />
     </div>
   );
 }

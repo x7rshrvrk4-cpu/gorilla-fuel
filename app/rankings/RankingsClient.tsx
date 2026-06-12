@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import CrossLinkBanner from "../components/CrossLinkBanner";
+import BackToTop from "../components/BackToTop";
 import { scrollToProduct } from "../lib/scrollHighlight";
 import MethodologyModal from "../components/MethodologyModal";
 import ProductCard from "./components/ProductCard";
@@ -169,6 +170,7 @@ export default function RankingsClient({ initialCategory = "Creatine" }: { initi
         <CrossLinkBanner />
       </div>
 
+      <BackToTop />
       <MethodologyModal open={methodologyOpen} onClose={() => setMethodologyOpen(false)} />
     </div>
   );

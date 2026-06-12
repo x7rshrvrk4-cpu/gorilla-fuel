@@ -1,5 +1,6 @@
 import Link from "next/link";
 import CrossLinkBanner from "../../components/CrossLinkBanner";
+import BackToTop from "../../components/BackToTop";
 import DeepLinkHighlighter from "../../components/DeepLinkHighlighter";
 import { amazonUrl, type IntelProduct, type IntelTier } from "../lib/products";
 
@@ -141,6 +142,7 @@ export default function IntelTierPage({ tier, products }: { tier: IntelTier; pro
       <div className="mt-16 -mx-5 sm:-mx-8">
         <CrossLinkBanner />
       </div>
+      <BackToTop />
     </div>
   );
 }
