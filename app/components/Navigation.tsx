@@ -20,12 +20,20 @@ const RANKINGS_ITEMS = [
   { href: "/rankings/alcohol", label: "Ontario Top 10 (Alcohol)" },
 ];
 
+const INTEL_ITEMS = [
+  { href: "/approved", label: "Gorilla Approved" },
+  { href: "/cheat", label: "Cheat List" },
+  { href: "/avoid", label: "Stay Away" },
+];
+
 export default function Navigation() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [rankingsOpen, setRankingsOpen] = useState(false);
+  const [intelOpen, setIntelOpen] = useState(false);
 
   const rankingsActive = pathname.startsWith("/rankings");
+  const intelActive = INTEL_ITEMS.some((i) => pathname === i.href);
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-background/90 backdrop-blur-md">
@@ -74,6 +82,33 @@ export default function Navigation() {
             <div className="invisible absolute left-0 top-full z-50 pt-2 opacity-0 transition-all group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
               <div className="flex w-60 flex-col rounded-sm border border-line bg-background shadow-2xl">
                 {RANKINGS_ITEMS.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`px-4 py-3 font-display text-base tracking-widest transition-colors hover:bg-surface hover:text-gold ${
+                      pathname === item.href ? "text-gold" : "text-foreground/80"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Gorilla Intel dropdown */}
+          <div className="group relative">
+            <button
+              type="button"
+              className={`font-display text-lg tracking-widest transition-colors hover:text-gold ${
+                intelActive ? "text-gold" : "text-foreground/80"
+              }`}
+            >
+              Gorilla Intel ▾
+            </button>
+            <div className="invisible absolute left-0 top-full z-50 pt-2 opacity-0 transition-all group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+              <div className="flex w-52 flex-col rounded-sm border border-line bg-background shadow-2xl">
+                {INTEL_ITEMS.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
@@ -150,6 +185,32 @@ export default function Navigation() {
             </button>
             {rankingsOpen &&
               RANKINGS_ITEMS.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className={`rounded-sm px-3 py-2.5 pl-8 font-display text-lg tracking-widest transition-colors ${
+                    pathname === item.href
+                      ? "bg-surface text-gold"
+                      : "text-foreground/70 hover:bg-surface hover:text-gold"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+
+            {/* Gorilla Intel expandable group */}
+            <button
+              type="button"
+              onClick={() => setIntelOpen((v) => !v)}
+              className={`rounded-sm px-3 py-3 text-left font-display text-xl tracking-widest transition-colors ${
+                intelActive ? "bg-surface text-gold" : "text-foreground/80 hover:bg-surface hover:text-gold"
+              }`}
+            >
+              Gorilla Intel {intelOpen ? "▴" : "▾"}
+            </button>
+            {intelOpen &&
+              INTEL_ITEMS.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}

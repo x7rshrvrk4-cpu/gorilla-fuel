@@ -8,17 +8,16 @@ import { ALCOHOL_PRODUCTS } from "../alcohol/lib/products";
 import { PRODUCTS } from "../rankings/lib/products";
 import { KIDS_TOTAL_COUNT } from "../kids/lib/products";
 import { GF_FOOD_TOTAL_COUNT } from "../glutenfree/lib/products";
+import { INTEL_APPROVED, INTEL_AVOID } from "../intel/lib/products";
 
-// ── Static counts from in-repo data ──────────────────────────────────────────
+// ── Live counts computed from in-repo data (never hand-maintained) ───────────
 const BEER_COUNT   = ALCOHOL_PRODUCTS.filter((p) => p.category !== "Wines").length;
 const WINE_COUNT   = ALCOHOL_PRODUCTS.filter((p) => p.category === "Wines").length;
 const VQA_COUNT    = ALCOHOL_PRODUCTS.filter((p) => p.ontarioVQA).length;
 const GF_COUNT     = ALCOHOL_PRODUCTS.filter((p) => p.glutenStatus === "certified-gf").length;
 const SUPPL_COUNT  = PRODUCTS.length;
-
-// ── Hardcoded counts ──────────────────────────────────────────────────────────
-const APPROVED_COUNT  = 13;
-const STAY_AWAY_COUNT = 18;
+const APPROVED_COUNT  = INTEL_APPROVED.length;
+const STAY_AWAY_COUNT = INTEL_AVOID.length;
 
 // ── Live Supabase cache count (24-hour ISR cache) ────────────────────────────
 async function fetchCacheCount(): Promise<number> {

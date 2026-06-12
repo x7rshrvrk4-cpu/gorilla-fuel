@@ -5,7 +5,8 @@ import GlutenFreeClient from "./GlutenFreeClient";
 export const metadata: Metadata = {
   title: "Gluten Free Guide — Gorilla Fuel",
   description:
-    "Which drinks and foods are genuinely safe for celiac disease — and which GF products are health-halo traps. Breads, pasta, flours, snacks, cereals and alcohol, scored on what's actually in them.",
+    "The honest guide to gluten free alcohol and food in Canada. What is truly safe for celiac disease and what is just marketing.",
+  alternates: { canonical: "/glutenfree" },
 };
 
 export default function GlutenFreePage() {

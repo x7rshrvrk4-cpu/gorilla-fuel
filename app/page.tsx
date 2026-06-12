@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  description:
+    "Canada's free barcode scanner for food, supplements and alcohol. Scan any product and get an instant no-BS health score. No ads. No sponsors. Just data.",
+  alternates: { canonical: "/" },
+};
 import CrossLinkBanner from "./components/CrossLinkBanner";
 import CommunityScansBanner from "./components/CommunityScansBanner";
 import HeroSearchBlock from "./components/HeroSearchBlock";

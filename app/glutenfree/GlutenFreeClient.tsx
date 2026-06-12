@@ -366,8 +366,8 @@ function AlcoholTab() {
   );
 }
 
-export default function GlutenFreeClient() {
-  const [tab, setTab] = useState<Tab>("alcohol");
+export default function GlutenFreeClient({ initialTab = "alcohol" }: { initialTab?: Tab }) {
+  const [tab, setTab] = useState<Tab>(initialTab);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-12 sm:px-8 sm:py-16">

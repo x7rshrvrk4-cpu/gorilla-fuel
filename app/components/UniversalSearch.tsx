@@ -5,6 +5,9 @@ import Link from "next/link";
 import { ALCOHOL_PRODUCTS } from "../alcohol/lib/products";
 import { PRODUCTS as RANKED_SUPPLEMENTS } from "../rankings/lib/products";
 import { INTEL_APPROVED, INTEL_CHEAT, INTEL_AVOID, type IntelProduct } from "../intel/lib/products";
+import { KIDS_APPROVED, KIDS_CHEAT, KIDS_STAY_AWAY, type KidsProduct } from "../kids/lib/products";
+
+const KIDS_ALL: KidsProduct[] = [...KIDS_APPROVED, ...KIDS_CHEAT, ...KIDS_STAY_AWAY];
 import { searchCuratedFoods, searchCuratedSupplements } from "../scan/lib/curatedFoods";
 import type { SearchProduct } from "../api/search/route";
 
@@ -57,7 +60,14 @@ type IntelResult = {
   score: number;
 };
 
-type SearchResult = AlcoholResult | CacheResult | CuratedFoodResult | RankedSupplementResult | IntelResult;
+type KidsResult = {
+  type: "kids";
+  id: string;
+  name: string;
+  score: number;
+};
+
+type SearchResult = AlcoholResult | CacheResult | CuratedFoodResult | RankedSupplementResult | IntelResult | KidsResult;
 
 type GroupedResults = {
   food: (CacheResult | CuratedFoodResult)[];
@@ -66,6 +76,7 @@ type GroupedResults = {
   supplement: CacheResult[];
   ranked: RankedSupplementResult[];
   intel: IntelResult[];
+  kids: KidsResult[];
 };
 
 function gradeColor(grade: string | null): string {
@@ -97,7 +108,7 @@ type Props = {
 
 export default function UniversalSearch({ placeholder = "Search products, beers, wines…", className = "", onActiveChange }: Props) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<GroupedResults>({ food: [], alcohol: [], wine: [], supplement: [], ranked: [], intel: [] });
+  const [results, setResults] = useState<GroupedResults>({ food: [], alcohol: [], wine: [], supplement: [], ranked: [], intel: [], kids: [] });
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -140,7 +151,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
 
   const search = useCallback(async (q: string) => {
     if (q.length < 2) {
-      setResults({ food: [], alcohol: [], wine: [], supplement: [], ranked: [], intel: [] });
+      setResults({ food: [], alcohol: [], wine: [], supplement: [], ranked: [], intel: [], kids: [] });
       setOpen(false);
       return;
     }
@@ -207,8 +218,13 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
       .slice(0, 3)
       .map(({ product, path }) => ({ type: "intel", id: product.id, name: product.name, path, score: product.score }));
 
+    // ── Client-side: Kids section ────────────────────────────────────────────
+    const kidsHits: KidsResult[] = KIDS_ALL.filter((p) => matchesTokens(p.name.toLowerCase()))
+      .slice(0, 3)
+      .map((p) => ({ type: "kids", id: p.id, name: p.name, score: p.score }));
+
     // Optimistically render what we have before Supabase returns
-    setResults({ food: curatedHits, alcohol: beerHits, wine: wineHits, supplement: curatedSupplHits, ranked: rankedHits, intel: intelHits });
+    setResults({ food: curatedHits, alcohol: beerHits, wine: wineHits, supplement: curatedSupplHits, ranked: rankedHits, intel: intelHits, kids: kidsHits });
 
     // ── Async: Supabase cache search ─────────────────────────────────────────
     try {
@@ -262,6 +278,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
           supplement: mergedSuppl,
           ranked: rankedHits,
           intel: intelHits,
+          kids: kidsHits,
         });
       }
     } catch {
@@ -301,7 +318,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
 
   const totalResults =
     results.food.length + results.alcohol.length + results.wine.length +
-    results.supplement.length + results.ranked.length + results.intel.length;
+    results.supplement.length + results.ranked.length + results.intel.length + results.kids.length;
 
   const getProductLink = (result: SearchResult): string => {
     // Deep links: every result lands on its own card, never the homepage.
@@ -313,6 +330,9 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
     }
     if (result.type === "intel") {
       return `${result.path}?p=${encodeURIComponent(result.id)}`;
+    }
+    if (result.type === "kids") {
+      return `/kids?p=${encodeURIComponent(result.id)}`;
     }
     const barcode = result.type === "food" || result.type === "supplement" || result.type === "beauty" || result.type === "curated-food"
       ? result.barcode
@@ -451,6 +471,22 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
                       href={getProductLink(r)}
                       name={r.name}
                       sub={r.path === "/approved" ? "Gorilla Approved" : r.path === "/cheat" ? "Cheat List" : "Stay Away"}
+                      right={<span className={`font-display text-base ${r.score >= 70 ? "text-emerald-400" : r.score >= 50 ? "text-amber-400" : "text-red-400"}`}>{r.score}</span>}
+                      onClick={() => setOpen(false)}
+                    />
+                  ))}
+                </ResultGroup>
+              )}
+
+              {/* KIDS */}
+              {results.kids.length > 0 && (
+                <ResultGroup label="Kids Snacks" accentClass="text-sky-300/80">
+                  {results.kids.map((r) => (
+                    <ResultRow
+                      key={`kids-${r.id}`}
+                      href={getProductLink(r)}
+                      name={r.name}
+                      sub="Kids Snack Guide"
                       right={<span className={`font-display text-base ${r.score >= 70 ? "text-emerald-400" : r.score >= 50 ? "text-amber-400" : "text-red-400"}`}>{r.score}</span>}
                       onClick={() => setOpen(false)}
                     />
