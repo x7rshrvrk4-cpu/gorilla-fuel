@@ -387,6 +387,17 @@ export default function AlcoholClient() {
               Dry wines (&lt;4g sugar) score highest. Semi-dry 4–8g. Sweet over 8g.
             </p>
           </div>
+          <div className="rounded-sm border border-slate-800 bg-slate-900/40 px-5 py-4">
+            <p className="text-xs leading-relaxed text-slate-400">
+              Wine quality scores sourced from critic ratings displayed on LCBO
+              product pages including James Suckling, Wine Spectator, Wine
+              Enthusiast, WineAlign, Decanter, and National Wine Awards of
+              Canada. Scores reflect the most recent vintage reviewed. Gorilla
+              nutrition scores calculated using our publicly documented
+              methodology at gorillafuel.ca/methodology. No brand pays for
+              placement on this page.
+            </p>
+          </div>
         </div>
       )}
 

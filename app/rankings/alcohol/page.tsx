@@ -274,8 +274,10 @@ export default function AlcoholTop10Page() {
         <p className="text-xs leading-relaxed text-muted">
           Beer and RTD sales rankings sourced from the official LCBO Q2 2025
           Quarterly Update, published December 2025. Wine quality scores sourced
-          from Wine Spectator, James Suckling, Wine Enthusiast, WineAlign, and the
-          Ontario Wine Awards. Gorilla Scores calculated using our publicly
+          from critic ratings displayed on LCBO product pages including James
+          Suckling, Wine Spectator, Wine Enthusiast, WineAlign, Decanter, and
+          National Wine Awards of Canada. Scores reflect the most recent vintage
+          reviewed. Gorilla nutrition scores calculated using our publicly
           documented methodology at{" "}
           <Link href="/methodology" className="text-gold underline">gorillafuel.ca/methodology</Link>.
           No brand pays for placement on this page.

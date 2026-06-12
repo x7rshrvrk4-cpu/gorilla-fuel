@@ -168,15 +168,14 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
           {product.wineQuality !== undefined ? (
             <div>
               <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">⭐ Wine Quality</p>
-              <p className="mt-0.5 font-display text-2xl text-amber-300">
-                {product.wineQuality}<span className="text-sm text-slate-500">/100</span>
-              </p>
-              <p className="text-[10px] text-slate-500">{product.wineQualitySource}</p>
+              <p className="mt-0.5 font-display text-2xl text-amber-300">{product.wineQuality}</p>
+              <p className="text-[10px] text-slate-500">— {product.wineQualitySource}</p>
             </div>
           ) : (
             <div>
               <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">⭐ Wine Quality</p>
-              <p className="mt-0.5 font-display text-lg text-slate-500">UNRATED</p>
+              <p className="mt-0.5 font-display text-lg text-slate-500">N/A</p>
+              <p className="text-[10px] text-slate-500">— Not yet rated by major critics</p>
             </div>
           )}
           {sweetSpot && (
