@@ -122,6 +122,13 @@ const CHIPS_AHOY        = o(28, "Bad",  [], ["High sugar", "Palm oil", "Artifici
 const BTS_OREO          = o(30, "Bad",  [], ["Novelty cookie high sugar", "Ultra-processed", "Christie limited edition"]);
 
 // ─────────────────────────────────────────────────────────────────────────────
+// SAUCE & CONDIMENT CALIBRATION — confirmed 2026-06 vs Yuka real-world scans
+// ─────────────────────────────────────────────────────────────────────────────
+const PRIMO_PIZZA_SQUEEZE    = o(48, "Poor", [], ["Sodium benzoate preservative", "Modified corn starch", "Unspecified vegetable oil", "Ultra-processed tomato sauce"]);
+const CLASSICO_VODKA         = o(42, "Poor", [], ["NOVA Group 4", "Sodium phosphates emulsifier", "Multi-cheese processed sauce", "Database stores full 600g jar as serving size"]);
+const COMPLIMENTS_RICE       = o(63, "Good", ["No added sugar", "Four clean ingredients", "Zero artificial additives"], ["Corn maltodextrin (processed starch)", "NOVA Group 4"]);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // BARCODE LOOKUP TABLE  (first match wins — exact after stripping leading zeros)
 // ─────────────────────────────────────────────────────────────────────────────
 const BARCODE_OVERRIDES: BarcodeEntry[] = [
@@ -205,6 +212,10 @@ const BARCODE_OVERRIDES: BarcodeEntry[] = [
   { barcode: "0038000012557", override: SPECIAL_K_BAR },
   { barcode: "0060383070025", override: HUMPTY_DUMPTY_CHZ },
   { barcode: "0060383089027", override: ARRIBA_NACHO },
+  // ── Sauce & condiment calibration (2026-06) ──
+  { barcode: "0055900013803", override: PRIMO_PIZZA_SQUEEZE },    // Primo Pizza Squeeze
+  { barcode: "0057000012540", override: CLASSICO_VODKA },         // Classico Vodka Sauce
+  { barcode: "0055742549294", override: COMPLIMENTS_RICE },       // Compliments Rice Crackers
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -280,6 +291,10 @@ const NAME_OVERRIDES: NameEntry[] = [
   { patterns: [/humpty\s*dumpty.*cheese/i],                                      override: HUMPTY_DUMPTY_CHZ },
   { patterns: [/\barriba\b/i],                                                   override: ARRIBA_NACHO },
   { patterns: [/canada\s*dry.*zero/i],                                           override: CANADA_DRY_ZERO },
+  // ── Sauce & condiment calibration (2026-06) ──
+  { patterns: [/primo.*pizza.*squeeze/i, /pizza.*squeeze.*primo/i],              override: PRIMO_PIZZA_SQUEEZE },
+  { patterns: [/classico.*vodka\s*sauce/i],                                      override: CLASSICO_VODKA },
+  { patterns: [/compliments.*rice.*crack/i, /rice.*crack.*compliment/i],         override: COMPLIMENTS_RICE },
   { patterns: [/coca[\s-]?cola(?!\s*zero|\s*diet|\s*life)/i],                    override: COCA_COLA },
   { patterns: [/^pepsi$/i, /pepsi(?!\s*diet|\s*max|\s*zero|\s*wild)/i],          override: PEPSI_REGULAR },
   { patterns: [/^sprite$/i, /sprite(?!\s*zero|\s*cranberry|\s*tropical)/i],      override: SPRITE_REGULAR },
@@ -438,7 +453,19 @@ export function ingredientSanityCap(
   if (/sodium\s*nitrate|sodium\s*nitrite/i.test(ing)) caps.push({ cap: 45, reason: "sodium nitrate/nitrite" });
   if (/acesulfame/i.test(ing) && /aspartame/i.test(ing))
     caps.push({ cap: 48, reason: "acesulfame potassium + aspartame together" });
-  if (novaGroup === 4) caps.push({ cap: 50, reason: "NOVA Group 4 ultra-processed" });
+  if (novaGroup === 4) {
+    // Simple products (≤5 ingredients, no artificial additives) shouldn't be
+    // penalised as hard as Doritos — plain rice crackers made from rice + oil + salt
+    // are categorically different from industrial snack foods.
+    const ingStripped4 = ing.replace(/\([^)]*\)/g, "");
+    const ingCount4 = ingStripped4.trim() ? ingStripped4.split(",").filter(s => s.trim()).length : 99;
+    const hasArtificial4 = /artificial\s*colou?r|artificial\s*flavou?r|partially\s*hydrogenated|high\s*fructose\s*corn\s*syrup|glucose[\s-]?fructose|\bbha\b|\bbht\b|\btbhq\b/i.test(ing);
+    if (ingCount4 <= 5 && !hasArtificial4) {
+      caps.push({ cap: 65, reason: "NOVA Group 4 — simple ingredient product (max 65)" });
+    } else {
+      caps.push({ cap: 50, reason: "NOVA Group 4 ultra-processed" });
+    }
+  }
 
   // Palm oil in the first 3 ingredients — high sat fat sourcing signal
   if (ing.trim()) {

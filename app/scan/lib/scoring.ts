@@ -424,6 +424,17 @@ const ADDITIVES: AdditiveEntry[] = [
     matchers: [name("Phosphoric acid"), ecode("E338")],
   },
   {
+    id: "sodium-phosphates",
+    risk: "medium",
+    penalty: 10,
+    note: "Inorganic phosphate salts used as emulsifiers and pH regulators — high cumulative dietary phosphate intake is linked in emerging research to kidney strain and disrupted calcium-phosphorus balance.",
+    tier: "emerging-evidence",
+    healthBodyPosition: "The FDA and EFSA classify sodium phosphate salts as safe at currently permitted levels. A growing body of nephrology research associates chronically elevated dietary phosphate with accelerated kidney function decline and cardiovascular risk — regulators have acknowledged the evidence but have not yet acted specifically on food additive phosphate exposure.",
+    gorillaPosition: "The concern is cumulative — phosphates appear across dozens of processed foods simultaneously, so any single product contributes a fraction of the total dietary load. Worth knowing they're there, especially for anyone with kidney disease or elevated cardiovascular risk.",
+    sources: ["EFSA ANS Panel — Re-evaluation of Phosphoric Acid and Phosphates (2019)", "FDA Code of Federal Regulations — 21 CFR 182.1778", "PubMed — dietary phosphate intake and chronic kidney disease"],
+    matchers: [name("Sodium phosphates"), name("Sodium phosphate"), name("Disodium phosphate"), name("Trisodium phosphate"), name("Sodium hexametaphosphate"), name("Tetrasodium pyrophosphate"), ecode("E339"), ecode("E340"), ecode("E341")],
+  },
+  {
     id: "artificial-flavors",
     risk: "medium",
     penalty: 10,
@@ -855,11 +866,26 @@ function servingContext(perServing: number | undefined, servingSize: string | nu
 function parseServingGrams(servingSize: string | null | undefined): number | null {
   if (!servingSize) return null;
   const ml = servingSize.match(/(\d+(?:\.\d+)?)\s*ml/i);
-  if (ml) return parseFloat(ml[1]);
+  if (ml) {
+    const v = parseFloat(ml[1]);
+    // >500ml almost certainly means a full-container field (e.g. 600ml jar stored as serving).
+    // Discard it — fall back to per-100g bands which are always reliable.
+    return v > 500 ? null : v;
+  }
   const g = servingSize.match(/(\d+(?:\.\d+)?)\s*g\b/i);
-  if (g) return parseFloat(g[1]);
+  if (g) {
+    const v = parseFloat(g[1]);
+    // >300g is a full-package weight, not a realistic single serving. Discard.
+    // Sauces, condiments, and jarred goods commonly store the full container weight
+    // as the serving size in OFF/UPC DB, which catastrophically inflates all per-serving
+    // penalty calculations. The global fix: if it's over 300g, treat it as no serving data.
+    return v > 300 ? null : v;
+  }
   const oz = servingSize.match(/(\d+(?:\.\d+)?)\s*oz/i);
-  if (oz) return parseFloat(oz[1]) * 28.35;
+  if (oz) {
+    const v = parseFloat(oz[1]) * 28.35;
+    return v > 300 ? null : v;
+  }
   return null;
 }
 
@@ -1348,10 +1374,19 @@ export function computeScore(
       flags.push("Junk food category with no nutrition data — score capped at 35. Incomplete data on ultra-processed food always defaults low.");
     }
 
-    // Rule 3: NOVA Group 4 (ultra-processed) → max 50
-    if (asNovaGroup(context?.novaGroup ?? undefined) === 4 && finalScore > 50) {
-      finalScore = 50;
-      flags.push("Ultra-processed (NOVA Group 4) — score capped at 50 regardless of macros.");
+    // Rule 3: NOVA Group 4 (ultra-processed) → max 50, or 65 for simple products
+    if (asNovaGroup(context?.novaGroup ?? undefined) === 4) {
+      const ingText4 = (ingredientsText ?? "").toLowerCase();
+      const ingStripped4 = ingText4.replace(/\([^)]*\)/g, "");
+      const ingCount4 = ingStripped4.trim() ? ingStripped4.split(",").filter(s => s.trim()).length : 99;
+      const hasArtificial4 = /artificial\s*colou?r|artificial\s*flavou?r|partially\s*hydrogenated|high\s*fructose\s*corn\s*syrup|glucose[\s-]?fructose|\bbha\b|\bbht\b|\btbhq\b/i.test(ingText4);
+      const nova4Cap = (ingCount4 <= 5 && !hasArtificial4) ? 65 : 50;
+      if (finalScore > nova4Cap) {
+        finalScore = nova4Cap;
+        flags.push(nova4Cap === 65
+          ? "Ultra-processed (NOVA Group 4) — simple ingredient product, lenient cap applied (max 65)."
+          : "Ultra-processed (NOVA Group 4) — score capped at 50 regardless of macros.");
+      }
     }
 
     // Rule 1 & 2: Junk category cap with plain-snack exception
