@@ -1,4 +1,4 @@
-import type { AlcoholRankingProduct } from "../lib/products";
+import { isGorillaSweetSpot, wineGorillaScore, type AlcoholRankingProduct } from "../lib/products";
 
 function GorillaPour({ rating }: { rating: number }) {
   return (
@@ -12,26 +12,8 @@ function GorillaPour({ rating }: { rating: number }) {
   );
 }
 
-function wineScore(calories: number, sugar: number, additives: number): number {
-  const sugarScore =
-    sugar <= 1 ? 95 :
-    sugar <= 2 ? 85 :
-    sugar <= 4 ? 70 :
-    sugar <= 8 ? 45 :
-    sugar <= 15 ? 20 : 5;
-
-  const calScore =
-    calories < 115 ? 90 :
-    calories < 125 ? 80 :
-    calories < 135 ? 70 :
-    calories < 145 ? 60 :
-    calories < 155 ? 50 :
-    calories < 165 ? 35 : 20;
-
-  const addScore = additives === 0 ? 100 : additives === 1 ? 80 : additives === 2 ? 60 : 35;
-
-  return Math.round(sugarScore * 0.40 + calScore * 0.30 + addScore * 0.30);
-}
+// Wine Gorilla Score now lives in lib/products.ts (wineGorillaScore) so the
+// rankings page and Sweet Spot calculations share the exact same formula.
 
 function wineScoreColor(score: number): string {
   if (score >= 80) return "text-emerald-400";
@@ -77,8 +59,9 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
     ? "border-rose-500/40 bg-rose-500/8 text-rose-300"
     : "border-amber-400/40 bg-amber-400/8 text-amber-300";
 
-  const score = isWine ? wineScore(product.caloriesPerCan, product.sugarPerCan, product.additiveCount) : null;
+  const score = isWine ? wineGorillaScore(product) : null;
   const style = isWine ? wineStyle(product.sugarPerCan) : null;
+  const sweetSpot = isWine && isGorillaSweetSpot(product);
 
   return (
     <div id={`product-${product.id}`} className={`rounded-sm border bg-slate-900/60 p-5 transition-colors ${borderClass}`}>
@@ -165,7 +148,7 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
         <div>
           {isWine && score !== null ? (
             <>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Wine Score</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">🦍 Gorilla Score</p>
               <p className={`mt-0.5 font-display text-2xl ${wineScoreColor(score)}`}>{score}</p>
             </>
           ) : (
@@ -178,6 +161,34 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
           )}
         </div>
       </div>
+
+      {/* DUAL SCORE — Wine Quality (critic rating) alongside Gorilla Score */}
+      {isWine && (
+        <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-slate-800 pt-3">
+          {product.wineQuality !== undefined ? (
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">⭐ Wine Quality</p>
+              <p className="mt-0.5 font-display text-2xl text-amber-300">
+                {product.wineQuality}<span className="text-sm text-slate-500">/100</span>
+              </p>
+              <p className="text-[10px] text-slate-500">{product.wineQualitySource}</p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">⭐ Wine Quality</p>
+              <p className="mt-0.5 font-display text-lg text-slate-500">UNRATED</p>
+            </div>
+          )}
+          {sweetSpot && (
+            <span
+              title="This wine scored well on both nutrition and critic ratings. The best of both worlds."
+              className="ml-auto inline-flex cursor-help items-center gap-1.5 rounded-sm border border-gold bg-gold/15 px-3 py-1.5 font-display text-[11px] uppercase tracking-[0.18em] text-gold"
+            >
+              🦍 Gorilla Sweet Spot
+            </span>
+          )}
+        </div>
+      )}
 
       {product.knownAdditives.length > 0 ? (
         <div className="mt-3 border-t border-slate-800 pt-3">

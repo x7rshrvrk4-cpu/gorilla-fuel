@@ -63,6 +63,7 @@ export default async function StatsTicker() {
     `🧒 ${KIDS_TOTAL_COUNT} Kids Snacks Reviewed`,
     `✓ ${GF_COUNT} Certified Gluten-Free Drinks`,
     `🌾 ${GF_FOOD_TOTAL_COUNT} Gluten-Free Products Reviewed`,
+    `📊 Ontario Top 10 Beer, Wine & RTD Ranked — LCBO Official Data`,
     `🔬 15 Data Sources`,
     `🇨🇦 Canadian First`,
     `✓ No Brand Pays for Placement`,

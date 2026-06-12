@@ -5,7 +5,7 @@ import Link from "next/link";
 import CrossLinkBanner from "../components/CrossLinkBanner";
 import AlcoholDisclaimer from "../scan/components/AlcoholDisclaimer";
 import AlcoholProductCard from "./components/AlcoholProductCard";
-import { ALCOHOL_CATEGORIES, ALCOHOL_PRODUCTS, type AlcoholCategory } from "./lib/products";
+import { ALCOHOL_CATEGORIES, ALCOHOL_PRODUCTS, wineGorillaScore, type AlcoholCategory } from "./lib/products";
 import { trackAlcoholRankingViewed } from "../lib/gtag";
 import UniversalSearch from "../components/UniversalSearch";
 
@@ -67,9 +67,18 @@ const WINE_FILTERS: { key: FilterKey; label: string }[] = [
   { key: "low-cal", label: "Low Cal (<130 cal)" },
 ];
 
+type WineSort = "gorilla" | "quality" | "sweet-spot";
+
+const WINE_SORTS: { key: WineSort; label: string }[] = [
+  { key: "gorilla", label: "🦍 Sort by Gorilla Score" },
+  { key: "quality", label: "⭐ Sort by Wine Quality" },
+  { key: "sweet-spot", label: "THE GORILLA SWEET SPOT" },
+];
+
 export default function AlcoholRankingsPage() {
   const [category, setCategory] = useState<AlcoholCategory>("Light Beer");
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [wineSort, setWineSort] = useState<WineSort>("gorilla");
 
   const isWineTab = category === "Wines";
 
@@ -164,7 +173,21 @@ export default function AlcoholRankingsPage() {
         }
       })
       .sort((a, b) => {
-        // Ontario VQA wines first, then London ON, then Ontario craft, then brand
+        // Wine tab: explicit sort modes (Gorilla / Quality / Sweet Spot avg)
+        if (isWineTab) {
+          if (wineSort === "gorilla") {
+            return wineGorillaScore(b) - wineGorillaScore(a) || a.name.localeCompare(b.name);
+          }
+          if (wineSort === "quality") {
+            return (b.wineQuality ?? -1) - (a.wineQuality ?? -1) || a.name.localeCompare(b.name);
+          }
+          // sweet-spot: combined average of Gorilla Score + Wine Quality;
+          // unrated wines sort below everything rated.
+          const combined = (p: typeof a) =>
+            p.wineQuality !== undefined ? (wineGorillaScore(p) + p.wineQuality) / 2 : -1;
+          return combined(b) - combined(a) || a.name.localeCompare(b.name);
+        }
+        // Beer tabs: Ontario VQA first, then London ON, then Ontario craft, then brand
         if (a.ontarioVQA && !b.ontarioVQA) return -1;
         if (!a.ontarioVQA && b.ontarioVQA) return 1;
         if (a.londonOntario && !b.londonOntario) return -1;
@@ -173,7 +196,7 @@ export default function AlcoholRankingsPage() {
         if (!a.ontarioCraft && b.ontarioCraft) return 1;
         return a.brand.localeCompare(b.brand) || a.name.localeCompare(b.name);
       });
-  }, [category, filter, isWineTab]);
+  }, [category, filter, isWineTab, wineSort]);
 
   const activeFilters = isWineTab ? WINE_FILTERS : FILTERS;
 
@@ -214,7 +237,16 @@ export default function AlcoholRankingsPage() {
         )}
       </div>
 
-      <div className="mt-8">
+      <div className="mt-6">
+        <Link
+          href="/rankings/alcohol"
+          className="inline-block rounded-sm border border-gold px-5 py-2.5 font-display text-base tracking-[0.15em] text-gold transition-colors hover:bg-gold hover:text-background"
+        >
+          📊 See Ontario Top 10 Rankings →
+        </Link>
+      </div>
+
+      <div className="mt-6">
         <UniversalSearch placeholder={isWineTab ? "Search wines by name or winery…" : "Search beers, seltzers, ciders…"} />
       </div>
 
@@ -294,6 +326,31 @@ export default function AlcoholRankingsPage() {
             Forked River, Toboggan, Anderson, London Brewing, Powerhouse, Storm Stayed, Dundas &amp; Sons, and Black Fly all
             brew right here in London ON. Support local.
           </p>
+        </div>
+      )}
+
+      {/* Wine sort buttons */}
+      {isWineTab && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {WINE_SORTS.map((s) => (
+            <button
+              key={s.key}
+              type="button"
+              onClick={() => setWineSort(s.key)}
+              className={`rounded-sm border px-4 py-2 font-display text-sm tracking-[0.15em] transition-colors ${
+                s.key === "sweet-spot"
+                  ? wineSort === s.key
+                    ? "border-gold bg-gold text-background"
+                    : "border-gold/60 text-gold hover:bg-gold/15"
+                  : wineSort === s.key
+                  ? "border-rose-500 bg-rose-800/40 text-rose-200"
+                  : "border-slate-700 text-slate-400 hover:border-rose-500/60 hover:text-foreground"
+              }`}
+            >
+              {s.label}
+              {s.key === "sweet-spot" && <span className="ml-1.5 text-[10px] opacity-80">★ RECOMMENDED</span>}
+            </button>
+          ))}
         </div>
       )}
 
