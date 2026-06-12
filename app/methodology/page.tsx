@@ -11,6 +11,18 @@ export const metadata: Metadata = {
 
 const TIERS: EvidenceTier[] = ["strong-consensus", "emerging-evidence", "contested", "precautionary"];
 
+/** How each tier is applied in scoring — shown alongside the badge definitions. */
+const TIER_APPLICATION: Record<EvidenceTier, string> = {
+  "strong-consensus":
+    "Multiple peer-reviewed meta-analyses agree. We apply this flag to ingredients with overwhelming scientific agreement on safety or harm.",
+  "emerging-evidence":
+    "Studies exist but research is ongoing. We note these ingredients and flag them without applying maximum penalties.",
+  contested:
+    "Genuine scientific disagreement exists. We present both sides and apply moderate consideration.",
+  precautionary:
+    "Limited human data, but mechanistic concerns exist. We apply conservative flagging while noting the uncertainty.",
+};
+
 const SOURCES: { name: string; description: string; badge?: string }[] = [
   // ── Waterfall lookup order ─────────────────────────────────────────────────
   { name: "Gorilla Curated Database", badge: "Step 1 · GORILLA CURATED", description: "Our own hand-verified product database. Every entry is manually reviewed with confirmed nutrition and serving-size data. Checked first on every scan." },
@@ -69,6 +81,16 @@ export default function MethodologyPage() {
             multinational corporation. The data determines the score. Nothing
             else.
           </p>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-foreground/90">
+            We do not accept sponsorships that influence product scores. We do
+            not accept payment for featured placement. We do not adjust scores
+            based on advertiser relationships, because we have none. Our
+            affiliate links exist to fund platform development and are applied
+            uniformly to top ranked products — they do not influence how
+            products are scored or ranked.{" "}
+            <span className="text-gold">A product earns its ranking and then
+            receives an affiliate link. Not the other way around.</span>
+          </p>
         </div>
       </section>
 
@@ -98,6 +120,10 @@ export default function MethodologyPage() {
               (e.g. &ldquo;High sugar: 26g per 100g (4g per 15g serving)&rdquo;) whenever
               serving-size data is available, so the number maps to what you&apos;ll actually eat.
             </p>
+            <p className="mt-3 text-xs text-muted">
+              <span className="text-foreground">Why 60%:</span> what you eat in bulk is the
+              primary purpose of food — macros and processing dominate health outcomes.
+            </p>
           </div>
           <div className="bg-surface p-6">
             <p className="font-display text-sm uppercase tracking-[0.2em] text-gold">Additive Score · 30%</p>
@@ -106,6 +132,11 @@ export default function MethodologyPage() {
               covering common names, aliases, and E-codes. Each match deducts a penalty sized to
               its real-world risk level (high / medium / low), and the running total is the
               Additive Score.
+            </p>
+            <p className="mt-3 text-xs text-muted">
+              <span className="text-foreground">Why 30%:</span> a product can have good
+              macros and a terrible additive list — exposure to flagged compounds deserves
+              real weight of its own.
             </p>
           </div>
           <div className="bg-surface p-6">
@@ -117,11 +148,14 @@ export default function MethodologyPage() {
               certification, no bonus — we don&apos;t guess from marketing copy.
             </p>
             <p className="mt-3 text-xs text-muted">
+              <span className="text-foreground">Why 10%:</span> organic certification matters —
+              but it is not the whole picture. Organic sugar is still sugar.
+            </p>
+            <p className="mt-3 text-xs text-muted">
               The three combine as <span className="text-foreground">60% nutrition + 30% additives
-              + the organic bonus</span> — what you eat in bulk matters most, additive exposure
-              moves the needle, and genuine organic certification earns a modest nudge upward.
-              The final number maps to a letter grade: <span className="text-foreground">Excellent
-              (75+) · Good (50–74) · Poor (25–49) · Bad (below 25)</span>.
+              + the organic bonus</span>. The final number maps to a letter grade:{" "}
+              <span className="text-foreground">Excellent (75+) · Good (50–74) · Poor (25–49) ·
+              Bad (below 25)</span>.
             </p>
           </div>
         </div>
@@ -144,6 +178,10 @@ export default function MethodologyPage() {
               <div>
                 <p className="font-display text-lg tracking-wide text-foreground">{tierLabel(tier)}</p>
                 <p className="mt-1 text-sm leading-relaxed text-muted">{tierDescription(tier)}</p>
+                <p className="mt-2 text-xs leading-relaxed text-muted">
+                  <span className="text-gold/70">How we apply it: </span>
+                  {TIER_APPLICATION[tier]}
+                </p>
               </div>
             </div>
           ))}
@@ -199,10 +237,10 @@ export default function MethodologyPage() {
         </p>
         <div className="mt-5 grid gap-px overflow-hidden rounded-sm border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { group: "1", title: "Unprocessed / Minimally Processed", body: "Fresh, dried, frozen or ground whole foods — fruit, vegetables, meat, milk, eggs, plain nuts and seeds." },
-            { group: "2", title: "Processed Culinary Ingredients", body: "Substances extracted from Group 1 foods — oils, butter, sugar, salt — used to prepare and season." },
-            { group: "3", title: "Processed Foods", body: "Group 1 foods with Group 2 ingredients added — canned vegetables, simple cheeses, fresh bread, salted nuts." },
-            { group: "4", title: "Ultra-Processed Foods", body: "Industrial formulations with ingredients you wouldn't find in a home kitchen — colourants, emulsifiers, flavourings, HFCS. Most heavily penalised." },
+            { group: "1", title: "Unprocessed / Minimally Processed", body: "Fresh fruit, whole grains, plain meat, milk, eggs, plain nuts and seeds — Ontario apples, steel-cut oats, a chicken breast." },
+            { group: "2", title: "Processed Culinary Ingredients", body: "Substances used in cooking — oils, butter, salt, sugar, maple syrup. You season with these; you don't eat them alone." },
+            { group: "3", title: "Processed Foods", body: "Group 1 + Group 2 combined — canned vegetables, smoked fish, cheese, fresh bakery bread, salted nuts." },
+            { group: "4", title: "Ultra-Processed Foods", body: "Industrial formulations — chips, cookies, soft drinks, instant noodles. Colourants, emulsifiers, flavourings, HFCS. Most heavily penalised." },
           ].map((n) => (
             <div key={n.group} className="bg-surface p-5">
               <p className="font-display text-3xl text-gold-dim">{n.group}</p>
@@ -223,7 +261,9 @@ export default function MethodologyPage() {
             known additives — clarity agents, artificial sweeteners, sulphites, colourants),{" "}
             <span className="text-foreground">calorie density</span> per serving, and{" "}
             <span className="text-foreground">carbohydrate and sugar content</span> per
-            serving. The result is the 1–5 Gorilla Pour rating shown on every card.
+            serving, with higher-ABV products weighed down accordingly. The result is the
+            1–5 Gorilla Pour rating shown on every card. Spirits are not currently in the
+            main scoring system.
           </p>
           <p>
             Wines use a published weighted score —{" "}
@@ -244,13 +284,17 @@ export default function MethodologyPage() {
             Every ranked supplement is evaluated on four pillars:{" "}
             <span className="text-foreground">purity</span> (label accuracy, contaminant
             risk, and filler content), <span className="text-foreground">independent
-            third-party testing</span> (NSF Certified for Sport, Informed Sport, USP and
-            comparable programs — manufacturer self-testing doesn&apos;t count),{" "}
-            <span className="text-foreground">certifications and transparency</span>{" "}
-            (full-disclosure labels beat proprietary blends, every time), and{" "}
-            <span className="text-foreground">value</span> (price per effective serving,
-            not price per tub). Those pillars combine into the S-through-D letter grade
-            shown above.
+            third-party testing</span>, <span className="text-foreground">certifications
+            and transparency</span> (full-disclosure labels beat proprietary blends, every
+            time), and <span className="text-foreground">value</span> (price per effective
+            serving, not price per tub). Those pillars combine into the S-through-D letter
+            grade shown above.
+          </p>
+          <p>
+            <span className="text-foreground">The certification hierarchy:</span>{" "}
+            NSF Certified for Sport ranks highest, then Informed Sport, then Informed
+            Choice, then no certification. Manufacturer self-testing doesn&apos;t count as
+            third-party verification at any level.
           </p>
           <p>
             Where claims are involved, each product also carries an Evidence Tier badge so

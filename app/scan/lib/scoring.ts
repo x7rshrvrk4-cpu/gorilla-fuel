@@ -1308,7 +1308,7 @@ export function computeScore(
       }
     } else if (isGfLabelled && REFINED_STARCH_RE.test(top3)) {
       flags.push(
-        "GF HEALTH HALO — this product is gluten free but is built primarily from refined starches. The GF label does not indicate nutritional quality."
+        "GF HEALTH HALO — gluten free does not mean nutritious. This product is built primarily from refined starches."
       );
     }
   }

@@ -205,7 +205,7 @@ export const KIDS_APPROVED: KidsProduct[] = [
     name: "That's It Fruit Bars",
     calories: 100, carbs: 25, sugar: 20, protein: 0,
     score: 71,
-    schoolSafe: true, ...ALL_FREE,
+    schoolSafe: true, toddlerFriendly: true, ...ALL_FREE,
     blurb: "Two ingredients. All natural sugar from fruit. The cleanest fruit snack available for kids.",
     amazonQuery: "That's It fruit bars",
   },
@@ -464,6 +464,7 @@ export const PAIRINGS: { carb: string; pair: string; why: string }[] = [
   { carb: "Quaker Rice Cakes", pair: "SunButter", why: "Light carb + nut-free fat and protein" },
   { carb: "SeaSnax Seaweed", pair: "Cedar's Hummus", why: "Mineral crunch + plant protein" },
   { carb: "Freeze Dried Strawberries", pair: "Chomps Meat Stick", why: "Fruit crunch + 5g clean protein" },
+  { carb: "GoGo squeeZ Pouch", pair: "Babybel", why: "Convenient carb + portable protein" },
 ];
 
 export const KIDS_TOTAL_COUNT =
