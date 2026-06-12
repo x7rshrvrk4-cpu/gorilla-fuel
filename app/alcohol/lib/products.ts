@@ -12611,7 +12611,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     additiveCount: 1,
     gorillaPour: 5,
     availability: "LCBO -- wide availability",
-    gorillaAnalysis: "New Zealand Sauvignon Blanc — the number one best selling wine in Ontario by LCBO Q2 2025 data. Clean, dry, crisp. Excellent value. Wine Quality 88 (Wine Enthusiast).",
+    gorillaAnalysis: "New Zealand Sauvignon Blanc — the number one best selling wine in Ontario by LCBO Q2 FY2025-26 data. Clean, dry, crisp. Excellent value. Wine Quality 88 (Wine Enthusiast).",
   },
   {
     id: "cote-des-roses-rose",
