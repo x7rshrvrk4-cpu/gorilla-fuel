@@ -127,6 +127,16 @@ const BTS_OREO          = o(30, "Bad",  [], ["Novelty cookie high sugar", "Ultra
 const PRIMO_PIZZA_SQUEEZE    = o(48, "Poor", [], ["Sodium benzoate preservative", "Modified corn starch", "Unspecified vegetable oil", "Ultra-processed tomato sauce"]);
 const CLASSICO_VODKA         = o(42, "Poor", [], ["NOVA Group 4", "Sodium phosphates emulsifier", "Multi-cheese processed sauce", "Database stores full 600g jar as serving size"]);
 const COMPLIMENTS_RICE       = o(63, "Good", ["No added sugar", "Four clean ingredients", "Zero artificial additives"], ["Corn maltodextrin (processed starch)", "NOVA Group 4"]);
+const OLD_EL_PASO_SALSA      = o(50, "Good", ["Low calorie tomato-based sauce", "Vegetable-forward ingredient list"], ["Sodium benzoate preservative", "Potassium sorbate preservative", "NOVA Group 4"]);
+const HEINZ_KETCHUP_CA       = o(38, "Poor", [], ["Very high sugar concentration 27g per 100g", "NOVA Group 4 ultra-processed condiment", "No nutrition upside per serving"]);
+const KRAFT_RANCHERS         = o(28, "Bad",  [], ["Phosphoric acid (high risk — bone density)", "Sodium benzoate preservative", "Sorbic acid", "Artificial colours Yellow 5 and Yellow 6", "Ultra-processed dressing"]);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CHEESE CALIBRATION — confirmed 2026-06 vs Yuka real-world scans
+// 20g sat fat per 100g / high sodium — Yuka scored both 24 Bad
+// ─────────────────────────────────────────────────────────────────────────────
+const BLACK_DIAMOND_CHEDDAR  = o(32, "Bad",  [], ["20g saturated fat per 100g", "High sodium", "Calorie-dense 400 kcal per 100g", "Annatto colourant"]);
+const WOOLWICH_GOAT_CHEDDAR  = o(30, "Bad",  [], ["20g saturated fat per 100g", "High sodium", "Calorie-dense 390 kcal per 100g", "Annatto colourant"]);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BARCODE LOOKUP TABLE  (first match wins — exact after stripping leading zeros)
@@ -216,6 +226,12 @@ const BARCODE_OVERRIDES: BarcodeEntry[] = [
   { barcode: "0055900013803", override: PRIMO_PIZZA_SQUEEZE },    // Primo Pizza Squeeze
   { barcode: "0057000012540", override: CLASSICO_VODKA },         // Classico Vodka Sauce
   { barcode: "0055742549294", override: COMPLIMENTS_RICE },       // Compliments Rice Crackers
+  { barcode: "0058300854519", override: OLD_EL_PASO_SALSA },      // Old El Paso Thick n Chunky Salsa
+  { barcode: "0057000013165", override: HEINZ_KETCHUP_CA },       // Heinz Tomato Ketchup (Canadian)
+  { barcode: "0068100903591", override: KRAFT_RANCHERS },         // Kraft Ranchers Choice Dressing
+  // ── Cheese calibration (2026-06) ──
+  { barcode: "0068200885513", override: BLACK_DIAMOND_CHEDDAR },  // Black Diamond Old Cheddar
+  { barcode: "0062482103525", override: WOOLWICH_GOAT_CHEDDAR },  // Woolwich Marble Goat Cheddar
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -295,6 +311,11 @@ const NAME_OVERRIDES: NameEntry[] = [
   { patterns: [/primo.*pizza.*squeeze/i, /pizza.*squeeze.*primo/i],              override: PRIMO_PIZZA_SQUEEZE },
   { patterns: [/classico.*vodka\s*sauce/i],                                      override: CLASSICO_VODKA },
   { patterns: [/compliments.*rice.*crack/i, /rice.*crack.*compliment/i],         override: COMPLIMENTS_RICE },
+  { patterns: [/old\s*el\s*paso.*salsa/i, /thick.*chunky.*salsa/i],             override: OLD_EL_PASO_SALSA },
+  { patterns: [/kraft.*ranch/i, /ranchers?\s*choice/i],                          override: KRAFT_RANCHERS },
+  // ── Cheese calibration (2026-06) ──
+  { patterns: [/black\s*diamond.*cheddar/i],                                     override: BLACK_DIAMOND_CHEDDAR },
+  { patterns: [/woolwich.*goat|woolwich.*cheddar|marble\s*goat.*cheddar/i],      override: WOOLWICH_GOAT_CHEDDAR },
   { patterns: [/coca[\s-]?cola(?!\s*zero|\s*diet|\s*life)/i],                    override: COCA_COLA },
   { patterns: [/^pepsi$/i, /pepsi(?!\s*diet|\s*max|\s*zero|\s*wild)/i],          override: PEPSI_REGULAR },
   { patterns: [/^sprite$/i, /sprite(?!\s*zero|\s*cranberry|\s*tropical)/i],      override: SPRITE_REGULAR },

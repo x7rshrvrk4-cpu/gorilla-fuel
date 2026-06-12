@@ -12,6 +12,8 @@ import {
   lookupBarcode,
   productImage,
   scoringContext,
+  resolveProductName,
+  resolveBrand,
   type OffProduct,
 } from "./lib/openFoodFacts";
 import { gorillaSuggestionsFor, type Alternative } from "./lib/gorillaGuidance";
@@ -408,11 +410,21 @@ export default function ScanClient() {
         // STEP 0 — GORILLA PRODUCT CACHE
         // Instantly return previously-scanned products without hitting
         // any external API. On miss, fall through to the full waterfall.
+        //
+        // CACHE_BYPASS_BARCODES: barcodes with known-contaminated cache entries
+        // (e.g. OFF returned data for the wrong product, merging ingredients from
+        // a different SKU). These always fall through to curatedFoods (STEP 2b).
         // ─────────────────────────────────────────────────────────
+        const CACHE_BYPASS_BARCODES = new Set([
+          "58300854519",   // Old El Paso Thick n Chunky Salsa — OFF returned taco seasoning data
+          "058300854519",
+          "0058300854519",
+        ]);
         console.log("[Gorilla] STEP 0 — cache lookup for:", trimmed);
         try {
           const cached = await lookupProductCache(trimmed);
-          if (cached) {
+          const bypassCache = CACHE_BYPASS_BARCODES.has(trimmed) || CACHE_BYPASS_BARCODES.has(trimmed.replace(/^0+/, ""));
+          if (cached && !bypassCache) {
             console.log("[Gorilla] STEP 0 HIT:", cached.product_name, "×", cached.scan_count);
             // Fire-and-forget: atomically increment scan count
             incrementScanCount(trimmed);
@@ -740,33 +752,37 @@ export default function ScanClient() {
             }
           } else {
             // Food / supplement path
+            // Normalize name (prefer English) and brand before any display or cache write.
+            const displayName = resolveProductName(product);
+            const displayBrand = resolveBrand(product);
+            const product_ = { ...product, product_name: displayName || product.product_name, brands: displayBrand || product.brands };
             const resultBase = computeScore(
-              product.nutriments ?? {},
-              product.ingredients_text || product.ingredients_text_en,
-              scoringContext(product)
+              product_.nutriments ?? {},
+              product_.ingredients_text || product_.ingredients_text_en,
+              scoringContext(product_)
             );
             // CURATED OVERRIDE — DO NOT REMOVE: every score passes the gate.
-            const result = gateResult(resultBase, trimmed, product);
-            const lowConfidence = isCanadianBarcode(trimmed) && !hasCanadianOrGlobalMarketData(product);
-            trackProductFound("open-food-facts", trimmed, product.product_name);
-            trackScanModeFood(trimmed, product.product_name);
-            setLookup({ phase: "found", product, result, lowConfidence, dataSource: "open-food-facts" });
-            upsertProductCache({ barcode: trimmed, product_name: product.product_name, brand: product.brands ?? null, categories: JSON.stringify(product.categories_tags ?? []), ingredients_text: product.ingredients_text, nutrition_data: product.nutriments ?? null, gorilla_score: result.finalScore, score_grade: result.grade, nova_group: product.nova_group ?? null, data_source: "open-food-facts", image_url: productImage(product) ?? null });
+            const result = gateResult(resultBase, trimmed, product_);
+            const lowConfidence = isCanadianBarcode(trimmed) && !hasCanadianOrGlobalMarketData(product_);
+            trackProductFound("open-food-facts", trimmed, displayName);
+            trackScanModeFood(trimmed, displayName);
+            setLookup({ phase: "found", product: product_, result, lowConfidence, dataSource: "open-food-facts" });
+            upsertProductCache({ barcode: trimmed, product_name: displayName || product_.product_name, brand: displayBrand || product_.brands || null, categories: JSON.stringify(product_.categories_tags ?? []), ingredients_text: product_.ingredients_text, nutrition_data: product_.nutriments ?? null, gorilla_score: result.finalScore, score_grade: result.grade, nova_group: product_.nova_group ?? null, data_source: "open-food-facts", image_url: productImage(product_) ?? null });
             setSheetVisible(true);
             persistHistory([
               {
-                barcode: product.code,
-                name: product.product_name || "Unnamed Product",
-                brand: product.brands || "Unknown Brand",
-                image: productImage(product),
+                barcode: product_.code,
+                name: displayName || "Unnamed Product",
+                brand: displayBrand || "Unknown Brand",
+                image: productImage(product_),
                 score: result.finalScore,
                 color: GRADE_COLORS[result.grade],
                 scannedAt: Date.now(),
               },
-              ...history.filter((h) => h.barcode !== product.code),
+              ...history.filter((h) => h.barcode !== product_.code),
             ].slice(0, MAX_HISTORY));
             setAlternativesLoading(true);
-            const candidates = await fetchAlternativesMultiLevel(product);
+            const candidates = await fetchAlternativesMultiLevel(product_);
             const better: Alternative[] = candidates
               .map((candidate) => {
                 const candidateResult = computeScore(
@@ -777,7 +793,7 @@ export default function ScanClient() {
                 return { candidate, candidateResult };
               })
               .filter(({ candidate, candidateResult }) => {
-                if (!sharesMainCategory(candidate, product)) return false;
+                if (!sharesMainCategory(candidate, product_)) return false;
                 const scoreGain = candidateResult.finalScore >= result.finalScore + 5;
                 const fewerAdditives = candidateResult.detectedAdditives.length < result.detectedAdditives.length;
                 const betterNova =
@@ -793,7 +809,7 @@ export default function ScanClient() {
                 product: candidate,
                 score: candidateResult.finalScore,
               }));
-            setAlternatives(better.length > 0 ? better : gorillaSuggestionsFor(product.categories_tags ?? []));
+            setAlternatives(better.length > 0 ? better : gorillaSuggestionsFor(product_.categories_tags ?? []));
             setAlternativesLoading(false);
             inFlightRef.current = null;
             return;

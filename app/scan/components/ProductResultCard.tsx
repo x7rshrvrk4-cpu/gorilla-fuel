@@ -34,7 +34,7 @@ type Props = {
 export default function ProductResultCard({ product, result, alternatives, alternativesLoading, dataSource }: Props) {
   const image = productImage(product);
   const gradeColor = GRADE_COLORS[result.grade];
-  const gorillaTake = buildGorillaTake(result.detectedAdditives, result.grade);
+  const gorillaTake = buildGorillaTake(result.detectedAdditives, result.grade, result.flags);
   const researchIngredients = detectExamineIngredients(product.ingredients_text || product.ingredients_text_en);
 
   return (

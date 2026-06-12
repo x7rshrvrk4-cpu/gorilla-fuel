@@ -9,6 +9,8 @@ export type GorillaTake = {
   positionStatement: string;
 };
 
+const SEVERE_NUTRITION_RE = /extreme sodium|very high sodium|extreme sugar|very high sugar|extreme saturated fat|very high saturated fat|High saturated fat — \d+\.\d+g per 100g|Very high salt|Extreme saturated fat concentration/i;
+
 const TIER_ORDER: EvidenceTier[] = ["strong-consensus", "emerging-evidence", "contested", "precautionary"];
 
 function tierBreakdown(detected: AdditiveInfo[]): TierBreakdown[] {
@@ -22,10 +24,20 @@ function tierBreakdown(detected: AdditiveInfo[]): TierBreakdown[] {
  * what was actually detected — algorithmic, not hand-written per product, so it
  * stays honest about exactly what's on the label rather than guessing at intent.
  */
-export function buildGorillaTake(detected: AdditiveInfo[], grade: Grade): GorillaTake {
+export function buildGorillaTake(detected: AdditiveInfo[], grade: Grade, nutritionFlags: string[] = []): GorillaTake {
   const breakdown = tierBreakdown(detected);
+  const hasSevereNutrition = nutritionFlags.some((f) => SEVERE_NUTRITION_RE.test(f));
 
   if (detected.length === 0) {
+    if (hasSevereNutrition) {
+      return {
+        tierBreakdown: breakdown,
+        scienceSummary:
+          "The ingredient scan returned no flagged additives — but the red flags above tell the real story. For this product, the macros are the issue, not the additive chemistry.",
+        positionStatement:
+          "An informed athlete should not be misled by a clean additive profile. Extreme saturated fat, very high sodium, or very high sugar represent genuine daily nutrition concerns that no amount of additive-cleanliness offsets. Look at the flags section above — that's where the actual risk sits.",
+      };
+    }
     return {
       tierBreakdown: breakdown,
       scienceSummary:

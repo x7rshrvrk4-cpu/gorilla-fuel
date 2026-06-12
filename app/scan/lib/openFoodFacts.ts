@@ -3,7 +3,9 @@ import type { Nutriments, ScoringContext } from "./scoring";
 export type OffProduct = {
   code: string;
   product_name?: string;
+  product_name_en?: string;
   brands?: string;
+  brand_owner?: string;
   image_front_url?: string;
   image_url?: string;
   image_small_url?: string;
@@ -25,8 +27,49 @@ export function scoringContext(product: OffProduct): ScoringContext {
     novaGroup: product.nova_group,
     labelsTags: product.labels_tags,
     categoriesTags: product.categories_tags,
-    productName: product.product_name,
+    productName: resolveProductName(product),
   };
+}
+
+// Common French words that appear in bilingual Canadian product names.
+// Used to detect when product_name is French-only and fall back to brand.
+const FRENCH_NAME_RE = /\b(fromage|craquelins?|ketchup aux|tomates?|salsa avec|gros morceaux|dijon à|ancienne|beurre|lait|crème|poulet|boeuf|légumes?|pommes de terre|avoine|farine|sucre|sel de mer)\b/i;
+
+/**
+ * Returns the best English display name for a product.
+ * Priority: product_name_en → product_name (English check) → brand + category fallback.
+ * Strips bilingual separators (◇ / | →) and drops French-only names.
+ */
+export function resolveProductName(product: OffProduct): string {
+  // 1. Explicit English name field from OFF
+  const nameEn = product.product_name_en?.trim();
+  if (nameEn) return nameEn;
+
+  const raw = product.product_name?.trim() ?? "";
+  if (!raw) return product.brands?.trim() ?? "";
+
+  // 2. Bilingual separator — take the first segment (usually English in Canada)
+  const bilingualMatch = raw.match(/^([^◇|/\\]+?)(?:\s*[◇|]|\s*\/\s*[A-ZÀÂÇÉÈÊËÎÏÔÙÛÜŸ])/);
+  if (bilingualMatch) {
+    const first = bilingualMatch[1].trim();
+    if (first && !FRENCH_NAME_RE.test(first)) return first;
+  }
+
+  // 3. All-caps bilingual concatenation (e.g. "OLD CHEDDAR ◇ VIEUX CHEDDAR") — already handled above.
+  // 4. French-only name → fall back to brand
+  if (FRENCH_NAME_RE.test(raw)) {
+    return product.brands?.trim() || raw;
+  }
+
+  return raw;
+}
+
+/**
+ * Returns the best brand string for a product.
+ * Falls back to brand_owner if brands is empty.
+ */
+export function resolveBrand(product: OffProduct): string {
+  return product.brands?.trim() || product.brand_owner?.trim() || "";
 }
 
 // English-speaking markets — used to keep "healthier alternatives" relevant to
@@ -105,7 +148,7 @@ export async function fetchAlternativesInCategory(
     url.searchParams.set("categories_tags", categoryTag);
     url.searchParams.set(
       "fields",
-      "code,product_name,brands,image_front_url,image_small_url,ingredients_text,nutriments,categories_tags,labels_tags,countries_tags,serving_size,nova_group,lang"
+      "code,product_name,product_name_en,brands,brand_owner,image_front_url,image_small_url,ingredients_text,nutriments,categories_tags,labels_tags,countries_tags,serving_size,nova_group,lang"
     );
     url.searchParams.set("page_size", "20");
     url.searchParams.set("sort_by", "unique_scans_n");

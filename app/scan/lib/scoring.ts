@@ -414,14 +414,58 @@ const ADDITIVES: AdditiveEntry[] = [
   },
   {
     id: "phosphoric-acid",
-    risk: "medium",
-    penalty: 10,
-    note: "Acidulant common in colas — regular high intake has been linked in studies to lower bone density and added strain on the kidneys.",
+    risk: "high",
+    penalty: 15,
+    note: "Acidulant in colas and processed dressings — linked in studies to lower bone mineral density and tooth enamel erosion at regular high-intake levels.",
     tier: "emerging-evidence",
     healthBodyPosition: "The FDA and EFSA classify it as safe within typical dietary use, while a growing body of observational research linking regular cola consumption to lower bone mineral density continues to build — though researchers note it's hard to separate the acid's own effect from the fact that heavy soda drinkers often also drink less milk.",
     gorillaPosition: "The bone-density link in the data is real; whether it's the acid itself or just what soda displaces in your diet is still an open question. Either way, the practical takeaway is the same — cola shouldn't be a daily habit.",
     sources: ["EFSA ANS Panel — Re-evaluation of Phosphoric Acid (2019)", "PubMed — cola consumption and bone mineral density studies", "FDA Code of Federal Regulations — 21 CFR 184.1061"],
     matchers: [name("Phosphoric acid"), ecode("E338")],
+  },
+  {
+    id: "sorbic-acid",
+    risk: "medium",
+    penalty: 8,
+    note: "Preservative found in processed dressings, sauces, and dairy products — generally recognized as safe at permitted levels, but part of a broader preservative load in processed foods.",
+    tier: "precautionary",
+    healthBodyPosition: "The FDA and EFSA classify sorbic acid as safe within approved usage limits. It is one of the most widely studied food preservatives with a long history of regulatory approval.",
+    gorillaPosition: "On its own, sorbic acid is not a major concern. We flag it because it's a signal of how processed a product is, and preservative load accumulates across a diet full of packaged foods.",
+    sources: ["FDA Code of Federal Regulations — 21 CFR 182.3089", "EFSA Opinion on the re-evaluation of sorbic acid (E200) (2015)"],
+    matchers: [name("Sorbic acid"), ecode("E200")],
+  },
+  {
+    id: "potassium-sorbate",
+    risk: "medium",
+    penalty: 8,
+    note: "Salt form of sorbic acid — converts back to sorbic acid in food and exerts the same antimicrobial preservative effect. Very commonly used in salad dressings, wines, and dairy.",
+    tier: "precautionary",
+    healthBodyPosition: "Considered safe by the FDA and EFSA at current use levels. Like sorbic acid, it has been extensively reviewed without identified significant health concerns.",
+    gorillaPosition: "Same context as sorbic acid — the concern is cumulative dietary preservative load across a day of eating packaged food, not this ingredient in isolation.",
+    sources: ["FDA Code of Federal Regulations — 21 CFR 182.3640", "EFSA Opinion on the re-evaluation of potassium sorbate (E202) (2015)"],
+    matchers: [name("Potassium sorbate"), ecode("E202")],
+  },
+  {
+    id: "annatto",
+    risk: "low",
+    penalty: 4,
+    note: "Natural orange-red colouring derived from annatto seeds — widely used in cheddar cheese and other dairy. Generally safe but documented as a trigger for allergic reactions in sensitive individuals.",
+    tier: "precautionary",
+    healthBodyPosition: "The FDA and EFSA classify annatto (E160b) as safe at permitted levels. Case reports of allergic reactions — including urticaria and IBS-like symptoms in sensitised individuals — are the primary documented concern.",
+    gorillaPosition: "For most people, annatto is a benign natural colour that is far preferable to synthetic alternatives. Worth knowing if you have a history of unexplained food-related skin or gut reactions.",
+    sources: ["EFSA Panel on Additives — Re-evaluation of Annatto (E160b) (2020)", "FDA Code of Federal Regulations — 21 CFR 73.30", "Case report literature on annatto hypersensitivity (PubMed)"],
+    matchers: [name("Annatto"), name("Roucou"), name("Bixin"), name("Norbixin"), ecode("E160b"), ecode("E160c"), { label: "Annatto", pattern: /\bannatto\b/i }],
+  },
+  {
+    id: "calcium-chloride",
+    risk: "low",
+    penalty: 0,
+    note: "Firming agent used in cheese-making and canned goods — considered GRAS by the FDA. Noted here for label transparency.",
+    tier: "precautionary",
+    healthBodyPosition: "Calcium chloride (E509) is Generally Recognized As Safe by the FDA and approved by the EFSA. At the concentrations used in food production there are no identified health concerns.",
+    gorillaPosition: "Not a real health concern at food-additive levels. We include it in the detected-additives list purely for transparency — some consumers want to know every additive present, not just the concerning ones.",
+    sources: ["FDA Code of Federal Regulations — 21 CFR 184.1193", "EFSA Panel on Food Additives — Re-evaluation of Calcium Chloride (E509) (2019)"],
+    matchers: [name("Calcium chloride"), ecode("E509")],
   },
   {
     id: "sodium-phosphates",
@@ -938,34 +982,44 @@ export function scoreNutrition(
   const hasServingData = sugarServing != null;
 
   if (hasServingData) {
+    // Clean serving label — extract numeric+unit from the raw serving_size string
+    // to avoid embedding malformed labels like "2 portions (30 ml)" in flag text.
+    const isMlServing = /ml/i.test(servingSize ?? "");
+    const servingTag = servingGrams != null
+      ? `${Math.round(servingGrams)}${isMlServing ? "ml" : "g"} serving`
+      : "serving";
+
     // ── Per-serving sugar ─────────────────────────────────────────────────
     const sg = sugarServing!;
     if (sg > 30) {
       score -= 40;
-      flags.push(`Extreme sugar per serving — ${sg.toFixed(1)}g per ${servingSize ?? "serving"}`);
+      flags.push(`Extreme sugar per serving — ${sg.toFixed(1)}g per ${servingTag}`);
     } else if (sg > 20) {
       score -= 25;
-      flags.push(`Very high sugar per serving — ${sg.toFixed(1)}g per ${servingSize ?? "serving"}`);
+      flags.push(`Very high sugar per serving — ${sg.toFixed(1)}g per ${servingTag}`);
     } else if (sg > 12) {
       score -= 15;
-      flags.push(`High sugar per serving — ${sg.toFixed(1)}g per ${servingSize ?? "serving"}`);
+      flags.push(`High sugar per serving — ${sg.toFixed(1)}g per ${servingTag}`);
     } else if (sg > 5) {
       score -= 10;
-      flags.push(`Elevated sugar per serving — ${sg.toFixed(1)}g per ${servingSize ?? "serving"}`);
+      flags.push(`Elevated sugar per serving — ${sg.toFixed(1)}g per ${servingTag}`);
     }
 
     // ── Per-serving saturated fat ─────────────────────────────────────────
     if (satFatServing != null) {
       const sf = satFatServing;
-      if (sf > 6) {
+      if (sf > 10) {
+        score -= 35;
+        flags.push(`Extreme saturated fat per serving — ${sf.toFixed(1)}g per ${servingTag}`);
+      } else if (sf >= 6) {
         score -= 22;
-        flags.push(`Very high saturated fat per serving — ${sf.toFixed(1)}g per ${servingSize ?? "serving"}`);
+        flags.push(`Very high saturated fat per serving — ${sf.toFixed(1)}g per ${servingTag}`);
       } else if (sf > 4) {
         score -= 15;
-        flags.push(`High saturated fat per serving — ${sf.toFixed(1)}g per ${servingSize ?? "serving"}`);
+        flags.push(`High saturated fat per serving — ${sf.toFixed(1)}g per ${servingTag}`);
       } else if (sf > 2) {
         score -= 8;
-        flags.push(`Elevated saturated fat per serving — ${sf.toFixed(1)}g per ${servingSize ?? "serving"}`);
+        flags.push(`Elevated saturated fat per serving — ${sf.toFixed(1)}g per ${servingTag}`);
       }
     }
 
@@ -974,16 +1028,16 @@ export function scoreNutrition(
       const na = sodiumServingMg;
       if (na > 1000) {
         score -= 28;
-        flags.push(`Extreme sodium per serving — ${Math.round(na)}mg per ${servingSize ?? "serving"}`);
+        flags.push(`Extreme sodium per serving — ${Math.round(na)}mg per ${servingTag}`);
       } else if (na > 600) {
         score -= 20;
-        flags.push(`Very high sodium per serving — ${Math.round(na)}mg per ${servingSize ?? "serving"}`);
+        flags.push(`Very high sodium per serving — ${Math.round(na)}mg per ${servingTag}`);
       } else if (na > 400) {
         score -= 12;
-        flags.push(`High sodium per serving — ${Math.round(na)}mg per ${servingSize ?? "serving"}`);
+        flags.push(`High sodium per serving — ${Math.round(na)}mg per ${servingTag}`);
       } else if (na > 200) {
         score -= 5;
-        flags.push(`Elevated sodium per serving — ${Math.round(na)}mg per ${servingSize ?? "serving"}`);
+        flags.push(`Elevated sodium per serving — ${Math.round(na)}mg per ${servingTag}`);
       }
     }
 
@@ -992,15 +1046,21 @@ export function scoreNutrition(
     // thresholds cleanly, but their per-100g composition is still extreme.
     // These catch the concentrated-ingredient signal that serving math misses.
     if (sugar > 30) {
-      score -= 10;
+      score -= 15;
       flags.push(`Extremely sugar-dense product — ${sugar.toFixed(1)}g sugar per 100g`);
+    } else if (sugar > 20) {
+      score -= 10;
+      flags.push(`Very sugar-dense product — ${sugar.toFixed(1)}g sugar per 100g`);
     }
     if (salt > 2) {
       score -= 10;
       flags.push(`Very high salt concentration — ${salt.toFixed(2)}g per 100g`);
     }
-    if (satFat > 10) {
-      score -= 10;
+    if (satFat > 20) {
+      score -= 20;
+      flags.push(`Extreme saturated fat concentration — ${satFat.toFixed(1)}g per 100g`);
+    } else if (satFat > 10) {
+      score -= 12;
       flags.push(`Very high saturated fat concentration — ${satFat.toFixed(1)}g per 100g`);
     }
 
@@ -1017,9 +1077,15 @@ export function scoreNutrition(
       flags.push(`Elevated sugar — ${sugar.toFixed(1)}g per 100g`);
     }
 
-    if (satFat > 10) {
-      score -= 20;
+    if (satFat > 20) {
+      score -= 50;
+      flags.push(`Extreme saturated fat — ${satFat.toFixed(1)}g per 100g`);
+    } else if (satFat > 15) {
+      score -= 35;
       flags.push(`Very high saturated fat — ${satFat.toFixed(1)}g per 100g`);
+    } else if (satFat > 10) {
+      score -= 22;
+      flags.push(`High saturated fat — ${satFat.toFixed(1)}g per 100g`);
     } else if (satFat > 5) {
       score -= 10;
       flags.push(`Elevated saturated fat — ${satFat.toFixed(1)}g per 100g`);
@@ -1082,6 +1148,20 @@ export function scoreNutrition(
     positives.push("No major nutrition red flags detected");
   }
 
+  // ── Hard cap: 2+ severe per-100g flags → nutrition score ≤ 55 ────────────
+  // A product cannot claim nutritional credibility while simultaneously
+  // triggering multiple severe macro flags. This prevents protein-bonus inflation
+  // from rescuing high-satfat, high-sodium dairy products to "Good" territory.
+  const severeCount = [
+    satFat > 10,
+    salt > 1.5,
+    sugar > 20,
+    calories > 400,
+  ].filter(Boolean).length;
+  if (severeCount >= 2) {
+    score = Math.min(score, 55);
+  }
+
   return { score: Math.max(0, Math.min(100, score)), flags, positives };
 }
 
@@ -1116,7 +1196,8 @@ export function scoreAdditives(ingredientsText: string | undefined | null): {
       gorillaPosition: entry.gorillaPosition,
       sources: entry.sources,
     });
-    score -= additivePenalty(entry.risk);
+    // Entries with penalty: 0 are flagged for transparency but don't affect score.
+    score -= entry.penalty === 0 ? 0 : additivePenalty(entry.risk);
   }
 
   return { score: Math.max(0, Math.min(100, score)), detected };
