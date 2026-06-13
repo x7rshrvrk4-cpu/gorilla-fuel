@@ -41,6 +41,7 @@
 import type { AlcoholKind } from "./alcoholScoring";
 import { REFERENCE_SERVING_ML } from "./alcoholScoring";
 import type { Nutriments } from "./scoring";
+import { scanLog, sinceMs, describeFetchError } from "./scanLog";
 
 const TABLE = "community_alcohol_products";
 
@@ -150,7 +151,11 @@ export async function lookupCommunityProduct(
   barcode: string
 ): Promise<CommunityAlcoholProduct | null> {
   const url = sbUrl();
-  if (!url || !sbKey()) return null;
+  const t0 = performance.now();
+  if (!url || !sbKey()) {
+    scanLog(`Community Submissions → skipped for ${barcode} (Supabase not configured)`);
+    return null;
+  }
   try {
     const endpoint = new URL(`${url}/rest/v1/${TABLE}`);
     endpoint.searchParams.set("barcode", `eq.${barcode}`);
@@ -158,11 +163,18 @@ export async function lookupCommunityProduct(
     endpoint.searchParams.set("limit", "1");
     endpoint.searchParams.set("order", "submitted_at.desc");
 
+    scanLog(`Community Submissions → querying ${endpoint.toString()}`);
     const res = await fetch(endpoint.toString(), { headers: baseHeaders() });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      scanLog(`Community Submissions ✗ HTTP ${res.status} in ${sinceMs(t0)}ms — no usable product`);
+      return null;
+    }
     const rows: CommunityAlcoholProduct[] = await res.json();
-    return rows[0] ?? null;
-  } catch {
+    const hit = rows[0] ?? null;
+    scanLog(`Community Submissions ${hit ? "✓" : "✗"} HTTP ${res.status} in ${sinceMs(t0)}ms — ${hit ? `verified product: ${hit.product_name}` : "no verified submission"}`);
+    return hit;
+  } catch (err) {
+    scanLog(`Community Submissions ✗ ${describeFetchError(err)} in ${sinceMs(t0)}ms`);
     return null;
   }
 }

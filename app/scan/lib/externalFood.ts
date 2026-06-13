@@ -1,4 +1,5 @@
 import type { OffProduct } from "./openFoodFacts";
+import { scanLog, sinceMs, describeFetchError } from "./scanLog";
 
 /**
  * Looks up a barcode against the USDA FoodData Central branded-food database.
@@ -6,12 +7,21 @@ import type { OffProduct } from "./openFoodFacts";
  * Returns an OffProduct-shaped object already normalized to per-100g values, or null.
  */
 export async function lookupUsda(barcode: string): Promise<OffProduct | null> {
+  const url = `/api/usda?barcode=${encodeURIComponent(barcode)}`;
+  const t0 = performance.now();
+  scanLog(`USDA → querying ${url}`);
   try {
-    const res = await fetch(`/api/usda?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(1500) });
-    if (!res.ok) return null;
+    const res = await fetch(url, { signal: AbortSignal.timeout(1500) });
+    if (!res.ok) {
+      scanLog(`USDA ✗ HTTP ${res.status} in ${sinceMs(t0)}ms — no usable product`);
+      return null;
+    }
     const data: OffProduct | null = await res.json();
-    return data?.product_name ? data : null;
-  } catch {
+    const product = data?.product_name ? data : null;
+    scanLog(`USDA ${product ? "✓" : "✗"} HTTP ${res.status} in ${sinceMs(t0)}ms — ${product ? `usable product: ${product.product_name}` : "no usable product"}`);
+    return product;
+  } catch (err) {
+    scanLog(`USDA ✗ ${describeFetchError(err)} in ${sinceMs(t0)}ms`);
     return null;
   }
 }
@@ -23,12 +33,21 @@ export async function lookupUsda(barcode: string): Promise<OffProduct | null> {
  * Returns null immediately when NUTRITIONIX_APP_ID/KEY env vars are not configured.
  */
 export async function lookupNutritionix(barcode: string): Promise<OffProduct | null> {
+  const url = `/api/nutritionix?barcode=${encodeURIComponent(barcode)}`;
+  const t0 = performance.now();
+  scanLog(`Nutritionix → querying ${url}`);
   try {
-    const res = await fetch(`/api/nutritionix?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(1500) });
-    if (!res.ok) return null;
+    const res = await fetch(url, { signal: AbortSignal.timeout(1500) });
+    if (!res.ok) {
+      scanLog(`Nutritionix ✗ HTTP ${res.status} in ${sinceMs(t0)}ms — no usable product`);
+      return null;
+    }
     const data: OffProduct | null = await res.json();
-    return data?.product_name ? data : null;
-  } catch {
+    const product = data?.product_name ? data : null;
+    scanLog(`Nutritionix ${product ? "✓" : "✗"} HTTP ${res.status} in ${sinceMs(t0)}ms — ${product ? `usable product: ${product.product_name}` : "no usable product"}`);
+    return product;
+  } catch (err) {
+    scanLog(`Nutritionix ✗ ${describeFetchError(err)} in ${sinceMs(t0)}ms`);
     return null;
   }
 }
@@ -40,12 +59,21 @@ export async function lookupNutritionix(barcode: string): Promise<OffProduct | n
  * Never throws — any OAuth or API failure is silently skipped.
  */
 export async function lookupFatSecret(barcode: string): Promise<OffProduct | null> {
+  const url = `/api/fatsecret?barcode=${encodeURIComponent(barcode)}`;
+  const t0 = performance.now();
+  scanLog(`FatSecret → querying ${url}`);
   try {
-    const res = await fetch(`/api/fatsecret?barcode=${encodeURIComponent(barcode)}`, { signal: AbortSignal.timeout(1500) });
-    if (!res.ok) return null;
+    const res = await fetch(url, { signal: AbortSignal.timeout(1500) });
+    if (!res.ok) {
+      scanLog(`FatSecret ✗ HTTP ${res.status} in ${sinceMs(t0)}ms — no usable product`);
+      return null;
+    }
     const data: OffProduct | null = await res.json();
-    return data?.product_name ? data : null;
-  } catch {
+    const product = data?.product_name ? data : null;
+    scanLog(`FatSecret ${product ? "✓" : "✗"} HTTP ${res.status} in ${sinceMs(t0)}ms — ${product ? `usable product: ${product.product_name}` : "no usable product"}`);
+    return product;
+  } catch (err) {
+    scanLog(`FatSecret ✗ ${describeFetchError(err)} in ${sinceMs(t0)}ms`);
     return null;
   }
 }

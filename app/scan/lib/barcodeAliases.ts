@@ -34,6 +34,8 @@
  * -- VALUES ('VERIFIED_UPC', 'Michelob Ultra', '0018200417308', '24 PACK', 'approved');
  */
 
+import { scanLog, sinceMs, describeFetchError } from "./scanLog";
+
 const TABLE = "barcode_aliases";
 
 function sbUrl(): string {
@@ -61,20 +63,31 @@ export type BarcodeAlias = {
 
 export async function lookupBarcodeAlias(barcode: string): Promise<BarcodeAlias | null> {
   const url = sbUrl();
-  if (!url || !sbKey()) return null;
+  const t0 = performance.now();
+  if (!url || !sbKey()) {
+    scanLog(`Barcode Alias → skipped for ${barcode} (Supabase not configured)`);
+    return null;
+  }
   try {
     const endpoint = new URL(`${url}/rest/v1/${TABLE}`);
     endpoint.searchParams.set("alias_barcode", `eq.${barcode}`);
     endpoint.searchParams.set("status", "eq.approved");
     endpoint.searchParams.set("limit", "1");
+    scanLog(`Barcode Alias → querying ${endpoint.toString()}`);
     const res = await fetch(endpoint.toString(), {
       headers: baseHeaders(),
       signal: AbortSignal.timeout(1500),
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      scanLog(`Barcode Alias ✗ HTTP ${res.status} in ${sinceMs(t0)}ms — no usable product`);
+      return null;
+    }
     const rows: BarcodeAlias[] = await res.json();
-    return rows[0] ?? null;
-  } catch {
+    const hit = rows[0] ?? null;
+    scanLog(`Barcode Alias ${hit ? "✓" : "✗"} HTTP ${res.status} in ${sinceMs(t0)}ms — ${hit ? `alias of: ${hit.parent_product_name} (${hit.pack_size})` : "no alias"}`);
+    return hit;
+  } catch (err) {
+    scanLog(`Barcode Alias ✗ ${describeFetchError(err)} in ${sinceMs(t0)}ms`);
     return null;
   }
 }

@@ -1,4 +1,5 @@
 import type { Nutriments, ScoringContext } from "./scoring";
+import { scanLog, sinceMs, describeFetchError } from "./scanLog";
 
 export type OffProduct = {
   code: string;
@@ -106,11 +107,11 @@ export type LookupResult =
   | { status: "error"; message: string };
 
 export async function lookupBarcode(barcode: string): Promise<LookupResult> {
+  const url = `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json`;
+  const t0 = performance.now();
+  scanLog(`Open Food Facts → querying ${url}`);
   try {
-    const res = await fetch(
-      `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json`,
-      { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(3000) }
-    );
+    const res = await fetch(url, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(3000) });
 
     let data: { status?: number; product?: OffProduct } | null = null;
     try {
@@ -125,15 +126,19 @@ export async function lookupBarcode(barcode: string): Promise<LookupResult> {
     // body is the authoritative "miss" signal here, not the HTTP status code,
     // and a clean miss is exactly when we want to fall back to Open Beauty Facts.
     if (data && data.status !== 1) {
+      scanLog(`Open Food Facts ✗ HTTP ${res.status} in ${sinceMs(t0)}ms — not found (status:0 body)`);
       return { status: "not-found" };
     }
 
     if (!res.ok || !data?.product) {
+      scanLog(`Open Food Facts ✗ HTTP ${res.status} in ${sinceMs(t0)}ms — no usable product`);
       return { status: "error", message: `Open Food Facts returned ${res.status}` };
     }
 
+    scanLog(`Open Food Facts ✓ HTTP ${res.status} in ${sinceMs(t0)}ms — usable product: ${data.product.product_name ?? "(unnamed)"}`);
     return { status: "found", product: data.product };
-  } catch {
+  } catch (err) {
+    scanLog(`Open Food Facts ✗ ${describeFetchError(err)} in ${sinceMs(t0)}ms`);
     return { status: "error", message: "Couldn't reach Open Food Facts. Check your connection." };
   }
 }

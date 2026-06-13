@@ -66,6 +66,7 @@ import SupplementResultCard from "./components/SupplementResultCard";
 import { lookupCuratedFood } from "./lib/curatedFoods";
 import { applyScoringGate } from "./lib/curatedScores";
 import { lookupBarcodeAlias } from "./lib/barcodeAliases";
+import { scanLog, sinceMs } from "./lib/scanLog";
 import MultiPackPrompt from "./components/MultiPackPrompt";
 import {
   lookupProductCache,
@@ -222,14 +223,23 @@ async function fetchOffHit(barcode: string, scannedBarcode: string): Promise<Ext
     if (r.status !== "found") return null;
     const product = r.product;
     const confidence = validateConfidence(product, scannedBarcode);
-    if (!confidence.pass) return null;
+    if (!confidence.pass) {
+      scanLog(`Open Food Facts ⊘ REJECTED "${product.product_name ?? "(unnamed)"}" — confidence check failed: ${confidence.reason}`);
+      return null;
+    }
 
     const catTags = product.categories_tags ?? [];
     if (catTags.length > 0 && isAlcoholProduct(catTags)) {
       const nameConf = productNameIndicatesAlcohol(product.product_name || "");
       const catConf = categoriesIndicateAlcohol(catTags);
-      if (!nameConf && !catConf) return null;
-      if (productNameContradictsAlcohol(product.product_name || "")) return null;
+      if (!nameConf && !catConf) {
+        scanLog(`Open Food Facts ⊘ REJECTED "${product.product_name ?? "(unnamed)"}" — alcohol category but neither name nor categories confirm alcohol`);
+        return null;
+      }
+      if (productNameContradictsAlcohol(product.product_name || "")) {
+        scanLog(`Open Food Facts ⊘ REJECTED "${product.product_name ?? "(unnamed)"}" — name contradicts alcohol classification`);
+        return null;
+      }
       return { kind: "off-alcohol", data: product };
     }
 
@@ -445,6 +455,13 @@ export default function ScanClient() {
       setPackSizeBadge(null);
       setLookup({ phase: "loading", barcode: trimmed });
 
+      // ── Diagnostic waterfall trace (logging only) ────────────────────────
+      // Mode is "auto/universal": the scanner has no preset mode — product type
+      // (food/alcohol/supplement/beauty/drug) is resolved by whichever source wins.
+      const waterfallStart = performance.now();
+      let waterfallResult = "NOT FOUND — all sources exhausted";
+      scanLog(`▶ WATERFALL START — barcode="${trimmed}" length=${trimmed.length} mode=auto/universal`);
+
       // Hard timeout — master deadline over the full waterfall (Tier A 3 s + Tier B 4 s + overhead).
       const timeoutId = window.setTimeout(() => {
         if (inFlightRef.current === trimmed) {
@@ -509,6 +526,7 @@ export default function ScanClient() {
               const cachedResult = gateResult(cachedResultBase, trimmed, cachedProduct);
               trackProductFound("gorilla-cache", trimmed, cachedProduct.product_name);
               trackScanModeFood(trimmed, cachedProduct.product_name);
+              waterfallResult = `Gorilla Cache (food) — ${cachedProduct.product_name}`;
               setLookup({ phase: "found", product: cachedProduct, result: cachedResult, dataSource: "gorilla-cache" });
               setSheetVisible(true);
               persistHistory([
@@ -565,6 +583,7 @@ export default function ScanClient() {
                 : computedResult;
               trackProductFound("gorilla-cache", trimmed, cachedProduct.product_name);
               trackScanModeAlcohol(trimmed, cachedProduct.product_name);
+              waterfallResult = `Gorilla Cache (alcohol) — ${cachedProduct.product_name}`;
               setLookup({ phase: "found-alcohol", product: cachedProduct, result: alcoholResult, dataSource: "gorilla-cache" });
               setScannerActive(false);
               scrollToResult();
@@ -596,7 +615,9 @@ export default function ScanClient() {
         // Our own verified alcohol products take absolute priority.
         // ─────────────────────────────────────────────────────────
         console.log("[Gorilla] STEP 1 — curated alcohol check for:", trimmed);
+        scanLog(`Gorilla Curated (alcohol) → in-memory lookup for ${trimmed}`);
         const curatedHit = lookupCuratedByBarcode(trimmed);
+        scanLog(`Gorilla Curated (alcohol) ${curatedHit ? "✓ hit" : "✗ miss"} — ${curatedHit ? curatedHit.name : "not in curated alcohol DB"}`);
         if (curatedHit) {
           console.log("[Gorilla] STEP 1 HIT:", curatedHit.name, "barcode:", trimmed);
           const servingMl = curatedHit.servingMl ?? 355;
@@ -630,6 +651,7 @@ export default function ScanClient() {
           };
           trackProductFound("gorilla-curated", trimmed, curatedHit.name);
           trackScanModeAlcohol(trimmed, curatedHit.name);
+          waterfallResult = `Gorilla Curated (alcohol) — ${curatedHit.name}`;
           setLookup({ phase: "found-alcohol", product: syntheticProduct, result: alcoholResult, dataSource: "gorilla-curated", lcboVerified: curatedHit.lcboVerified ?? false });
           setScannerActive(false);
           scrollToResult();
@@ -664,6 +686,7 @@ export default function ScanClient() {
             nutriments,
           };
           const alcoholResult = computeAlcoholScore(nutriments, undefined, kind);
+          waterfallResult = `Community Submissions — ${communityHit.product_name}`;
           setLookup({ phase: "found-alcohol", product: syntheticProduct, result: alcoholResult, fromCommunity: true, dataSource: "community" });
           setScannerActive(false);
           scrollToResult();
@@ -687,7 +710,9 @@ export default function ScanClient() {
         // barcode is present, regardless of external API availability.
         // ─────────────────────────────────────────────────────────
         console.log("[Gorilla] STEP 2b — curated food check for:", trimmed);
+        scanLog(`Gorilla Curated (food) → in-memory lookup for ${trimmed}`);
         const curatedFoodHit = lookupCuratedFood(trimmed);
+        scanLog(`Gorilla Curated (food) ${curatedFoodHit ? "✓ hit" : "✗ miss"} — ${curatedFoodHit ? curatedFoodHit.product_name : "not in curated food DB"}`);
         if (curatedFoodHit) {
           console.log("[Gorilla] STEP 2b HIT:", curatedFoodHit.product_name);
           const cfBase = computeScore(
@@ -699,6 +724,7 @@ export default function ScanClient() {
           const cfResult = gateResult(cfBase, trimmed, curatedFoodHit);
           trackProductFound("gorilla-curated", trimmed, curatedFoodHit.product_name);
           trackScanModeFood(trimmed, curatedFoodHit.product_name);
+          waterfallResult = `Gorilla Curated (food) — ${curatedFoodHit.product_name}`;
           setLookup({ phase: "found", product: curatedFoodHit, result: cfResult, dataSource: "gorilla-curated" });
           setSheetVisible(true);
           persistHistory([
@@ -739,6 +765,7 @@ export default function ScanClient() {
         // First quality hit wins; 3-second window total.
         // ─────────────────────────────────────────────────────────
         console.log("[Gorilla] STEP 3 — Tier A race (OFF + food sources) for:", trimmed);
+        scanLog("STEP 3 — Tier A race starting: Open Food Facts + UPCitemdb + FatSecret + Nutritionix (3s window)");
         const tierAHit = await raceTierA(trimmed, trimmed);
 
         // Helper: score and return a food result
@@ -783,10 +810,14 @@ export default function ScanClient() {
         // ─────────────────────────────────────────────────────────
         const extHit: ExternalHit | null = tierAHit
           ?? (console.log("[Gorilla] STEP 4 — Tier B race (specialty sources) for:", trimmed),
+              scanLog("STEP 4 — Tier A missed; Tier B race starting: NIH DSLD + Open Beauty Facts + WineVybe + Wine Analyzer + COLA Cloud + Go-UPC + Open Drug Facts (4s window)"),
               await raceTierB(trimmed));
 
         if (extHit) {
           console.log("[Gorilla] external hit kind:", extHit.kind);
+          waterfallResult = `External waterfall — kind=${extHit.kind}${
+            "source" in extHit && extHit.source ? ` via ${extHit.source}` : ""
+          }`;
           switch (extHit.kind) {
             case "off-alcohol": {
               // OFF confirmed this as alcohol not in our curated list
@@ -923,6 +954,7 @@ export default function ScanClient() {
               setPackSizeBadge(aliasHit.pack_size);
               trackProductFound("gorilla-curated", trimmed, parentByName.name);
               trackScanModeAlcohol(trimmed, parentByName.name);
+              waterfallResult = `Barcode Alias → ${parentByName.name} (${aliasHit.pack_size})`;
               setLookup({
                 phase: "found-alcohol",
                 product: syntheticProduct,
@@ -955,11 +987,13 @@ export default function ScanClient() {
 
       } catch (err) {
         console.error("[Gorilla] runLookup crashed:", err);
+        waterfallResult = `ERROR — ${err instanceof Error ? err.message : String(err)}`;
         setLookup({ phase: "error", barcode: trimmed, message: "Something went wrong — please try again." });
         setAlternativesLoading(false);
       } finally {
         clearTimeout(timeoutId);
         inFlightRef.current = null;
+        scanLog(`■ WATERFALL END — barcode="${trimmed}" total=${sinceMs(waterfallStart)}ms → ${waterfallResult}`);
       }
     },
     [history, persistHistory, scrollToResult]

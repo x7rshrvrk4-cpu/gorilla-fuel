@@ -84,6 +84,7 @@
  */
 
 import type { Nutriments } from "./scoring";
+import { scanLog, sinceMs, describeFetchError } from "./scanLog";
 
 export type CachedProduct = {
   id: string;
@@ -158,19 +159,30 @@ export function tryParseCategories(categories: string | null): string[] {
 /** Look up a barcode in the product cache. Returns null if unconfigured/missing/error. */
 export async function lookupProductCache(barcode: string): Promise<CachedProduct | null> {
   const url = sbUrl();
-  if (!url || !sbKey()) return null;
+  const t0 = performance.now();
+  if (!url || !sbKey()) {
+    scanLog(`Gorilla Cache → skipped for ${barcode} (Supabase not configured)`);
+    return null;
+  }
   try {
     const endpoint = new URL(`${url}/rest/v1/${CACHE_TABLE}`);
     endpoint.searchParams.set("barcode", `eq.${barcode}`);
     endpoint.searchParams.set("limit", "1");
+    scanLog(`Gorilla Cache → querying ${endpoint.toString()}`);
     const res = await fetch(endpoint.toString(), {
       headers: baseHeaders(),
       cache: "no-store",
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      scanLog(`Gorilla Cache ✗ HTTP ${res.status} in ${sinceMs(t0)}ms — no usable product`);
+      return null;
+    }
     const rows: CachedProduct[] = await res.json();
-    return rows[0] ?? null;
-  } catch {
+    const hit = rows[0] ?? null;
+    scanLog(`Gorilla Cache ${hit ? "✓" : "✗"} HTTP ${res.status} in ${sinceMs(t0)}ms — ${hit ? `cached product: ${hit.product_name} (×${hit.scan_count})` : "no cache entry"}`);
+    return hit;
+  } catch (err) {
+    scanLog(`Gorilla Cache ✗ ${describeFetchError(err)} in ${sinceMs(t0)}ms`);
     return null;
   }
 }
