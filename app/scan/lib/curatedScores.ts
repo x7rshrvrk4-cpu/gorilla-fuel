@@ -76,7 +76,7 @@ const CLIF_BAR           = o(38, "Poor");
 const VITAMIN_WATER      = o(32, "Bad");
 const ACTIVIA_STRAW      = o(35, "Poor");
 const SPECIAL_K_BAR      = o(33, "Bad");
-const OLD_DUTCH_PARTY    = o(22, "Bad");   // corrected 30 → 22 (2026-06 recalibration)
+const OLD_DUTCH_PARTY    = o(30, "Bad");
 const OLD_DUTCH_RIPPLE   = o(28, "Bad");
 const OLD_DUTCH_KETCHUP  = o(25, "Bad");
 const OLD_DUTCH_DRESSED  = o(25, "Bad");
@@ -187,14 +187,17 @@ const BARCODE_OVERRIDES: BarcodeEntry[] = [
   { barcode: "0067040303010", override: HARDBITE },
   { barcode: "0062814133450", override: LINDT_85 },
   { barcode: "0062814198403", override: LINDT_85 },
+  { barcode: "0037466012834", override: LINDT_85 },              // Lindt 85% alternate UPC
   { barcode: "0062814133443", override: LINDT_70 },
   { barcode: "0062814133436", override: LINDT_70 },
   { barcode: "0708656035003", override: GREEN_BLACKS_70 },
   { barcode: "0708656035010", override: GREEN_BLACKS_70 },
   { barcode: "0016000275287", override: NATURE_VALLEY_OAT },
   { barcode: "0016000275270", override: NATURE_VALLEY_OAT },
+  { barcode: "0016000275225", override: NATURE_VALLEY_OAT },     // Nature Valley alternate UPC
   { barcode: "0044000051396", override: TRISCUITS },
   { barcode: "0044000051402", override: TRISCUITS },
+  { barcode: "0044000032036", override: TRISCUITS },             // Triscuits alternate UPC
   { barcode: "0063600013113", override: BRETON },
   { barcode: "0063600013120", override: BRETON },
   { barcode: "0028400493451", override: SMARTFOOD_CHEDDAR },
