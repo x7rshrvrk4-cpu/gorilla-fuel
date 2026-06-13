@@ -953,6 +953,19 @@ export function scoreNutrition(
   const protein = n.proteins_100g ?? 0;
   const servingSize = context?.servingSize ?? null;
 
+  // ── Detect genuinely MISSING critical nutrients ──────────────────────────
+  // The `?? 0` coercions above are fine for the band math, but a real 0 and a
+  // *missing* value must be treated very differently for scoring. A missing
+  // sodium/sugar/saturated-fat value previously contributed 0 penalty —
+  // silently inflating scores on incomplete data (e.g. a salty snack with no
+  // sodium listed scoring "Excellent"). These flags drive the conservative
+  // default applied below. "_serving" fields are checked too, since the band
+  // logic can derive a per-serving value from either form.
+  const sodiumMissing = n.salt_100g === undefined && n.salt_serving === undefined;
+  const sugarMissing  = n.sugars_100g === undefined && n.sugars_serving === undefined;
+  const satFatMissing = n["saturated-fat_100g"] === undefined && n["saturated-fat_serving"] === undefined;
+  const missingCriticalCount = [sodiumMissing, sugarMissing, satFatMissing].filter(Boolean).length;
+
   // ── NOVA — applied first as the dominant processing signal ───────────────
   // NOVA 4 (ultra-processed) caps nutrition at 45 before other factors.
   // NOVA 1 (unprocessed whole foods) receives a small bonus.
@@ -1124,13 +1137,32 @@ export function scoreNutrition(
     score = Math.min(score, 45);
     flags.push("NOVA group missing — snack/confectionery category detected. Ultra-processed assumed, score capped at 45. Incomplete data makes scores go down, not stay high.");
   }
-  if (n["saturated-fat_100g"] === undefined && isDairyCheeseCat) {
-    score -= 8;
-    flags.push("Saturated fat not disclosed for cheese/dairy snack — 8-point precautionary deduction.");
-  }
-  if (n.salt_100g === undefined && isSaltyCat) {
-    score -= 8;
-    flags.push("Sodium not disclosed for salty snack — 8-point precautionary deduction.");
+
+  // ── Conservative default for MISSING critical nutrients ───────────────────
+  // Platform philosophy: "Incomplete data defaults LOW, not high. A conservative
+  // precautionary score is always better than a falsely optimistic one." A
+  // missing sodium/sugar/saturated-fat value must NOT be treated as a clean 0 —
+  // that is what let a salty snack with undisclosed sodium score "Excellent".
+  // Each missing critical nutrient takes a precautionary deduction, and any
+  // missing critical nutrient blocks the confident "Excellent" band (hard cap
+  // applied at the very end, after bonuses).
+  //
+  // NOVA 1 (unprocessed whole foods) is deliberately exempt: a banana, plain
+  // chicken, etc. legitimately have negligible sodium/added sugar/saturated fat,
+  // so a gap in those fields is not a hidden-harm risk — and exempting NOVA 1
+  // keeps whole-food calibration intact. Unknown-NOVA products are NOT exempt,
+  // so processed/unidentified items with missing harmful data still default low.
+  const missingHarmfulData = missingCriticalCount > 0 && nova !== 1;
+  if (missingHarmfulData) {
+    score -= missingCriticalCount * 12;
+    const missingNames = [
+      sodiumMissing && "sodium",
+      sugarMissing && "sugar",
+      satFatMissing && "saturated fat",
+    ].filter(Boolean).join(", ");
+    flags.push(
+      `Incomplete nutrition data — ${missingNames} not disclosed. Scored conservatively (a precautionary low score is safer than a falsely optimistic one); a confident "Excellent" rating is withheld until the data is complete.`
+    );
   }
 
   // ── Positive signals ─────────────────────────────────────────────────────
@@ -1160,6 +1192,16 @@ export function scoreNutrition(
   ].filter(Boolean).length;
   if (severeCount >= 2) {
     score = Math.min(score, 55);
+  }
+
+  // ── Hard cap: incomplete critical-nutrient data can never be "Excellent" ──
+  // Applied AFTER the fiber/protein bonuses so they can't lift an incomplete
+  // product back over the line. 45 sits comfortably in "Poor" and is low enough
+  // that even a perfect additive score (100) + organic bonus (10) keeps the
+  // blended final score (0.6·45 + 0.3·100 + 10 = 67) below the 75 "Excellent"
+  // threshold — so a missing-harmful-data product can never grade Excellent.
+  if (missingHarmfulData) {
+    score = Math.min(score, 45);
   }
 
   return { score: Math.max(0, Math.min(100, score)), flags, positives };
