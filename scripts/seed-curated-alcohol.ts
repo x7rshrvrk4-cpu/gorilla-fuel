@@ -137,13 +137,43 @@ async function main() {
     return;
   }
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
+
+  if (!supabaseUrl || !supabaseKey) {
+    console.error("ERROR: Supabase env vars missing.");
+    process.exit(1);
+  }
+
+  const baseHeaders = {
+    apikey: supabaseKey,
+    Authorization: `Bearer ${supabaseKey}`,
+    "Content-Type": "application/json",
+    Prefer: "resolution=merge-duplicates,return=minimal",
+  };
+
   const BATCH = 50;
   let written = 0;
   for (let i = 0; i < rows.length; i += BATCH) {
     const batch = rows.slice(i, i + BATCH);
-    const n = await batchUpsertProductCache(batch);
-    written += n;
-    console.log(`  Upserted batch ${Math.floor(i / BATCH) + 1}: ${n}/${batch.length} rows`);
+    const batchNum = Math.floor(i / BATCH) + 1;
+    try {
+      const res = await fetch(`${supabaseUrl}/rest/v1/gorilla_product_cache`, {
+        method: "POST",
+        headers: baseHeaders,
+        body: JSON.stringify(batch),
+        signal: AbortSignal.timeout(30_000),
+      });
+      if (res.ok || res.status === 204) {
+        written += batch.length;
+        console.log(`  Batch ${batchNum}: ${batch.length} rows OK (HTTP ${res.status})`);
+      } else {
+        const text = await res.text();
+        console.error(`  Batch ${batchNum}: HTTP ${res.status} — ${text.slice(0, 300)}`);
+      }
+    } catch (e) {
+      console.error(`  Batch ${batchNum}: fetch error — ${e}`);
+    }
   }
 
   console.log(`\n✓ Done — ${written}/${rows.length} rows upserted into gorilla_product_cache`);
