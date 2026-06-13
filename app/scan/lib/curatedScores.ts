@@ -347,6 +347,15 @@ const NAME_OVERRIDES: NameEntry[] = [
 // PUBLIC API
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Set of normalized (leading-zero-stripped) barcodes that have curated score
+ * overrides. Import scripts check this before upserting so they never clobber
+ * a manually-verified entry with whatever OFF returns.
+ */
+export const CURATED_BARCODE_SET: ReadonlySet<string> = new Set(
+  BARCODE_OVERRIDES.map((e) => e.barcode.replace(/\D/g, "").replace(/^0+/, "") || "0")
+);
+
 function normBarcode(b: string): string {
   return b.replace(/\D/g, "").replace(/^0+/, "") || "0";
 }

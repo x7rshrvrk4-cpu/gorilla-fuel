@@ -21,7 +21,13 @@ config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { batchUpsertProductCache, logImportRun } from "../app/scan/lib/productCache";
 import type { UpsertPayload } from "../app/scan/lib/productCache";
-import { buildOffRow } from "../app/scan/lib/productClassify";
+import { buildOffRow, ALGO_VERSION } from "../app/scan/lib/productClassify";
+import { CURATED_BARCODE_SET } from "../app/scan/lib/curatedScores";
+
+/** Normalize a barcode for set lookup — matches the gate's own normalization. */
+function normB(b: string): string {
+  return b.replace(/\D/g, "").replace(/^0+/, "") || "0";
+}
 
 const OFF_V2_BASE = "https://world.openfoodfacts.org/api/v2/search";
 const OFF_USER_AGENT = "GorillFuel-Import/1.0 (gorillafuel.ca; alex@gorillafuel.ca)";
@@ -99,8 +105,12 @@ async function main() {
   console.log(`   Batch size: ${BATCH_SIZE}`);
   console.log(`   Page delay: ${PAGE_DELAY_MS}ms\n`);
 
+  console.log(`   Algorithm : ${ALGO_VERSION}`);
+  console.log(`   Curated   : ${CURATED_BARCODE_SET.size} barcodes protected\n`);
+
   const startedAt = Date.now();
   let total = 0, food = 0, alcoholCount = 0, suppl = 0, withNutr = 0, withoutNutr = 0;
+  let curatedSkipped = 0;
   let consecutiveEmpty = 0;
   let buffer: UpsertPayload[] = [];
 
@@ -135,6 +145,11 @@ async function main() {
 
     let pageCount = 0;
     for (const p of products) {
+      const code = (p.code as string) ?? "";
+      if (code && CURATED_BARCODE_SET.has(normB(code))) {
+        curatedSkipped++;
+        continue;
+      }
       const row = buildOffRow(p);
       if (!row) continue;
       buffer.push(row);
@@ -162,12 +177,14 @@ async function main() {
 
   const durationSeconds = Math.round((Date.now() - startedAt) / 1000);
   console.log(`\n✓ Import complete in ${durationSeconds}s`);
+  console.log(`  Algorithm: ${ALGO_VERSION}`);
   console.log(`  Total    : ${total}`);
   console.log(`  Food     : ${food}`);
   console.log(`  Alcohol  : ${alcoholCount}`);
   console.log(`  Suppl    : ${suppl}`);
   console.log(`  w/ Nutr  : ${withNutr}`);
   console.log(`  w/o Nutr : ${withoutNutr}`);
+  console.log(`  Curated  : ${curatedSkipped} skipped (protected)`);
 
   if (!dryRun) {
     await logImportRun({
@@ -178,7 +195,7 @@ async function main() {
       with_nutrition: withNutr,
       without_nutrition: withoutNutr,
       duration_seconds: durationSeconds,
-      notes: `Local script — ${maxPages} pages`,
+      notes: `Local script — ${maxPages} pages | algo ${ALGO_VERSION} | ${curatedSkipped} curated protected`,
     });
     console.log("  Import log saved to gorilla_import_log ✓");
   }

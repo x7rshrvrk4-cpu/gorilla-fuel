@@ -4,7 +4,12 @@
  */
 
 import { computeScore } from "./scoring";
+import { applyScoringGate } from "./curatedScores";
 import type { UpsertPayload } from "./productCache";
+
+/** Bumped whenever the scoring algorithm or gate logic changes materially.
+ *  Stored on every cache row so rescore-all can target stale entries. */
+export const ALGO_VERSION = "v2.2";
 
 const ALCOHOL_KW = [
   "beer", "wine", "spirit", "cider", "seltzer", "alcoholic", "liqueur",
@@ -69,12 +74,23 @@ export function buildOffRow(p: Record<string, unknown>): UpsertPayload | null {
           categoriesTags: cats,
         }
       );
-      gorilla_score = result.finalScore;
-      score_grade = result.grade;
+      // Full gate: curated overrides → brand caps → category caps → ingredient sanity
+      const gated = applyScoringGate(result.finalScore, {
+        barcode,
+        productName: (p.product_name as string) ?? "",
+        brand: (p.brands as string) ?? null,
+        ingredientsText: (p.ingredients_text as string) ?? null,
+        categoriesTags: cats,
+        novaGroup: (p.nova_group as number) || null,
+      });
+      gorilla_score = gated.score;
+      score_grade = gated.grade;
     } catch {
       // Non-fatal — store the row without a score
     }
   }
+
+  const scoredAt = gorilla_score !== null ? new Date().toISOString() : null;
 
   return {
     barcode,
@@ -92,5 +108,7 @@ export function buildOffRow(p: Record<string, unknown>): UpsertPayload | null {
     is_alcohol: alcohol,
     is_supplement: supplement,
     is_beauty: false,
+    algorithm_version: ALGO_VERSION,
+    scored_at: scoredAt,
   };
 }

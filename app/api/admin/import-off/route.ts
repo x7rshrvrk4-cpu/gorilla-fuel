@@ -1,6 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { batchUpsertProductCache, logImportRun } from "../../../scan/lib/productCache";
-import { buildOffRow } from "../../../scan/lib/productClassify";
+import { buildOffRow, ALGO_VERSION } from "../../../scan/lib/productClassify";
+import { CURATED_BARCODE_SET } from "../../../scan/lib/curatedScores";
+
+function normBarcode(b: string): string {
+  return b.replace(/\D/g, "").replace(/^0+/, "") || "0";
+}
 
 /**
  * POST /api/admin/import-off
@@ -47,6 +52,7 @@ export async function POST(request: NextRequest) {
 
   const startedAt = Date.now();
   let total = 0, food = 0, alcoholCount = 0, suppl = 0, withNutr = 0, withoutNutr = 0;
+  let curatedSkipped = 0;
   let pagesCompleted = 0;
   let abortReason: string | null = null;
 
@@ -70,9 +76,16 @@ export async function POST(request: NextRequest) {
     }
     if (products.length === 0) break;
 
-    const rows = products.map(buildOffRow).filter(Boolean) as ReturnType<typeof buildOffRow>[];
-    for (const row of rows) {
+    const rows: NonNullable<ReturnType<typeof buildOffRow>>[] = [];
+    for (const p of products) {
+      const code = (p.code as string) ?? "";
+      if (code && CURATED_BARCODE_SET.has(normBarcode(code))) {
+        curatedSkipped++;
+        continue;
+      }
+      const row = buildOffRow(p);
       if (!row) continue;
+      rows.push(row);
       total++;
       if (row.is_alcohol) alcoholCount++;
       else if (row.is_supplement) suppl++;
@@ -81,7 +94,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (rows.length > 0) {
-      await batchUpsertProductCache(rows.filter(Boolean) as NonNullable<typeof rows[0]>[]);
+      await batchUpsertProductCache(rows);
     }
     pagesCompleted++;
   }
@@ -96,7 +109,7 @@ export async function POST(request: NextRequest) {
     with_nutrition: withNutr,
     without_nutrition: withoutNutr,
     duration_seconds: durationSeconds,
-    notes: `API import — ${pagesCompleted}/${maxPages} pages completed${abortReason ? ` | abort: ${abortReason}` : ""}`,
+    notes: `API import — ${pagesCompleted}/${maxPages} pages | algo ${ALGO_VERSION} | ${curatedSkipped} curated protected${abortReason ? ` | abort: ${abortReason}` : ""}`,
   });
 
   return NextResponse.json({
@@ -105,6 +118,7 @@ export async function POST(request: NextRequest) {
     pages_completed: pagesCompleted,
     pages_requested: maxPages,
     abort_reason: abortReason,
+    algorithm_version: ALGO_VERSION,
     stats: {
       total_processed: total,
       food_count: food,
@@ -112,6 +126,7 @@ export async function POST(request: NextRequest) {
       supplement_count: suppl,
       with_nutrition: withNutr,
       without_nutrition: withoutNutr,
+      curated_skipped: curatedSkipped,
     },
   });
 }

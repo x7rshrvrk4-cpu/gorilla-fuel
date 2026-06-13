@@ -21,8 +21,19 @@
  *   is_beauty        boolean not null default false,
  *   created_at       timestamptz not null default now(),
  *   last_scanned_at  timestamptz not null default now(),
- *   scan_count       integer     not null default 1
+ *   scan_count       integer     not null default 1,
+ *   is_curated       boolean     not null default false,
+ *   scored_at        timestamptz,
+ *   algorithm_version text
  * );
+ *
+ * -- Schema migration (run once if table already exists):
+ * -- alter table public.gorilla_product_cache
+ * --   add column if not exists is_curated        boolean     not null default false,
+ * --   add column if not exists scored_at          timestamptz,
+ * --   add column if not exists algorithm_version  text;
+ * -- create index if not exists gorilla_cache_algo_idx
+ * --   on public.gorilla_product_cache (algorithm_version);
  *
  * create index if not exists gorilla_product_cache_barcode_idx
  *   on public.gorilla_product_cache (barcode);
@@ -91,6 +102,9 @@ export type CachedProduct = {
   is_alcohol: boolean;
   is_supplement: boolean;
   is_beauty: boolean;
+  is_curated: boolean;
+  scored_at: string | null;
+  algorithm_version: string | null;
   created_at: string;
   last_scanned_at: string;
   scan_count: number;
@@ -221,6 +235,9 @@ export type UpsertPayload = {
   is_alcohol?: boolean;
   is_supplement?: boolean;
   is_beauty?: boolean;
+  is_curated?: boolean;
+  scored_at?: string | null;
+  algorithm_version?: string | null;
 };
 
 /**
