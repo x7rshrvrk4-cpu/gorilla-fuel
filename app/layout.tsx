@@ -65,6 +65,9 @@ export default function RootLayout({
         <div className="flex-1 flex flex-col">{children}</div>
         <SiteFooter />
         <Analytics />
+        <Script strategy="afterInteractive" id="sw-register">
+          {`if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(function(){});}`}
+        </Script>
         {GA_ID && (
           <>
             <Script
