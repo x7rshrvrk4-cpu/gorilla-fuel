@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import RankingsClient from "./RankingsClient";
 
 export const metadata: Metadata = {
@@ -9,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function RankingsPage() {
-  return <RankingsClient />;
+  // Suspense boundary required because RankingsClient reads useSearchParams().
+  return (
+    <Suspense>
+      <RankingsClient />
+    </Suspense>
+  );
 }

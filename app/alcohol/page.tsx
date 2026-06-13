@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import AlcoholClient from "./AlcoholClient";
 
 export const metadata: Metadata = {
@@ -9,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function AlcoholPage() {
-  return <AlcoholClient />;
+  // Suspense boundary required because AlcoholClient reads useSearchParams().
+  return (
+    <Suspense>
+      <AlcoholClient />
+    </Suspense>
+  );
 }

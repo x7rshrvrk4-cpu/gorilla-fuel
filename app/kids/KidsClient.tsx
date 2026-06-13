@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import CrossLinkBanner from "../components/CrossLinkBanner";
 import BackToTop from "../components/BackToTop";
 import { scrollToProduct } from "../lib/scrollHighlight";
@@ -158,22 +159,24 @@ const EDUCATION = [
 ];
 
 export default function KidsClient() {
+  const searchParams = useSearchParams();
   const [tab, setTab] = useState<KidsTier>("approved");
   const [allergen, setAllergen] = useState<AllergenKey>("all");
 
   // Deep link: /kids?p=<product-id> from universal search — switch to the
-  // product's tab, scroll to its card, gold-highlight.
+  // product's tab, scroll to its card, gold-highlight. Reactive to ?p= so it
+  // re-fires on same-page result taps (component isn't remounted).
+  const deepLinkId = searchParams.get("p");
   useEffect(() => {
-    const pid = new URLSearchParams(window.location.search).get("p");
-    if (!pid) return;
-    const inApproved = KIDS_APPROVED.some((x) => x.id === pid);
-    const inCheat = KIDS_CHEAT.some((x) => x.id === pid);
-    const inStayAway = KIDS_STAY_AWAY.some((x) => x.id === pid);
+    if (!deepLinkId) return;
+    const inApproved = KIDS_APPROVED.some((x) => x.id === deepLinkId);
+    const inCheat = KIDS_CHEAT.some((x) => x.id === deepLinkId);
+    const inStayAway = KIDS_STAY_AWAY.some((x) => x.id === deepLinkId);
     if (!inApproved && !inCheat && !inStayAway) return;
     setTab(inApproved ? "approved" : inCheat ? "cheat" : "stay-away");
     setAllergen("all");
-    return scrollToProduct(pid);
-  }, []);
+    return scrollToProduct(deepLinkId);
+  }, [deepLinkId]);
 
   const allProducts =
     tab === "approved" ? KIDS_APPROVED : tab === "cheat" ? KIDS_CHEAT : KIDS_STAY_AWAY;

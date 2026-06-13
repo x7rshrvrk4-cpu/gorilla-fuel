@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import CrossLinkBanner from "../components/CrossLinkBanner";
 import BackToTop from "../components/BackToTop";
 import { scrollToProduct } from "../lib/scrollHighlight";
@@ -50,6 +51,7 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 
 export default function RankingsClient({ initialCategory = "Creatine" }: { initialCategory?: Category }) {
   const initialGroup = categoryToGroup(initialCategory);
+  const searchParams = useSearchParams();
 
   const [group, setGroup] = useState<GroupTab>(initialGroup);
   const [category, setCategory] = useState<Category | "all">("all");
@@ -59,17 +61,19 @@ export default function RankingsClient({ initialCategory = "Creatine" }: { initi
   // Reset category chip to "all" when group changes
   useEffect(() => { setCategory("all"); setFilter("all"); }, [group]);
 
-  // Deep link: /rankings?p=<id> → switch to correct group tab and scroll
+  // Deep link: /rankings?p=<id> → switch to correct group tab and scroll.
+  // Reactive to ?p= so it re-fires on same-page result taps (the component
+  // doesn't remount when only the query string changes).
+  const deepLinkId = searchParams.get("p");
   useEffect(() => {
-    const pid = new URLSearchParams(window.location.search).get("p");
-    if (!pid) return;
-    const product = PRODUCTS.find((x) => x.id === pid);
+    if (!deepLinkId) return;
+    const product = PRODUCTS.find((x) => x.id === deepLinkId);
     if (!product) return;
     setGroup(categoryToGroup(product.category));
     setCategory("all");
     setFilter("all");
-    return scrollToProduct(pid);
-  }, []);
+    return scrollToProduct(deepLinkId);
+  }, [deepLinkId]);
 
   const groupCats = GROUP_CATEGORIES[group];
 

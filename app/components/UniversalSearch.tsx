@@ -566,6 +566,16 @@ function ResultRow({
   return (
     <Link
       href={href}
+      // iOS Safari: when the search input is focused (keyboard up), the first
+      // tap on a dropdown item is otherwise consumed by blurring the input /
+      // dismissing the keyboard — and the visualViewport reflow shifts the row
+      // out from under the finger, so the link's click never fires ("tap does
+      // nothing"). Preventing default on pointer/mouse-down stops the input
+      // from blurring, so the keyboard stays, the row doesn't move, and the
+      // click reliably navigates. Using mousedown (not pointerdown/touchstart)
+      // is deliberate: Safari fires it before blur and honours preventDefault
+      // for focus, but it does NOT cancel the resulting click/navigation.
+      onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
       className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-slate-800"
     >

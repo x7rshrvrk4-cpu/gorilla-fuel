@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import CrossLinkBanner from "../../components/CrossLinkBanner";
 import BackToTop from "../../components/BackToTop";
@@ -303,7 +304,10 @@ export default function IntelTierPage({
 
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-12 sm:px-8 sm:py-16">
-      <DeepLinkHighlighter />
+      {/* Suspense boundary required because DeepLinkHighlighter reads useSearchParams(). */}
+      <Suspense>
+        <DeepLinkHighlighter />
+      </Suspense>
 
       {/* Page header */}
       <p className={`font-display text-sm tracking-[0.3em] ${meta.accentText}`}>

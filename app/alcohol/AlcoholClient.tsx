@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { scrollToProduct } from "../lib/scrollHighlight";
 import CrossLinkBanner from "../components/CrossLinkBanner";
@@ -102,6 +103,7 @@ const WINE_SORTS: { key: WineSort; label: string }[] = [
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function AlcoholClient() {
+  const searchParams = useSearchParams();
   const [tab, setTab] = useState<PageTab>("BEER");
   const [beerFilter, setBeerFilter] = useState<BeerFilter>("all");
   const [rtdFilter, setRtdFilter] = useState<RtdFilter>("all");
@@ -115,16 +117,19 @@ export default function AlcoholClient() {
 
   useEffect(() => { trackAlcoholRankingViewed(); }, []);
 
-  // Deep link: /alcohol?p=<id> → switch to correct tab and scroll
+  // Deep link: /alcohol?p=<id> → switch to correct tab and scroll.
+  // Depends on the ?p= value (via useSearchParams) so it re-fires even when the
+  // user is ALREADY on /alcohol and taps a search result — a same-page,
+  // query-only navigation that does NOT remount this component. The old
+  // mount-only effect silently did nothing in that case (the iOS "dead tap").
+  const deepLinkId = searchParams.get("p");
   useEffect(() => {
-    const pid = new URLSearchParams(window.location.search).get("p");
-    if (!pid) return;
-    const product = ALCOHOL_PRODUCTS.find((x) => x.id === pid);
+    if (!deepLinkId) return;
+    const product = ALCOHOL_PRODUCTS.find((x) => x.id === deepLinkId);
     if (!product) return;
     setTab(categoryToTab(product.category));
-    return scrollToProduct(pid);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return scrollToProduct(deepLinkId);
+  }, [deepLinkId]);
 
   const products = useMemo(() => {
     const cats = TAB_CATEGORIES[tab];

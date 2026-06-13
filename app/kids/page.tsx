@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import KidsClient from "./KidsClient";
 
 export const metadata: Metadata = {
@@ -9,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function KidsPage() {
-  return <KidsClient />;
+  // Suspense boundary required because KidsClient reads useSearchParams().
+  return (
+    <Suspense>
+      <KidsClient />
+    </Suspense>
+  );
 }

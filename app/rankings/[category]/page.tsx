@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import RankingsClient from "../RankingsClient";
 import type { Category } from "../lib/products";
@@ -39,5 +40,9 @@ export default async function RankingsCategoryPage({ params }: { params: Promise
   const { category } = await params;
   const cat = CATEGORY_SLUGS[category];
   if (!cat) notFound();
-  return <RankingsClient initialCategory={cat} />;
+  return (
+    <Suspense>
+      <RankingsClient initialCategory={cat} />
+    </Suspense>
+  );
 }
