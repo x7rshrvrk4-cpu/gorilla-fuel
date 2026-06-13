@@ -4,6 +4,10 @@ import { useState, useMemo } from "react";
 import { ALCOHOL_PRODUCTS } from "../../alcohol/lib/products";
 
 const PACK_SIZES = [
+  "SINGLE CAN (355ml)",
+  "SINGLE CAN (473ml)",
+  "SINGLE BOTTLE (341ml)",
+  "SINGLE BOTTLE (330ml)",
   "6 PACK",
   "12 PACK",
   "15 PACK",
@@ -11,7 +15,6 @@ const PACK_SIZES = [
   "24 PACK",
   "28 PACK",
   "30 PACK",
-  "TALL CAN SINGLE",
   "VARIETY PACK",
 ];
 
@@ -92,10 +95,10 @@ export default function MultiPackPrompt({ barcode }: Props) {
         <span className="text-xl leading-none">📦</span>
         <div className="min-w-0 flex-1">
           <p className="font-display text-sm tracking-widest text-gold">
-            Is this a case or multi-pack?
+            Know what this is?
           </p>
           <p className="text-xs text-muted">
-            Tell us what product it is — we will add it for everyone.
+            Tell us the product — we will add it for everyone.
           </p>
         </div>
         <span className="shrink-0 text-gold/50">→</span>
@@ -105,7 +108,7 @@ export default function MultiPackPrompt({ barcode }: Props) {
 
   return (
     <div className="mt-4 rounded-sm border border-line bg-surface p-5">
-      <p className="font-display text-sm tracking-[0.25em] text-gold">IDENTIFY THIS MULTI-PACK</p>
+      <p className="font-display text-sm tracking-[0.25em] text-gold">IDENTIFY THIS PRODUCT</p>
       <p className="mt-1 font-mono text-xs text-muted/60">{barcode}</p>
 
       {/* Product search */}
@@ -156,7 +159,7 @@ export default function MultiPackPrompt({ barcode }: Props) {
 
       {/* Pack size picker */}
       <div className="mt-4">
-        <p className="text-[10px] uppercase tracking-[0.2em] text-muted">Pack size</p>
+        <p className="text-[10px] uppercase tracking-[0.2em] text-muted">Format</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {PACK_SIZES.map((ps) => (
             <button

@@ -23,9 +23,12 @@ import { computeBeautyScore, type BeautyScoreResult } from "./lib/beautyScoring"
 import BeautyResultCard from "./components/BeautyResultCard";
 import {
   ALCOHOL_GRADE_COLORS,
+  alcoholGradeFromScore,
   computeAlcoholScore,
   detectAlcoholKind,
+  gorillaPourRating,
   isAlcoholProduct,
+  type AlcoholKind,
   type AlcoholScoreResult,
 } from "./lib/alcoholScoring";
 import AlcoholResultCard from "./components/AlcoholResultCard";
@@ -74,6 +77,16 @@ import type { Nutriments } from "./lib/scoring";
 
 const HISTORY_KEY = "gorilla-fuel-scan-history";
 const MAX_HISTORY = 10;
+
+/** Maps a curated gorillaPour rating (1–5) to a representative 0–100 numeric score
+ *  that is consistent with alcoholGradeFromScore and gorillaPourRating thresholds. */
+function gorillaPourToScore(pour: number): number {
+  if (pour >= 5) return 87;
+  if (pour >= 4) return 77;
+  if (pour >= 3) return 60;
+  if (pour >= 2) return 39;
+  return 20;
+}
 
 const NON_ALCOHOL_NAME_WORDS = new Set([
   "shampoo", "conditioner", "lotion", "cream", "moisturizer", "serum",
@@ -542,11 +555,14 @@ export default function ScanClient() {
                 nutriments: (cached.nutrition_data as Nutriments) ?? {},
                 image_front_url: cached.image_url ?? undefined,
               };
-              const alcoholResult = computeAlcoholScore(
+              const computedResult = computeAlcoholScore(
                 cachedProduct.nutriments ?? {},
-                undefined,
+                cached.ingredients_text ?? undefined,
                 detectAlcoholKind(cachedProduct.categories_tags)
               );
+              const alcoholResult: AlcoholScoreResult = cached.is_curated && cached.gorilla_score !== null
+                ? { ...computedResult, score: cached.gorilla_score, grade: alcoholGradeFromScore(cached.gorilla_score), gorillaPour: gorillaPourRating(cached.gorilla_score) }
+                : computedResult;
               trackProductFound("gorilla-cache", trimmed, cachedProduct.product_name);
               trackScanModeAlcohol(trimmed, cachedProduct.product_name);
               setLookup({ phase: "found-alcohol", product: cachedProduct, result: alcoholResult, dataSource: "gorilla-cache" });
@@ -584,9 +600,9 @@ export default function ScanClient() {
         if (curatedHit) {
           console.log("[Gorilla] STEP 1 HIT:", curatedHit.name, "barcode:", trimmed);
           const servingMl = curatedHit.servingMl ?? 355;
-          const kind = curatedHit.category === "IPA & Craft Ale" ? "beer"
-            : curatedHit.category === "Hard Seltzer" ? "seltzer"
+          const kind: AlcoholKind = curatedHit.category === "Hard Seltzer" ? "seltzer"
             : curatedHit.category === "Cider" ? "cider"
+            : curatedHit.category === "Wines" ? "wine"
             : "beer";
           const nutriments = {
             "energy-kcal_100g": (curatedHit.caloriesPerCan / servingMl) * 100,
@@ -601,7 +617,17 @@ export default function ScanClient() {
             categories_tags: ["en:alcoholic-beverages", `en:${curatedHit.category.toLowerCase().replace(/\s+/g, "-")}`],
             nutriments,
           };
-          const alcoholResult = computeAlcoholScore(nutriments, undefined, kind, servingMl);
+          const syntheticIngredients = curatedHit.knownAdditives.length > 0
+            ? curatedHit.knownAdditives.join(", ")
+            : undefined;
+          const computedResult1 = computeAlcoholScore(nutriments, syntheticIngredients, kind, servingMl);
+          const curatedScore1 = gorillaPourToScore(curatedHit.gorillaPour);
+          const alcoholResult: AlcoholScoreResult = {
+            ...computedResult1,
+            score: curatedScore1,
+            grade: alcoholGradeFromScore(curatedScore1),
+            gorillaPour: curatedHit.gorillaPour,
+          };
           trackProductFound("gorilla-curated", trimmed, curatedHit.name);
           trackScanModeAlcohol(trimmed, curatedHit.name);
           setLookup({ phase: "found-alcohol", product: syntheticProduct, result: alcoholResult, dataSource: "gorilla-curated", lcboVerified: curatedHit.lcboVerified ?? false });
@@ -862,11 +888,11 @@ export default function ScanClient() {
             const parentByName = parentCurated ?? lookupCuratedByName(aliasHit.parent_product_name);
             if (parentByName) {
               const servingMl = parentByName.servingMl ?? 355;
-              const kind =
-                parentByName.category === "IPA & Craft Ale" ? "beer" as const
-                : parentByName.category === "Hard Seltzer" ? "seltzer" as const
-                : parentByName.category === "Cider" ? "cider" as const
-                : "beer" as const;
+              const kind: AlcoholKind =
+                parentByName.category === "Hard Seltzer" ? "seltzer"
+                : parentByName.category === "Cider" ? "cider"
+                : parentByName.category === "Wines" ? "wine"
+                : "beer";
               const nutriments = {
                 "energy-kcal_100g": (parentByName.caloriesPerCan / servingMl) * 100,
                 carbohydrates_100g: (parentByName.carbsPerCan / servingMl) * 100,
@@ -883,7 +909,17 @@ export default function ScanClient() {
                 ],
                 nutriments,
               };
-              const alcoholResult = computeAlcoholScore(nutriments, undefined, kind, servingMl);
+              const syntheticIngredients14 = parentByName.knownAdditives.length > 0
+                ? parentByName.knownAdditives.join(", ")
+                : undefined;
+              const computedResult14 = computeAlcoholScore(nutriments, syntheticIngredients14, kind, servingMl);
+              const curatedScore14 = gorillaPourToScore(parentByName.gorillaPour);
+              const alcoholResult: AlcoholScoreResult = {
+                ...computedResult14,
+                score: curatedScore14,
+                grade: alcoholGradeFromScore(curatedScore14),
+                gorillaPour: parentByName.gorillaPour,
+              };
               setPackSizeBadge(aliasHit.pack_size);
               trackProductFound("gorilla-curated", trimmed, parentByName.name);
               trackScanModeAlcohol(trimmed, parentByName.name);
