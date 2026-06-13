@@ -194,42 +194,76 @@ function sharesMainCategory(a: OffProduct, b: OffProduct): boolean {
 
 type ExternalHit =
   | { kind: "food"; data: OffProduct; source: DataSource }
+  | { kind: "off-alcohol"; data: OffProduct }
   | { kind: "supplement"; data: NihDsldProduct }
   | { kind: "beauty"; data: ObfProduct }
   | { kind: "alcohol-fallback"; data: FallbackAlcoholProduct }
   | { kind: "generic"; data: GoUpcProduct }
   | { kind: "drug"; data: DrugProduct };
 
-function raceExternalSources(barcode: string): Promise<ExternalHit | null> {
+/** Fetches from Open Food Facts and classifies as food or confirmed alcohol.
+ *  Returns null if not found, confidence fails, or alcohol cannot be confirmed. */
+async function fetchOffHit(barcode: string, scannedBarcode: string): Promise<ExternalHit | null> {
+  try {
+    const r = await lookupBarcode(barcode);
+    if (r.status !== "found") return null;
+    const product = r.product;
+    const confidence = validateConfidence(product, scannedBarcode);
+    if (!confidence.pass) return null;
+
+    const catTags = product.categories_tags ?? [];
+    if (catTags.length > 0 && isAlcoholProduct(catTags)) {
+      const nameConf = productNameIndicatesAlcohol(product.product_name || "");
+      const catConf = categoriesIndicateAlcohol(catTags);
+      if (!nameConf && !catConf) return null;
+      if (productNameContradictsAlcohol(product.product_name || "")) return null;
+      return { kind: "off-alcohol", data: product };
+    }
+
+    return { kind: "food", data: product, source: "open-food-facts" };
+  } catch {
+    return null;
+  }
+}
+
+/** Tier A: Open Food Facts + high hit-rate food sources. First hit wins; 3 s window. */
+function raceTierA(barcode: string, scannedBarcode: string, windowMs = 3_000): Promise<ExternalHit | null> {
   return new Promise((resolve) => {
     let settled = false;
-    let pending = 10;
+    let pending = 4;
     const settle = (hit: ExternalHit | null) => {
       if (!settled && hit !== null) { settled = true; resolve(hit); return; }
       if (--pending === 0 && !settled) resolve(null);
     };
     const fail = () => { if (--pending === 0 && !settled) resolve(null); };
+    setTimeout(() => { if (!settled) { settled = true; resolve(null); } }, windowMs);
 
-    lookupUpcItemDb(barcode)
-      .then((d) => settle(d ? { kind: "food", data: d, source: "upcitemdb" } : null)).catch(fail);
-    lookupFatSecret(barcode)
-      .then((d) => settle(d ? { kind: "food", data: d, source: "fatsecret" } : null)).catch(fail);
-    lookupNihDsld(barcode)
-      .then((d) => settle(d ? { kind: "supplement", data: d } : null)).catch(fail);
-    lookupNutritionix(barcode)
-      .then((d) => settle(d ? { kind: "food", data: d, source: "nutritionix" } : null)).catch(fail);
-    lookupBeautyBarcode(barcode)
-      .then((r) => settle(r.status === "found" ? { kind: "beauty", data: r.product } : null)).catch(fail);
-    lookupWineVybe(barcode)
-      .then((d) => settle(d ? { kind: "alcohol-fallback", data: d } : null)).catch(fail);
-    lookupWineAnalyzer(barcode)
-      .then((d) => settle(d ? { kind: "alcohol-fallback", data: d } : null)).catch(fail);
-    lookupColaCloud(barcode)
-      .then((d) => settle(d ? { kind: "alcohol-fallback", data: d } : null)).catch(fail);
-    lookupGoUpc(barcode)
-      .then((d) => settle(d ? { kind: "generic", data: d } : null)).catch(fail);
-    lookupDrugFacts(barcode)
-      .then((d) => settle(d ? { kind: "drug", data: d } : null)).catch(fail);
+    fetchOffHit(barcode, scannedBarcode).then(settle).catch(fail);
+    lookupUpcItemDb(barcode).then((d) => settle(d ? { kind: "food", data: d, source: "upcitemdb" } : null)).catch(fail);
+    lookupFatSecret(barcode).then((d) => settle(d ? { kind: "food", data: d, source: "fatsecret" } : null)).catch(fail);
+    lookupNutritionix(barcode).then((d) => settle(d ? { kind: "food", data: d, source: "nutritionix" } : null)).catch(fail);
+  });
+}
+
+/** Tier B: Specialty sources (supplement, beauty, alcohol, generic, drug). Only fires if Tier A misses. 4 s window. */
+function raceTierB(barcode: string, windowMs = 4_000): Promise<ExternalHit | null> {
+  return new Promise((resolve) => {
+    let settled = false;
+    let pending = 7;
+    const settle = (hit: ExternalHit | null) => {
+      if (!settled && hit !== null) { settled = true; resolve(hit); return; }
+      if (--pending === 0 && !settled) resolve(null);
+    };
+    const fail = () => { if (--pending === 0 && !settled) resolve(null); };
+    setTimeout(() => { if (!settled) { settled = true; resolve(null); } }, windowMs);
+
+    lookupNihDsld(barcode).then((d) => settle(d ? { kind: "supplement", data: d } : null)).catch(fail);
+    lookupBeautyBarcode(barcode).then((r) => settle(r.status === "found" ? { kind: "beauty", data: r.product } : null)).catch(fail);
+    lookupWineVybe(barcode).then((d) => settle(d ? { kind: "alcohol-fallback", data: d } : null)).catch(fail);
+    lookupWineAnalyzer(barcode).then((d) => settle(d ? { kind: "alcohol-fallback", data: d } : null)).catch(fail);
+    lookupColaCloud(barcode).then((d) => settle(d ? { kind: "alcohol-fallback", data: d } : null)).catch(fail);
+    lookupGoUpc(barcode).then((d) => settle(d ? { kind: "generic", data: d } : null)).catch(fail);
+    lookupDrugFacts(barcode).then((d) => settle(d ? { kind: "drug", data: d } : null)).catch(fail);
   });
 }
 
@@ -398,7 +432,7 @@ export default function ScanClient() {
       setPackSizeBadge(null);
       setLookup({ phase: "loading", barcode: trimmed });
 
-      // Hard timeout — never spin past 3 s. Master deadline over the full waterfall.
+      // Hard timeout — master deadline over the full waterfall (Tier A 3 s + Tier B 4 s + overhead).
       const timeoutId = window.setTimeout(() => {
         if (inFlightRef.current === trimmed) {
           inFlightRef.current = null;
@@ -406,7 +440,7 @@ export default function ScanClient() {
           setAlternativesLoading(false);
           setLookup({ phase: "not-found", barcode: trimmed });
         }
-      }, 3_000);
+      }, 9_000);
 
       try {
 
@@ -426,7 +460,11 @@ export default function ScanClient() {
         ]);
         console.log("[Gorilla] STEP 0 — cache lookup for:", trimmed);
         try {
-          const cached = await lookupProductCache(trimmed);
+          // Try barcode variant (add/strip leading zero) to catch format mismatches
+          const altBarcode = trimmed.length === 12 ? "0" + trimmed :
+                             trimmed.length === 13 && trimmed.startsWith("0") ? trimmed.slice(1) : null;
+          let cached = await lookupProductCache(trimmed);
+          if (!cached && altBarcode) cached = await lookupProductCache(altBarcode);
           const bypassCache = CACHE_BYPASS_BARCODES.has(trimmed) || CACHE_BYPASS_BARCODES.has(trimmed.replace(/^0+/, ""));
           if (cached && !bypassCache) {
             console.log("[Gorilla] STEP 0 HIT:", cached.product_name, "×", cached.scan_count);
@@ -670,160 +708,12 @@ export default function ScanClient() {
         console.log("[Gorilla] STEP 2b MISS");
 
         // ─────────────────────────────────────────────────────────
-        // STEP 3 — OPEN FOOD FACTS
-        // Primary source for food, drink, and supplements worldwide.
+        // STEP 3 — TIER A: Open Food Facts + top food sources
+        // Parallel race: OFF + UPCitemdb + FatSecret + Nutritionix.
+        // First quality hit wins; 3-second window total.
         // ─────────────────────────────────────────────────────────
-        console.log("[Gorilla] STEP 3 — OFF lookup for:", trimmed);
-        let offResult;
-        try {
-          offResult = await lookupBarcode(trimmed);
-          console.log("[Gorilla] STEP 3 response: status=", offResult.status, offResult.status === "found" ? offResult.product.product_name : "");
-        } catch (offErr) {
-          console.error("[Gorilla] STEP 3 OFF fetch error:", offErr);
-          offResult = { status: "error" as const, message: String(offErr) };
-        }
-
-        if (offResult.status === "found") {
-          const product = offResult.product;
-
-          const confidence = validateConfidence(product, trimmed);
-          if (!confidence.pass) {
-            console.log("[Gorilla] STEP 3 confidence fail:", confidence.reason);
-            // Confidence failed — fall through to further sources
-          } else if ((product.categories_tags?.length ?? 0) > 0 && isAlcoholProduct(product.categories_tags!)) {
-            // Strict validation: name or categories must confirm this is actually alcohol
-            const nameConfirms = productNameIndicatesAlcohol(product.product_name || "");
-            const catConfirms = categoriesIndicateAlcohol(product.categories_tags!);
-            if (!nameConfirms && !catConfirms) {
-              // Neither name nor categories confirm alcohol — reject, fall through to next source
-            } else if (productNameContradictsAlcohol(product.product_name || "")) {
-              logMissedScan(trimmed, "alcohol");
-              setShowSubmitForm(true);
-              setLookup({
-                phase: "not-found",
-                barcode: trimmed,
-                message: "This barcode returned a non-alcohol product. If you scanned an alcoholic beverage, submit it below.",
-              });
-              inFlightRef.current = null;
-              return;
-            } else {
-              // Name-override: if OFF's product name matches a curated entry, use our verified nutrition
-              const curatedNameHit = overrideWithCurated(product.product_name || "", product.brands);
-              if (curatedNameHit) {
-                const servingMl = curatedNameHit.servingMl ?? 355;
-                const kind = curatedNameHit.category === "IPA & Craft Ale" ? "beer" as const : curatedNameHit.category === "Hard Seltzer" ? "seltzer" as const : curatedNameHit.category === "Cider" ? "cider" as const : "beer" as const;
-                const curatedNutriments = {
-                  "energy-kcal_100g": (curatedNameHit.caloriesPerCan / servingMl) * 100,
-                  carbohydrates_100g: (curatedNameHit.carbsPerCan / servingMl) * 100,
-                  sugars_100g: (curatedNameHit.sugarPerCan / servingMl) * 100,
-                  alcohol_100g: curatedNameHit.abv,
-                };
-                const overriddenProduct: OffProduct = { ...product, nutriments: curatedNutriments, product_name: curatedNameHit.name, brands: curatedNameHit.brand };
-                const overrideResult = computeAlcoholScore(curatedNutriments, undefined, kind, servingMl);
-                setLookup({ phase: "found-alcohol", product: overriddenProduct, result: overrideResult, dataSource: "gorilla-curated" });
-                setScannerActive(false);
-                scrollToResult();
-                persistHistory([{ barcode: trimmed, name: curatedNameHit.name, brand: curatedNameHit.brand, image: null, score: overrideResult.score, color: ALCOHOL_GRADE_COLORS[overrideResult.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
-                inFlightRef.current = null;
-                return;
-              }
-              const alcoholResult = computeAlcoholScore(
-                product.nutriments ?? {},
-                product.ingredients_text || product.ingredients_text_en,
-                detectAlcoholKind(product.categories_tags)
-              );
-              trackProductFound("open-food-facts", trimmed, product.product_name);
-              trackScanModeAlcohol(trimmed, product.product_name);
-              setLookup({ phase: "found-alcohol", product, result: alcoholResult, dataSource: "open-food-facts" });
-              upsertProductCache({ barcode: trimmed, product_name: product.product_name, brand: product.brands ?? null, categories: JSON.stringify(product.categories_tags ?? []), nutrition_data: product.nutriments ?? null, gorilla_score: alcoholResult.score, score_grade: alcoholResult.grade, data_source: "open-food-facts", image_url: productImage(product) ?? null, is_alcohol: true });
-              setSheetVisible(false);
-              setScannerActive(false);
-              scrollToResult();
-              persistHistory([
-                {
-                  barcode: product.code,
-                  name: product.product_name || "Unnamed Product",
-                  brand: product.brands || "Unknown Brand",
-                  image: productImage(product),
-                  score: alcoholResult.score,
-                  color: ALCOHOL_GRADE_COLORS[alcoholResult.grade],
-                  scannedAt: Date.now(),
-                },
-                ...history.filter((h) => h.barcode !== product.code),
-              ].slice(0, MAX_HISTORY));
-              inFlightRef.current = null;
-              return;
-            }
-          } else {
-            // Food / supplement path
-            // Normalize name (prefer English) and brand before any display or cache write.
-            const displayName = resolveProductName(product);
-            const displayBrand = resolveBrand(product);
-            const product_ = { ...product, product_name: displayName || product.product_name, brands: displayBrand || product.brands };
-            const resultBase = computeScore(
-              product_.nutriments ?? {},
-              product_.ingredients_text || product_.ingredients_text_en,
-              scoringContext(product_)
-            );
-            // CURATED OVERRIDE — DO NOT REMOVE: every score passes the gate.
-            const result = gateResult(resultBase, trimmed, product_);
-            const lowConfidence = isCanadianBarcode(trimmed) && !hasCanadianOrGlobalMarketData(product_);
-            trackProductFound("open-food-facts", trimmed, displayName);
-            trackScanModeFood(trimmed, displayName);
-            setLookup({ phase: "found", product: product_, result, lowConfidence, dataSource: "open-food-facts" });
-            upsertProductCache({ barcode: trimmed, product_name: displayName || product_.product_name, brand: displayBrand || product_.brands || null, categories: JSON.stringify(product_.categories_tags ?? []), ingredients_text: product_.ingredients_text, nutrition_data: product_.nutriments ?? null, gorilla_score: result.finalScore, score_grade: result.grade, nova_group: product_.nova_group ?? null, data_source: "open-food-facts", image_url: productImage(product_) ?? null });
-            setSheetVisible(true);
-            persistHistory([
-              {
-                barcode: product_.code,
-                name: displayName || "Unnamed Product",
-                brand: displayBrand || "Unknown Brand",
-                image: productImage(product_),
-                score: result.finalScore,
-                color: GRADE_COLORS[result.grade],
-                scannedAt: Date.now(),
-              },
-              ...history.filter((h) => h.barcode !== product_.code),
-            ].slice(0, MAX_HISTORY));
-            setAlternativesLoading(true);
-            const candidates = await fetchAlternativesMultiLevel(product_);
-            const better: Alternative[] = candidates
-              .map((candidate) => {
-                const candidateResult = computeScore(
-                  candidate.nutriments ?? {},
-                  candidate.ingredients_text || candidate.ingredients_text_en,
-                  scoringContext(candidate)
-                );
-                return { candidate, candidateResult };
-              })
-              .filter(({ candidate, candidateResult }) => {
-                if (!sharesMainCategory(candidate, product_)) return false;
-                const scoreGain = candidateResult.finalScore >= result.finalScore + 5;
-                const fewerAdditives = candidateResult.detectedAdditives.length < result.detectedAdditives.length;
-                const betterNova =
-                  candidateResult.novaGroup !== null &&
-                  result.novaGroup !== null &&
-                  candidateResult.novaGroup < result.novaGroup;
-                return scoreGain || fewerAdditives || betterNova;
-              })
-              .sort((a, b) => b.candidateResult.finalScore - a.candidateResult.finalScore)
-              .slice(0, 3)
-              .map(({ candidate, candidateResult }) => ({
-                type: "off-match" as const,
-                product: candidate,
-                score: candidateResult.finalScore,
-              }));
-            setAlternatives(better.length > 0 ? better : gorillaSuggestionsFor(product_.categories_tags ?? []));
-            setAlternativesLoading(false);
-            inFlightRef.current = null;
-            return;
-          }
-        }
-
-        if (offResult.status === "error") {
-          // Non-fatal OFF error — continue waterfall; don't abort for one bad API response.
-          console.warn("[Gorilla] OFF error:", offResult.message);
-        }
+        console.log("[Gorilla] STEP 3 — Tier A race (OFF + food sources) for:", trimmed);
+        const tierAHit = await raceTierA(trimmed, trimmed);
 
         // Helper: score and return a food result
         const returnFoodHit = async (hit: OffProduct, source: DataSource) => {
@@ -862,16 +752,40 @@ export default function ScanClient() {
         };
 
         // ─────────────────────────────────────────────────────────
-        // STEPS 4-13 — ALL EXTERNAL SOURCES IN PARALLEL
-        // First non-null result wins; 1.5s per-call abort means worst-case
-        // here is 1.5s, not 10 × 1.5s = 15s sequential.
+        // STEP 4 — TIER B: Specialty sources (only if Tier A misses)
+        // NIH DSLD, Beauty, WineVybe, WineAnalyzer, COLA, GoUPC, DrugFacts
         // ─────────────────────────────────────────────────────────
-        console.log("[Gorilla] STEPS 4-13 — parallel external race for:", trimmed);
-        const extHit = await raceExternalSources(trimmed);
+        const extHit: ExternalHit | null = tierAHit
+          ?? (console.log("[Gorilla] STEP 4 — Tier B race (specialty sources) for:", trimmed),
+              await raceTierB(trimmed));
 
         if (extHit) {
-          console.log("[Gorilla] parallel hit kind:", extHit.kind);
+          console.log("[Gorilla] external hit kind:", extHit.kind);
           switch (extHit.kind) {
+            case "off-alcohol": {
+              // OFF confirmed this as alcohol not in our curated list
+              const oap = extHit.data;
+              const curatedNameHit = overrideWithCurated(oap.product_name || "", oap.brands);
+              if (curatedNameHit) {
+                const servingMl = curatedNameHit.servingMl ?? 355;
+                const kind = curatedNameHit.category === "IPA & Craft Ale" ? "beer" as const : curatedNameHit.category === "Hard Seltzer" ? "seltzer" as const : curatedNameHit.category === "Cider" ? "cider" as const : "beer" as const;
+                const cn = { "energy-kcal_100g": (curatedNameHit.caloriesPerCan / servingMl) * 100, carbohydrates_100g: (curatedNameHit.carbsPerCan / servingMl) * 100, sugars_100g: (curatedNameHit.sugarPerCan / servingMl) * 100, alcohol_100g: curatedNameHit.abv };
+                const overrideResult = computeAlcoholScore(cn, undefined, kind, servingMl);
+                const overriddenProduct: OffProduct = { ...oap, nutriments: cn, product_name: curatedNameHit.name, brands: curatedNameHit.brand };
+                setLookup({ phase: "found-alcohol", product: overriddenProduct, result: overrideResult, dataSource: "gorilla-curated" });
+                setScannerActive(false); scrollToResult();
+                persistHistory([{ barcode: trimmed, name: curatedNameHit.name, brand: curatedNameHit.brand, image: null, score: overrideResult.score, color: ALCOHOL_GRADE_COLORS[overrideResult.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
+                break;
+              }
+              const alcoholResult = computeAlcoholScore(oap.nutriments ?? {}, oap.ingredients_text || oap.ingredients_text_en, detectAlcoholKind(oap.categories_tags));
+              trackProductFound("open-food-facts", trimmed, oap.product_name);
+              trackScanModeAlcohol(trimmed, oap.product_name);
+              setLookup({ phase: "found-alcohol", product: oap, result: alcoholResult, dataSource: "open-food-facts" });
+              upsertProductCache({ barcode: trimmed, product_name: oap.product_name, brand: oap.brands ?? null, categories: JSON.stringify(oap.categories_tags ?? []), nutrition_data: oap.nutriments ?? null, gorilla_score: alcoholResult.score, score_grade: alcoholResult.grade, data_source: "open-food-facts", image_url: productImage(oap) ?? null, is_alcohol: true });
+              setSheetVisible(false); setScannerActive(false); scrollToResult();
+              persistHistory([{ barcode: oap.code, name: oap.product_name || "Unnamed Product", brand: oap.brands || "Unknown Brand", image: productImage(oap), score: alcoholResult.score, color: ALCOHOL_GRADE_COLORS[alcoholResult.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== oap.code)].slice(0, MAX_HISTORY));
+              break;
+            }
             case "food": {
               await returnFoodHit(extHit.data, extHit.source);
               break;

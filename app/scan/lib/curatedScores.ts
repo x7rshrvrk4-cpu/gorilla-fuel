@@ -101,6 +101,11 @@ const CANADA_DRY_ZERO    = o(48, "Poor");
 const COCA_COLA          = o(23, "Bad");
 const PEPSI_REGULAR      = o(22, "Bad");
 const SPRITE_REGULAR     = o(24, "Bad");
+const DIET_COKE          = o(45, "Poor", [], ["Aspartame artificial sweetener", "Caramel colour (class IV)", "Phosphoric acid"]);
+const COKE_ZERO          = o(46, "Poor", [], ["Aspartame", "Acesulfame potassium", "Caramel colour (class IV)", "Phosphoric acid"]);
+const DIET_PEPSI_COLA    = o(44, "Poor", [], ["Aspartame artificial sweetener", "Caramel colour", "Phosphoric acid"]);
+const PEPSI_ZERO_SUGAR   = o(45, "Poor", [], ["Aspartame", "Acesulfame potassium", "Caramel colour"]);
+const FRESCA_SODA        = o(48, "Poor", [], ["Aspartame artificial sweetener", "Potassium citrate", "Artificial flavour"]);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LAKER — Carlsberg Canada / Waterloo Brewing. Any Laker that ends up in
@@ -156,6 +161,10 @@ const BARCODE_OVERRIDES: BarcodeEntry[] = [
   { barcode: "0069000019832", override: COCA_COLA },           // Coca-Cola Classic
   { barcode: "0069000008947", override: PEPSI_REGULAR },       // Pepsi
   { barcode: "0069000019849", override: SPRITE_REGULAR },      // Sprite
+  { barcode: "069000010013",  override: DIET_COKE },           // Diet Coke UPC-A (user-reported scan)
+  { barcode: "0069000010013", override: DIET_COKE },           // Diet Coke EAN-13
+  { barcode: "0069000012527", override: DIET_COKE },           // Diet Coke (existing curated entry)
+  { barcode: "0069000016534", override: DIET_PEPSI_COLA },     // Diet Pepsi (existing curated entry)
   { barcode: "0060383060019", override: OLD_DUTCH_PARTY },     // Old Dutch Party Mix
   // ── Gorilla Approved ──
   { barcode: "0858547004149", override: RXBAR },
@@ -309,7 +318,12 @@ const NAME_OVERRIDES: NameEntry[] = [
   { patterns: [/old\s*dutch.*party\s*mix/i],                                     override: OLD_DUTCH_PARTY },
   { patterns: [/humpty\s*dumpty.*cheese/i],                                      override: HUMPTY_DUMPTY_CHZ },
   { patterns: [/\barriba\b/i],                                                   override: ARRIBA_NACHO },
-  { patterns: [/canada\s*dry.*zero/i],                                           override: CANADA_DRY_ZERO },
+  { patterns: [/canada\s*dry.*(zero|diet)/i],                                    override: CANADA_DRY_ZERO },
+  { patterns: [/diet\s*coke/i, /coke.*diet/i],                                  override: DIET_COKE },
+  { patterns: [/coke\s*zero/i, /coca[\s-]?cola.*zero/i],                        override: COKE_ZERO },
+  { patterns: [/diet\s*pepsi/i],                                                 override: DIET_PEPSI_COLA },
+  { patterns: [/pepsi\s*(zero|max)\b/i],                                         override: PEPSI_ZERO_SUGAR },
+  { patterns: [/\bfresca\b/i],                                                   override: FRESCA_SODA },
   // ── Sauce & condiment calibration (2026-06) ──
   { patterns: [/primo.*pizza.*squeeze/i, /pizza.*squeeze.*primo/i],              override: PRIMO_PIZZA_SQUEEZE },
   { patterns: [/classico.*vodka\s*sauce/i],                                      override: CLASSICO_VODKA },

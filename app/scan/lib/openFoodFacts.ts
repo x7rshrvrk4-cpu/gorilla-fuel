@@ -109,7 +109,7 @@ export async function lookupBarcode(barcode: string): Promise<LookupResult> {
   try {
     const res = await fetch(
       `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json`,
-      { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(1500) }
+      { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(3000) }
     );
 
     let data: { status?: number; product?: OffProduct } | null = null;
