@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import BarcodeScanner from "./components/BarcodeScanner";
 import ProductResultCard from "./components/ProductResultCard";
 import ScanResultSheet from "./components/ScanResultSheet";
@@ -324,6 +325,7 @@ type ScanOverlayState =
 const FOUND_PHASES = new Set(["found", "found-alcohol", "found-beauty", "found-generic", "found-drug", "found-supplement"]);
 
 export default function ScanClient() {
+  const router = useRouter();
   const [scannerActive, setScannerActive] = useState(false);
   const [sheetVisible, setSheetVisible] = useState(false);
   const [lookup, setLookup] = useState<LookupState>({ phase: "idle" });
@@ -1025,19 +1027,42 @@ export default function ScanClient() {
     }, 150);
   }, []);
 
-  const handleTryAgain = useCallback(() => {
-    setLookup({ phase: "idle" });
-    setShowSubmitForm(false);
-    setScannerActive(true);
-  }, []);
-
-  const handleOverlayTryAgain = useCallback(() => {
+  // BUG 1 FIX — always re-scan from a clean, full re-armed scanner.
+  // Re-scanning from a previous-result state (the live camera left running
+  // behind the result sheet/overlay) reused a stale camera+decoder session and
+  // reliably failed to detect. Forcing the scanner to fully unmount (which
+  // releases the camera and resets the reader via BarcodeScanner's own cleanup)
+  // and then remount restores the exact same known-good state as a first
+  // launch — without touching any detection/camera code.
+  const restartScanner = useCallback(() => {
     setScanOverlay({ phase: "idle" });
     setOverlayExiting(false);
-    setLookup({ phase: "idle" });
+    setSheetVisible(false);
     setShowSubmitForm(false);
-    // scanner stays active — user can immediately re-scan
+    setFallbackProduct(null);
+    setPackSizeBadge(null);
+    setLookup({ phase: "idle" });
+    setScannerActive(false); // unmount → camera + ZXing reader released
+    window.setTimeout(() => setScannerActive(true), 60); // remount fresh
   }, []);
+
+  // BUG 2 FIX — clean exit to the homepage from any scanner state, releasing
+  // the camera first by unmounting the scanner before navigating away.
+  const exitToHome = useCallback(() => {
+    setScannerActive(false);
+    setScanOverlay({ phase: "idle" });
+    setOverlayExiting(false);
+    setSheetVisible(false);
+    router.push("/");
+  }, [router]);
+
+  const handleTryAgain = useCallback(() => {
+    restartScanner();
+  }, [restartScanner]);
+
+  const handleOverlayTryAgain = useCallback(() => {
+    restartScanner();
+  }, [restartScanner]);
 
   const handleOverlaySubmit = useCallback(() => {
     const bc = scanOverlay.phase !== "idle" ? (scanOverlay as { phase: string; barcode: string }).barcode : "";
@@ -1086,6 +1111,29 @@ export default function ScanClient() {
 
       {/* RESULTS */}
       <div ref={resultRef} className={`mt-10${resultFromScan ? " animate-scan-result-rise" : ""}`}>
+        {/* Result-state controls: always offer a clean exit to home and a fresh
+            re-scan whenever a result/loading/not-found/error is on screen. */}
+        {lookup.phase !== "idle" && (
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={exitToHome}
+              aria-label="Close and return home"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface text-foreground transition-colors hover:border-gold hover:text-gold"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={restartScanner}
+              className="rounded-sm bg-gold px-5 py-2.5 font-display text-sm tracking-widest text-background transition-transform hover:scale-[1.02]"
+            >
+              Scan Another
+            </button>
+          </div>
+        )}
         {lookup.phase === "loading" && !slowSearch && (
           // Skeleton result card — instant visual confirmation the barcode was
           // detected, shaped like the product card that will replace it.
@@ -1326,7 +1374,7 @@ export default function ScanClient() {
 
       {scannerActive && (
         <>
-          <BarcodeScanner active={scannerActive} onDetected={handleDetected} onClose={() => setScannerActive(false)} />
+          <BarcodeScanner active={scannerActive} onDetected={handleDetected} onClose={exitToHome} />
           {sheetVisible && lookup.phase === "found" && (
             <ScanResultSheet
               product={lookup.product}
@@ -1342,6 +1390,7 @@ export default function ScanClient() {
               exiting={overlayExiting}
               onTryAgain={handleOverlayTryAgain}
               onSubmit={handleOverlaySubmit}
+              onClose={exitToHome}
             />
           )}
         </>
