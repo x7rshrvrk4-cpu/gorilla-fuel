@@ -1,17 +1,27 @@
 /**
  * StatsTicker — full-width scrolling stats bar.
- * 5 clean items separated by gold diamond separators.
- * Cache count fetched from Supabase (24-hour ISR). Beer and supplement
- * counts computed live from in-repo arrays.
+ * Counts computed server-side from in-repo arrays + Supabase (ISR).
+ * Scans Today is conditional: only shown when count > 100.
  */
 
 import { ALCOHOL_PRODUCTS } from "../alcohol/lib/products";
 import { PRODUCTS } from "../rankings/lib/products";
+import { INTEL_APPROVED, INTEL_AVOID } from "../intel/lib/products";
 
 const BEER_ALCOHOL_COUNT = ALCOHOL_PRODUCTS.filter(
   (p) => p.category !== "Non-Alcoholic"
 ).length;
+
+const WINE_COUNT = ALCOHOL_PRODUCTS.filter(
+  (p) => p.category === "Wines"
+).length;
+
 const SUPPL_COUNT = PRODUCTS.length;
+const APPROVED_COUNT = INTEL_APPROVED.length;
+const AVOID_COUNT = INTEL_AVOID.length;
+
+// Number of live external data sources the scanner queries
+const DATA_SOURCE_COUNT = 15;
 
 async function fetchCacheCount(): Promise<number> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -39,15 +49,53 @@ async function fetchCacheCount(): Promise<number> {
   }
 }
 
+async function fetchScansToday(): Promise<number> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    "";
+  if (!url || !key) return 0;
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endpoint = new URL(`${url}/rest/v1/gorilla_product_cache`);
+    endpoint.searchParams.set("last_scanned_at", `gte.${today.toISOString()}`);
+    endpoint.searchParams.set("limit", "0");
+    const res = await fetch(endpoint.toString(), {
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        Prefer: "count=exact",
+      },
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return 0;
+    const range = res.headers.get("Content-Range");
+    if (!range) return 0;
+    const total = parseInt(range.split("/")[1] ?? "0", 10);
+    return Number.isFinite(total) ? total : 0;
+  } catch {
+    return 0;
+  }
+}
+
 export default async function StatsTicker() {
-  const cacheCount = await fetchCacheCount();
+  const [cacheCount, scansToday] = await Promise.all([
+    fetchCacheCount(),
+    fetchScansToday(),
+  ]);
 
   const items: string[] = [
-    `📦 ${cacheCount.toLocaleString("en-CA")}+ Products Scored`,
+    `📦 ${cacheCount.toLocaleString("en-CA")}+ Products in Database`,
     `🍺 ${BEER_ALCOHOL_COUNT}+ Beer and Alcohol Products`,
+    `🍷 ${WINE_COUNT}+ Wines`,
     `💊 ${SUPPL_COUNT}+ Supplements Ranked`,
-    `🇨🇦 Canadian First`,
-    `✓ No Brand Pays for Placement`,
+    `✅ ${APPROVED_COUNT} Gorilla Approved Snacks`,
+    `🚫 ${AVOID_COUNT} Stay Away Products`,
+    `🔍 ${DATA_SOURCE_COUNT} Live Data Sources`,
+    // Only shown when traffic is meaningful — avoids displaying a number that looks low.
+    ...(scansToday > 100 ? [`📊 ${scansToday.toLocaleString("en-CA")} Scans Today`] : []),
   ];
 
   const doubled = [...items, ...items];
