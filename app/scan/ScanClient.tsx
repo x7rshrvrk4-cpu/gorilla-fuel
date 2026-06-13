@@ -62,6 +62,8 @@ import NotifyMeForm from "./components/NotifyMeForm";
 import SupplementResultCard from "./components/SupplementResultCard";
 import { lookupCuratedFood } from "./lib/curatedFoods";
 import { applyScoringGate } from "./lib/curatedScores";
+import { lookupBarcodeAlias } from "./lib/barcodeAliases";
+import MultiPackPrompt from "./components/MultiPackPrompt";
 import {
   lookupProductCache,
   upsertProductCache,
@@ -270,6 +272,7 @@ export default function ScanClient() {
   const [lookup, setLookup] = useState<LookupState>({ phase: "idle" });
   const [showSubmitForm, setShowSubmitForm] = useState(false);
   const [fallbackProduct, setFallbackProduct] = useState<FallbackAlcoholProduct | null>(null);
+  const [packSizeBadge, setPackSizeBadge] = useState<string | null>(null);
   const [manualOpen, setManualOpen] = useState(false);
   const [manualBarcode, setManualBarcode] = useState("");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -392,6 +395,7 @@ export default function ScanClient() {
       setSheetVisible(false);
       setShowSubmitForm(false);
       setFallbackProduct(null);
+      setPackSizeBadge(null);
       setLookup({ phase: "loading", barcode: trimmed });
 
       // Hard timeout — never spin past 3 s. Master deadline over the full waterfall.
@@ -929,10 +933,72 @@ export default function ScanClient() {
         }
 
         // ─────────────────────────────────────────────────────────
-        // STEP 14 — NOT FOUND
+        // STEP 14 — BARCODE ALIAS CHECK
+        // Check for known multi-pack or case barcodes. If found,
+        // return the parent single-unit product with a pack size badge.
+        // ─────────────────────────────────────────────────────────
+        console.log("[Gorilla] STEP 14 — alias check for:", trimmed);
+        try {
+          const aliasHit = await lookupBarcodeAlias(trimmed);
+          if (aliasHit) {
+            console.log("[Gorilla] STEP 14 alias hit:", aliasHit.parent_product_name, aliasHit.pack_size);
+            const parentCurated = aliasHit.parent_barcode
+              ? lookupCuratedByBarcode(aliasHit.parent_barcode)
+              : null;
+            const parentByName = parentCurated ?? lookupCuratedByName(aliasHit.parent_product_name);
+            if (parentByName) {
+              const servingMl = parentByName.servingMl ?? 355;
+              const kind =
+                parentByName.category === "IPA & Craft Ale" ? "beer" as const
+                : parentByName.category === "Hard Seltzer" ? "seltzer" as const
+                : parentByName.category === "Cider" ? "cider" as const
+                : "beer" as const;
+              const nutriments = {
+                "energy-kcal_100g": (parentByName.caloriesPerCan / servingMl) * 100,
+                carbohydrates_100g: (parentByName.carbsPerCan / servingMl) * 100,
+                sugars_100g: (parentByName.sugarPerCan / servingMl) * 100,
+                alcohol_100g: parentByName.abv,
+              };
+              const syntheticProduct: OffProduct = {
+                code: aliasHit.parent_barcode ?? trimmed,
+                product_name: parentByName.name,
+                brands: parentByName.brand,
+                categories_tags: [
+                  "en:alcoholic-beverages",
+                  `en:${parentByName.category.toLowerCase().replace(/\s+/g, "-")}`,
+                ],
+                nutriments,
+              };
+              const alcoholResult = computeAlcoholScore(nutriments, undefined, kind, servingMl);
+              setPackSizeBadge(aliasHit.pack_size);
+              trackProductFound("gorilla-curated", trimmed, parentByName.name);
+              trackScanModeAlcohol(trimmed, parentByName.name);
+              setLookup({
+                phase: "found-alcohol",
+                product: syntheticProduct,
+                result: alcoholResult,
+                dataSource: "gorilla-curated",
+                lcboVerified: parentByName.lcboVerified ?? false,
+              });
+              setScannerActive(false);
+              scrollToResult();
+              persistHistory([
+                { barcode: trimmed, name: parentByName.name, brand: parentByName.brand, image: null, score: alcoholResult.score, color: ALCOHOL_GRADE_COLORS[alcoholResult.grade], scannedAt: Date.now() },
+                ...history.filter((h) => h.barcode !== trimmed),
+              ].slice(0, MAX_HISTORY));
+              inFlightRef.current = null;
+              return;
+            }
+          }
+        } catch (aliasErr) {
+          console.warn("[Gorilla] alias lookup failed (non-fatal):", aliasErr);
+        }
+
+        // ─────────────────────────────────────────────────────────
+        // STEP 15 — NOT FOUND
         // All sources exhausted. Log to missed_scans and show clean card.
         // ─────────────────────────────────────────────────────────
-        console.log("[Gorilla] STEP 14 — all sources exhausted for:", trimmed);
+        console.log("[Gorilla] STEP 15 — all sources exhausted for:", trimmed);
         logMissedScan(trimmed, "unknown");
         trackProductNotFound(trimmed);
         setLookup({ phase: "not-found", barcode: trimmed });
@@ -1140,6 +1206,7 @@ export default function ScanClient() {
                 dataSource={fallbackProduct?.source}
               />
             )}
+            <MultiPackPrompt barcode={lookup.barcode} />
           </>
         )}
 
@@ -1184,6 +1251,14 @@ export default function ScanClient() {
 
         {lookup.phase === "found-alcohol" && (
           <>
+            {packSizeBadge && (
+              <div className="mb-3 flex items-center gap-3 rounded-sm border border-sky-500/40 bg-sky-900/20 px-4 py-3">
+                <span className="font-display text-sm tracking-[0.2em] text-sky-300">
+                  📦 {packSizeBadge}
+                </span>
+                <p className="text-xs text-muted">Score is per single unit</p>
+              </div>
+            )}
             <AlcoholResultCard
               product={lookup.product}
               result={lookup.result}
