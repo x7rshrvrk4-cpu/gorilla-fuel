@@ -1552,6 +1552,30 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     gorillaAnalysis: "Canadian zero sugar vodka soda. Clean base spirit, no malt (LCBO version). One of the top selling RTDs in Ontario. Zero carbs, zero sugar.",
   },
   {
+    // Added 2026-06: verified barcode read off the physical 473ml can.
+    // VODKA-BASED (spirit) — separate size/flavour from the 355ml entry above.
+    // Zero sugar / zero carb is the NÜTRL line's defining spec (matches the
+    // verified 355ml entry); calories scaled to 473ml and flagged estimated,
+    // since Canadian alcohol labels are not required to show nutrition.
+    id: "nutrl-vodka-soda-raspberry-473ml",
+    category: "Hard Seltzer",
+    brand: "NÜTRL",
+    name: "NÜTRL Vodka Soda Raspberry 473ml",
+    abv: 5.0,
+    caloriesPerCan: 133,
+    carbsPerCan: 0,
+    sugarPerCan: 0,
+    servingMl: 473,
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 5,
+    availability: "LCBO & Beer Store -- wide availability in Canada",
+    nutritionEstimated: true,
+    lcboVerified: true,
+    barcodes: ["062067385919"],
+    gorillaAnalysis: "Vodka-based (spirit) zero-sugar soda — not malt-based. Canadian alcohol labels are not required to show nutrition information; calories are scaled from the verified 355ml NÜTRL Vodka Soda (zero sugar, zero carbs across the line) and flagged estimated.",
+  },
+  {
     id: "cottage-springs-vodka-water",
     category: "Hard Seltzer",
     maltBasedBeerStore: true,
@@ -7768,6 +7792,56 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     additiveCount: 0,
     gorillaPour: 4,
     availability: "Beer Store Ontario",
+  },
+  {
+    // Added 2026-06: verified barcode read off the physical can.
+    // MALT-BASED Beer Store version — carries the malt/gluten flags.
+    // Nutrition not on the can (Canadian alcohol labels are not required to
+    // show it); figures are estimated from the comparable 355ml Coors Seltzer
+    // at the same ABV and flagged nutritionEstimated. NOT label-verified.
+    id: "coors-seltzer-slush-orange-355ml",
+    category: "Hard Seltzer",
+    maltBasedBeerStore: true,
+    glutenStatus: "certified-gf",
+    beerStyle: "Hard Seltzer",
+    brand: "Molson Coors",
+    name: "Coors Seltzer Slush Orange 355ml",
+    abv: 4.5,
+    caloriesPerCan: 90,
+    carbsPerCan: 2,
+    sugarPerCan: 2,
+    servingMl: 355,
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 4,
+    availability: "Beer Store Ontario",
+    nutritionEstimated: true,
+    barcodes: ["056327022690"],
+    gorillaAnalysis: "Beer Store malt-based version. Canadian alcohol labels are not required to show nutrition information, so calories/carbs/sugar here are estimated from the comparable 355ml Coors Seltzer at the same ABV — not label-verified.",
+  },
+  {
+    // Added 2026-06: verified barcode read off the physical can.
+    // VODKA-BASED (spirit) LCBO version — NOT malt-based, so no malt/gluten
+    // flag (per the can). Nutrition not on the can; estimated from the
+    // comparable 7% 355ml Coors Seltzer and flagged nutritionEstimated.
+    id: "coors-seltzer-slush-green-apple-355ml",
+    category: "Hard Seltzer",
+    beerStyle: "Hard Seltzer",
+    brand: "Molson Coors",
+    name: "Coors Seltzer Slush Green Apple 355ml",
+    abv: 7,
+    caloriesPerCan: 160,
+    carbsPerCan: 4,
+    sugarPerCan: 2,
+    servingMl: 355,
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 4,
+    availability: "LCBO Ontario",
+    nutritionEstimated: true,
+    lcboVerified: true,
+    barcodes: ["056327024915"],
+    gorillaAnalysis: "LCBO vodka-based (spirit) version — not malt-based, so no Beer Store malt warning applies. Canadian alcohol labels are not required to show nutrition information, so calories/carbs/sugar here are estimated from the comparable 7% 355ml Coors Seltzer — not label-verified.",
   },
   {
     id: "sol-330ml",
