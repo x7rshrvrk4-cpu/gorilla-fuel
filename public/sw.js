@@ -1,9 +1,13 @@
-// Gorilla Fuel Service Worker — gf-v5
+// Gorilla Fuel Service Worker
 // CRITICAL: Never intercept cross-origin requests.
 // iOS Safari throws "response by service worker has restrictions" when
 // respondWith() is called for a request to a different origin.
 
-const CACHE_VERSION = "gf-v5";
+// CACHE_VERSION is re-stamped with a unique value on every build by
+// scripts/stamp-sw-version.mjs (run from the `prebuild` npm hook). A value
+// that changes per deploy is what makes the browser detect, install and
+// activate each new service worker — do NOT hardcode a fixed version here.
+const CACHE_VERSION = "gf-build-placeholder";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 

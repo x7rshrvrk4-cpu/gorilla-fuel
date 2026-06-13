@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "test:scores": "tsx scripts/test-curated-scores.ts",
-    "prebuild": "npm run test:scores",
+    "prebuild": "npm run test:scores && node scripts/stamp-sw-version.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

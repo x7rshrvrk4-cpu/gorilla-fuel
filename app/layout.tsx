@@ -66,7 +66,28 @@ export default function RootLayout({
         <SiteFooter />
         <Analytics />
         <Script strategy="afterInteractive" id="sw-register">
-          {`if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(function(){});}`}
+          {`if('serviceWorker' in navigator){
+  var hadController = !!navigator.serviceWorker.controller, refreshing = false;
+  // A new worker taking control means an update activated (skipWaiting +
+  // clients.claim). Reload ONCE to pick it up — but only if a worker was
+  // already controlling this page (a genuine update), never on first install,
+  // and guarded so it can't loop.
+  navigator.serviceWorker.addEventListener('controllerchange', function(){
+    if (refreshing) return;
+    refreshing = true;
+    if (hadController) window.location.reload();
+  });
+  // updateViaCache:'none' forces the browser to always revalidate sw.js itself
+  // (not serve it from HTTP cache), so new deploys are detected reliably.
+  navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' }).then(function(reg){
+    reg.update();
+    // iOS standalone PWAs relaunch from background without a full reload —
+    // check for a new worker every time the app returns to the foreground.
+    document.addEventListener('visibilitychange', function(){
+      if (document.visibilityState === 'visible') reg.update();
+    });
+  }).catch(function(){});
+}`}
         </Script>
         {GA_ID && (
           <>
