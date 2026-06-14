@@ -20,7 +20,8 @@ const CAFFEINE_BAND_CLASS: Record<CaffeineBand, string> = {
 
 export default function EnergyProductCard({ product }: { product: EnergyDrinkProduct }) {
   const result = energyScore(product);
-  const band = caffeineBand(product.caffeineMg);
+  const hasCaffeineNumber = product.caffeineMg !== undefined;
+  const band = hasCaffeineNumber ? caffeineBand(product.caffeineMg as number) : null;
   const servingLabel = `per ${product.servingMl}mL can`;
 
   return (
@@ -40,11 +41,17 @@ export default function EnergyProductCard({ product }: { product: EnergyDrinkPro
               Est.
             </span>
           )}
-          <span
-            className={`inline-flex shrink-0 items-center gap-1.5 rounded-sm border px-2.5 py-1 text-[10px] font-display uppercase tracking-[0.18em] ${CAFFEINE_BAND_CLASS[band]}`}
-          >
-            ⚡ {product.caffeineMg} mg Caffeine
-          </span>
+          {hasCaffeineNumber && band ? (
+            <span
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-sm border px-2.5 py-1 text-[10px] font-display uppercase tracking-[0.18em] ${CAFFEINE_BAND_CLASS[band]}`}
+            >
+              ⚡ {product.caffeineMg} mg Caffeine
+            </span>
+          ) : (
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-sm border border-slate-500/50 bg-slate-600/15 px-2.5 py-1 text-[10px] font-display uppercase tracking-[0.14em] text-slate-300">
+              ⚡ {product.caffeineNote ?? "Caffeine — figure pending"}
+            </span>
+          )}
         </div>
       </div>
 
@@ -80,6 +87,14 @@ export default function EnergyProductCard({ product }: { product: EnergyDrinkPro
         <p className="mt-3 rounded-sm border border-red-500/40 bg-red-900/20 px-3 py-2 text-[11px] leading-relaxed text-red-300/90">
           <span className="font-display uppercase tracking-[0.15em] text-red-300">⚠ Phenylketonurics — </span>
           Contains aspartame, a source of phenylalanine. Not suitable for people with phenylketonuria (PKU).
+        </p>
+      )}
+
+      {/* Allergen warning — same treatment as the PKU block (e.g. coconut/tree-nut) */}
+      {product.allergenWarning && (
+        <p className="mt-3 rounded-sm border border-amber-500/40 bg-amber-900/20 px-3 py-2 text-[11px] leading-relaxed text-amber-300/90">
+          <span className="font-display uppercase tracking-[0.15em] text-amber-300">⚠ Allergen — </span>
+          {product.allergenWarning}
         </p>
       )}
 
