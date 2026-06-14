@@ -22,6 +22,7 @@ const INTEL_LINKS = [
 // Secondary links shown indented in mobile menu
 const SECONDARY_LINKS = [
   { href: "/kids",       label: "Kids" },
+  { href: "/kids-snacks", label: "Kids' Snacks" },
   { href: "/glutenfree", label: "Gluten Free" },
   { href: "/beauty",     label: "Beauty Scanner" },
   { href: "/methodology",label: "Methodology" },
