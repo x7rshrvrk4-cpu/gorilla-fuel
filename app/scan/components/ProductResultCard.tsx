@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { GRADE_COLORS, novaGroupDescription, novaGroupLabel, type NovaGroup, type ScoreResult } from "../lib/scoring";
 import { buildGorillaTake } from "../lib/gorillaAnalysis";
+import { buildNuanceNotes, INCOMPLETE_DATA_FLAG_PREFIX } from "../lib/nuanceNotes";
+import NuanceNotes from "../../components/NuanceNotes";
 import type { OffProduct } from "../lib/openFoodFacts";
 import { productImage } from "../lib/openFoodFacts";
 import type { Alternative } from "../lib/gorillaGuidance";
@@ -36,6 +38,16 @@ export default function ProductResultCard({ product, result, alternatives, alter
   const gradeColor = GRADE_COLORS[result.grade];
   const gorillaTake = buildGorillaTake(result.detectedAdditives, result.grade, result.flags);
   const researchIngredients = detectExamineIngredients(product.ingredients_text || product.ingredients_text_en);
+
+  // Nuance notes (display-only): RULE 1 contested/emerging additive, RULE 2
+  // incomplete data. The numeric swing is truthful only on the raw algorithm
+  // path — gated/curated products rescale sub-scores, so suppress the number.
+  const nuanceNotes = buildNuanceNotes(result, {
+    allowNumericSwing: result.scoreSource === "algorithm",
+  });
+  // RULE 2 is condensed into the nuance note, so drop the raw incomplete-data
+  // flag from the FLAGS list to avoid showing the same caveat twice.
+  const displayFlags = result.flags.filter((f) => !f.includes(INCOMPLETE_DATA_FLAG_PREFIX));
 
   return (
     <div className="gorilla-card animate-rise overflow-hidden rounded-sm">
@@ -131,6 +143,14 @@ export default function ProductResultCard({ product, result, alternatives, alter
 
       <ScoreDisclaimer />
 
+      {/* NUANCE NOTES — the honest asterisk, shown only on the rare subset where
+          the bare score is misleading (contested/emerging additive, incomplete data). */}
+      {nuanceNotes.length > 0 && (
+        <div className="border-b border-line bg-surface px-6 py-4 sm:px-8">
+          <NuanceNotes notes={nuanceNotes} />
+        </div>
+      )}
+
       {/* NOVA PROCESSING LEVEL */}
       {result.novaGroup !== null && (
         <div className="border-b border-line bg-surface p-6">
@@ -163,9 +183,9 @@ export default function ProductResultCard({ product, result, alternatives, alter
           <h3 className="font-display text-xl tracking-wide text-foreground">
             <span className="text-red-400">⚠</span> Flags
           </h3>
-          {result.flags.length > 0 ? (
+          {displayFlags.length > 0 ? (
             <ul className="mt-3 space-y-2 text-sm text-muted">
-              {result.flags.map((flag, i) => (
+              {displayFlags.map((flag, i) => (
                 <li key={i} className="flex gap-2">
                   <span className="text-red-400">—</span>
                   <span>{flag}</span>

@@ -4,6 +4,8 @@ import {
   type CaffeineBand,
   type EnergyDrinkProduct,
 } from "../lib/products";
+import { buildNuanceNotes } from "../../scan/lib/nuanceNotes";
+import NuanceNotes from "../../components/NuanceNotes";
 
 function scoreColor(score: number): string {
   if (score >= 75) return "text-emerald-400";
@@ -27,6 +29,14 @@ export default function EnergyProductCard({ product }: { product: EnergyDrinkPro
   // caffeine note. We show a neutral "Caffeine-Free" chip — never a green 0.
   const isCaffeineFree = !hasCaffeineNumber && !product.caffeineNote;
   const servingLabel = `per ${product.servingMl}mL ${isSports ? "serving" : "can"}`;
+
+  // Nuance notes (display-only). Energy cards run computeScore directly (never
+  // gated), so the sub-scores are raw → numeric swing is truthful. RULE 3 fires
+  // only when there's a caffeineNote and NO verified numeric caffeine.
+  const nuanceNotes = buildNuanceNotes(result, {
+    allowNumericSwing: true,
+    caffeineNote: hasCaffeineNumber ? undefined : product.caffeineNote,
+  });
 
   return (
     <div
@@ -115,6 +125,9 @@ export default function EnergyProductCard({ product }: { product: EnergyDrinkPro
           </span>
         </div>
       )}
+
+      {/* Nuance notes — the honest asterisk (contested/emerging additive, caffeine pending) */}
+      {nuanceNotes.length > 0 && <NuanceNotes notes={nuanceNotes} className="mt-3" />}
 
       {/* PKU / phenylalanine warning — aspartame-containing products only */}
       {product.phenylalanineWarning && (
