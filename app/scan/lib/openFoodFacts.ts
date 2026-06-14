@@ -12,6 +12,9 @@ export type OffProduct = {
   image_small_url?: string;
   ingredients_text?: string;
   ingredients_text_en?: string;
+  ingredients_text_fr?: string;
+  /** Language-neutral list of E-codes OFF parsed from the ingredients, e.g. ["en:e407"]. */
+  additives_tags?: string[];
   nutriments?: Nutriments;
   categories_tags?: string[];
   labels_tags?: string[];
@@ -21,6 +24,22 @@ export type OffProduct = {
   lang?: string;
 };
 
+/**
+ * Best ingredient text for additive scanning. Canadian products are often
+ * bilingual or French-only, so we combine every non-empty language variant
+ * (default + English + French) into one searchable string — the additive
+ * matchers (English + French, accent-insensitive) can then hit in either
+ * language. Returns "" when ALL variants are empty, preserving the
+ * "missing text → scored unverified, not clean" behaviour downstream.
+ */
+export function resolveIngredientsText(product: OffProduct): string {
+  const parts = [product.ingredients_text, product.ingredients_text_en, product.ingredients_text_fr]
+    .map((s) => (s ?? "").trim())
+    .filter((s) => s.length > 0);
+  // Dedup identical variants (OFF often copies the same text into default+en).
+  return [...new Set(parts)].join(" — ");
+}
+
 /** Pulls the serving-size, NOVA, label/category, and name context the scorer needs straight off an OFF record. */
 export function scoringContext(product: OffProduct): ScoringContext {
   return {
@@ -29,6 +48,7 @@ export function scoringContext(product: OffProduct): ScoringContext {
     labelsTags: product.labels_tags,
     categoriesTags: product.categories_tags,
     productName: resolveProductName(product),
+    additivesTags: product.additives_tags,
   };
 }
 
@@ -97,7 +117,8 @@ function hasComparableData(product: OffProduct): boolean {
   return Boolean(
     (product.nutriments && Object.keys(product.nutriments).length > 0) ||
       product.ingredients_text ||
-      product.ingredients_text_en
+      product.ingredients_text_en ||
+      product.ingredients_text_fr
   );
 }
 

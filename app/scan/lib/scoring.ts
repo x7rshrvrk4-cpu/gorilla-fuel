@@ -52,9 +52,24 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/** Matches a plain-language name, tolerating spaces/hyphens between words. */
+/**
+ * Strips diacritics so accent-insensitive matching works both ways — e.g.
+ * "carraghénane" and "carraghenane" both reduce to "carraghenane". Applied to
+ * BOTH the matcher patterns and the ingredient text before matching, so a French
+ * matcher hits whether or not the label/text carries accents.
+ */
+function stripDiacritics(value: string): string {
+  return value.normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
+/**
+ * Matches a plain-language name, tolerating spaces/hyphens between words and
+ * accents (the pattern is built from the diacritic-stripped label, and the
+ * ingredient text is stripped the same way before matching). The original
+ * `label` keeps its accents for display.
+ */
 function name(label: string): Matcher {
-  const pattern = escapeRegExp(label).replace(/[\s-]+/g, "[\\s-]+");
+  const pattern = escapeRegExp(stripDiacritics(label)).replace(/[\s-]+/g, "[\\s-]+");
   return { label, pattern: new RegExp(`\\b${pattern}\\b`, "i") };
 }
 
@@ -62,6 +77,18 @@ function name(label: string): Matcher {
 function ecode(code: string): Matcher {
   const numeric = code.replace(/^e/i, "");
   return { label: code.toUpperCase(), pattern: new RegExp(`\\bE[\\s-]?${numeric}\\b`, "i") };
+}
+
+/**
+ * Normalizes an Open Food Facts additive tag (language-neutral, e.g. "en:e407",
+ * "fr:e160ai") to a bare E-code like "E407" / "E160AI". Returns null when the
+ * tag isn't an E-number. Used to match OFF's parsed additives_tags against the
+ * dictionary's E-code matchers regardless of the label's language.
+ */
+function normalizeTagCode(tag: string): string | null {
+  const core = tag.includes(":") ? tag.slice(tag.lastIndexOf(":") + 1) : tag;
+  const m = core.trim().toUpperCase().match(/^E?\s*(\d{3}[A-Z]*)/);
+  return m ? `E${m[1]}` : null;
 }
 
 // Gorilla Fuel additive intel — every E-code AND common label we scan ingredient
@@ -122,7 +149,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The WHO's cancer research arm (IARC) classifies processed meat — where nitrites are the primary curing agent — as a Group 1 carcinogen, the same evidence-strength category as tobacco, even though regulators still permit nitrites at controlled levels because curing also prevents botulism.",
     gorillaPosition: "This is a real trade-off, not a scare story — nitrites stop a dangerous foodborne toxin, but they're also the mechanism IARC pointed to when it classified processed meat in its highest-evidence carcinogen category. Less cured meat in your regular rotation looks like the sensible read of that evidence, regardless of which curing salt is used.",
     sources: ["IARC Monographs Volume 114 — Red and Processed Meat (2015)", "WHO Q&A on the Carcinogenicity of Processed Meat", "Health Canada Nitrite/Nitrate Food Additive Assessment"],
-    matchers: [name("Sodium nitrite"), ecode("E250")],
+    matchers: [name("Sodium nitrite"), name("Nitrite de sodium"), ecode("E250")],
   },
   {
     id: "red-3",
@@ -144,7 +171,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "Major health bodies group it with sodium nitrite under the same nitrosamine-formation concern documented in IARC's Group 1 classification of processed meat, while still permitting it at controlled curing levels for food-safety reasons.",
     gorillaPosition: "Same chemistry, same trade-off, same advice as sodium nitrite — minimize processed and cured meat as a category rather than chasing the specific curing salt.",
     sources: ["IARC Monographs Volume 114 — Red and Processed Meat (2015)", "Health Canada Nitrite/Nitrate Food Additive Assessment", "Codex Alimentarius — Curing Agent Standards"],
-    matchers: [name("Potassium nitrite"), ecode("E249")],
+    matchers: [name("Potassium nitrite"), name("Nitrite de potassium"), ecode("E249")],
   },
   {
     id: "sodium-nitrate",
@@ -155,7 +182,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "Regulators treat it as a precursor that converts to nitrite in the body, feeding the same nitrosamine pathway documented in IARC's processed-meat classification, and permit it under the same controlled-use logic.",
     gorillaPosition: "It becomes nitrite in your body, so the science and our advice are identical — the name on the label matters less than how often cured meat shows up on your plate.",
     sources: ["IARC Monographs Volume 114 — Red and Processed Meat (2015)", "EFSA ANS Panel — Re-evaluation of Nitrates (2017)", "Health Canada Nitrite/Nitrate Food Additive Assessment"],
-    matchers: [name("Sodium nitrate"), ecode("E251")],
+    matchers: [name("Sodium nitrate"), name("Nitrate de sodium"), ecode("E251")],
   },
   {
     id: "tartrazine",
@@ -177,7 +204,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "It's named alongside Tartrazine in the same Southampton hyperactivity study and carries the same EU warning-label mandate, while US regulators continue to list it as permitted — the identical jurisdictional split as its sister dye.",
     gorillaPosition: "Same study, same split, same advice: when a product leans on synthetic dyes for color, that already tells you something about how it's made.",
     sources: ["McCann et al., The Lancet, Vol 370 (2007)", "EU Regulation (EC) No 1333/2008 — Annex V", "UK Food Standards Agency — Voluntary Phase-Out Guidance"],
-    matchers: [name("Sunset Yellow"), name("Yellow 6"), ecode("E110")],
+    matchers: [name("Sunset Yellow"), name("Yellow 6"), name("Jaune soleil FCF"), name("Jaune soleil"), name("Jaune orangé S"), ecode("E110")],
   },
   {
     id: "allura-red",
@@ -188,7 +215,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The EU requires the same Southampton-study warning label as its sister dyes, California has restricted it in school food, and the FDA has it under active re-review as of 2025 — regulators are visibly mid-debate rather than aligned.",
     gorillaPosition: "When a regulator is actively reconsidering its own approval, that's not a settled 'it's fine' — it's a live question, and you deserve to know it's being asked.",
     sources: ["McCann et al., The Lancet, Vol 370 (2007)", "California School Food Safety Act (2024)", "FDA Color Additive Petition Review — Red 40"],
-    matchers: [name("Allura Red"), name("Red 40"), ecode("E129")],
+    matchers: [name("Allura Red"), name("Red 40"), name("Rouge allura"), name("Rouge allura AC"), ecode("E129")],
   },
   {
     id: "carmoisine",
@@ -232,7 +259,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The US National Toxicology Program lists it as 'reasonably anticipated to be a human carcinogen' based on animal studies, yet the FDA and EFSA both still permit it within current limits, citing a tumor mechanism they consider species-specific to rodents — regulators and toxicologists are genuinely split on how to weigh that evidence.",
     gorillaPosition: "A federal carcinogen listing sitting next to continued regulatory approval is exactly the kind of tension we think belongs in the open, not buried in a footnote.",
     sources: ["US National Toxicology Program — Report on Carcinogens (BHA)", "EFSA ANS Panel — Re-evaluation of BHA (2011)", "FDA Code of Federal Regulations — 21 CFR 172.110"],
-    matchers: [name("BHA"), name("Butylated hydroxyanisole"), ecode("E320")],
+    matchers: [name("BHA"), name("Butylated hydroxyanisole"), name("Hydroxyanisole butylé"), ecode("E320")],
   },
   {
     id: "bht",
@@ -243,7 +270,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The FDA and EFSA continue to classify it as safe at permitted levels, while an independent body of research into hormone-disrupting and behavioral effects keeps the question open enough that several brands have voluntarily reformulated around it.",
     gorillaPosition: "'Approved' and 'still being actively studied for hormone effects' can both be true at the same time — that's contested territory, and we'd rather hand you the nuance than a thumbs up or down.",
     sources: ["EFSA ANS Panel — Re-evaluation of BHT (2012)", "FDA Code of Federal Regulations — 21 CFR 172.115", "PubMed — butylated hydroxytoluene endocrine effect studies"],
-    matchers: [name("BHT"), name("Butylated hydroxytoluene"), ecode("E321")],
+    matchers: [name("BHT"), name("Butylated hydroxytoluene"), name("Hydroxytoluène butylé"), ecode("E321")],
   },
   {
     id: "propyl-gallate",
@@ -309,7 +336,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The WHO/FAO's JECFA, the FDA, and EFSA all classify food-grade carrageenan as safe at current levels, while a substantial body of laboratory and animal research — much of it from independent academic labs — keeps linking it to gut inflammation, leaving regulators and researchers in genuine, long-running disagreement.",
     gorillaPosition: "This is one of the longest-running food-safety debates we track — 'approved' on one side, 'inflammatory in lab models' on the other, neither side backing down. That tension is exactly what you should see before deciding how much you want in your diet.",
     sources: ["JECFA — Evaluation of Carrageenan, Codex Alimentarius", "FDA Code of Federal Regulations — 21 CFR 172.620", "PubMed — carrageenan intestinal inflammation studies"],
-    matchers: [name("Carrageenan"), ecode("E407")],
+    matchers: [name("Carrageenan"), name("Carraghénane"), name("Carraghénine"), ecode("E407")],
   },
   {
     id: "brominated-vegetable-oil",
@@ -331,7 +358,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The FDA's own testing confirmed it can react with vitamin C to form trace benzene (a known carcinogen) in some beverages, yet the FDA, EFSA, and Health Canada all maintain that the levels typically found sit well below any health-concern threshold — a position consumer-advocacy groups continue to dispute.",
     gorillaPosition: "The chemistry isn't in question — benzoate plus vitamin C can form benzene, full stop. Whether the trace amounts in a can of soda actually matter is the genuinely contested part, and that's a judgment call we think you should get to make yourself.",
     sources: ["FDA — Survey Data on Benzene in Soft Drinks (2006)", "EFSA ANS Panel — Re-evaluation of Sodium Benzoate (2016)", "PubMed — benzoate-ascorbic acid benzene formation studies"],
-    matchers: [name("Sodium benzoate"), ecode("E211")],
+    matchers: [name("Sodium benzoate"), name("Benzoate de sodium"), ecode("E211")],
   },
   {
     id: "potassium-benzoate",
@@ -498,7 +525,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The FDA and EFSA classify it as safe at current use levels, while the same 2015 Nature research program that first raised emulsifier-and-gut-microbiome questions for carrageenan and polysorbate 80 has named emulsifiers as a class — including this one — as worth continued study.",
     gorillaPosition: "It's everywhere in packaged baked goods, and it's swept up in the same emerging emulsifier research as its more-discussed cousins — not a reason to panic about a slice of bread, but a reason to notice how often 'emulsifier' shows up across your week.",
     sources: ["FDA Code of Federal Regulations — 21 CFR 184.1505", "EFSA Panel on Food Additives — Re-evaluation of Mono- and Diglycerides of Fatty Acids (2017)", "Chassaing et al., Nature, Vol 519 (2015) — 'Dietary emulsifiers impact the mouse gut microbiota'"],
-    matchers: [name("Mono- and diglycerides"), name("Mono and diglycerides"), name("Monoglycerides and diglycerides"), ecode("E471")],
+    matchers: [name("Mono- and diglycerides"), name("Mono and diglycerides"), name("Monoglycerides and diglycerides"), name("Mono- et diglycérides"), name("Mono et diglycerides"), name("Monoglycérides et diglycérides"), ecode("E471")],
   },
   {
     id: "palm-oil",
@@ -554,7 +581,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The FDA and EFSA classify it as safe with no toxicological concerns identified, and the digestive discomfort some people report at high intakes is documented mainly in case reports and small studies rather than the large trials that would elevate it to an established concern.",
     gorillaPosition: "This is about as benign as a 'flagged' additive gets on our list — mentioned mainly so people who already know they're sensitive to thickeners can spot it, not because the general population has much to worry about.",
     sources: ["FDA Code of Federal Regulations — 21 CFR 172.695", "EFSA ANS Panel — Re-evaluation of Xanthan Gum (2017)"],
-    matchers: [name("Xanthan gum"), ecode("E415")],
+    matchers: [name("Xanthan gum"), name("Gomme xanthane"), ecode("E415")],
   },
   {
     id: "soy-lecithin",
@@ -565,7 +592,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "Regulators including the FDA and EFSA consider it safe and well-tolerated by the vast majority of people, with soy allergy — a known and labeled risk for a small subset of consumers — being the only well-documented caution attached to it.",
     gorillaPosition: "We flag this one for transparency and allergen-awareness more than health concern — if you're not soy-sensitive, it's genuinely one of the lowest-stakes items on this entire list.",
     sources: ["FDA — Food Allergen Labeling and Consumer Protection Act", "EFSA ANS Panel — Re-evaluation of Lecithins (2017)"],
-    matchers: [name("Soy lecithin"), name("Soya lecithin"), name("Sunflower lecithin"), ecode("E322")],
+    matchers: [name("Soy lecithin"), name("Soya lecithin"), name("Sunflower lecithin"), name("Lécithine de soja"), name("Lécithine de tournesol"), name("Lécithine"), ecode("E322")],
   },
   {
     id: "canola-oil",
@@ -657,7 +684,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The FDA, EFSA, and JECFA all classify it as safe at typical use levels, with decades of safety review and no significant concerns raised in recent re-evaluations.",
     gorillaPosition: "One of the more reassuring names on an ingredient list — it does a real job stopping mold, and the safety data backs it up.",
     sources: ["FDA Code of Federal Regulations — 21 CFR 182.3640", "EFSA ANS Panel — Re-evaluation of Sorbic Acid and Potassium Sorbate (2015)", "JECFA — Evaluation of Sorbates"],
-    matchers: [name("Potassium sorbate"), ecode("E202")],
+    matchers: [name("Potassium sorbate"), name("Sorbate de potassium"), ecode("E202")],
   },
   {
     id: "disodium-ribonucleotides",
@@ -745,7 +772,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "Regulators including the FDA, EFSA, and Health Canada all classify it as safe with an exceptionally long history of food use and no meaningful safety concerns raised in the literature.",
     gorillaPosition: "This sits at the very bottom of our risk list for a reason — one of the most thoroughly vetted, least controversial thickeners in the entire food system.",
     sources: ["FDA Code of Federal Regulations — 21 CFR 184.1343", "EFSA ANS Panel — Re-evaluation of Carob Bean Gum (2017)"],
-    matchers: [name("Carob bean gum"), name("Locust bean gum"), ecode("E410")],
+    matchers: [name("Carob bean gum"), name("Locust bean gum"), name("Gomme de caroube"), ecode("E410")],
   },
   {
     id: "guar-gum",
@@ -756,7 +783,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The FDA, EFSA, and Health Canada all classify it as safe and well-tolerated at typical food-use levels, and it's additionally recognized as a fiber source with mild beneficial effects on blood sugar and cholesterol in some studies.",
     gorillaPosition: "Another one near the bottom of the list because the evidence is genuinely reassuring — if anything, this leans 'mildly beneficial' rather than 'something to watch.'",
     sources: ["FDA Code of Federal Regulations — 21 CFR 184.1339", "EFSA ANS Panel — Re-evaluation of Guar Gum (2017)", "PubMed — guar gum fiber metabolic effect studies"],
-    matchers: [name("Guar gum"), ecode("E412")],
+    matchers: [name("Guar gum"), name("Gomme de guar"), ecode("E412")],
   },
   {
     id: "calcium-disodium-edta",
@@ -852,7 +879,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The FDA (GRAS, 21 CFR 184.1330), EFSA, and JECFA all classify acacia gum as safe with no numerical intake limit needed, and it is recognized as a soluble dietary fibre with mild prebiotic effects.",
     gorillaPosition: "One we deliberately keep calmer than apps that rate it a 'limited risk.' It's essentially a soluble fibre that happens to thicken food — beneficial if anything. Flag-only, no deduction.",
     sources: ["EFSA ANS Panel — Re-evaluation of Acacia Gum (E414) (2017)", "FDA Code of Federal Regulations — 21 CFR 184.1330", "JECFA — Evaluation of Gum Arabic (Acacia Gum)"],
-    matchers: [name("Acacia gum"), name("Gum arabic"), name("Acacia"), ecode("E414")],
+    matchers: [name("Acacia gum"), name("Gum arabic"), name("Acacia"), name("Gomme arabique"), name("Gomme d'acacia"), ecode("E414")],
   },
   {
     id: "pectin",
@@ -874,7 +901,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The FDA (GRAS, 21 CFR 184.1033), EFSA, and JECFA all classify citric acid as safe, with EFSA's 2022 re-evaluation confirming no safety concern at reported uses.",
     gorillaPosition: "It's the sour in lemons and one of the most common, best-understood ingredients in the food supply. Seeing it tells you almost nothing negative — flag-only, no deduction.",
     sources: ["EFSA Panel on Food Additives — Re-evaluation of Citric Acid (E330) (2022)", "FDA Code of Federal Regulations — 21 CFR 184.1033", "JECFA — Evaluation of Citric Acid"],
-    matchers: [name("Citric acid"), ecode("E330")],
+    matchers: [name("Citric acid"), name("Acide citrique"), ecode("E330")],
   },
   {
     id: "ascorbic-acid",
@@ -885,7 +912,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The FDA (GRAS, 21 CFR 182.3013), EFSA, and Health Canada all treat ascorbic acid as safe — it is an essential vitamin, and its additive use as an antioxidant raises no safety concern.",
     gorillaPosition: "This is Vitamin C. Its job here is to keep food from oxidizing, and there's no version of the evidence where that counts against a product. Flag-only, listed purely so the detected-additives view is complete.",
     sources: ["EFSA ANS Panel — Re-evaluation of Ascorbic Acid (E300) and Salts (2015)", "FDA Code of Federal Regulations — 21 CFR 182.3013", "NIH Office of Dietary Supplements — Vitamin C Fact Sheet"],
-    matchers: [name("Ascorbic acid"), name("Vitamin C"), ecode("E300")],
+    matchers: [name("Ascorbic acid"), name("Vitamin C"), name("Acide ascorbique"), name("Vitamine C"), ecode("E300")],
   },
   {
     id: "tocopherols",
@@ -987,6 +1014,8 @@ export type ScoringContext = {
   categoriesTags?: string[] | null;
   /** Product name used only to infer artificial sweetener presence when ingredient text is absent. */
   productName?: string | null;
+  /** Open Food Facts additives_tags (language-neutral E-codes, e.g. "en:e407") — a primary, language-independent additive signal. */
+  additivesTags?: string[] | null;
 };
 
 const ORGANIC_TAG_PATTERN = /organic|\bbio\b|biologique|ecologico|ekologisk/i;
@@ -1345,23 +1374,52 @@ function additivePenalty(risk: RiskLevel): number {
   return 4; // low
 }
 
-export function scoreAdditives(ingredientsText: string | undefined | null): {
+export function scoreAdditives(
+  ingredientsText: string | undefined | null,
+  additivesTags?: string[] | null
+): {
   score: number;
   detected: AdditiveInfo[];
 } {
-  const text = ingredientsText ?? "";
+  // Accent-insensitive text matching (handles French "carraghénane" etc.).
+  const text = stripDiacritics(ingredientsText ?? "");
+  // Language-neutral E-codes from OFF's parsed additives_tags (e.g. "en:e407").
+  const tagCodes = (additivesTags ?? [])
+    .map(normalizeTagCode)
+    .filter((c): c is string => c !== null);
+
   const detected: AdditiveInfo[] = [];
   let score = 100;
 
   for (const entry of ADDITIVES) {
-    // First matching alias wins — that's the "common name found" we surface.
-    // Each entry counts once no matter how many times (or which alias) it appears.
-    const hit = entry.matchers.find((matcher) => matcher.pattern.test(text));
-    if (!hit) continue;
+    // 1) Text match — first matching alias (English or French) wins; that's the
+    //    "common name found" we surface. Each entry counts once.
+    let matchedLabel: string | null =
+      entry.matchers.find((matcher) => matcher.pattern.test(text))?.label ?? null;
+
+    // 2) Language-neutral fallback: match OFF's additives_tags E-codes against
+    //    this entry's E-code matchers. Sidesteps language entirely — a French (or
+    //    untranslated) label still gets detected when OFF parsed its E-numbers.
+    //    startsWith() handles suffixed/ranged codes (e.g. tag "E160AI" → "E160A",
+    //    tag "E150D" → "E150").
+    if (!matchedLabel && tagCodes.length > 0) {
+      const entryCodes = entry.matchers
+        .filter((m) => /^E\d/i.test(m.label))
+        .map((m) => m.label.toUpperCase());
+      const tagHit = entryCodes.some((ec) =>
+        tagCodes.some((tc) => tc === ec || tc.startsWith(ec))
+      );
+      if (tagHit) {
+        // Prefer a readable plain-language name for display; fall back to the E-code.
+        matchedLabel = entry.matchers.find((m) => !/^E\d/i.test(m.label))?.label ?? entryCodes[0];
+      }
+    }
+
+    if (!matchedLabel) continue;
 
     detected.push({
       id: entry.id,
-      name: hit.label,
+      name: matchedLabel,
       risk: entry.risk,
       note: entry.note,
       tier: entry.tier,
@@ -1415,7 +1473,7 @@ export function computeScore(
   context?: ScoringContext
 ): ScoreResult {
   const nutrition = scoreNutrition(nutriments, context);
-  const additives = scoreAdditives(ingredientsText);
+  const additives = scoreAdditives(ingredientsText, context?.additivesTags);
 
   const organicCertified = detectOrganicCertification(context);
   const organicBonus = organicCertified ? 10 : 0;
@@ -1455,8 +1513,11 @@ export function computeScore(
   // affected: a real ingredient list that simply contains no flagged additives is
   // left untouched and still scores clean below. The inferred-sweetener path
   // (zero-sugar sodas) already explains itself, so it's excluded here.
+  // OFF's additives_tags is a language-neutral additive signal, so its presence
+  // means we DO have additive information even when no ingredient text came back.
   const hasIngredientText = !!(ingredientsText && ingredientsText.trim().length > 0);
-  const additivesUnverified = !hasIngredientText && !inferredSweeteners;
+  const hasAdditivesTags = (context?.additivesTags?.length ?? 0) > 0;
+  const additivesUnverified = !hasIngredientText && !hasAdditivesTags && !inferredSweeteners;
   if (additivesUnverified) {
     effectiveAdditiveScore = Math.min(effectiveAdditiveScore, 50);
   }
@@ -1465,8 +1526,9 @@ export function computeScore(
   // Only minimally processed whole foods (NOVA 1/2 or ≤3 short ingredients) can
   // score 100 on additives. Processed products with clean-looking ingredient scans
   // cap at 88 — there's almost always something we didn't catch or that wasn't listed.
-  // Requires a REAL ingredient list — with no list, the unverified branch above owns it.
-  if (effectiveAdditiveScore === 100 && !inferredSweeteners && hasIngredientText) {
+  // Requires a REAL additive signal (ingredient text OR additives_tags) — with
+  // neither, the unverified branch above owns it.
+  if (effectiveAdditiveScore === 100 && !inferredSweeteners && (hasIngredientText || hasAdditivesTags)) {
     const nova = asNovaGroup(context?.novaGroup ?? undefined);
     const ing = (ingredientsText ?? "").trim();
     const ingCount = ing ? ing.replace(/\([^)]*\)/g, "").split(",").filter((s) => s.trim()).length : 0;

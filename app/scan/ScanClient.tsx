@@ -15,6 +15,7 @@ import {
   scoringContext,
   resolveProductName,
   resolveBrand,
+  resolveIngredientsText,
   type OffProduct,
 } from "./lib/openFoodFacts";
 import { gorillaSuggestionsFor, type Alternative } from "./lib/gorillaGuidance";
@@ -521,7 +522,7 @@ export default function ScanClient() {
               // consistent even if scoring weights change between runs.
               const cachedResultBase = computeScore(
                 cachedProduct.nutriments ?? {},
-                cachedProduct.ingredients_text,
+                resolveIngredientsText(cachedProduct),
                 scoringContext(cachedProduct)
               );
               // CURATED OVERRIDE — DO NOT REMOVE: every score passes the gate.
@@ -548,7 +549,7 @@ export default function ScanClient() {
                 const cAlt = await fetchAlternativesMultiLevel(cachedProduct);
                 const cBetter: Alternative[] = cAlt
                   .map((c) => {
-                    const cr = computeScore(c.nutriments ?? {}, c.ingredients_text || c.ingredients_text_en, scoringContext(c));
+                    const cr = computeScore(c.nutriments ?? {}, resolveIngredientsText(c), scoringContext(c));
                     return { candidate: c, candidateResult: cr };
                   })
                   .filter(({ candidate, candidateResult }) =>
@@ -719,7 +720,7 @@ export default function ScanClient() {
           console.log("[Gorilla] STEP 2b HIT:", curatedFoodHit.product_name);
           const cfBase = computeScore(
             curatedFoodHit.nutriments ?? {},
-            curatedFoodHit.ingredients_text,
+            resolveIngredientsText(curatedFoodHit),
             scoringContext(curatedFoodHit)
           );
           // CURATED OVERRIDE — DO NOT REMOVE: every score passes the gate.
@@ -745,7 +746,7 @@ export default function ScanClient() {
           const cfCandidates = await fetchAlternativesMultiLevel(curatedFoodHit);
           const cfBetter: Alternative[] = cfCandidates
             .map((c) => {
-              const cr = computeScore(c.nutriments ?? {}, c.ingredients_text || c.ingredients_text_en, scoringContext(c));
+              const cr = computeScore(c.nutriments ?? {}, resolveIngredientsText(c), scoringContext(c));
               return { candidate: c, candidateResult: cr };
             })
             .filter(({ candidate, candidateResult }) =>
@@ -785,7 +786,7 @@ export default function ScanClient() {
             persistHistory([{ barcode: trimmed, name: curatedOverride.name, brand: curatedOverride.brand, image: null, score: overrideResult.score, color: ALCOHOL_GRADE_COLORS[overrideResult.grade], scannedAt: Date.now() }, ...history.filter((h) => h.barcode !== trimmed)].slice(0, MAX_HISTORY));
             return;
           }
-          const hitBase = computeScore(hit.nutriments ?? {}, hit.ingredients_text, scoringContext(hit));
+          const hitBase = computeScore(hit.nutriments ?? {}, resolveIngredientsText(hit), scoringContext(hit));
           // CURATED OVERRIDE — DO NOT REMOVE: every score passes the gate.
           const result = gateResult(hitBase, trimmed, hit);
           upsertProductCache({ barcode: trimmed, product_name: hit.product_name, brand: hit.brands ?? null, categories: JSON.stringify(hit.categories_tags ?? []), ingredients_text: hit.ingredients_text, nutrition_data: hit.nutriments ?? null, gorilla_score: result.finalScore, score_grade: result.grade, nova_group: null, data_source: source, image_url: productImage(hit) ?? null });
@@ -797,7 +798,7 @@ export default function ScanClient() {
           setAlternativesLoading(true);
           const candidates = await fetchAlternativesMultiLevel(hit);
           const better: Alternative[] = candidates
-            .map((c) => { const cr = computeScore(c.nutriments ?? {}, c.ingredients_text || c.ingredients_text_en, scoringContext(c)); return { candidate: c, candidateResult: cr }; })
+            .map((c) => { const cr = computeScore(c.nutriments ?? {}, resolveIngredientsText(c), scoringContext(c)); return { candidate: c, candidateResult: cr }; })
             .filter(({ candidate, candidateResult }) => sharesMainCategory(candidate, hit) && candidateResult.finalScore >= result.finalScore + 5)
             .sort((a, b) => b.candidateResult.finalScore - a.candidateResult.finalScore)
             .slice(0, 3)
