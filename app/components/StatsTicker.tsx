@@ -6,7 +6,6 @@
 
 import { ALCOHOL_PRODUCTS } from "../alcohol/lib/products";
 import { PRODUCTS } from "../rankings/lib/products";
-import { INTEL_APPROVED, INTEL_AVOID } from "../intel/lib/products";
 
 const BEER_ALCOHOL_COUNT = ALCOHOL_PRODUCTS.filter(
   (p) => p.category !== "Non-Alcoholic"
@@ -17,8 +16,6 @@ const WINE_COUNT = ALCOHOL_PRODUCTS.filter(
 ).length;
 
 const SUPPL_COUNT = PRODUCTS.length;
-const APPROVED_COUNT = INTEL_APPROVED.length;
-const AVOID_COUNT = INTEL_AVOID.length;
 
 // Number of live external data sources the scanner queries
 const DATA_SOURCE_COUNT = 15;
@@ -91,8 +88,6 @@ export default async function StatsTicker() {
     `🍺 ${BEER_ALCOHOL_COUNT}+ Beer and Alcohol Products`,
     `🍷 ${WINE_COUNT}+ Wines`,
     `💊 ${SUPPL_COUNT}+ Supplements Ranked`,
-    `✅ ${APPROVED_COUNT} Gorilla Approved Snacks`,
-    `🚫 ${AVOID_COUNT} Stay Away Products`,
     `🔍 ${DATA_SOURCE_COUNT} Live Data Sources`,
     // Only shown when traffic is meaningful — avoids displaying a number that looks low.
     ...(scansToday > 100 ? [`📊 ${scansToday.toLocaleString("en-CA")} Scans Today`] : []),

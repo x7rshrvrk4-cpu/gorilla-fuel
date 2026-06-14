@@ -110,7 +110,7 @@ export default function Home() {
               SCAN A PRODUCT
             </Link>
             <Link
-              href="/rankings"
+              href="/explore"
               className="rounded-sm border border-gold px-8 py-4 font-display text-xl tracking-widest text-gold transition-colors hover:bg-gold hover:text-background"
             >
               BROWSE RANKINGS
