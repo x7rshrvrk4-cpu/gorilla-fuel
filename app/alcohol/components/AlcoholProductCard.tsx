@@ -162,32 +162,51 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
         </div>
       </div>
 
-      {/* DUAL SCORE — Wine Quality (critic rating) alongside Gorilla Score */}
-      {isWine && (
-        <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-slate-800 pt-3">
-          {product.wineQuality !== undefined ? (
+      {/* CRITIC SCORE — shown ONLY when a real, attributable rating exists (no fake
+          numbers). Hybrid proof rule: a STABLE LCBO Vintages catalogue URL
+          (lcbofoodanddrink.cld.bz) renders a clickable proof link; a rotating
+          product-page URL or no URL renders TEXT attribution only — never a link
+          that could rot or drift to a different vintage. Blanked wines show no
+          critic score (the wine still shows its own Gorilla Score in the grid above). */}
+      {isWine && product.wineQuality !== undefined && (() => {
+        const isAward = product.wineScoreIsAward === true;
+        const stable =
+          product.wineQualityUrlStable ??
+          (!!product.wineQualityUrl && product.wineQualityUrl.includes("lcbofoodanddrink.cld.bz"));
+        const attribution = `${isAward ? "" : "per "}${product.wineQualitySource ?? "critic"}${
+          product.wineVintage ? ` · ${product.wineVintage}` : ""
+        }`;
+        return (
+          <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-slate-800 pt-3">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">⭐ Wine Quality</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                {isAward ? "🏅 Award" : "⭐ Wine Quality"}
+              </p>
               <p className="mt-0.5 font-display text-2xl text-amber-300">{product.wineQuality}</p>
-              <p className="text-[10px] text-slate-500">— {product.wineQualitySource}</p>
+              {stable && product.wineQualityUrl ? (
+                <a
+                  href={product.wineQualityUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[10px] text-gold underline decoration-gold-dim underline-offset-2 hover:text-gold/80"
+                >
+                  {attribution} ↗
+                </a>
+              ) : (
+                <p className="text-[10px] text-slate-500">{attribution}</p>
+              )}
             </div>
-          ) : (
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">⭐ Wine Quality</p>
-              <p className="mt-0.5 font-display text-lg text-slate-500">N/A</p>
-              <p className="text-[10px] text-slate-500">— Not yet rated by major critics</p>
-            </div>
-          )}
-          {sweetSpot && (
-            <span
-              title="This wine scored well on both nutrition and critic ratings. The best of both worlds."
-              className="ml-auto inline-flex cursor-help items-center gap-1.5 rounded-sm border border-gold bg-gold/15 px-3 py-1.5 font-display text-[11px] uppercase tracking-[0.18em] text-gold"
-            >
-              🦍 Gorilla Sweet Spot
-            </span>
-          )}
-        </div>
-      )}
+            {sweetSpot && (
+              <span
+                title="This wine scored well on both nutrition and critic ratings. The best of both worlds."
+                className="ml-auto inline-flex cursor-help items-center gap-1.5 rounded-sm border border-gold bg-gold/15 px-3 py-1.5 font-display text-[11px] uppercase tracking-[0.18em] text-gold"
+              >
+                🦍 Gorilla Sweet Spot
+              </span>
+            )}
+          </div>
+        );
+      })()}
 
       {product.knownAdditives.length > 0 ? (
         <div className="mt-3 border-t border-slate-800 pt-3">
