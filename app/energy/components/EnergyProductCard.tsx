@@ -20,9 +20,13 @@ const CAFFEINE_BAND_CLASS: Record<CaffeineBand, string> = {
 
 export default function EnergyProductCard({ product }: { product: EnergyDrinkProduct }) {
   const result = energyScore(product);
+  const isSports = product.category === "Sports & Hydration";
   const hasCaffeineNumber = product.caffeineMg !== undefined;
   const band = hasCaffeineNumber ? caffeineBand(product.caffeineMg as number) : null;
-  const servingLabel = `per ${product.servingMl}mL can`;
+  // A product is caffeine-free when it has neither a verified mg figure nor a
+  // caffeine note. We show a neutral "Caffeine-Free" chip — never a green 0.
+  const isCaffeineFree = !hasCaffeineNumber && !product.caffeineNote;
+  const servingLabel = `per ${product.servingMl}mL ${isSports ? "serving" : "can"}`;
 
   return (
     <div
@@ -47,11 +51,15 @@ export default function EnergyProductCard({ product }: { product: EnergyDrinkPro
             >
               ⚡ {product.caffeineMg} mg Caffeine
             </span>
-          ) : (
+          ) : product.caffeineNote ? (
             <span className="inline-flex shrink-0 items-center gap-1.5 rounded-sm border border-slate-500/50 bg-slate-600/15 px-2.5 py-1 text-[10px] font-display uppercase tracking-[0.14em] text-slate-300">
-              ⚡ {product.caffeineNote ?? "Caffeine — figure pending"}
+              ⚡ {product.caffeineNote}
             </span>
-          )}
+          ) : isCaffeineFree ? (
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-sm border border-slate-600/40 bg-slate-700/15 px-2.5 py-1 text-[10px] font-display uppercase tracking-[0.14em] text-slate-400">
+              Caffeine-Free
+            </span>
+          ) : null}
         </div>
       </div>
 
@@ -63,16 +71,33 @@ export default function EnergyProductCard({ product }: { product: EnergyDrinkPro
             {product.calories} kcal
           </p>
         </div>
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Carbs · {servingLabel}</p>
-          <p className="mt-0.5 font-display text-lg text-white">
-            {product.carbs !== undefined ? `${product.carbs}g` : "—"}
-          </p>
-        </div>
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Sugar · {servingLabel}</p>
-          <p className="mt-0.5 font-display text-lg text-white">{product.sugar}g</p>
-        </div>
+        {isSports ? (
+          <>
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Sugar · {servingLabel}</p>
+              <p className="mt-0.5 font-display text-lg text-white">{product.sugar}g</p>
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Sodium · {servingLabel}</p>
+              <p className="mt-0.5 font-display text-lg text-white">
+                {product.sodiumMg !== undefined ? `${product.sodiumMg} mg` : "—"}
+              </p>
+            </div>
+          </>
+        ) : (
+          <>
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Carbs · {servingLabel}</p>
+              <p className="mt-0.5 font-display text-lg text-white">
+                {product.carbs !== undefined ? `${product.carbs}g` : "—"}
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Sugar · {servingLabel}</p>
+              <p className="mt-0.5 font-display text-lg text-white">{product.sugar}g</p>
+            </div>
+          </>
+        )}
         <div>
           <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">🦍 Gorilla Score</p>
           <p className={`mt-0.5 font-display text-2xl ${scoreColor(result.finalScore)}`}>
@@ -81,6 +106,15 @@ export default function EnergyProductCard({ product }: { product: EnergyDrinkPro
           </p>
         </div>
       </div>
+
+      {/* Audience tag — the for-whom context a bare score can't convey */}
+      {product.audienceTag && (
+        <div className="mt-3">
+          <span className="inline-flex items-center gap-1.5 rounded-sm border border-cyan-400/40 bg-cyan-400/8 px-2.5 py-1 text-[10px] font-display uppercase tracking-[0.15em] text-cyan-300">
+            👤 {product.audienceTag}
+          </span>
+        </div>
+      )}
 
       {/* PKU / phenylalanine warning — aspartame-containing products only */}
       {product.phenylalanineWarning && (

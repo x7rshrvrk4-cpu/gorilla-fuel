@@ -9,7 +9,7 @@ import { useState, useRef } from "react";
 const PRIMARY_LINKS = [
   { href: "/scan",     label: "SCAN",        gold: true,  dropdown: false },
   { href: "/alcohol",  label: "ALCOHOL",     gold: false, dropdown: false },
-  { href: "/energy",   label: "ENERGY",      gold: false, dropdown: false },
+  { href: "/energy",   label: "BEVERAGES",   gold: false, dropdown: false },
   { href: "/rankings", label: "SUPPLEMENTS", gold: false, dropdown: false },
 ];
 

@@ -4,25 +4,36 @@ import {
   type ScoreResult,
 } from "../../scan/lib/scoring";
 
-export type EnergyCategory = "Energy Drinks";
+// The section is now a combined beverages page. The existing `category` field
+// (already on all 14 energy entries as "Energy Drinks") is what distinguishes
+// the two groups — energy vs sports/hydration — so the 14 entries need no edit.
+export type EnergyCategory = "Energy Drinks" | "Sports & Hydration";
 
-export const ENERGY_CATEGORIES: EnergyCategory[] = ["Energy Drinks"];
+export const ENERGY_CATEGORIES: EnergyCategory[] = ["Energy Drinks", "Sports & Hydration"];
 
 export type EnergyDrinkProduct = {
   id: string;
   category: EnergyCategory;
   brand: string;
   name: string;
-  /** Can/serving size in mL — energy drinks are scored and shown per single can. */
+  /** Can/serving size in mL — products are scored and shown per single can/serving. */
   servingMl: number;
   /** Calories per can. */
   calories: number;
   /** True when the calorie figure is estimated/approximate, not label-verified. */
   caloriesEstimated?: boolean;
-  /** Sugar grams per can. */
+  /** Sugar grams per can/serving. */
   sugar: number;
   /** Carbohydrate grams per can (optional — omit when not verified). */
   carbs?: number;
+  /**
+   * Sodium in mg per serving. Surfaced prominently for sports/hydration drinks
+   * (where it's the point) and fed to the scoring engine as real salt — so a
+   * casual drinker sees a high-sodium electrolyte mix flagged honestly, with the
+   * `audienceTag` providing the "for heavy sweaters" nuance. Omit when not on
+   * the panel / unverified (modelled as 0, no penalty).
+   */
+  sodiumMg?: number;
   /**
    * Caffeine in mg per can. Drives the caffeine band (green <100 · yellow
    * 100–200 · red >200). Omit when an exact figure isn't verified and use
@@ -45,6 +56,18 @@ export type EnergyDrinkProduct = {
   ingredients: string;
   /** True when any nutrition value is estimated rather than label-verified. */
   nutritionEstimated?: boolean;
+  /**
+   * NOVA processing group (1–4). Defaults to 4 (ultra-processed) — correct for
+   * every formulated energy/electrolyte drink. Set to 1 for a genuinely
+   * single-ingredient, minimally-processed product (e.g. pure coconut water).
+   */
+  novaGroup?: number;
+  /**
+   * Short for-whom context label shown on the card — e.g. "Honest clean option",
+   * "For hard training only", "Medical rehydration — for illness". Gives the
+   * human context a bare score can't.
+   */
+  audienceTag?: string;
   /** Aspartame-containing products MUST warn for phenylketonuria (PKU). */
   phenylalanineWarning?: boolean;
   /**
@@ -85,15 +108,17 @@ export const CAFFEINE_DISCLAIMER =
  * and also pass the per-serving figures + serving size so the serving-aware
  * logic engages exactly as it would for an Open Food Facts product.
  *
- * Energy drinks are ultra-processed (NOVA 4). Saturated fat is zero by
- * definition and sodium is negligible (well below every penalty band), so both
- * are modelled as 0 — that is the honest value, and it also prevents the
- * "missing critical nutrient" precautionary penalty from firing on data that
- * isn't actually unknown.
+ * Saturated fat is zero by definition for these drinks. Sodium is modelled from
+ * the verified per-serving figure (sodium mg → salt g = mg × 2.5 ⁄ 1000) so
+ * electrolyte products are scored on their real sodium load; when no sodium is
+ * verified it's modelled as 0 (no penalty). Setting both fat and sodium also
+ * keeps the "missing critical nutrient" penalty from firing on data we do know.
  */
 export function energyScore(p: EnergyDrinkProduct): ScoreResult {
   const per100 = 100 / p.servingMl;
   const round1 = (v: number) => Math.round(v * 10) / 10;
+  // Health Canada / OFF convention: salt(g) = sodium(mg) × 2.5 ÷ 1000.
+  const saltServing = p.sodiumMg !== undefined ? (p.sodiumMg * 2.5) / 1000 : 0;
 
   const nutriments: Nutriments = {
     sugars_100g: round1(p.sugar * per100),
@@ -102,8 +127,8 @@ export function energyScore(p: EnergyDrinkProduct): ScoreResult {
     "energy-kcal_serving": p.calories,
     "saturated-fat_100g": 0,
     "saturated-fat_serving": 0,
-    salt_100g: 0,
-    salt_serving: 0,
+    salt_100g: round1(saltServing * per100),
+    salt_serving: saltServing,
   };
   if (p.carbs !== undefined) {
     nutriments.carbohydrates_100g = round1(p.carbs * per100);
@@ -112,7 +137,7 @@ export function energyScore(p: EnergyDrinkProduct): ScoreResult {
 
   return computeScore(nutriments, p.ingredients, {
     servingSize: `${p.servingMl}ml`,
-    novaGroup: 4,
+    novaGroup: p.novaGroup ?? 4,
     productName: `${p.brand} ${p.name}`,
     categoriesTags: ["en:energy-drinks", "en:beverages"],
   });
@@ -380,5 +405,151 @@ export const ENERGY_PRODUCTS: EnergyDrinkProduct[] = [
     availability: "Canadian grocery & convenience — availability varies",
     gorillaAnalysis:
       "The most additive-heavy can on the board, and it pairs that with ~54 g of sugar. It carries TWO artificial azo dyes — Tartrazine (Yellow 5) and Sunset Yellow (Yellow 6) — both flagged under the EU hyperactivity warning, alongside sucralose, phosphates, and EDTA. High sugar and the worst additive profile here put it at the bottom.",
+  },
+
+  // ════════════════════ SPORTS & HYDRATION ════════════════════
+  // Caffeine-free electrolyte/hydration drinks. Sodium is scored as real salt
+  // (it's the functional point) and surfaced prominently on the card; the
+  // audienceTag supplies the for-whom context a bare score can't.
+  {
+    id: "biosteel-sports-drink-500",
+    category: "Sports & Hydration",
+    brand: "BioSteel",
+    name: "BioSteel Sports Drink (RTD)",
+    servingMl: 500,
+    calories: 12,
+    caloriesEstimated: true,
+    sugar: 0,
+    sodiumMg: 230,
+    sweetener: "Stevia (zero sugar)",
+    audienceTag: "Honest clean option",
+    ingredients:
+      "Water, citric acid, sodium citrate, potassium citrate, calcium carbonate, magnesium carbonate, sea salt, natural flavours, stevia leaf extract",
+    nutritionEstimated: true,
+    availability: "Canadian grocery & sports retailers — wide availability",
+    gorillaAnalysis:
+      "One of the genuinely clean ready-to-drink options: zero sugar, stevia-sweetened, and a short electrolyte-salt ingredient list with no dyes or preservatives. The only thing the engine flags is natural flavours and a modest sodium load (230 mg), which for a sports drink is the point. A reasonable everyday electrolyte choice if you want flavour without sugar.",
+  },
+  {
+    id: "gatorade-water-700",
+    category: "Sports & Hydration",
+    brand: "Gatorade",
+    name: "Gatorade Water (Electrolyte Water)",
+    servingMl: 700,
+    calories: 0,
+    sugar: 0,
+    sweetener: "None",
+    audienceTag: "Honest clean option — actually just electrolyte water",
+    ingredients:
+      "Purified water (reverse osmosis), disodium phosphate, sodium bicarbonate, monopotassium phosphate",
+    availability: "Canadian grocery & convenience — availability varies",
+    gorillaAnalysis:
+      "This is the plain unsweetened electrolyte water, NOT Gatorade Zero — no sweetener, no sugar, no dyes. It's essentially RO water with a few mineral salts for taste/electrolytes; the phosphate salts are the only thing the engine flags. The sodium content isn't on the panel we have, so we don't state a number. About as clean as a packaged drink gets.",
+  },
+  {
+    id: "vitamin-water-zero-591",
+    category: "Sports & Hydration",
+    brand: "Glacéau",
+    name: "Vitamin Water Zero",
+    servingMl: 591,
+    calories: 0,
+    sugar: 0,
+    sweetener: "Erythritol + stevia",
+    audienceTag: "Diet water with vitamins — not a hydration tool",
+    ingredients:
+      "Reverse osmosis water, erythritol, vitamin C, niacinamide (B3), B5, B6, B12, potassium phosphate, calcium lactate, magnesium lactate, gum acacia, glycerol ester of rosin, natural flavours, citric acid, stevia leaf extract, beta-carotene",
+    availability: "Canadian grocery & convenience — wide availability",
+    gorillaAnalysis:
+      "Zero sugar via erythritol + stevia, with added vitamins — but the vitamins are marketing more than function, and it isn't an electrolyte/hydration product despite the 'water' name. The engine flags erythritol (the one polyol with an emerging cardiovascular signal), a phosphate, and natural flavours; the vitamin C and beta-carotene are flag-only. Fine occasionally, but plain or electrolyte water does the hydration job better.",
+  },
+  {
+    id: "nuun-sport-tablet",
+    category: "Sports & Hydration",
+    brand: "Nuun",
+    name: "Nuun Sport (Tablet)",
+    servingMl: 500,
+    calories: 15,
+    sugar: 1,
+    sodiumMg: 300,
+    sweetener: "Stevia (1 g sugar from dextrose)",
+    audienceTag: "Light everyday electrolytes",
+    ingredients:
+      "Citric acid, sodium bicarbonate, sodium carbonate, potassium bicarbonate, natural flavours, magnesium oxide, stevia leaf extract, ascorbic acid, dextrose",
+    availability: "Canadian sports & health retailers — per tablet (≈500 mL prepared)",
+    gorillaAnalysis:
+      "A dissolvable tablet aimed at light, everyday electrolyte top-up rather than hard training — modest 300 mg sodium, just 1 g sugar, stevia-sweetened. The only engine flag of note is natural flavours; ascorbic acid is flag-only. Clean and low-stakes. Values are per tablet dissolved in roughly 500 mL of water.",
+  },
+  {
+    id: "liquid-iv-hydration-stick",
+    category: "Sports & Hydration",
+    brand: "Liquid I.V.",
+    name: "Liquid I.V. Hydration Multiplier (Stick)",
+    servingMl: 500,
+    calories: 45,
+    caloriesEstimated: true,
+    sugar: 11,
+    sodiumMg: 500,
+    sweetener: "Cane sugar + dextrose + stevia",
+    audienceTag: "For heavy sweat/illness — contains real sugar",
+    ingredients:
+      "Cane sugar, citric acid, sodium citrate, dextrose, potassium citrate, salt, natural flavours, stevia leaf extract, dipotassium phosphate, silicon dioxide",
+    availability: "Canadian grocery & big-box — per stick (≈500 mL prepared)",
+    gorillaAnalysis:
+      "Built around a high-sodium (500 mg), real-sugar (11 g) oral-rehydration formula — the sugar is intentional, since glucose helps the gut absorb sodium and water during heavy sweat or illness. That's also why it scores like a sugary drink: for sedentary daily sipping it's overkill. The engine flags the sugar, sodium, a phosphate, silicon dioxide and natural flavours. Right tool for the right job, wrong one for the couch.",
+  },
+  {
+    id: "lmnt-electrolyte-stick",
+    category: "Sports & Hydration",
+    brand: "LMNT",
+    name: "LMNT Recharge (Stick)",
+    servingMl: 500,
+    calories: 0,
+    sugar: 0,
+    sodiumMg: 1000,
+    sweetener: "Stevia (zero sugar)",
+    audienceTag: "For heavy sweaters/keto — very high sodium, overkill for casual use",
+    ingredients:
+      "Sodium chloride, potassium citrate, magnesium malate, natural flavours, citric acid, stevia leaf extract",
+    availability: "Canadian online & specialty retailers — per stick (≈500 mL prepared)",
+    gorillaAnalysis:
+      "Zero sugar, no dyes, no preservatives — but a deliberately huge 1000 mg sodium hit, aimed at keto, fasting, and very heavy sweaters. For that audience it's well formulated; for a casual drinker that's nearly half a day's sodium in one stick, which is exactly why the engine marks it down. The score is a general-population read — the audience tag is the context that flips it.",
+  },
+  {
+    id: "vita-coco-coconut-water-330",
+    category: "Sports & Hydration",
+    brand: "Vita Coco",
+    name: "Vita Coco Pure Coconut Water",
+    servingMl: 330,
+    calories: 60,
+    caloriesEstimated: true,
+    sugar: 13,
+    sodiumMg: 45,
+    sweetener: "None — naturally occurring sugar only",
+    audienceTag: "Potassium-rich, but low sodium = poor sweat replacer",
+    ingredients: "Coconut water (from concentrate)",
+    nutritionEstimated: true,
+    novaGroup: 1,
+    availability: "Canadian grocery & convenience — wide availability",
+    gorillaAnalysis:
+      "A genuinely minimally-processed, single-ingredient drink (NOVA 1), which is why it scores well despite ~13 g of naturally occurring sugar and no added anything. It's potassium-rich but low in sodium, so as a sweat replacer for hard training it underperforms a real electrolyte mix — the score reflects health, the audience tag reflects function. A solid everyday natural drink, just not a sports-hydration tool.",
+  },
+  {
+    id: "pedialyte-oral-rehydration",
+    category: "Sports & Hydration",
+    brand: "Pedialyte",
+    name: "Pedialyte (Oral Rehydration)",
+    servingMl: 240,
+    calories: 25,
+    caloriesEstimated: true,
+    sugar: 6,
+    sodiumMg: 370,
+    sweetener: "Varies by flavour (sucralose in some)",
+    audienceTag: "Medical rehydration — for illness, not workouts or daily use",
+    ingredients:
+      "Water, dextrose, sodium chloride, potassium citrate, sodium citrate, citric acid, sweetener, flavour, colour",
+    nutritionEstimated: true,
+    availability: "Canadian pharmacy & grocery — per ~240 mL serving (values vary by flavour)",
+    gorillaAnalysis:
+      "A medical oral-rehydration solution, not a sports or everyday drink — its dextrose-and-sodium ratio is tuned to treat dehydration from illness (vomiting/diarrhea), and that clinical purpose is the whole point. Sodium (~370–490 mg) and sugar are by design. Some flavours use sucralose and added colour, listed generically on the panel. Judge it as a pharmacy product for sick days, not by a general nutrition score.",
   },
 ];
