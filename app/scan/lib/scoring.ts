@@ -89,7 +89,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The EU, UK, Canada, Brazil, and over 30 other countries have independently banned it as a flour treatment agent, and the IARC lists it as a possible human carcinogen.",
     gorillaPosition: "When most of the developed world has separately reached the same conclusion, that's not fearmongering — that's consensus. Avoid it.",
     sources: ["IARC Monographs Programme — Potassium Bromate (Group 2B)", "Health Canada List of Permitted Food Additives", "UK Food Standards Agency"],
-    matchers: [name("Potassium bromate")],
+    matchers: [name("Potassium bromate"), ecode("E924")],
   },
   {
     id: "titanium-dioxide",
@@ -320,7 +320,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "After decades of permitted use, the FDA formally revoked its approval in 2024 — joining the EU, UK, Japan, and India, which had already banned it — based on updated toxicology studies showing thyroid and nervous-system harm at levels once considered acceptable.",
     gorillaPosition: "This is a rare case of the regulator that defended an ingredient for fifty years doing a complete about-face based on new data — consensus catching up to evidence, exactly the kind of update we exist to surface.",
     sources: ["FDA — Revocation of BVO Authorization, Federal Register (2024)", "EU Regulation (EC) No 1333/2008 — Prohibited Substances", "PubMed — brominated vegetable oil thyroid toxicology studies"],
-    matchers: [name("Brominated vegetable oil"), name("BVO")],
+    matchers: [name("Brominated vegetable oil"), name("BVO"), ecode("E443")],
   },
   {
     id: "sodium-benzoate",
@@ -435,17 +435,6 @@ const ADDITIVES: AdditiveEntry[] = [
     matchers: [name("Sorbic acid"), ecode("E200")],
   },
   {
-    id: "potassium-sorbate",
-    risk: "medium",
-    penalty: 8,
-    note: "Salt form of sorbic acid — converts back to sorbic acid in food and exerts the same antimicrobial preservative effect. Very commonly used in salad dressings, wines, and dairy.",
-    tier: "precautionary",
-    healthBodyPosition: "Considered safe by the FDA and EFSA at current use levels. Like sorbic acid, it has been extensively reviewed without identified significant health concerns.",
-    gorillaPosition: "Same context as sorbic acid — the concern is cumulative dietary preservative load across a day of eating packaged food, not this ingredient in isolation.",
-    sources: ["FDA Code of Federal Regulations — 21 CFR 182.3640", "EFSA Opinion on the re-evaluation of potassium sorbate (E202) (2015)"],
-    matchers: [name("Potassium sorbate"), ecode("E202")],
-  },
-  {
     id: "annatto",
     risk: "low",
     penalty: 4,
@@ -476,7 +465,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The FDA and EFSA classify sodium phosphate salts as safe at currently permitted levels. A growing body of nephrology research associates chronically elevated dietary phosphate with accelerated kidney function decline and cardiovascular risk — regulators have acknowledged the evidence but have not yet acted specifically on food additive phosphate exposure.",
     gorillaPosition: "The concern is cumulative — phosphates appear across dozens of processed foods simultaneously, so any single product contributes a fraction of the total dietary load. Worth knowing they're there, especially for anyone with kidney disease or elevated cardiovascular risk.",
     sources: ["EFSA ANS Panel — Re-evaluation of Phosphoric Acid and Phosphates (2019)", "FDA Code of Federal Regulations — 21 CFR 182.1778", "PubMed — dietary phosphate intake and chronic kidney disease"],
-    matchers: [name("Sodium phosphates"), name("Sodium phosphate"), name("Disodium phosphate"), name("Trisodium phosphate"), name("Sodium hexametaphosphate"), name("Tetrasodium pyrophosphate"), ecode("E339"), ecode("E340"), ecode("E341")],
+    matchers: [name("Sodium phosphates"), name("Sodium phosphate"), name("Disodium phosphate"), name("Trisodium phosphate"), name("Dipotassium phosphate"), name("Monopotassium phosphate"), name("Sodium hexametaphosphate"), name("Tetrasodium pyrophosphate"), ecode("E339"), ecode("E340"), ecode("E341")],
   },
   {
     id: "artificial-flavors",
@@ -554,7 +543,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The FDA and EFSA list it as safe at current levels, while the same 2015 Nature research that raised questions about polysorbate 80 also implicated CMC (cellulose gum) as an emulsifier that altered gut bacteria and promoted inflammation in mouse models — research regulators have noted but not yet translated into new guidance.",
     gorillaPosition: "It's part of the same emerging emulsifier story as polysorbate 80 — early mouse-model research that's interesting enough to flag and far from definitive enough to worry over.",
     sources: ["Chassaing et al., Nature, Vol 519 (2015)", "EFSA ANS Panel — Re-evaluation of Carboxymethyl Cellulose (2017)", "PubMed — carboxymethylcellulose gut microbiota studies"],
-    matchers: [name("Carboxymethylcellulose"), name("Cellulose gum"), ecode("E466")],
+    matchers: [name("Carboxymethylcellulose"), name("Cellulose gum"), name("CMC"), ecode("E466")],
   },
   {
     id: "xanthan-gum",
@@ -576,7 +565,7 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "Regulators including the FDA and EFSA consider it safe and well-tolerated by the vast majority of people, with soy allergy — a known and labeled risk for a small subset of consumers — being the only well-documented caution attached to it.",
     gorillaPosition: "We flag this one for transparency and allergen-awareness more than health concern — if you're not soy-sensitive, it's genuinely one of the lowest-stakes items on this entire list.",
     sources: ["FDA — Food Allergen Labeling and Consumer Protection Act", "EFSA ANS Panel — Re-evaluation of Lecithins (2017)"],
-    matchers: [name("Soy lecithin"), name("Soya lecithin"), ecode("E322")],
+    matchers: [name("Soy lecithin"), name("Soya lecithin"), name("Sunflower lecithin"), ecode("E322")],
   },
   {
     id: "canola-oil",
