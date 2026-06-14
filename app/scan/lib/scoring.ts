@@ -1446,11 +1446,27 @@ export function computeScore(
     effectiveAdditiveScore = 60;
   }
 
+  // ── Missing ingredient list — UNVERIFIED, not "clean" ─────────────────────
+  // When NO ingredient text is available at all, additive detection had nothing
+  // to scan, so returning a high "probably clean" score (88/100) would present
+  // ABSENT data as a clean label. Treat it as UNVERIFIED with a conservative
+  // score — the same "incomplete data defaults low, not high" philosophy already
+  // used for missing nutrition data. ONLY the genuinely-empty-text case is
+  // affected: a real ingredient list that simply contains no flagged additives is
+  // left untouched and still scores clean below. The inferred-sweetener path
+  // (zero-sugar sodas) already explains itself, so it's excluded here.
+  const hasIngredientText = !!(ingredientsText && ingredientsText.trim().length > 0);
+  const additivesUnverified = !hasIngredientText && !inferredSweeteners;
+  if (additivesUnverified) {
+    effectiveAdditiveScore = Math.min(effectiveAdditiveScore, 50);
+  }
+
   // "No additives detected" ≠ "zero additives" for any processed food.
   // Only minimally processed whole foods (NOVA 1/2 or ≤3 short ingredients) can
   // score 100 on additives. Processed products with clean-looking ingredient scans
   // cap at 88 — there's almost always something we didn't catch or that wasn't listed.
-  if (effectiveAdditiveScore === 100 && !inferredSweeteners) {
+  // Requires a REAL ingredient list — with no list, the unverified branch above owns it.
+  if (effectiveAdditiveScore === 100 && !inferredSweeteners && hasIngredientText) {
     const nova = asNovaGroup(context?.novaGroup ?? undefined);
     const ing = (ingredientsText ?? "").trim();
     const ingCount = ing ? ing.replace(/\([^)]*\)/g, "").split(",").filter((s) => s.trim()).length : 0;
@@ -1530,6 +1546,8 @@ export function computeScore(
         `${otherRisk.length} additional additive${otherRisk.length > 1 ? "s" : ""} flagged: ${otherRisk.map((a) => a.name).join(", ")}`
       );
     }
+  } else if (additivesUnverified) {
+    flags.push("Ingredient list unavailable — additives could not be verified; scored conservatively.");
   } else {
     positives.push("No flagged additives detected in the ingredients list");
   }
