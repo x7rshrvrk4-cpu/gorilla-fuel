@@ -1093,6 +1093,56 @@ function parseServingGrams(servingSize: string | null | undefined): number | nul
   return null;
 }
 
+/**
+ * Final neutral ceiling for the low-calorie condiment/beverage set — keeps a
+ * 0-calorie mustard/vinegar/spice reading MIDDLING, never "virtuous/Excellent".
+ */
+const LOWCAL_CONDIMENT_NUTRITION_CEILING = 45;
+
+/**
+ * Inherently low-calorie, low-sugar condiments & beverages where ABSENT
+ * sodium/sugar/sat-fat data legitimately means ~0 (not hidden harm), and an
+ * "ultra-processed" tag carries little nutritional consequence (a 0-calorie
+ * mustard/vinegar/spice). Tight, EXPLICIT whitelist — deliberately NOT the
+ * generic word "condiment".
+ *
+ * GUARDRAIL: membership is revoked whenever the data we DO have shows meaningful
+ * sugar / saturated fat / calories — so sweet or fatty members (honey mustard,
+ * ketchup, BBQ, sweet chili, sweet relish, mayo, sweetened coffee/tea) are
+ * EXCLUDED and keep scoring low. When data is absent, the narrow whitelist does
+ * the "inherently low-cal" inference.
+ */
+function isLowCalCondimentBeverage(n: Nutriments, context?: ScoringContext): boolean {
+  const hay = [...(context?.categoriesTags ?? []), context?.productName ?? ""].join(" ").toLowerCase();
+
+  const isSpice = /\bspices?\b|\bherbs?\b|\bseasonings?\b|en:spices\b|en:herbs\b|en:seasonings\b/.test(hay);
+  const inWhitelist =
+    /\bmustard\b|\bmoutarde\b|en:mustards?\b/.test(hay) ||
+    /\bvinegars?\b|\bvinaigres?\b|en:vinegars?\b/.test(hay) ||
+    /\bhot[\s-]?sauce\b|\bpepper[\s-]?sauce\b|\bsriracha\b|en:hot-sauces\b/.test(hay) ||
+    /\bpickles?\b|\bpickled\b|\bgherkins?\b|\bcornichons?\b|en:pickles\b/.test(hay) ||
+    isSpice ||
+    /\bblack[\s-]?coffee\b|en:coffees\b|en:black-coffee\b/.test(hay) ||
+    /\btea\b|en:teas\b/.test(hay) ||
+    /\bsparkling[\s-]?water\b|\bmineral[\s-]?water\b|\bcarbonated[\s-]?water\b|\bsoda[\s-]?water\b|\bclub[\s-]?soda\b|en:carbonated-waters\b|en:mineral-waters\b|en:sparkling-waters\b/.test(hay);
+  if (!inWhitelist) return false;
+
+  // Use whichever representation OFF gave us (per-100g preferred, else per-serving).
+  const sugarVal = n.sugars_100g ?? n.sugars_serving;
+  const satFatVal = n["saturated-fat_100g"] ?? n["saturated-fat_serving"];
+  const calVal = n["energy-kcal_100g"] ?? n["energy-kcal_serving"];
+  // >8g sugar/100g excludes ketchup (~22), honey mustard, sweet chili, sweet relish.
+  if (sugarVal !== undefined && sugarVal > 8) return false;
+  // >3g sat fat excludes creamy/oily condiments (mayo-style).
+  if (satFatVal !== undefined && satFatVal > 3) return false;
+  // Calorie gate for NON-spice categories only. Dry spices are calorie-dense per
+  // 100g but used by the pinch, so a per-100g calorie gate would wrongly exclude
+  // them; sugar+sat-fat already screen out sweet/fatty items.
+  if (!isSpice && calVal !== undefined && calVal > 150) return false;
+
+  return true;
+}
+
 export function scoreNutrition(
   n: Nutriments,
   context?: ScoringContext
@@ -1126,14 +1176,26 @@ export function scoreNutrition(
   const satFatMissing = n["saturated-fat_100g"] === undefined && n["saturated-fat_serving"] === undefined;
   const missingCriticalCount = [sodiumMissing, sugarMissing, satFatMissing].filter(Boolean).length;
 
+  // Inherently low-calorie condiment/beverage (mustard, vinegar, hot sauce,
+  // pickles, spices, black coffee, plain tea, sparkling water) — see helper. Gets
+  // relaxed processing + missing-data treatment plus a neutral ceiling so a
+  // 0-calorie condiment reads middling, not harmful and not virtuous.
+  const lowCalCondiment = isLowCalCondimentBeverage(n, context);
+
   // ── NOVA — applied first as the dominant processing signal ───────────────
   // NOVA 4 (ultra-processed) caps nutrition at 45 before other factors.
   // NOVA 1 (unprocessed whole foods) receives a small bonus.
   const nova = asNovaGroup(context?.novaGroup ?? undefined);
   if (nova !== null) {
-    const penalty = NOVA_PENALTY[nova];
+    // For the low-cal condiment set, a NOVA-4 tag carries minimal nutritional
+    // weight, so treat it as NOVA-3-equivalent (−20 instead of −55).
+    const novaRelaxed = lowCalCondiment && nova === 4;
+    const effectiveNova: NovaGroup = novaRelaxed ? 3 : nova;
+    const penalty = NOVA_PENALTY[effectiveNova];
     score -= penalty; // negative penalty = bonus for NOVA 1
-    if (penalty > 0) {
+    if (novaRelaxed) {
+      flags.push("Low-calorie condiment/beverage — minimal nutritional impact; ultra-processed penalty reduced.");
+    } else if (penalty > 0) {
       flags.push(`NOVA Group ${nova} — ${NOVA_LABEL[nova]}: ${NOVA_DESCRIPTION[nova]}`);
     } else if (penalty < 0) {
       positives.push(`NOVA Group ${nova} — ${NOVA_LABEL[nova]}: minimal industrial processing`);
@@ -1312,7 +1374,10 @@ export function scoreNutrition(
   // so a gap in those fields is not a hidden-harm risk — and exempting NOVA 1
   // keeps whole-food calibration intact. Unknown-NOVA products are NOT exempt,
   // so processed/unidentified items with missing harmful data still default low.
-  const missingHarmfulData = missingCriticalCount > 0 && nova !== 1;
+  // Low-cal condiments/beverages are exempt (like NOVA-1 whole foods): their
+  // absent sodium/sugar/sat-fat is legitimately ~0, not hidden harm — so the
+  // conservative penalty AND its "incomplete data" warning are both withheld.
+  const missingHarmfulData = missingCriticalCount > 0 && nova !== 1 && !lowCalCondiment;
   if (missingHarmfulData) {
     score -= missingCriticalCount * 12;
     const missingNames = [
@@ -1362,6 +1427,15 @@ export function scoreNutrition(
   // threshold — so a missing-harmful-data product can never grade Excellent.
   if (missingHarmfulData) {
     score = Math.min(score, 45);
+  }
+
+  // ── Neutral ceiling for low-calorie condiments/beverages ─────────────────
+  // After relaxing the processing + missing-data penalties these items can climb
+  // high (e.g. ~80 for a no-data mustard). Clamp to a neutral ceiling so they
+  // read MIDDLING — a 0-calorie condiment is not a health food. Ceiling-only (no
+  // floor) so a member with genuinely high real sodium can still score below it.
+  if (lowCalCondiment) {
+    score = Math.min(score, LOWCAL_CONDIMENT_NUTRITION_CEILING);
   }
 
   return { score: Math.max(0, Math.min(100, score)), flags, positives };
