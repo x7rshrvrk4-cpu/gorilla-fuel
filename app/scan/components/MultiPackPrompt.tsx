@@ -32,6 +32,10 @@ export default function MultiPackPrompt({ barcode }: Props) {
   const [packSize, setPackSize] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<"ok" | "duplicate" | "error" | null>(null);
+  // Real failure detail (status code + server error message) surfaced on screen
+  // and in the console so the true cause (e.g. 502 RLS vs 503 missing key) is
+  // visible when testing — diagnostic visibility only.
+  const [errorDetail, setErrorDetail] = useState<{ status: number | string; message: string } | null>(null);
 
   const matches = useMemo(() => {
     if (query.length < 2) return [];
@@ -65,10 +69,21 @@ export default function MultiPackPrompt({ barcode }: Props) {
           pack_size: packSize,
         }),
       });
-      if (res.ok) setResult("ok");
-      else if (res.status === 409) setResult("duplicate");
-      else setResult("error");
-    } catch {
+      if (res.ok) {
+        setResult("ok");
+      } else if (res.status === 409) {
+        setResult("duplicate");
+      } else {
+        // Read the real error so we can tell 502 (RLS) from 503 (missing key) etc.
+        const data: { error?: string } = await res.json().catch(() => ({}));
+        const message = data.error ?? res.statusText ?? "Unknown error";
+        console.error("[MultiPackPrompt] submit failed:", res.status, data);
+        setErrorDetail({ status: res.status, message });
+        setResult("error");
+      }
+    } catch (e) {
+      console.error("[MultiPackPrompt] submit threw:", e);
+      setErrorDetail({ status: "network", message: e instanceof Error ? e.message : "Network error" });
       setResult("error");
     }
     setSubmitting(false);
@@ -179,7 +194,14 @@ export default function MultiPackPrompt({ barcode }: Props) {
       </div>
 
       {result === "error" && (
-        <p className="mt-3 text-xs text-red-400">Something went wrong — please try again.</p>
+        <div className="mt-3">
+          <p className="text-xs text-red-400">Something went wrong — please try again.</p>
+          {errorDetail && (
+            <p className="mt-1 font-mono text-[10px] leading-relaxed text-red-400/70">
+              Submission failed ({errorDetail.status}): {errorDetail.message}
+            </p>
+          )}
+        </div>
       )}
 
       <div className="mt-4 flex gap-3">
