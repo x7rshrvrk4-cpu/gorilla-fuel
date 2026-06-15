@@ -22,7 +22,7 @@ type AlcoholResult = {
   id: string;
   name: string;
   brand: string;
-  abv: number;
+  abv?: number;
   gorillaPour: number;
   category: string;
   barcode?: string;
@@ -422,7 +422,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
                       key={r.id}
                       href={getProductLink(r)}
                       name={r.name}
-                      sub={`${r.brand} · ${r.abv}% ABV`}
+                      sub={r.abv !== undefined ? `${r.brand} · ${r.abv}% ABV` : r.brand}
                       right={<GorillaPourMini rating={r.gorillaPour} />}
                       onClick={() => setOpen(false)}
                     />
@@ -438,7 +438,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
                       key={r.id}
                       href={getProductLink(r)}
                       name={r.name}
-                      sub={`${r.brand} · ${r.abv}% ABV`}
+                      sub={r.abv !== undefined ? `${r.brand} · ${r.abv}% ABV` : r.brand}
                       right={<GorillaPourMini rating={r.gorillaPour} />}
                       onClick={() => setOpen(false)}
                     />

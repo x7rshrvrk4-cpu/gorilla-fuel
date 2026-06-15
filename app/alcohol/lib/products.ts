@@ -1,4 +1,6 @@
-﻿export type AlcoholCategory = "Light Beer" | "IPA & Craft Ale" | "Lager" | "Hard Seltzer" | "Cider" | "Non-Alcoholic" | "Wines";
+﻿import { WINES } from "./wines";
+
+export type AlcoholCategory = "Light Beer" | "IPA & Craft Ale" | "Lager" | "Hard Seltzer" | "Cider" | "Non-Alcoholic" | "Wines";
 export type WineSubcategory = "Red" | "White" | "Rosé" | "Sparkling" | "Sweet" | "Icewine";
 
 export const ALCOHOL_CATEGORIES: AlcoholCategory[] = ["Light Beer", "IPA & Craft Ale", "Lager", "Hard Seltzer", "Cider", "Non-Alcoholic", "Wines"];
@@ -8,7 +10,8 @@ export type AlcoholRankingProduct = {
   category: AlcoholCategory;
   brand: string;
   name: string;
-  abv: number;
+  /** Optional so PARTIAL wines (ABV pending) can omit it — never fabricate. */
+  abv?: number;
   /** Optional so PARTIAL wines (ABV/sugar pending) can omit them — never fabricate. */
   caloriesPerCan?: number;
   carbsPerCan?: number;
@@ -13416,6 +13419,9 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     ontarioVQA: true,
     vqaAppellation: "Twenty Mile Bench, Niagara",
   },
+  // LCBO-sourced wine batch (verified headliners + partials) — kept in wines.ts
+  // to avoid bloating this file; spread in here so all consumers get them.
+  ...WINES,
 ];
 
 /** Normalize a barcode string to a leading-zero-stripped digit string for comparison. */
