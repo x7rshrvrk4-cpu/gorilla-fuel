@@ -27,24 +27,24 @@ const dmSans = DM_Sans({
 });
 
 const description =
-  "Scan it. Score it. Know what you're putting in your body. Gorilla Fuel is the no-BS supplement and food intelligence brand from the Gorilla Sports ecosystem.";
+  "Canada's free barcode scanner for food, beer, wine and supplements. Scan any product and get an instant no-BS score out of 100. No ads. No sponsors. Just data.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.gorillafuel.ca"),
-  title: "Gorilla Fuel — Supplement & Food Intelligence",
+  title: "Gorilla Fuel — Scan It. Score It. Know It.",
   description,
   icons: {
     icon: "/gorilla-fuel-icon.png",
     apple: "/gorilla-fuel-icon.png",
   },
   openGraph: {
-    title: "Gorilla Fuel — Supplement & Food Intelligence",
+    title: "Gorilla Fuel — Scan It. Score It. Know It.",
     description,
     images: [{ url: "/gorilla-fuel-icon.png", width: 1024, height: 1024, alt: "Gorilla Fuel" }],
   },
   twitter: {
     card: "summary",
-    title: "Gorilla Fuel — Supplement & Food Intelligence",
+    title: "Gorilla Fuel — Scan It. Score It. Know It.",
     description,
     images: ["/gorilla-fuel-icon.png"],
   },

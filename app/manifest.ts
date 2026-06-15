@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Gorilla Fuel — Supplement & Food Intelligence",
+    name: "Gorilla Fuel — Scan It. Score It. Know It.",
     short_name: "Gorilla Fuel",
     description:
       "Scan it. Score it. Know what you're putting in your body. The no-BS supplement and food intelligence brand from the Gorilla Sports ecosystem.",
