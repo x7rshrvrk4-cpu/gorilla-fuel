@@ -292,7 +292,7 @@ function AlcoholTab() {
             <div key={p.id} className="rounded-sm border border-green-500/40 bg-surface p-4">
               <p className="font-display text-lg text-foreground">{p.name}</p>
               <p className="mt-1 text-xs text-muted">
-                {p.abv}% ABV · {p.caloriesPerCan} cal · {p.carbsPerCan}g carbs per {p.servingMl}mL
+                {p.abv}% ABV · {p.caloriesPerCan ?? "—"} cal · {p.carbsPerCan ?? "—"}g carbs per {p.servingMl}mL
               </p>
               {p.gorillaAnalysis && <p className="mt-2 text-xs leading-relaxed text-muted">{p.gorillaAnalysis}</p>}
             </div>

@@ -100,9 +100,9 @@ export async function POST(request: NextRequest) {
 
     const servingMl = product.servingMl ?? 355;
     const nutrition_data = {
-      "energy-kcal_100g": (product.caloriesPerCan / servingMl) * 100,
-      carbohydrates_100g: (product.carbsPerCan / servingMl) * 100,
-      sugars_100g: (product.sugarPerCan / servingMl) * 100,
+      "energy-kcal_100g": ((product.caloriesPerCan ?? 0) / servingMl) * 100,
+      carbohydrates_100g: ((product.carbsPerCan ?? 0) / servingMl) * 100,
+      sugars_100g: ((product.sugarPerCan ?? 0) / servingMl) * 100,
       alcohol_100g: product.abv,
     };
 

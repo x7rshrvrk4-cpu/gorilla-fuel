@@ -629,9 +629,9 @@ export default function ScanClient() {
             : curatedHit.category === "Wines" ? "wine"
             : "beer";
           const nutriments = {
-            "energy-kcal_100g": (curatedHit.caloriesPerCan / servingMl) * 100,
-            carbohydrates_100g: (curatedHit.carbsPerCan / servingMl) * 100,
-            sugars_100g: (curatedHit.sugarPerCan / servingMl) * 100,
+            "energy-kcal_100g": ((curatedHit.caloriesPerCan ?? 0) / servingMl) * 100,
+            carbohydrates_100g: ((curatedHit.carbsPerCan ?? 0) / servingMl) * 100,
+            sugars_100g: ((curatedHit.sugarPerCan ?? 0) / servingMl) * 100,
             alcohol_100g: curatedHit.abv,
           };
           const syntheticProduct: OffProduct = {
@@ -778,7 +778,7 @@ export default function ScanClient() {
           if (curatedOverride) {
             const servingMl = curatedOverride.servingMl ?? 355;
             const kind = curatedOverride.category === "IPA & Craft Ale" ? "beer" as const : curatedOverride.category === "Hard Seltzer" ? "seltzer" as const : curatedOverride.category === "Cider" ? "cider" as const : "beer" as const;
-            const cn = { "energy-kcal_100g": (curatedOverride.caloriesPerCan / servingMl) * 100, carbohydrates_100g: (curatedOverride.carbsPerCan / servingMl) * 100, sugars_100g: (curatedOverride.sugarPerCan / servingMl) * 100, alcohol_100g: curatedOverride.abv };
+            const cn = { "energy-kcal_100g": ((curatedOverride.caloriesPerCan ?? 0) / servingMl) * 100, carbohydrates_100g: ((curatedOverride.carbsPerCan ?? 0) / servingMl) * 100, sugars_100g: ((curatedOverride.sugarPerCan ?? 0) / servingMl) * 100, alcohol_100g: curatedOverride.abv };
             const overrideResult = computeAlcoholScore(cn, undefined, kind, servingMl);
             const overriddenProduct: OffProduct = { ...hit, nutriments: cn, product_name: curatedOverride.name, brands: curatedOverride.brand };
             setLookup({ phase: "found-alcohol", product: overriddenProduct, result: overrideResult, dataSource: "gorilla-curated" });
@@ -829,7 +829,7 @@ export default function ScanClient() {
               if (curatedNameHit) {
                 const servingMl = curatedNameHit.servingMl ?? 355;
                 const kind = curatedNameHit.category === "IPA & Craft Ale" ? "beer" as const : curatedNameHit.category === "Hard Seltzer" ? "seltzer" as const : curatedNameHit.category === "Cider" ? "cider" as const : "beer" as const;
-                const cn = { "energy-kcal_100g": (curatedNameHit.caloriesPerCan / servingMl) * 100, carbohydrates_100g: (curatedNameHit.carbsPerCan / servingMl) * 100, sugars_100g: (curatedNameHit.sugarPerCan / servingMl) * 100, alcohol_100g: curatedNameHit.abv };
+                const cn = { "energy-kcal_100g": ((curatedNameHit.caloriesPerCan ?? 0) / servingMl) * 100, carbohydrates_100g: ((curatedNameHit.carbsPerCan ?? 0) / servingMl) * 100, sugars_100g: ((curatedNameHit.sugarPerCan ?? 0) / servingMl) * 100, alcohol_100g: curatedNameHit.abv };
                 const overrideResult = computeAlcoholScore(cn, undefined, kind, servingMl);
                 const overriddenProduct: OffProduct = { ...oap, nutriments: cn, product_name: curatedNameHit.name, brands: curatedNameHit.brand };
                 setLookup({ phase: "found-alcohol", product: overriddenProduct, result: overrideResult, dataSource: "gorilla-curated" });
@@ -875,7 +875,7 @@ export default function ScanClient() {
               const servingMl = curatedMatch?.servingMl ?? 355;
               const abv = ah.abv ?? curatedMatch?.abv ?? null;
               const nutriments = curatedMatch
-                ? { "energy-kcal_100g": (curatedMatch.caloriesPerCan / servingMl) * 100, carbohydrates_100g: (curatedMatch.carbsPerCan / servingMl) * 100, sugars_100g: (curatedMatch.sugarPerCan / servingMl) * 100, alcohol_100g: abv ?? curatedMatch.abv }
+                ? { "energy-kcal_100g": ((curatedMatch.caloriesPerCan ?? 0) / servingMl) * 100, carbohydrates_100g: ((curatedMatch.carbsPerCan ?? 0) / servingMl) * 100, sugars_100g: ((curatedMatch.sugarPerCan ?? 0) / servingMl) * 100, alcohol_100g: abv ?? curatedMatch.abv }
                 : abv !== null ? { alcohol_100g: abv } : {};
               const alcKind = ah.source === "Wine Analyzer" ? "wine" as const : "beer" as const;
               const alcCats = ["en:alcoholic-beverages", alcKind === "wine" ? "en:wines" : "en:beers"];
@@ -928,9 +928,9 @@ export default function ScanClient() {
                 : parentByName.category === "Wines" ? "wine"
                 : "beer";
               const nutriments = {
-                "energy-kcal_100g": (parentByName.caloriesPerCan / servingMl) * 100,
-                carbohydrates_100g: (parentByName.carbsPerCan / servingMl) * 100,
-                sugars_100g: (parentByName.sugarPerCan / servingMl) * 100,
+                "energy-kcal_100g": ((parentByName.caloriesPerCan ?? 0) / servingMl) * 100,
+                carbohydrates_100g: ((parentByName.carbsPerCan ?? 0) / servingMl) * 100,
+                sugars_100g: ((parentByName.sugarPerCan ?? 0) / servingMl) * 100,
                 alcohol_100g: parentByName.abv,
               };
               const syntheticProduct: OffProduct = {

@@ -31,6 +31,22 @@ function wineStyle(sugar: number): WineStyle {
   return "SWEET";
 }
 
+/** Style from LCBO sweetness code — used when raw sugar isn't known (partial wines). */
+function styleFromSweetnessCode(code: AlcoholRankingProduct["sweetnessCode"]): WineStyle | null {
+  switch (code) {
+    case "XD":
+    case "D":
+      return "DRY";
+    case "M":
+      return "SEMI-DRY";
+    case "MS":
+    case "S":
+      return "SWEET";
+    default:
+      return null;
+  }
+}
+
 const WINE_STYLE_CLASS: Record<WineStyle, string> = {
   DRY: "border-emerald-600/50 bg-emerald-600/10 text-emerald-300",
   "SEMI-DRY": "border-yellow-500/50 bg-yellow-500/10 text-yellow-300",
@@ -60,7 +76,14 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
     : "border-amber-400/40 bg-amber-400/8 text-amber-300";
 
   const score = isWine ? wineGorillaScore(product) : null;
-  const style = isWine ? wineStyle(product.sugarPerCan) : null;
+  // A wine with no computable score is PENDING (partial data) — show an honest
+  // "Score pending" state, never the Gorilla Pour stars or a fabricated number.
+  const winePending = isWine && score === null;
+  const style = isWine
+    ? product.sugarPerCan !== undefined
+      ? wineStyle(product.sugarPerCan)
+      : styleFromSweetnessCode(product.sweetnessCode)
+    : null;
   const sweetSpot = isWine && isGorillaSweetSpot(product);
 
   return (
@@ -132,35 +155,47 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Calories · {servingLabel}</p>
-          <p className="mt-0.5 font-display text-lg text-white">{product.caloriesPerCan} kcal</p>
+      {winePending ? (
+        // PARTIAL wine — ABV/sugar pending. Honest "Score pending" state; never a
+        // fabricated number, 0, or Gorilla Pour rating we don't actually have.
+        <div className="mt-4 rounded-sm border border-slate-700/50 bg-slate-800/40 px-4 py-3">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">🦍 Gorilla Score</p>
+          <p className="mt-0.5 font-display text-lg text-slate-300">Score pending</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">
+            ABV &amp; sugar not yet verified for this wine — we don&apos;t show a score until they are.
+          </p>
         </div>
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Carbs · {servingLabel}</p>
-          <p className="mt-0.5 font-display text-lg text-white">{product.carbsPerCan}g</p>
+      ) : (
+        <div className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Calories · {servingLabel}</p>
+            <p className="mt-0.5 font-display text-lg text-white">{product.caloriesPerCan ?? "—"} kcal</p>
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Carbs · {servingLabel}</p>
+            <p className="mt-0.5 font-display text-lg text-white">{product.carbsPerCan ?? "—"}g</p>
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Sugar · {servingLabel}</p>
+            <p className="mt-0.5 font-display text-lg text-white">{product.sugarPerCan ?? "—"}g</p>
+          </div>
+          <div>
+            {isWine && score !== null ? (
+              <>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">🦍 Gorilla Score</p>
+                <p className={`mt-0.5 font-display text-2xl ${wineScoreColor(score)}`}>{score}</p>
+              </>
+            ) : (
+              <>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Gorilla Pour</p>
+                <div className="mt-1">
+                  <GorillaPour rating={product.gorillaPour} />
+                </div>
+              </>
+            )}
+          </div>
         </div>
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Sugar · {servingLabel}</p>
-          <p className="mt-0.5 font-display text-lg text-white">{product.sugarPerCan}g</p>
-        </div>
-        <div>
-          {isWine && score !== null ? (
-            <>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">🦍 Gorilla Score</p>
-              <p className={`mt-0.5 font-display text-2xl ${wineScoreColor(score)}`}>{score}</p>
-            </>
-          ) : (
-            <>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Gorilla Pour</p>
-              <div className="mt-1">
-                <GorillaPour rating={product.gorillaPour} />
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+      )}
 
       {/* CRITIC SCORE — shown ONLY when a real, attributable rating exists (no fake
           numbers). Hybrid proof rule: a STABLE LCBO Vintages catalogue URL

@@ -25,7 +25,7 @@ function getAlcoholPick() {
     )
     .sort(
       (a, b) =>
-        b.gorillaPour - a.gorillaPour || a.caloriesPerCan - b.caloriesPerCan
+        b.gorillaPour - a.gorillaPour || (a.caloriesPerCan ?? 0) - (b.caloriesPerCan ?? 0)
     )[0];
 }
 

@@ -9,9 +9,10 @@ export type AlcoholRankingProduct = {
   brand: string;
   name: string;
   abv: number;
-  caloriesPerCan: number;
-  carbsPerCan: number;
-  sugarPerCan: number;
+  /** Optional so PARTIAL wines (ABV/sugar pending) can omit them — never fabricate. */
+  caloriesPerCan?: number;
+  carbsPerCan?: number;
+  sugarPerCan?: number;
   knownAdditives: string[];
   additiveCount: number;
   /** 1--5 -- how fitness-friendly this drink is to reach for regularly. */
@@ -77,13 +78,36 @@ export type AlcoholRankingProduct = {
   wineQualityUrlStable?: boolean;
   /** Wine only — true when the value is a competition medal/panel result, not a 100-point critic score. */
   wineScoreIsAward?: boolean;
+  /** Wine only — LCBO's published residual sugar in grams per litre (stored raw). */
+  sugarGPerL?: number;
+  /** Bottle/format size in mL (e.g. 750, 1500, 4000). */
+  bottleSizeMl?: number;
+  /** LCBO catalogue number — enables an LCBO product reference. */
+  lcboNumber?: string;
+  /** Which market this entry's data reflects. */
+  market?: "CA" | "US";
+  /** LCBO sweetness descriptor: XD (extra dry) · D (dry) · M (medium) · MS (medium sweet) · S (sweet). */
+  sweetnessCode?: "XD" | "D" | "M" | "MS" | "S";
+  /**
+   * Data confidence. "verified" = real ABV + sugar, scores normally.
+   * "partial" = name/region/type known but ABV/sugar PENDING — wineGorillaScore
+   * returns null and the card shows a "Score pending" state (never a fake score).
+   */
+  confidence?: "verified" | "partial";
 };
 
 /**
  * The wine Gorilla Score — health/nutrition per 148mL pour.
  * Sugar 40% · calorie density 30% · additives 30% (published methodology).
  */
-export function wineGorillaScore(p: Pick<AlcoholRankingProduct, "caloriesPerCan" | "sugarPerCan" | "additiveCount">): number {
+export function wineGorillaScore(
+  p: Pick<AlcoholRankingProduct, "caloriesPerCan" | "sugarPerCan" | "additiveCount" | "confidence">
+): number | null {
+  // PARTIAL wines (ABV/sugar pending) or any entry missing the required inputs
+  // return null — the card shows "Score pending" instead of a fabricated number.
+  if (p.confidence === "partial" || p.sugarPerCan === undefined || p.caloriesPerCan === undefined) {
+    return null;
+  }
   const sugar = p.sugarPerCan;
   const sugarScore =
     sugar <= 1 ? 95 : sugar <= 2 ? 85 : sugar <= 4 ? 70 : sugar <= 8 ? 45 : sugar <= 15 ? 20 : 5;
@@ -96,7 +120,8 @@ export function wineGorillaScore(p: Pick<AlcoholRankingProduct, "caloriesPerCan"
 
 /** GORILLA SWEET SPOT — nutritionally sound (≥70) AND critically acclaimed (≥89). */
 export function isGorillaSweetSpot(p: AlcoholRankingProduct): boolean {
-  return p.wineQuality !== undefined && p.wineQuality >= 89 && wineGorillaScore(p) >= 70;
+  const gs = wineGorillaScore(p);
+  return p.wineQuality !== undefined && p.wineQuality >= 89 && gs !== null && gs >= 70;
 }
 
 // Nutritional data from manufacturer disclosures and Open Food Facts records,

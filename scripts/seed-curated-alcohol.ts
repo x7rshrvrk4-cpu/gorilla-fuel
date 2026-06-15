@@ -70,9 +70,9 @@ async function main() {
     if (!product.barcodes || product.barcodes.length === 0) continue;
 
     const servingMl = product.servingMl ?? 355;
-    const kcalPer100ml = (product.caloriesPerCan / servingMl) * 100;
-    const carbsPer100ml = (product.carbsPerCan / servingMl) * 100;
-    const sugarPer100ml = (product.sugarPerCan / servingMl) * 100;
+    const kcalPer100ml = ((product.caloriesPerCan ?? 0) / servingMl) * 100;
+    const carbsPer100ml = ((product.carbsPerCan ?? 0) / servingMl) * 100;
+    const sugarPer100ml = ((product.sugarPerCan ?? 0) / servingMl) * 100;
 
     const nutrition_data = {
       "energy-kcal_100g": kcalPer100ml,

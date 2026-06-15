@@ -236,7 +236,10 @@ export default function Top10Client() {
   const sweetSpotWines = ALCOHOL_PRODUCTS.filter(
     (p) => p.category === "Wines" && p.wineQuality !== undefined
   )
-    .map((p) => ({ p, gorilla: wineGorillaScore(p), combined: (wineGorillaScore(p) + (p.wineQuality ?? 0)) / 2 }))
+    // Pending wines (null Gorilla Score) can't be ranked here — exclude them.
+    .map((p) => ({ p, gorilla: wineGorillaScore(p) ?? -1 }))
+    .filter((x) => x.gorilla >= 0)
+    .map((x) => ({ ...x, combined: (x.gorilla + (x.p.wineQuality ?? 0)) / 2 }))
     .sort((a, b) => b.combined - a.combined)
     .slice(0, 10);
 

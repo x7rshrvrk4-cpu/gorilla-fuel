@@ -76,11 +76,12 @@ const RTD_FILTERS: { key: RtdFilter; label: string }[] = [
 // ── Wine filter chips ─────────────────────────────────────────────────────────
 
 type WineFilter =
-  | "all" | "ontario-vqa" | "red" | "white" | "rose"
+  | "all" | "verified" | "ontario-vqa" | "red" | "white" | "rose"
   | "sparkling" | "sweet" | "icewine" | "dry-only" | "low-cal";
 
 const WINE_FILTERS: { key: WineFilter; label: string }[] = [
   { key: "all",         label: "All Wines" },
+  { key: "verified",    label: "✓ Verified Only" },
   { key: "ontario-vqa", label: "🍁 Ontario VQA" },
   { key: "red",         label: "Red" },
   { key: "white",       label: "White" },
@@ -139,8 +140,8 @@ export default function AlcoholClient() {
       if (isBeer) {
         switch (beerFilter) {
           case "cleanest":        return p.additiveCount <= 1;
-          case "low-carb":        return p.carbsPerCan < 5;
-          case "low-cal":         return p.caloriesPerCan < 100;
+          case "low-carb":        return (p.carbsPerCan ?? Infinity) < 5;
+          case "low-cal":         return (p.caloriesPerCan ?? Infinity) < 100;
           case "gluten-free":     return p.glutenStatus === "certified-gf";
           case "london-on":       return p.londonOntario === true;
           case "ontario-craft":   return p.ontarioCraft === true;
@@ -160,14 +161,15 @@ export default function AlcoholClient() {
           case "seltzer":     return p.category === "Hard Seltzer";
           case "cider":       return p.category === "Cider";
           case "cleanest":    return p.additiveCount <= 1;
-          case "low-cal":     return p.caloriesPerCan < 100;
-          case "low-carb":    return p.carbsPerCan < 5;
+          case "low-cal":     return (p.caloriesPerCan ?? Infinity) < 100;
+          case "low-carb":    return (p.carbsPerCan ?? Infinity) < 5;
           case "gluten-free": return p.glutenStatus === "certified-gf";
           default:            return true;
         }
       }
       if (isWine) {
         switch (wineFilter) {
+          case "verified":    return p.confidence !== "partial";
           case "ontario-vqa": return p.ontarioVQA === true;
           case "red":         return p.wineSubcategory === "Red";
           case "white":       return p.wineSubcategory === "White";
@@ -175,8 +177,9 @@ export default function AlcoholClient() {
           case "sparkling":   return p.wineSubcategory === "Sparkling";
           case "sweet":       return p.wineSubcategory === "Sweet";
           case "icewine":     return p.wineSubcategory === "Icewine";
-          case "dry-only":    return p.sugarPerCan < 4;
-          case "low-cal":     return p.caloriesPerCan < 130;
+          // Pending wines (sugar/calories unknown) never match these data filters.
+          case "dry-only":    return (p.sugarPerCan ?? Infinity) < 4;
+          case "low-cal":     return (p.caloriesPerCan ?? Infinity) < 130;
           default:            return true;
         }
       }
@@ -185,9 +188,15 @@ export default function AlcoholClient() {
 
     return filtered.sort((a, b) => {
       if (isWine) {
-        if (wineSort === "gorilla")    return wineGorillaScore(b) - wineGorillaScore(a) || a.name.localeCompare(b.name);
-        if (wineSort === "quality")    return (b.wineQuality ?? -1) - (a.wineQuality ?? -1) || a.name.localeCompare(b.name);
-        const combined = (p: typeof a) => p.wineQuality !== undefined ? (wineGorillaScore(p) + p.wineQuality) / 2 : -1;
+        // null score (pending wines) coerces to -1 so they sink to the bottom — never treated as 0/100.
+        if (wineSort === "gorilla") {
+          return (wineGorillaScore(b) ?? -1) - (wineGorillaScore(a) ?? -1) || a.name.localeCompare(b.name);
+        }
+        if (wineSort === "quality") return (b.wineQuality ?? -1) - (a.wineQuality ?? -1) || a.name.localeCompare(b.name);
+        const combined = (p: typeof a) => {
+          const g = wineGorillaScore(p);
+          return p.wineQuality !== undefined && g !== null ? (g + p.wineQuality) / 2 : -1;
+        };
         return combined(b) - combined(a) || a.name.localeCompare(b.name);
       }
       // Beer / RTD / Non-alc: local first, then brand
