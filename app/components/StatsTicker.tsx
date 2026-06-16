@@ -6,6 +6,7 @@
 
 import { ALCOHOL_PRODUCTS } from "../alcohol/lib/products";
 import { PRODUCTS } from "../rankings/lib/products";
+import { CURATED_TOTAL } from "../lib/catalogCounts";
 
 const BEER_ALCOHOL_COUNT = ALCOHOL_PRODUCTS.filter(
   (p) => p.category !== "Non-Alcoholic"
@@ -85,6 +86,7 @@ export default async function StatsTicker() {
 
   const items: string[] = [
     `📦 ${cacheCount.toLocaleString("en-CA")}+ Products in Database`,
+    `🦍 ${CURATED_TOTAL.toLocaleString("en-CA")}+ Products Curated`,
     `🍺 ${BEER_ALCOHOL_COUNT}+ Beer and Alcohol Products`,
     `🍷 ${WINE_COUNT}+ Wines`,
     `💊 ${SUPPL_COUNT}+ Supplements Ranked`,
