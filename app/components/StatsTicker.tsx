@@ -41,7 +41,11 @@ async function fetchCacheCount(): Promise<number> {
     const range = res.headers.get("Content-Range");
     if (!range) return 50_000;
     const total = parseInt(range.split("/")[1] ?? "50000", 10);
-    return Number.isFinite(total) ? total : 50_000;
+    // A successful query that reports 0 (or an unparseable count) means we
+    // couldn't actually read the cache size (empty Content-Range, or the key is
+    // RLS-blocked from counting the table) — never a real 0 in production. Fall
+    // back to the estimate rather than display "0+ Products in Database".
+    return Number.isFinite(total) && total > 0 ? total : 50_000;
   } catch {
     return 50_000;
   }
