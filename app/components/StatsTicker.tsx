@@ -21,13 +21,19 @@ const SUPPL_COUNT = PRODUCTS.length;
 // Number of live external data sources the scanner queries
 const DATA_SOURCE_COUNT = 15;
 
-async function fetchCacheCount(): Promise<number> {
+/**
+ * Returns the REAL gorilla_product_cache row count, or null when it can't be
+ * read (not configured / query fails / empty header / count is 0). We NEVER
+ * fabricate an estimate — a null result means the "Products in Database" line is
+ * omitted entirely rather than shown as a made-up number or "0+".
+ */
+async function fetchCacheCount(): Promise<number | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const key =
     process.env.SUPABASE_SERVICE_ROLE_KEY ??
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
     "";
-  if (!url || !key) return 50_000;
+  if (!url || !key) return null;
   try {
     const res = await fetch(`${url}/rest/v1/gorilla_product_cache?limit=0`, {
       headers: {
@@ -37,17 +43,15 @@ async function fetchCacheCount(): Promise<number> {
       },
       next: { revalidate: 86400 },
     });
-    if (!res.ok) return 50_000;
+    if (!res.ok) return null;
     const range = res.headers.get("Content-Range");
-    if (!range) return 50_000;
-    const total = parseInt(range.split("/")[1] ?? "50000", 10);
-    // A successful query that reports 0 (or an unparseable count) means we
-    // couldn't actually read the cache size (empty Content-Range, or the key is
-    // RLS-blocked from counting the table) — never a real 0 in production. Fall
-    // back to the estimate rather than display "0+ Products in Database".
-    return Number.isFinite(total) && total > 0 ? total : 50_000;
+    if (!range) return null;
+    const total = parseInt(range.split("/")[1] ?? "", 10);
+    // Only a real, positive count is shown. 0 / unparseable / unreadable → null
+    // → the line is omitted (no fabricated estimate, no "0+").
+    return Number.isFinite(total) && total > 0 ? total : null;
   } catch {
-    return 50_000;
+    return null;
   }
 }
 
@@ -89,7 +93,9 @@ export default async function StatsTicker() {
   ]);
 
   const items: string[] = [
-    `📦 ${cacheCount.toLocaleString("en-CA")}+ Products in Database`,
+    // Only shown when the cache has a real, readable positive count — never a
+    // fabricated estimate, never "0+". Omitted entirely until the DB has data.
+    ...(cacheCount !== null ? [`📦 ${cacheCount.toLocaleString("en-CA")}+ Products in Database`] : []),
     `🦍 ${CURATED_TOTAL.toLocaleString("en-CA")}+ Products Curated`,
     `🍺 ${BEER_ALCOHOL_COUNT}+ Beer and Alcohol Products`,
     `🍷 ${WINE_COUNT}+ Wines`,
