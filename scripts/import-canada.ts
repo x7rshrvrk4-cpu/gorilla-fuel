@@ -135,6 +135,7 @@ async function main() {
   let curatedSkipped = 0;
   let fetched = 0, skippedNoData = 0;
   let consecutiveEmpty = 0;
+  let hardFails = 0;
   let buffer: UpsertPayload[] = [];
 
   async function flush() {
@@ -152,9 +153,24 @@ async function main() {
     const { products, isRateLimit, isEmpty } = await fetchPage(page);
 
     if (isRateLimit) {
-      console.log("rate-limit exhaused — stopping.");
-      break;
+      // OFF lets us burst (~3 min at ~10/min) then imposes a cooldown longer
+      // than fetchPage's retry ladder. Don't kill the whole run for one bad
+      // window: flush progress, cool down, and retry the SAME page. Only give
+      // up if OFF stays blocked across several consecutive pages (it's down).
+      hardFails++;
+      if (hardFails >= 5) {
+        console.log(`rate-limit persisted ${hardFails} pages — OFF is blocking. Stopping.`);
+        console.log(`  ↻ Resume this chunk with:  --start-page=${page} --pages=${endPage - page + 1}`);
+        break;
+      }
+      const cooldownMs = 240_000; // 4 min — ride out OFF's cooldown window
+      await flush();
+      console.log(`retries exhausted; cooling down ${cooldownMs / 1000}s then retrying page ${page} (hard-fail ${hardFails}/5)…`);
+      await sleep(cooldownMs);
+      page--; // retry the same page on next loop iteration
+      continue;
     }
+    hardFails = 0;
     if (isEmpty) {
       consecutiveEmpty++;
       console.log("empty");
