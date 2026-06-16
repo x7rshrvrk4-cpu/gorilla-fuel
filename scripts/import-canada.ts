@@ -37,9 +37,12 @@ function normB(b: string): string {
 
 const OFF_V2_BASE = "https://world.openfoodfacts.org/api/v2/search";
 const OFF_USER_AGENT = "GorillFuel-Import/1.0 (gorillafuel.ca; alex@gorillafuel.ca)";
-const PAGE_DELAY_MS = 2000;  // 2s between pages to stay under rate limit
+// OFF's /search endpoint is rate-limited to ~10 requests/min (far stricter than
+// product reads). 2s spacing = ~30/min, which gets throttled (HTTP 503) almost
+// immediately. ~6.5s keeps us just under ~9/min so a long run can complete.
+const PAGE_DELAY_MS = 6500;
 const BATCH_SIZE = 200;
-const MAX_RETRIES = 3;
+const MAX_RETRIES = 4;
 
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
@@ -80,7 +83,7 @@ async function fetchPage(page: number): Promise<{ products: Record<string, unkno
       });
 
       if (res.status === 429 || res.status === 503) {
-        const wait = attempt * 10_000; // 10s, 20s, 30s
+        const wait = attempt * 30_000; // 30s, 60s, 90s, 120s — OFF throttle windows are minutes
         console.log(`  [rate-limit ${res.status}] waiting ${wait / 1000}s before retry ${attempt}/${MAX_RETRIES}…`);
         await sleep(wait);
         continue;
@@ -94,8 +97,8 @@ async function fetchPage(page: number): Promise<{ products: Record<string, unkno
       const contentType = res.headers.get("content-type") ?? "";
       if (!contentType.includes("application/json")) {
         // HTML error page returned
-        console.log(`  [HTML response] rate-limited — waiting 15s before retry ${attempt}/${MAX_RETRIES}…`);
-        await sleep(15_000);
+        console.log(`  [HTML response] rate-limited — waiting 30s before retry ${attempt}/${MAX_RETRIES}…`);
+        await sleep(30_000);
         continue;
       }
 
