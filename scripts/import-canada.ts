@@ -2,7 +2,13 @@
  * Bulk-import Open Food Facts Canada products into the Gorilla Product Cache.
  *
  * Usage:
- *   npx tsx scripts/import-canada.ts [--pages=N] [--dry-run]
+ *   npx tsx scripts/import-canada.ts [--pages=N] [--start-page=N] [--dry-run]
+ *
+ *   --pages=N       how many pages of 100 products to pull this run (default 100)
+ *   --start-page=N  page to begin at (default 1). Pagination is stable
+ *                   (sort_by=created_t), so runs chunk the catalogue without
+ *                   overlap, e.g. run A: --start-page=1   --pages=400
+ *                                 run B: --start-page=401 --pages=400  …
  *
  * Env vars required:
  *   NEXT_PUBLIC_SUPABASE_URL
@@ -39,6 +45,12 @@ const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
 const pagesArg = args.find((a) => a.startsWith("--pages="));
 const maxPages = pagesArg ? parseInt(pagesArg.split("=")[1], 10) : 100;
+// --start-page lets the 121k-product catalogue be pulled in resumable chunks:
+// each run does `maxPages` pages of 100 starting at startPage. Pagination is
+// stable (sort_by=created_t), so chunks tile the catalogue with no overlap.
+const startPageArg = args.find((a) => a.startsWith("--start-page="));
+const startPage = startPageArg ? Math.max(1, parseInt(startPageArg.split("=")[1], 10)) : 1;
+const endPage = startPage + maxPages - 1;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -48,7 +60,14 @@ function sleep(ms: number) {
 async function fetchPage(page: number): Promise<{ products: Record<string, unknown>[]; isRateLimit: boolean; isEmpty: boolean }> {
   const params = new URLSearchParams({
     countries_tags_en: "canada",
-    page_size: "1000",
+    // OFF v2 /search hard-caps page_size at 100 — anything larger is silently
+    // clamped, so request exactly 100 for predictable offset math.
+    page_size: "100",
+    // Stable, immutable sort key. Without a sort_by, OFF returns a
+    // non-deterministic default order that drifts between requests, so the same
+    // product reappears across pages (duplicate overlap). created_t never
+    // changes, so pagination is deterministic with no overlap and no gaps.
+    sort_by: "created_t",
     page: String(page),
     fields: "code,product_name,brands,categories_tags,ingredients_text,nutriments,nova_group,image_url,serving_size",
   });
@@ -100,7 +119,7 @@ async function fetchPage(page: number): Promise<{ products: Record<string, unkno
 
 async function main() {
   console.log(`\n🦍 Gorilla Fuel — OFF Canada Import`);
-  console.log(`   Max pages : ${maxPages}  (up to ${maxPages * 1000} products)`);
+  console.log(`   Pages     : ${startPage}–${endPage}  (${maxPages} pages × 100 = up to ${maxPages * 100} products)`);
   console.log(`   Dry run   : ${dryRun}`);
   console.log(`   Batch size: ${BATCH_SIZE}`);
   console.log(`   Page delay: ${PAGE_DELAY_MS}ms\n`);
@@ -124,8 +143,8 @@ async function main() {
     buffer = [];
   }
 
-  for (let page = 1; page <= maxPages; page++) {
-    process.stdout.write(`  Page ${String(page).padStart(3)} / ${maxPages} … `);
+  for (let page = startPage; page <= endPage; page++) {
+    process.stdout.write(`  Page ${String(page).padStart(4)} / ${endPage} … `);
 
     const { products, isRateLimit, isEmpty } = await fetchPage(page);
 
@@ -176,7 +195,7 @@ async function main() {
     }
 
     // Polite delay between pages
-    if (page < maxPages) await sleep(PAGE_DELAY_MS);
+    if (page < endPage) await sleep(PAGE_DELAY_MS);
   }
 
   await flush();
@@ -204,7 +223,7 @@ async function main() {
       with_nutrition: withNutr,
       without_nutrition: withoutNutr,
       duration_seconds: durationSeconds,
-      notes: `Local script — ${maxPages} pages | algo ${ALGO_VERSION} | ${curatedSkipped} curated protected`,
+      notes: `Local script — pages ${startPage}–${endPage} | algo ${ALGO_VERSION} | ${curatedSkipped} curated protected`,
     });
     console.log("  Import log saved to gorilla_import_log ✓");
   }
