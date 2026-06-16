@@ -27,7 +27,12 @@ export async function GET(request: NextRequest) {
   try {
     const endpoint = new URL(`${supabaseUrl}/rest/v1/gorilla_product_cache`);
     endpoint.searchParams.set("select", "barcode,product_name,brand,gorilla_score,score_grade,is_alcohol,is_supplement,is_beauty");
-    endpoint.searchParams.set("product_name", `ilike.*${encodeURIComponent(q)}*`);
+    // Match product_name, brand, OR barcode so the cached catalogue is
+    // searchable the same way curated items already are (name + brand + code).
+    endpoint.searchParams.set(
+      "or",
+      `(product_name.ilike.*${q}*,brand.ilike.*${q}*,barcode.ilike.*${q}*)`
+    );
     endpoint.searchParams.set("order", "scan_count.desc");
     endpoint.searchParams.set("limit", "10");
 

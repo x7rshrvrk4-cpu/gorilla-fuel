@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import StatsTicker from "./components/StatsTicker";
 import CrossLinkBanner from "./components/CrossLinkBanner";
+import UniversalSearch from "./components/UniversalSearch";
 import { ALCOHOL_PRODUCTS } from "./alcohol/lib/products";
 import { INTEL_APPROVED, amazonUrl } from "./intel/lib/products";
 import { PRODUCTS, GRADE_RANK } from "./rankings/lib/products";
@@ -102,6 +103,14 @@ export default function Home() {
             Free Canadian product intelligence for beer, wine, supplements and
             food. No brand pays for placement. Ever.
           </p>
+
+          {/* WHOLE-DATABASE LIVE SEARCH — curated catalogue + scanned cache.
+              z-30 so the results dropdown (z-[9999] inside) paints over the
+              category doors and picks below it. */}
+          <div className="relative z-30 w-full max-w-lg">
+            <UniversalSearch placeholder="Search any product by name, brand, or barcode…" />
+          </div>
+
           <div className="flex flex-col gap-4 sm:flex-row">
             <Link
               href="/scan"
