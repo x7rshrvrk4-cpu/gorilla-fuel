@@ -60,6 +60,20 @@ export function buildOffRow(p: Record<string, unknown>): UpsertPayload | null {
   const alcohol = isOffAlcohol(cats);
   const supplement = isOffSupplement(cats);
 
+  // ── Quality filter (import only) ──────────────────────────────────────────
+  // Skip empty shells that have NO data to score from — no usable nutrition AND
+  // no ingredients text. This mirrors what the scorer already needs to produce a
+  // genuine score; it is not a stricter bar. Alcohol/supplements legitimately may
+  // lack food nutrition, so they are exempt (preserve existing behavior — only the
+  // missing-barcode guard applies to them).
+  const ingredientsText = ((p.ingredients_text as string) ?? "").trim();
+  const hasUsableNutrition =
+    nutrition_data !== null &&
+    Object.values(nutrition_data).some((v) => typeof v === "number" && Number.isFinite(v));
+  if (!alcohol && !supplement && !hasUsableNutrition && ingredientsText.length === 0) {
+    return null;
+  }
+
   let gorilla_score: number | null = null;
   let score_grade: string | null = null;
 

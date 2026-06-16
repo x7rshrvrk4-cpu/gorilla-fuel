@@ -111,6 +111,7 @@ async function main() {
   const startedAt = Date.now();
   let total = 0, food = 0, alcoholCount = 0, suppl = 0, withNutr = 0, withoutNutr = 0;
   let curatedSkipped = 0;
+  let fetched = 0, skippedNoData = 0;
   let consecutiveEmpty = 0;
   let buffer: UpsertPayload[] = [];
 
@@ -145,13 +146,18 @@ async function main() {
 
     let pageCount = 0;
     for (const p of products) {
+      fetched++;
       const code = (p.code as string) ?? "";
       if (code && CURATED_BARCODE_SET.has(normB(code))) {
         curatedSkipped++;
         continue;
       }
       const row = buildOffRow(p);
-      if (!row) continue;
+      if (!row) {
+        // Rejected by buildOffRow — no usable barcode or no data to score from.
+        skippedNoData++;
+        continue;
+      }
       buffer.push(row);
       total++;
       pageCount++;
@@ -177,14 +183,17 @@ async function main() {
 
   const durationSeconds = Math.round((Date.now() - startedAt) / 1000);
   console.log(`\n✓ Import complete in ${durationSeconds}s`);
-  console.log(`  Algorithm: ${ALGO_VERSION}`);
-  console.log(`  Total    : ${total}`);
+  console.log(`  Algorithm    : ${ALGO_VERSION}`);
+  console.log(`  Fetched      : ${fetched}`);
+  console.log(`  Kept (cached): ${total}`);
+  console.log(`  Skipped-no-data: ${skippedNoData} (no nutrition AND no ingredients to score from)`);
+  console.log(`  Curated      : ${curatedSkipped} skipped (protected)`);
+  console.log(`  ── of kept ──`);
   console.log(`  Food     : ${food}`);
   console.log(`  Alcohol  : ${alcoholCount}`);
   console.log(`  Suppl    : ${suppl}`);
   console.log(`  w/ Nutr  : ${withNutr}`);
   console.log(`  w/o Nutr : ${withoutNutr}`);
-  console.log(`  Curated  : ${curatedSkipped} skipped (protected)`);
 
   if (!dryRun) {
     await logImportRun({
