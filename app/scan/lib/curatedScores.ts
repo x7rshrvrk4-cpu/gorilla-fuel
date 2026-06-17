@@ -455,8 +455,10 @@ function categoryCap(name: string, cats: string, ing: string): { cap: number; re
   // Sugary cereals with artificial colour — hard cap
   if (/(cereal)/.test(hay) && /sugar|frosted|honey|choc/.test(hay) && hasColour)
     return { cap: 35, reason: "sugary cereal with artificial colours" };
-  // General cereals (not plain oats or similar)
-  if (/(cereal)/.test(hay) && !/plain\s*oat|rolled\s*oat|steel[\s-]?cut|100\s*%\s*oat|bran\s*flakes?\b/.test(hay))
+  // General cereals (not plain oats or similar). The plain-oat exception uses
+  // [\s-]? so it matches both spaced names ("rolled oats") and the hyphenated
+  // OFF category tags ("en:rolled-oats", "en:quick-oats") present in `hay`.
+  if (/(cereal)/.test(hay) && !/plain[\s-]?oat|rolled[\s-]?oat|quick[\s-]?oat|steel[\s-]?cut|100\s*%\s*oat|bran\s*flakes?\b/.test(hay))
     return { cap: 60, reason: "cereal category — typically processed grain product" };
   // Snack cakes and pastries
   if (/(snack[\s-]?cake|pastri|pastry|muffin\s*cake|swiss\s*roll)\b/.test(hay))

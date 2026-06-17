@@ -72,7 +72,7 @@ async function fetchPage(page: number): Promise<{ products: Record<string, unkno
     // changes, so pagination is deterministic with no overlap and no gaps.
     sort_by: "created_t",
     page: String(page),
-    fields: "code,product_name,brands,categories_tags,ingredients_text,nutriments,nova_group,image_url,serving_size",
+    fields: "code,product_name,brands,categories_tags,labels_tags,ingredients_text,nutriments,nova_group,image_url,serving_size",
   });
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {

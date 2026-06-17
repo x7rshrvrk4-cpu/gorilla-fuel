@@ -44,6 +44,11 @@ export function buildOffRow(p: Record<string, unknown>): UpsertPayload | null {
     ? (p.categories_tags as string[])
     : [];
 
+  // OFF stores organic certification in labels_tags (e.g. "en:organic",
+  // "fr:bio"), NOT in categories_tags — pass it through so the scorer's
+  // organic bonus can fire on imported products.
+  const labels: string[] = Array.isArray(p.labels_tags) ? (p.labels_tags as string[]) : [];
+
   const n = (p.nutriments as Record<string, number> | undefined) ?? {};
   const nutrition_data =
     Object.keys(n).length > 0
@@ -86,6 +91,7 @@ export function buildOffRow(p: Record<string, unknown>): UpsertPayload | null {
           servingSize: (p.serving_size as string) ?? "100g",
           novaGroup: (p.nova_group as number) || undefined,
           categoriesTags: cats,
+          labelsTags: labels,
         }
       );
       // Full gate: curated overrides → brand caps → category caps → ingredient sanity
