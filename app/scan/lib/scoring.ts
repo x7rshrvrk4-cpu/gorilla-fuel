@@ -1832,6 +1832,16 @@ export function computeScore(
     }
   }
 
+  // ── Thin-data "can't fully assess" ceiling ───────────────────────────────
+  // No ingredient list AND no NOVA group = we have neither the additive signal
+  // nor the processing signal to judge this product. Absence of disqualifying
+  // data must not read as "Excellent": cap at 65 so unassessable products land
+  // in the honest middle. Applies to live scans and imports (shared path).
+  if (additivesUnverified && context?.novaGroup == null && finalScore > 65) {
+    finalScore = 65;
+    flags.push("Limited data — no ingredient list and no processing (NOVA) data available; can't fully assess, so the score is capped at 65.");
+  }
+
   return {
     finalScore: Math.max(0, Math.min(100, finalScore)),
     nutritionScore: Math.round(effectiveNutritionScore),

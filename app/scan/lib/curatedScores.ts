@@ -447,6 +447,35 @@ function categoryCap(name: string, cats: string, ing: string): { cap: number; re
   if (/(chips?|crisps?|puffs?|curls?)\b/.test(hay) && (hasColour || hasFlavour || hasMsg))
     return { cap: 45, reason: "chips/puffs with artificial colours/flavours/MSG" };
   if (/\b(candy|candies|confectionery|sweets)\b/.test(hay)) return { cap: 35, reason: "candy/confectionery category" };
+  // ── Sugar-dominant products (the product IS sugar/honey/syrup/jam/dried fruit) ─
+  // OFF frequently stores wildly understated sugar for these (e.g. raw cane sugar
+  // as sugars_100g=4, real ~100), so the macro-based nutrition score can't be
+  // trusted — cap on the product category itself. Triggers on OFF's authoritative
+  // category tags (en:sugars/en:honeys/en:syrups/en:jams/en:dried-fruits/…) OR
+  // unambiguous sugar-product name phrases. Exclusions guard against sugar-free /
+  // no-sugar-added items, savoury honey-flavoured products, and sugar-snap peas.
+  {
+    const sugarFree = /\b(sugar[\s-]?free|no[\s-]?added[\s-]?sugar|no[\s-]?sugar[\s-]?added|sugar[\s-]?substitute|sugar[\s-]?alternative|unsweetened|zero[\s-]?sugar)\b/.test(hay);
+    const savoryHoney = /\bhoney[\s-]?(mustard|garlic|dijon|bbq|barbecue|nut|roasted|ham|glaze[d]?|teriyaki|soy|sriracha|chipotle|butter|sesame)\b/.test(hay);
+    const sugarSnap = /\bsugar[\s-]?snap\b/.test(hay);
+    // Intrinsically sugar: the product IS sugar / honey / dried fruit / molasses —
+    // "no added sugar" wording does NOT make it low-sugar (dried cranberries are
+    // ~65 g/100g regardless), so these cap even when labelled no-added-sugar.
+    const intrinsicSugar =
+      /(en:sugars|en:honey|en:dried-fruit|en:maple-syrup)/.test(hay) ||
+      /\b(cane\s+sugar|raw\s+sugar|brown\s+sugar|white\s+sugar|icing\s+sugar|granulated\s+sugar|powdered\s+sugar|coconut\s+sugar|caster\s+sugar|demerara|turbinado|muscovado|molasses|treacle)\b/.test(hay) ||
+      /\bdried\s+(cranberr\w*|fruit|mango|apricots?|pineapple|papaya|blueberr\w*|cherr\w*|figs?|dates?|raisins?)\b/.test(hay) ||
+      /\b(raisins|craisins|sultanas)\b/.test(hay) ||
+      (/\bhoney\b/.test(hay) && !savoryHoney);
+    // Could legitimately exist sugar-free (syrups, jams, hard candies) — so these
+    // respect the sugar-free / no-sugar-added exclusion.
+    const softSugar =
+      /(en:syrups|en:jams|en:marmalade|en:hard-candies)/.test(hay) ||
+      /\b(maple\s+syrup|corn\s+syrup|golden\s+syrup|pancake\s+syrup|table\s+syrup|agave\s+(syrup|nectar)|brown\s+rice\s+syrup|jam|jelly|marmalade|fruit\s+spread|fruit\s+preserves)\b/.test(hay);
+    if (!savoryHoney && !sugarSnap && (intrinsicSugar || (softSugar && !sugarFree))) {
+      return { cap: 45, reason: "sugar-dominant product (sugar/honey/syrup/jam/dried fruit) — OFF sugar values for this category are unreliable" };
+    }
+  }
   // Cookies — capped unconditionally; clean ≤4-ingredient exceptions are in curated DB
   if (/(cookies?)\b/.test(hay) && hasColour) return { cap: 38, reason: "cookies with artificial colours" };
   if (/(cookies?)\b/.test(hay)) return { cap: 45, reason: "cookies category — ultra-processed baked good" };
