@@ -65,6 +65,7 @@ import {
 import ScanConfirmationOverlay from "./components/ScanConfirmationOverlay";
 import NotifyMeForm from "./components/NotifyMeForm";
 import NotifyMeExpandable from "./components/NotifyMeExpandable";
+import UniversalSearch from "../components/UniversalSearch";
 import SupplementResultCard from "./components/SupplementResultCard";
 import { lookupCuratedFood } from "./lib/curatedFoods";
 import { applyScoringGate } from "./lib/curatedScores";
@@ -1109,6 +1110,14 @@ export default function ScanClient() {
             </svg>
           </span>
         </button>
+        {/* Preventive helper — sets expectations before scanning. Wine/spirits
+            are named here (and only here); the not-found message stays generic. */}
+        <p className="mt-3 text-center text-xs leading-relaxed text-muted sm:text-left">
+          📷 Scan almost any packaged food, drink, or supplement.{" "}
+          <span className="text-gold/90">
+            🍷 Wine &amp; spirits aren’t barcode-searchable — look those up by name.
+          </span>
+        </p>
       </div>
 
       {/* RESULTS */}
@@ -1188,13 +1197,14 @@ export default function ScanClient() {
 
         {lookup.phase === "not-found" && (
           <>
-            {/* Header — warm, helpful next step (not a cold error wall) */}
-            <div className="gorilla-card overflow-hidden rounded-sm">
-              <div className="border-b border-line bg-surface px-6 py-4">
+            {/* Header — warm, helpful next step (gold, not a cold amber/error
+                wall). Generic wording: most misses are just not-yet-imported. */}
+            <div className="overflow-hidden rounded-sm border border-gold/30 bg-gold/[0.05]">
+              <div className="border-b border-gold/15 px-6 py-4">
                 <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400/60" />
-                  <p className="font-display text-sm uppercase tracking-[0.3em] text-amber-300/80">
-                    Not In Our Database Yet
+                  <span className="text-base leading-none">🔍</span>
+                  <p className="font-display text-sm uppercase tracking-[0.3em] text-gold">
+                    Let’s Find It
                   </p>
                 </div>
               </div>
@@ -1205,19 +1215,25 @@ export default function ScanClient() {
                 )}
                 <p className="mt-2 text-sm leading-relaxed text-muted">
                   {lookup.message ??
-                    "We don’t have this exact barcode yet — but it may be a multipack or a different size of something we’ve already scored. Find it below and we’ll link it for everyone."}
+                    "We don’t have that one yet — most products are searchable by name below, or you can help us add it so the next person’s scan just works."}
                 </p>
-                <button
-                  type="button"
-                  onClick={handleTryAgain}
-                  className="mt-5 rounded-sm bg-gold px-5 py-2.5 font-display text-sm tracking-widest text-background transition-colors hover:bg-gold/90"
-                >
-                  Scan Another
-                </button>
               </div>
             </div>
 
-            {/* PRIMARY — search & attach (multipack alias) */}
+            {/* PRIMARY recovery — search the whole database by name. Own
+                container (no overflow-hidden) so the results dropdown isn't
+                clipped; z-30 so it paints over the cards below. */}
+            <div className="relative z-30 mt-4 rounded-sm border border-gold/40 bg-gold/[0.05] p-5">
+              <p className="font-display text-sm tracking-[0.2em] text-gold">SEARCH BY NAME</p>
+              <p className="mt-1 text-sm leading-relaxed text-muted">
+                Type the product name — chances are it’s already in our database.
+              </p>
+              <div className="mt-3">
+                <UniversalSearch placeholder="Search by product name…" />
+              </div>
+            </div>
+
+            {/* SECONDARY — multipack / different-size attach (alcohol) */}
             <MultiPackPrompt barcode={lookup.barcode} primary />
 
             {/* SECONDARY — full product submit, revealed on demand */}
