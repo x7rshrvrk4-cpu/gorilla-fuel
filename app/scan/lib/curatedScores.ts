@@ -455,24 +455,34 @@ function categoryCap(name: string, cats: string, ing: string): { cap: number; re
   // unambiguous sugar-product name phrases. Exclusions guard against sugar-free /
   // no-sugar-added items, savoury honey-flavoured products, and sugar-snap peas.
   {
-    const sugarFree = /\b(sugar[\s-]?free|no[\s-]?added[\s-]?sugar|no[\s-]?sugar[\s-]?added|sugar[\s-]?substitute|sugar[\s-]?alternative|unsweetened|zero[\s-]?sugar)\b/.test(hay);
-    const savoryHoney = /\bhoney[\s-]?(mustard|garlic|dijon|bbq|barbecue|nut|roasted|ham|glaze[d]?|teriyaki|soy|sriracha|chipotle|butter|sesame)\b/.test(hay);
+    const nameLc = (name ?? "").toLowerCase();
+    // Sugar-free / no-sugar wording (incl. bare "no sugar", words may sit between).
+    const sugarFree = /\b(sugar[\s-]?free|no\s+(?:added\s+)?sugar|no[\s-]?sugar[\s-]?added|sugar[\s-]?substitute|sugar[\s-]?alternative|unsweetened|zero[\s-]?sugar)\b/.test(hay);
+    // Savory / composite foods where honey/syrup/glaze is a FLAVOUR, not the
+    // product — these must never be sugar-capped (source of the ~35% FP rate).
+    const savoryComposite = /\b(chicken|wings?|ham|pork|ribs?|salmon|beef|bacon|turkey|sausages?|meat|salad|dressings?|vinaigrette|balsamic|glaze[d]?|sauce|marinade|mustard|dijon|garlic|bbq|barbecue|teriyaki|soy|sriracha|chipotle|ketchup|mayo|dips?|crackers?|chips?|nuts?|granola|cereals?|oats?|oatmeal|muffins?|bars?|rxbar|protein|yogh?urt|cheese|pizza|noodles?|wraps?|sandwich(?:es)?|bread|fillets?|breasts?|jerky|roasted|sesame|butter)\b/.test(hay);
     const sugarSnap = /\bsugar[\s-]?snap\b/.test(hay);
+    // Pure-honey NAME: the name must be essentially "honey" (optional variety
+    // adjectives + optional size), NOT honey-as-a-flavour. "Liquid Honey",
+    // "Buckwheat Honey", "Creamed Honey 500g" match; "Honey Garlic Chicken" does not.
+    const pureHoneyName = /^(?:(?:organic|pure|raw|liquid|creamed|unpasteuri[sz]ed|wildflower|clover|buckwheat|manuka|natural|fireweed|acacia|alfalfa)\s+)*honey(?:\s+\d[\w\s.()-]*)?$/.test(nameLc.trim());
     // Intrinsically sugar: the product IS sugar / honey / dried fruit / molasses —
     // "no added sugar" wording does NOT make it low-sugar (dried cranberries are
     // ~65 g/100g regardless), so these cap even when labelled no-added-sugar.
+    // Honey caps via the authoritative en:honeys tag OR a pure-honey name only.
     const intrinsicSugar =
-      /(en:sugars|en:honey|en:dried-fruit|en:maple-syrup)/.test(hay) ||
+      /(en:sugars\b|en:dried-fruits?\b|en:maple-syrups?\b)/.test(hay) ||
+      /(en:honeys?\b)/.test(hay) ||
       /\b(cane\s+sugar|raw\s+sugar|brown\s+sugar|white\s+sugar|icing\s+sugar|granulated\s+sugar|powdered\s+sugar|coconut\s+sugar|caster\s+sugar|demerara|turbinado|muscovado|molasses|treacle)\b/.test(hay) ||
       /\bdried\s+(cranberr\w*|fruit|mango|apricots?|pineapple|papaya|blueberr\w*|cherr\w*|figs?|dates?|raisins?)\b/.test(hay) ||
       /\b(raisins|craisins|sultanas)\b/.test(hay) ||
-      (/\bhoney\b/.test(hay) && !savoryHoney);
+      pureHoneyName;
     // Could legitimately exist sugar-free (syrups, jams, hard candies) — so these
     // respect the sugar-free / no-sugar-added exclusion.
     const softSugar =
-      /(en:syrups|en:jams|en:marmalade|en:hard-candies)/.test(hay) ||
-      /\b(maple\s+syrup|corn\s+syrup|golden\s+syrup|pancake\s+syrup|table\s+syrup|agave\s+(syrup|nectar)|brown\s+rice\s+syrup|jam|jelly|marmalade|fruit\s+spread|fruit\s+preserves)\b/.test(hay);
-    if (!savoryHoney && !sugarSnap && (intrinsicSugar || (softSugar && !sugarFree))) {
+      /(en:syrups?\b|en:jams\b|en:marmalades?\b|en:hard-candies\b)/.test(hay) ||
+      /\b(maple\s+syrup|corn\s+syrup|golden\s+syrup|pancake\s+syrup|table\s+syrup|agave\s+(syrup|nectar)|brown\s+rice\s+syrup|\bjam\b|jelly|marmalade|fruit\s+spread|fruit\s+preserves)\b/.test(hay);
+    if (!savoryComposite && !sugarSnap && (intrinsicSugar || (softSugar && !sugarFree))) {
       return { cap: 45, reason: "sugar-dominant product (sugar/honey/syrup/jam/dried fruit) — OFF sugar values for this category are unreliable" };
     }
   }
