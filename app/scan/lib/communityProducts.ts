@@ -179,23 +179,42 @@ export async function lookupCommunityProduct(
   }
 }
 
+/** Result of a community submission — carries the real HTTP status/message on
+ *  failure so the UI can show the true cause (e.g. 401 RLS) instead of a generic
+ *  "try again", mirroring the alias submit flow. */
+export type SubmitResult = { ok: boolean; status: number | string; message?: string };
+
 /**
  * Submit a new community product. Always stores as verified = false — admin
  * review is required before it appears in scanner results.
  */
 export async function submitCommunityProduct(
   data: Omit<CommunityAlcoholProduct, "id" | "submitted_at" | "verified">
-): Promise<boolean> {
+): Promise<SubmitResult> {
   const url = sbUrl();
-  if (!url || !sbKey()) return false;
+  if (!url || !sbKey()) return { ok: false, status: "config", message: "Database not configured" };
   try {
     const res = await fetch(`${url}/rest/v1/${TABLE}`, {
       method: "POST",
       headers: { ...baseHeaders(), Prefer: "return=minimal" },
       body: JSON.stringify({ ...data, verified: false }),
     });
-    return res.ok || res.status === 201;
-  } catch {
-    return false;
+    if (res.ok || res.status === 201) return { ok: true, status: res.status };
+
+    // Surface the real PostgREST error (status + message) for diagnosis.
+    const text = await res.text().catch(() => "");
+    let message = res.statusText || "Unknown error";
+    try {
+      const parsed = JSON.parse(text) as { message?: string; error?: string };
+      message = parsed.message ?? parsed.error ?? message;
+    } catch {
+      if (text) message = text;
+    }
+    scanLog(`Community Submit ✗ HTTP ${res.status} — ${message}`);
+    console.error("[submitCommunityProduct] failed:", res.status, text);
+    return { ok: false, status: res.status, message };
+  } catch (e) {
+    console.error("[submitCommunityProduct] threw:", e);
+    return { ok: false, status: "network", message: e instanceof Error ? e.message : "Network error" };
   }
 }

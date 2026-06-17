@@ -64,6 +64,7 @@ import {
 } from "../lib/gtag";
 import ScanConfirmationOverlay from "./components/ScanConfirmationOverlay";
 import NotifyMeForm from "./components/NotifyMeForm";
+import NotifyMeExpandable from "./components/NotifyMeExpandable";
 import SupplementResultCard from "./components/SupplementResultCard";
 import { lookupCuratedFood } from "./lib/curatedFoods";
 import { applyScoringGate } from "./lib/curatedScores";
@@ -1187,12 +1188,13 @@ export default function ScanClient() {
 
         {lookup.phase === "not-found" && (
           <>
+            {/* Header — warm, helpful next step (not a cold error wall) */}
             <div className="gorilla-card overflow-hidden rounded-sm">
               <div className="border-b border-line bg-surface px-6 py-4">
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400/60" />
                   <p className="font-display text-sm uppercase tracking-[0.3em] text-amber-300/80">
-                    Product Not Found
+                    Not In Our Database Yet
                   </p>
                 </div>
               </div>
@@ -1202,35 +1204,24 @@ export default function ScanClient() {
                   <p className="mt-2 font-display text-xl text-foreground">{fallbackProduct.name}</p>
                 )}
                 <p className="mt-2 text-sm leading-relaxed text-muted">
-                  {lookup.message ?? "This product is not in our database yet. We have logged your scan and will add it soon."}
+                  {lookup.message ??
+                    "We don’t have this exact barcode yet — but it may be a multipack or a different size of something we’ve already scored. Find it below and we’ll link it for everyone."}
                 </p>
-                <NotifyMeForm barcode={lookup.barcode} productName={fallbackProduct?.name} />
-                <div className="mt-5 flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    onClick={handleTryAgain}
-                    className="rounded-sm bg-gold px-5 py-2.5 font-display text-sm tracking-widest text-background transition-colors hover:bg-gold/90"
-                  >
-                    Try Again
-                  </button>
-                  {!showSubmitForm && (
-                    <button
-                      type="button"
-                      onClick={() => setShowSubmitForm(true)}
-                      className="rounded-sm border border-gold/60 px-5 py-2.5 font-display text-sm tracking-widest text-gold transition-colors hover:bg-gold hover:text-background"
-                    >
-                      Submit This Product
-                    </button>
-                  )}
-                </div>
-                {!showSubmitForm && (
-                  <p className="mt-3 text-xs text-muted/60">
-                    Know what this is? Submit the product details and our team will review it.
-                  </p>
-                )}
+                <button
+                  type="button"
+                  onClick={handleTryAgain}
+                  className="mt-5 rounded-sm bg-gold px-5 py-2.5 font-display text-sm tracking-widest text-background transition-colors hover:bg-gold/90"
+                >
+                  Scan Another
+                </button>
               </div>
             </div>
-            {showSubmitForm && (
+
+            {/* PRIMARY — search & attach (multipack alias) */}
+            <MultiPackPrompt barcode={lookup.barcode} primary />
+
+            {/* SECONDARY — full product submit, revealed on demand */}
+            {showSubmitForm ? (
               <AlcoholSubmitForm
                 barcode={lookup.barcode}
                 initialName={fallbackProduct?.name}
@@ -1238,8 +1229,24 @@ export default function ScanClient() {
                 initialAbv={fallbackProduct?.abv ?? undefined}
                 dataSource={fallbackProduct?.source}
               />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowSubmitForm(true)}
+                className="mt-4 flex w-full items-center justify-between gap-3 rounded-sm border border-line bg-surface px-4 py-3 text-left transition-colors hover:border-gold/50"
+              >
+                <span className="text-sm text-muted">
+                  Can’t find it in the list?{" "}
+                  <span className="text-gold">Add full product details</span>
+                </span>
+                <span className="shrink-0 text-gold/50">→</span>
+              </button>
             )}
-            <MultiPackPrompt barcode={lookup.barcode} />
+
+            {/* TERTIARY — notify, low emphasis */}
+            <div className="mt-4">
+              <NotifyMeExpandable barcode={lookup.barcode} productName={fallbackProduct?.name} />
+            </div>
           </>
         )}
 

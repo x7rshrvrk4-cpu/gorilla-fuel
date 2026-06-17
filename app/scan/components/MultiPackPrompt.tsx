@@ -22,10 +22,13 @@ type AlcoholProduct = (typeof ALCOHOL_PRODUCTS)[0];
 
 type Props = {
   barcode: string;
+  /** Primary mode: render expanded and prominent (no collapsed "Know what this
+   *  is?" teaser, no Cancel) — used as the lead action on the not-found screen. */
+  primary?: boolean;
 };
 
-export default function MultiPackPrompt({ barcode }: Props) {
-  const [expanded, setExpanded] = useState(false);
+export default function MultiPackPrompt({ barcode, primary = false }: Props) {
+  const [expanded, setExpanded] = useState(primary);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<AlcoholProduct | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -100,7 +103,7 @@ export default function MultiPackPrompt({ barcode }: Props) {
     );
   }
 
-  if (!expanded) {
+  if (!expanded && !primary) {
     return (
       <button
         type="button"
@@ -122,9 +125,25 @@ export default function MultiPackPrompt({ barcode }: Props) {
   }
 
   return (
-    <div className="mt-4 rounded-sm border border-line bg-surface p-5">
-      <p className="font-display text-sm tracking-[0.25em] text-gold">IDENTIFY THIS PRODUCT</p>
-      <p className="mt-1 font-mono text-xs text-muted/60">{barcode}</p>
+    <div
+      className={`mt-4 rounded-sm border p-5 ${
+        primary ? "border-gold/40 bg-gold/[0.04]" : "border-line bg-surface"
+      }`}
+    >
+      {primary ? (
+        <>
+          <p className="font-display text-base tracking-[0.2em] text-gold">
+            IS THIS A MULTIPACK OR DIFFERENT SIZE?
+          </p>
+          <p className="mt-1 text-sm leading-relaxed text-muted">
+            Find the product we already have and tell us the size — your next scan
+            (and everyone&apos;s) will work.
+          </p>
+        </>
+      ) : (
+        <p className="font-display text-sm tracking-[0.25em] text-gold">IDENTIFY THIS PRODUCT</p>
+      )}
+      <p className="mt-2 font-mono text-xs text-muted/60">{barcode}</p>
 
       {/* Product search */}
       <div className="relative mt-4">
@@ -213,13 +232,15 @@ export default function MultiPackPrompt({ barcode }: Props) {
         >
           {submitting ? "Saving…" : "Submit"}
         </button>
-        <button
-          type="button"
-          onClick={() => setExpanded(false)}
-          className="rounded-sm border border-line px-4 py-2.5 font-display text-sm tracking-widest text-muted transition-colors hover:text-foreground"
-        >
-          Cancel
-        </button>
+        {!primary && (
+          <button
+            type="button"
+            onClick={() => setExpanded(false)}
+            className="rounded-sm border border-line px-4 py-2.5 font-display text-sm tracking-widest text-muted transition-colors hover:text-foreground"
+          >
+            Cancel
+          </button>
+        )}
       </div>
     </div>
   );

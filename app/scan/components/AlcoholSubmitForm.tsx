@@ -73,7 +73,7 @@ export default function AlcoholSubmitForm({
     }
 
     setSubmitting(true);
-    const ok = await submitCommunityProduct({
+    const res = await submitCommunityProduct({
       barcode,
       product_name: productName.trim(),
       brand: brand.trim(),
@@ -85,10 +85,13 @@ export default function AlcoholSubmitForm({
     });
     setSubmitting(false);
 
-    if (ok) {
+    if (res.ok) {
       setSubmitted(true);
     } else {
-      setError("Submission failed — please try again in a moment.");
+      // Surface the real status/message so failures are diagnosable, not silent.
+      setError(
+        `Submission failed (${res.status})${res.message ? `: ${res.message}` : ""} — please try again.`
+      );
     }
   }
 
