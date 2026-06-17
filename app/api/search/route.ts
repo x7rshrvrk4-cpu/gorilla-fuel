@@ -12,13 +12,19 @@ export type SearchProduct = {
 };
 
 /**
- * GET /api/search?q=<query>
- * Searches gorilla_product_cache for products matching the query by product_name.
- * Returns up to 10 results. Minimum 2 characters required.
+ * GET /api/search?q=<query>[&limit=N]
+ * Searches gorilla_product_cache by product_name, brand, or barcode.
+ * Returns up to `limit` results (default 10 — used by the live dropdown; the
+ * full results page passes a larger limit). Minimum 2 characters required.
  */
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get("q")?.trim() ?? "";
   if (q.length < 2) return NextResponse.json([]);
+
+  // Default 10 (dropdown). Clamp to a sane max so the results page can request
+  // many without allowing abuse.
+  const limitParam = parseInt(request.nextUrl.searchParams.get("limit") ?? "", 10);
+  const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 500) : 10;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -34,7 +40,7 @@ export async function GET(request: NextRequest) {
       `(product_name.ilike.*${q}*,brand.ilike.*${q}*,barcode.ilike.*${q}*)`
     );
     endpoint.searchParams.set("order", "scan_count.desc");
-    endpoint.searchParams.set("limit", "10");
+    endpoint.searchParams.set("limit", String(limit));
 
     const res = await fetch(endpoint.toString(), {
       headers: {

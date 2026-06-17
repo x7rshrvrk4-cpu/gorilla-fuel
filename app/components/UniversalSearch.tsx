@@ -2,93 +2,19 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ALCOHOL_PRODUCTS } from "../alcohol/lib/products";
-import { PRODUCTS as RANKED_SUPPLEMENTS } from "../rankings/lib/products";
-import { INTEL_APPROVED, INTEL_CHEAT, INTEL_AVOID, type IntelProduct } from "../intel/lib/products";
-import { KIDS_APPROVED, KIDS_CHEAT, KIDS_STAY_AWAY, type KidsProduct } from "../kids/lib/products";
-
-const KIDS_ALL: KidsProduct[] = [...KIDS_APPROVED, ...KIDS_CHEAT, ...KIDS_STAY_AWAY];
-import { searchCuratedFoods, searchCuratedSupplements } from "../scan/lib/curatedFoods";
+import { useRouter } from "next/navigation";
 import type { SearchProduct } from "../api/search/route";
-
-const INTEL_ALL: { product: IntelProduct; path: string }[] = [
-  ...INTEL_APPROVED.map((product) => ({ product, path: "/approved" })),
-  ...INTEL_CHEAT.map((product) => ({ product, path: "/cheat" })),
-  ...INTEL_AVOID.map((product) => ({ product, path: "/avoid" })),
-];
-
-type AlcoholResult = {
-  type: "alcohol";
-  id: string;
-  name: string;
-  brand: string;
-  abv?: number;
-  gorillaPour: number;
-  category: string;
-  barcode?: string;
-};
-
-type CacheResult = {
-  type: "food" | "supplement" | "beauty";
-  barcode: string;
-  name: string;
-  brand: string | null;
-  score: number | null;
-  grade: string | null;
-};
-
-type CuratedFoodResult = {
-  type: "curated-food";
-  barcode: string;
-  name: string;
-  brand: string;
-};
-
-type RankedSupplementResult = {
-  type: "ranked-supplement";
-  id: string;
-  name: string;
-  brand: string;
-  grade: string;
-};
-
-type IntelResult = {
-  type: "intel";
-  id: string;
-  name: string;
-  path: string;
-  score: number;
-};
-
-type KidsResult = {
-  type: "kids";
-  id: string;
-  name: string;
-  score: number;
-};
-
-type SearchResult = AlcoholResult | CacheResult | CuratedFoodResult | RankedSupplementResult | IntelResult | KidsResult;
-
-type GroupedResults = {
-  food: (CacheResult | CuratedFoodResult)[];
-  alcohol: AlcoholResult[];
-  wine: AlcoholResult[];
-  supplement: CacheResult[];
-  ranked: RankedSupplementResult[];
-  intel: IntelResult[];
-  kids: KidsResult[];
-};
-
-function gradeColor(grade: string | null): string {
-  switch (grade) {
-    case "A+": case "A": return "text-emerald-400";
-    case "B+": case "B": return "text-green-400";
-    case "C": return "text-amber-400";
-    case "D": return "text-orange-400";
-    case "F": return "text-red-400";
-    default: return "text-slate-400";
-  }
-}
+import {
+  searchCurated,
+  gradeColor,
+  getProductLink,
+  emptyGrouped,
+  cacheRowToFood,
+  cacheRowToSupplement,
+  type GroupedResults,
+  type CacheResult,
+  type CuratedFoodResult,
+} from "../lib/searchProducts";
 
 function GorillaPourMini({ rating }: { rating: number }) {
   return (
@@ -107,8 +33,9 @@ type Props = {
 };
 
 export default function UniversalSearch({ placeholder = "Search products, beers, wines…", className = "", onActiveChange }: Props) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<GroupedResults>({ food: [], alcohol: [], wine: [], supplement: [], ranked: [], intel: [], kids: [] });
+  const [results, setResults] = useState<GroupedResults>(emptyGrouped());
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -151,7 +78,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
 
   const search = useCallback(async (q: string) => {
     if (q.length < 2) {
-      setResults({ food: [], alcohol: [], wine: [], supplement: [], ranked: [], intel: [], kids: [] });
+      setResults(emptyGrouped());
       setOpen(false);
       return;
     }
@@ -159,81 +86,12 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
     setLoading(true);
     setOpen(true);
 
-    const ql = q.toLowerCase();
-
-    // Token matching: every query word must appear somewhere in name+brand,
-    // order-independent — so "Thorne Creatine" finds brand "Thorne" + name
-    // "Creatine", and "Santa Carolina Cabernet" finds "Santa Carolina Reserva
-    // Cabernet Sauvignon" even though the words aren't contiguous.
-    const tokens = ql.split(/\s+/).filter(Boolean);
-    const matchesTokens = (hay: string) => tokens.every((t) => hay.includes(t));
-
-    // ── Client-side: alcohol (instant) ──────────────────────────────────────
-    // Token-match the FULL list, THEN split wine vs beer, THEN cap each group
-    // independently. Capping before the split let beers consume the limit and
-    // crowd out wines, which live at the end of ALCOHOL_PRODUCTS (bulk wine
-    // batches) — so common brand/grape queries never reached them.
-    const toAlcoholResult = (p: (typeof ALCOHOL_PRODUCTS)[number]): AlcoholResult => ({
-      type: "alcohol",
-      id: p.id,
-      name: p.name,
-      brand: p.brand,
-      abv: p.abv,
-      gorillaPour: p.gorillaPour,
-      category: p.category,
-      barcode: p.barcodes?.[0],
-    });
-
-    const alcoholMatches = ALCOHOL_PRODUCTS.filter((p) =>
-      matchesTokens(`${p.name} ${p.brand}`.toLowerCase())
-    );
-    const wineHits = alcoholMatches
-      .filter((p) => p.category === "Wines")
-      .slice(0, 6)
-      .map(toAlcoholResult);
-    const beerHits = alcoholMatches
-      .filter((p) => p.category !== "Wines")
-      .slice(0, 6)
-      .map(toAlcoholResult);
-
-    // ── Client-side: curated foods + supplements (instant) ──────────────────
-    const curatedHits: CuratedFoodResult[] = searchCuratedFoods(q, 3).map((e) => ({
-      type: "curated-food",
-      barcode: e.barcode,
-      name: e.name,
-      brand: e.brand,
-    }));
-
-    const curatedSupplHits: CacheResult[] = searchCuratedSupplements(q, 4).map((e) => ({
-      type: "supplement",
-      barcode: e.barcode,
-      name: e.name,
-      brand: e.brand,
-      score: null,
-      grade: null,
-    }));
-
-    // ── Client-side: ranked supplements (rankings hub) ───────────────────────
-    const rankedHits: RankedSupplementResult[] = RANKED_SUPPLEMENTS.filter((p) =>
-      matchesTokens(`${p.name} ${p.brand}`.toLowerCase())
-    )
-      .slice(0, 4)
-      .map((p) => ({ type: "ranked-supplement", id: p.id, name: p.name, brand: p.brand, grade: p.grade }));
-
-    // ── Client-side: Gorilla Intel tiers ─────────────────────────────────────
-    const intelHits: IntelResult[] = INTEL_ALL.filter(({ product }) =>
-      matchesTokens(`${product.name} ${product.brand}`.toLowerCase())
-    )
-      .slice(0, 3)
-      .map(({ product, path }) => ({ type: "intel", id: product.id, name: product.name, path, score: product.score }));
-
-    // ── Client-side: Kids section ────────────────────────────────────────────
-    const kidsHits: KidsResult[] = KIDS_ALL.filter((p) => matchesTokens(p.name.toLowerCase()))
-      .slice(0, 3)
-      .map((p) => ({ type: "kids", id: p.id, name: p.name, score: p.score }));
+    // Curated/client-side matches with the dropdown's exact per-group caps
+    // (behavior-preserving — the live preview is unchanged).
+    const grouped = searchCurated(q, { wine: 6, beer: 6, food: 3, supplement: 4, ranked: 4, intel: 3, kids: 3 });
 
     // Optimistically render what we have before Supabase returns
-    setResults({ food: curatedHits, alcohol: beerHits, wine: wineHits, supplement: curatedSupplHits, ranked: rankedHits, intel: intelHits, kids: kidsHits });
+    setResults(grouped);
 
     // ── Async: Supabase cache search ─────────────────────────────────────────
     try {
@@ -246,48 +104,34 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
 
         const cacheFood: CacheResult[] = cacheRows
           .filter((r) => !r.is_alcohol && !r.is_supplement && !r.is_beauty)
-          .map((r) => ({
-            type: "food",
-            barcode: r.barcode,
-            name: r.product_name,
-            brand: r.brand,
-            score: r.gorilla_score,
-            grade: r.score_grade,
-          }));
+          .map(cacheRowToFood);
 
         const cacheSuppRows: CacheResult[] = cacheRows
           .filter((r) => r.is_supplement)
           .slice(0, 4)
-          .map((r) => ({
-            type: "supplement",
-            barcode: r.barcode,
-            name: r.product_name,
-            brand: r.brand,
-            score: r.gorilla_score,
-            grade: r.score_grade,
-          }));
+          .map(cacheRowToSupplement);
 
         // Merge: curated first, then cache (dedupe by barcode)
-        const curatedBarcodes = new Set(curatedHits.map((c) => c.barcode));
+        const curatedBarcodes = new Set(grouped.food.map((c) => c.barcode));
         const mergedFood = [
-          ...curatedHits,
+          ...grouped.food,
           ...cacheFood.filter((c) => !curatedBarcodes.has(c.barcode)),
         ].slice(0, 8) as (CacheResult | CuratedFoodResult)[];
 
-        const curatedSupplBarcodes = new Set(curatedSupplHits.map((c) => c.barcode));
+        const curatedSupplBarcodes = new Set(grouped.supplement.map((c) => c.barcode));
         const mergedSuppl = [
-          ...curatedSupplHits,
+          ...grouped.supplement,
           ...cacheSuppRows.filter((c) => !curatedSupplBarcodes.has(c.barcode)),
         ].slice(0, 4);
 
         setResults({
           food: mergedFood,
-          alcohol: beerHits,
-          wine: wineHits,
+          alcohol: grouped.alcohol,
+          wine: grouped.wine,
           supplement: mergedSuppl,
-          ranked: rankedHits,
-          intel: intelHits,
-          kids: kidsHits,
+          ranked: grouped.ranked,
+          intel: grouped.intel,
+          kids: grouped.kids,
         });
       }
     } catch {
@@ -325,35 +169,29 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
     };
   }, []);
 
+  // Submit (Enter/Done, or "See all results") → full results page. Additive:
+  // the live dropdown preview above is untouched.
+  const submitSearch = useCallback(() => {
+    const q = query.trim();
+    if (q.length < 2) return;
+    setOpen(false);
+    router.push(`/search?q=${encodeURIComponent(q)}`);
+  }, [query, router]);
+
   const totalResults =
     results.food.length + results.alcohol.length + results.wine.length +
     results.supplement.length + results.ranked.length + results.intel.length + results.kids.length;
 
-  const getProductLink = (result: SearchResult): string => {
-    // Deep links: every result lands on its own card, never the homepage.
-    if (result.type === "alcohol") {
-      return `/alcohol?p=${encodeURIComponent(result.id)}`;
-    }
-    if (result.type === "ranked-supplement") {
-      return `/rankings?p=${encodeURIComponent(result.id)}`;
-    }
-    if (result.type === "intel") {
-      return `${result.path}?p=${encodeURIComponent(result.id)}`;
-    }
-    if (result.type === "kids") {
-      return `/kids?p=${encodeURIComponent(result.id)}`;
-    }
-    const barcode = result.type === "food" || result.type === "supplement" || result.type === "beauty" || result.type === "curated-food"
-      ? result.barcode
-      : undefined;
-    if (barcode) return `/scan?b=${encodeURIComponent(barcode)}`;
-    return "/scan";
-  };
-
   return (
     <div ref={containerRef} className={`relative w-full ${className}`}>
       {/* INPUT */}
-      <div className="relative">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          submitSearch();
+        }}
+        className="relative"
+      >
         <svg
           className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
           viewBox="0 0 24 24"
@@ -367,6 +205,8 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
         </svg>
         <input
           type="text"
+          inputMode="search"
+          enterKeyHint="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => {
@@ -387,7 +227,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
             <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
           </svg>
         )}
-      </div>
+      </form>
 
       {/* DROPDOWN */}
       {open && query.length >= 2 && (
@@ -522,6 +362,17 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
                   ))}
                 </ResultGroup>
               )}
+
+              {/* See all results → full results page (uncapped) */}
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={submitSearch}
+                className="flex w-full items-center justify-between gap-3 border-t border-slate-800 px-5 py-3 text-left transition-colors hover:bg-slate-800"
+              >
+                <span className="text-sm text-gold">See all results for &ldquo;{query}&rdquo;</span>
+                <span className="shrink-0 text-gold/60">→</span>
+              </button>
 
               <div className="border-t border-slate-800 px-5 py-2.5">
                 <Link
