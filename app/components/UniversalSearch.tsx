@@ -161,26 +161,40 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
 
     const ql = q.toLowerCase();
 
-    // ── Client-side: alcohol (instant) ──────────────────────────────────────
-    const alcoholHits: AlcoholResult[] = ALCOHOL_PRODUCTS.filter(
-      (p) =>
-        p.name.toLowerCase().includes(ql) ||
-        p.brand.toLowerCase().includes(ql)
-    )
-      .slice(0, 6)
-      .map((p) => ({
-        type: "alcohol",
-        id: p.id,
-        name: p.name,
-        brand: p.brand,
-        abv: p.abv,
-        gorillaPour: p.gorillaPour,
-        category: p.category,
-        barcode: p.barcodes?.[0],
-      }));
+    // Token matching: every query word must appear somewhere in name+brand,
+    // order-independent — so "Thorne Creatine" finds brand "Thorne" + name
+    // "Creatine", and "Santa Carolina Cabernet" finds "Santa Carolina Reserva
+    // Cabernet Sauvignon" even though the words aren't contiguous.
+    const tokens = ql.split(/\s+/).filter(Boolean);
+    const matchesTokens = (hay: string) => tokens.every((t) => hay.includes(t));
 
-    const wineHits = alcoholHits.filter((r) => r.category === "Wines");
-    const beerHits = alcoholHits.filter((r) => r.category !== "Wines");
+    // ── Client-side: alcohol (instant) ──────────────────────────────────────
+    // Token-match the FULL list, THEN split wine vs beer, THEN cap each group
+    // independently. Capping before the split let beers consume the limit and
+    // crowd out wines, which live at the end of ALCOHOL_PRODUCTS (bulk wine
+    // batches) — so common brand/grape queries never reached them.
+    const toAlcoholResult = (p: (typeof ALCOHOL_PRODUCTS)[number]): AlcoholResult => ({
+      type: "alcohol",
+      id: p.id,
+      name: p.name,
+      brand: p.brand,
+      abv: p.abv,
+      gorillaPour: p.gorillaPour,
+      category: p.category,
+      barcode: p.barcodes?.[0],
+    });
+
+    const alcoholMatches = ALCOHOL_PRODUCTS.filter((p) =>
+      matchesTokens(`${p.name} ${p.brand}`.toLowerCase())
+    );
+    const wineHits = alcoholMatches
+      .filter((p) => p.category === "Wines")
+      .slice(0, 6)
+      .map(toAlcoholResult);
+    const beerHits = alcoholMatches
+      .filter((p) => p.category !== "Wines")
+      .slice(0, 6)
+      .map(toAlcoholResult);
 
     // ── Client-side: curated foods + supplements (instant) ──────────────────
     const curatedHits: CuratedFoodResult[] = searchCuratedFoods(q, 3).map((e) => ({
@@ -198,11 +212,6 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
       score: null,
       grade: null,
     }));
-
-    // Token matching: every query word must appear somewhere in name+brand,
-    // so "Thorne Creatine" finds brand "Thorne" + name "Creatine".
-    const tokens = ql.split(/\s+/).filter(Boolean);
-    const matchesTokens = (hay: string) => tokens.every((t) => hay.includes(t));
 
     // ── Client-side: ranked supplements (rankings hub) ───────────────────────
     const rankedHits: RankedSupplementResult[] = RANKED_SUPPLEMENTS.filter((p) =>
