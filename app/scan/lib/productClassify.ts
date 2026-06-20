@@ -9,7 +9,7 @@ import type { UpsertPayload } from "./productCache";
 
 /** Bumped whenever the scoring algorithm or gate logic changes materially.
  *  Stored on every cache row so rescore-all can target stale entries. */
-export const ALGO_VERSION = "v2.2";
+export const ALGO_VERSION = "v2.3";
 
 const ALCOHOL_KW = [
   "beer", "wine", "spirit", "cider", "seltzer", "alcoholic", "liqueur",
