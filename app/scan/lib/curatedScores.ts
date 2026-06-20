@@ -8,7 +8,8 @@
  *   STAY AWAY         — C/D   → "Poor" / "Bad" grade
  */
 
-import type { Grade } from "./scoring";
+import type { Grade, Nutriments } from "./scoring";
+import { isWholeFoodNova4 } from "./scoring";
 
 export type ScoreOverride = {
   score: number;
@@ -513,7 +514,8 @@ function categoryCap(name: string, cats: string, ing: string): { cap: number; re
 // product containing these ingredients.
 export function ingredientSanityCap(
   ingredientsText: string | null | undefined,
-  novaGroup?: number | null
+  novaGroup?: number | null,
+  nutriments?: Nutriments | null
 ): { cap: number; reason: string } | null {
   const ing = (ingredientsText ?? "").toLowerCase();
   const caps: { cap: number; reason: string }[] = [];
@@ -541,7 +543,11 @@ export function ingredientSanityCap(
   if (/sodium\s*nitrate|sodium\s*nitrite/i.test(ing)) caps.push({ cap: 45, reason: "sodium nitrate/nitrite" });
   if (/acesulfame/i.test(ing) && /aspartame/i.test(ing))
     caps.push({ cap: 48, reason: "acesulfame potassium + aspartame together" });
-  if (novaGroup === 4) {
+  // Whole-food macro signature (high protein, real fiber, low sugar) is exempt
+  // from the NOVA-4 cap — same single-source gate as the nutrition layer, so a
+  // mis-tagged nut/legume isn't re-crushed here after the -55 waiver. Sugary /
+  // low-protein junk fails the gate and is still capped below.
+  if (novaGroup === 4 && !(nutriments && isWholeFoodNova4(nutriments, novaGroup))) {
     // Simple products (≤5 ingredients, no artificial additives) shouldn't be
     // penalised as hard as Doritos — plain rice crackers made from rice + oil + salt
     // are categorically different from industrial snack foods.
@@ -586,6 +592,10 @@ export type GateInput = {
   ingredientsText?: string | null;
   categoriesTags?: string[] | null;
   novaGroup?: number | null;
+  /** Per-100g nutriments — threaded so the NOVA-4 whole-food exemption
+   *  (isWholeFoodNova4) can fire in the ingredient sanity cap. Optional:
+   *  callers without nutriment data simply get the unrelaxed NOVA-4 cap. */
+  nutriments?: Nutriments | null;
 };
 
 export type GateOutcome = {
@@ -656,7 +666,7 @@ export function applyScoringGate(algorithmScore: number, input: GateInput): Gate
 
   // ── STEP 6 — CURATED OVERRIDE — DO NOT REMOVE: ingredient sanity check ─────
   // The final line of defence before any score reaches the user.
-  const sanity = ingredientSanityCap(input.ingredientsText, input.novaGroup);
+  const sanity = ingredientSanityCap(input.ingredientsText, input.novaGroup, input.nutriments);
   if (sanity && score > sanity.cap) {
     score = sanity.cap;
     source = "ingredient-flagged";

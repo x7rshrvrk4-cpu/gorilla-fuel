@@ -157,6 +157,7 @@ export async function POST(request: NextRequest) {
         ingredientsText: row.ingredients_text,
         categoriesTags: cats,
         novaGroup: row.nova_group,
+        nutriments: row.nutrition_data,
       });
 
       // Only write if score changed or algorithm_version is stale

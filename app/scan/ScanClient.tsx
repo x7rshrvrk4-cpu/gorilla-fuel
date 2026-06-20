@@ -148,6 +148,7 @@ function gateResult(base: ScoreResult, barcode: string, product: OffProduct): Sc
     ingredientsText: product.ingredients_text || product.ingredients_text_en,
     categoriesTags: product.categories_tags,
     novaGroup: product.nova_group ?? base.novaGroup,
+    nutriments: product.nutriments,
   });
 
   // When the gate reduces the final score (curated override, brand cap, category cap),

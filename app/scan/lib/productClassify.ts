@@ -102,6 +102,7 @@ export function buildOffRow(p: Record<string, unknown>): UpsertPayload | null {
         ingredientsText: (p.ingredients_text as string) ?? null,
         categoriesTags: cats,
         novaGroup: (p.nova_group as number) || null,
+        nutriments: nutrition_data as Parameters<typeof computeScore>[0],
       });
       gorilla_score = gated.score;
       score_grade = gated.grade;

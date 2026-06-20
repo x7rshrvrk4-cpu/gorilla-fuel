@@ -991,6 +991,23 @@ function asNovaGroup(value: number | undefined): NovaGroup | null {
   return null;
 }
 
+/**
+ * Whole-food macro signature on a NOVA-4 product: high protein, real fiber, and
+ * low sugar — the profile of a mis-tagged whole food (roasted nuts, legumes,
+ * plain cheese-and-grain), not industrial junk. SINGLE SOURCE OF TRUTH for the
+ * NOVA-4 relaxation: shared by the nutrition sub-score AND both downstream
+ * final-score caps (computeScore Rule 3 + ingredientSanityCap). Sugary /
+ * low-protein "organic" junk fails this gate and keeps the full NOVA-4 penalty.
+ */
+export function isWholeFoodNova4(n: Nutriments, novaGroup?: number | null): boolean {
+  return (
+    asNovaGroup(novaGroup ?? undefined) === 4 &&
+    (n.proteins_100g ?? 0) > 15 &&
+    (n.fiber_100g ?? 0) > 2.5 &&
+    (n.sugars_100g ?? 0) < 10
+  );
+}
+
 export function novaGroupLabel(group: number): string | null {
   const g = asNovaGroup(group);
   return g === null ? null : NOVA_LABEL[g];
@@ -1190,10 +1207,19 @@ export function scoreNutrition(
     // For the low-cal condiment set, a NOVA-4 tag carries minimal nutritional
     // weight, so treat it as NOVA-3-equivalent (−20 instead of −55).
     const novaRelaxed = lowCalCondiment && nova === 4;
-    const effectiveNova: NovaGroup = novaRelaxed ? 3 : nova;
+    // Whole-food macro signature: a NOVA-4 tag on a high-protein, real-fiber,
+    // low-sugar product is almost always an OFF mis-tag (roasted nuts, legumes,
+    // plain cheese-and-grain). Skip the -55 ultra-processed penalty (treat as
+    // NOVA-2-equivalent, penalty 0) so nutrient density scores on its merits the
+    // way Nutri-Score/Yuka credit it. Sugary "organic" junk fails the gate
+    // (low protein / high sugar) and keeps the full penalty.
+    const wholeFoodRelaxed = !novaRelaxed && isWholeFoodNova4(n, context?.novaGroup);
+    const effectiveNova: NovaGroup = novaRelaxed ? 3 : wholeFoodRelaxed ? 2 : nova;
     const penalty = NOVA_PENALTY[effectiveNova];
     score -= penalty; // negative penalty = bonus for NOVA 1
-    if (novaRelaxed) {
+    if (wholeFoodRelaxed) {
+      flags.push("Whole-food macro profile (high protein and fiber, low sugar) -- ultra-processed (NOVA 4) penalty waived; likely an OFF mis-tag, so nutrient density scores on its merits.");
+    } else if (novaRelaxed) {
       flags.push("Low-calorie condiment/beverage — minimal nutritional impact; ultra-processed penalty reduced.");
     } else if (penalty > 0) {
       flags.push(`NOVA Group ${nova} — ${NOVA_LABEL[nova]}: ${NOVA_DESCRIPTION[nova]}`);
@@ -1782,8 +1808,10 @@ export function computeScore(
       flags.push("Junk food category with no nutrition data — score capped at 35. Incomplete data on ultra-processed food always defaults low.");
     }
 
-    // Rule 3: NOVA Group 4 (ultra-processed) → max 50, or 65 for simple products
-    if (asNovaGroup(context?.novaGroup ?? undefined) === 4) {
+    // Rule 3: NOVA Group 4 (ultra-processed) → max 50, or 65 for simple products.
+    // Whole-food macro signature (see isWholeFoodNova4) is exempt — a mis-tagged
+    // nut/legume scores on its merits instead of being re-crushed to 50/65.
+    if (asNovaGroup(context?.novaGroup ?? undefined) === 4 && !isWholeFoodNova4(nutriments, context?.novaGroup)) {
       const ingText4 = (ingredientsText ?? "").toLowerCase();
       const ingStripped4 = ingText4.replace(/\([^)]*\)/g, "");
       const ingCount4 = ingStripped4.trim() ? ingStripped4.split(",").filter(s => s.trim()).length : 99;
