@@ -1008,6 +1008,26 @@ export function isWholeFoodNova4(n: Nutriments, novaGroup?: number | null): bool
   );
 }
 
+/**
+ * Core-nutriment completeness: calories + protein + sugar + saturated fat all
+ * present (non-null). Fiber is deliberately NOT required (treated as 0 when
+ * absent, per the MODERATE keep rule). SINGLE SOURCE OF TRUTH for "do we have
+ * enough macro data to score on merits?" — used to gate the thin-data ceiling so
+ * a nutriment-complete product is never flattened to 65 merely for lacking an
+ * ingredient list / NOVA tag. Normal macro penalties + the sugar-dominant cap
+ * still apply, so junk with full nutriments still scores low on its own demerits.
+ */
+export function hasCoreNutriments(n: Nutriments | null | undefined): boolean {
+  const num = (v: unknown): boolean => typeof v === "number" && Number.isFinite(v);
+  return (
+    !!n &&
+    num(n["energy-kcal_100g"]) &&
+    num(n.proteins_100g) &&
+    num(n.sugars_100g) &&
+    num(n["saturated-fat_100g"])
+  );
+}
+
 export function novaGroupLabel(group: number): string | null {
   const g = asNovaGroup(group);
   return g === null ? null : NOVA_LABEL[g];
@@ -1861,11 +1881,15 @@ export function computeScore(
   }
 
   // ── Thin-data "can't fully assess" ceiling ───────────────────────────────
-  // No ingredient list AND no NOVA group = we have neither the additive signal
-  // nor the processing signal to judge this product. Absence of disqualifying
-  // data must not read as "Excellent": cap at 65 so unassessable products land
-  // in the honest middle. Applies to live scans and imports (shared path).
-  if (additivesUnverified && context?.novaGroup == null && finalScore > 65) {
+  // No ingredient list AND no NOVA group = we lack the additive AND processing
+  // signals. Absence of disqualifying data must not read as "Excellent": cap at
+  // 65 so unassessable products land in the honest middle. BUT only when the
+  // macro data is ALSO thin — a product with complete core nutriments (calories
+  // + protein + sugar + saturated fat) is NOT unassessable: it scores on its real
+  // macros (and all normal penalties + the sugar-dominant cap still bind, so junk
+  // with full nutriments still scores low). The ceiling stays as a safety net for
+  // genuinely thin rows missing core macros. Applies to live scans and imports.
+  if (additivesUnverified && context?.novaGroup == null && !hasCoreNutriments(nutriments) && finalScore > 65) {
     finalScore = 65;
     flags.push("Limited data — no ingredient list and no processing (NOVA) data available; can't fully assess, so the score is capped at 65.");
   }
