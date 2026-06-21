@@ -1277,6 +1277,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "motts-clamato-caesar",
+    barcodes: ["065912002795"],
     category: "Hard Seltzer",
     maltBasedBeerStore: true,
     brand: "Mott's",
@@ -7725,6 +7726,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "arizona-hard-half-and-half-473ml",
+    barcodes: ["056327021594"],
     category: "Hard Seltzer",
     maltBasedBeerStore: true,
     beerStyle: "Hard Iced Tea",
@@ -7762,6 +7764,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "coors-seltzer-slush-cherry-473ml",
+    barcodes: ["056327022737"],
     category: "Hard Seltzer",
     maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
@@ -7781,6 +7784,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "coors-seltzer-slush-grape-473ml",
+    barcodes: ["056327024144"],
     category: "Hard Seltzer",
     maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
@@ -8823,6 +8827,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "hollandia-strong-11-9-500ml",
+    barcodes: ["8714800049184"],
     category: "Lager",
     glutenStatus: "contains-gluten",
     beerStyle: "Strong Lager",
@@ -8841,6 +8846,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "bavaria-8-6-original-500ml",
+    barcodes: ["8714800029193"],
     category: "Lager",
     glutenStatus: "contains-gluten",
     beerStyle: "Strong Lager",
@@ -8876,6 +8882,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "bavaria-premium-beer-500ml",
+    barcodes: ["8714800007191"],
     category: "Lager",
     glutenStatus: "contains-gluten",
     beerStyle: "Dutch Lager",
@@ -8894,6 +8901,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "8-6-extreme-500ml",
+    barcodes: ["8714800026949"],
     category: "Lager",
     glutenStatus: "contains-gluten",
     beerStyle: "Strong Lager",
@@ -8911,6 +8919,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "8-6-black-stout-500ml",
+    barcodes: ["819860026156"],
     category: "IPA & Craft Ale",
     glutenStatus: "contains-gluten",
     beerStyle: "Strong Stout",
@@ -8928,6 +8937,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "8-6-cherry-strong-500ml",
+    barcodes: ["8714800054423"],
     category: "Lager",
     glutenStatus: "contains-gluten",
     beerStyle: "Strong Fruit Lager",
@@ -9015,6 +9025,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "faxe-10-extra-strong-568ml",
+    barcodes: ["5741000105689"],
     category: "Lager",
     glutenStatus: "contains-gluten",
     beerStyle: "Strong Lager",
@@ -9519,6 +9530,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "martens-gold-500ml",
+    barcodes: ["5411616148546"],
     category: "Lager",
     glutenStatus: "contains-gluten",
     beerStyle: "Belgian Lager",
@@ -10070,6 +10082,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "pabst-max-7-1-473ml",
+    barcodes: ["056910400027"],
     category: "Lager",
     glutenStatus: "contains-gluten",
     beerStyle: "Strong Lager",
@@ -10439,6 +10452,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "molson-cold-shots-473ml",
+    barcodes: ["056327023048"],
     category: "Lager",
     glutenStatus: "contains-gluten",
     beerStyle: "Strong Lager",
@@ -10457,6 +10471,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "molson-cold-shots-max-473ml",
+    barcodes: ["056327024762"],
     category: "Lager",
     glutenStatus: "contains-gluten",
     beerStyle: "Strong Lager",
@@ -10614,6 +10629,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "blue-ice-473ml",
+    barcodes: ["062067555350"],
     category: "Lager",
     glutenStatus: "contains-gluten",
     beerStyle: "Ice Lager",
@@ -11137,6 +11153,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "maclays-473ml",
+    barcodes: ["056910451111"],
     category: "Lager",
     glutenStatus: "contains-gluten",
     beerStyle: "Lager",
@@ -11993,6 +12010,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "james-ready-5-5-473ml",
+    barcodes: ["776029701685"],
     category: "Lager",
     glutenStatus: "contains-gluten",
     beerStyle: "Lager",
@@ -12316,6 +12334,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "cowbell-hazydays-ipa-473ml",
+    barcodes: ["628028020161"],
     category: "IPA & Craft Ale",
     glutenStatus: "contains-gluten",
     beerStyle: "Hazy IPA",
@@ -12334,6 +12353,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "cowbell-smooth-sail-lager-473ml",
+    barcodes: ["628028020215"],
     category: "Lager",
     glutenStatus: "contains-gluten",
     beerStyle: "Lager",
@@ -12654,6 +12674,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "jb-sour-grape-200ml",
+    barcodes: ["684746377109"],
     category: "Hard Seltzer",
     maltBasedBeerStore: true,
     beerStyle: "Flavoured Malt Beverage",
@@ -12689,6 +12710,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "jb-peach-200ml",
+    barcodes: ["684746397329"],
     category: "Hard Seltzer",
     maltBasedBeerStore: true,
     beerStyle: "Flavoured Malt Beverage",
@@ -12725,6 +12747,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "jb-lemonade-200ml",
+    barcodes: ["684746397350"],
     category: "Hard Seltzer",
     maltBasedBeerStore: true,
     beerStyle: "Flavoured Malt Beverage",
@@ -12743,6 +12766,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "jb-watermelon-200ml",
+    barcodes: ["684746397374"],
     category: "Hard Seltzer",
     maltBasedBeerStore: true,
     beerStyle: "Flavoured Malt Beverage",
@@ -12795,6 +12819,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "lion-stout-473ml",
+    barcodes: ["4791059002454"],
     category: "IPA & Craft Ale",
     glutenStatus: "contains-gluten",
     beerStyle: "Sri Lankan Stout",
@@ -13490,39 +13515,36 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   // LCBO-sourced wine batch (verified headliners + partials) — kept in wines.ts
   // to avoid bloating this file; spread in here so all consumers get them.
   // ── IMPORTED 2026-06 (beer/RTD NEW cards, scoreless) ──
-  { id: "cottage-springs-punched-up-pink-lemonade-473ml", category: "Hard Seltzer", brand: "Cottage Springs", name: "Cottage Springs Punched Up Pink Lemonade", abv: 7, servingMl: 473, beerStyle: "Vodka soda/cooler", carbsPerCan: 0, sugarPerCan: 0, knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "verified" },
-  { id: "cottage-springs-punched-up-cherry-vodka-limeade-473ml", category: "Hard Seltzer", brand: "Cottage Springs", name: "Cottage Springs Punched Up Cherry Vodka Limeade", abv: 7, servingMl: 473, beerStyle: "Vodka cooler", carbsPerCan: 0, sugarPerCan: 0, knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "verified" },
-  { id: "cottage-springs-hard-seltzer-variety-355ml", category: "Hard Seltzer", brand: "Cottage Springs", name: "Cottage Springs Hard Seltzer Variety", abv: 5, servingMl: 355, beerStyle: "Hard seltzer", caloriesPerCan: 100, carbsPerCan: 0, sugarPerCan: 0, knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "verified" },
-  { id: "black-fly-vodka-sour-raspberry-473ml", category: "Hard Seltzer", brand: "Black Fly", name: "Black Fly Vodka Sour Raspberry", abv: 7, servingMl: 473, beerStyle: "Vodka RTD", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "smirnoff-ice-berry-blast-473ml", category: "Hard Seltzer", brand: "Diageo", name: "Smirnoff Ice Berry Blast", servingMl: 473, beerStyle: "Malt/vodka cooler", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "smirnoff-ice-creamsicle-blast-473ml", category: "Hard Seltzer", brand: "Diageo", name: "Smirnoff Ice Creamsicle Blast", servingMl: 473, beerStyle: "Cooler", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "coors-seltzer-slushie-variety-355ml", category: "Hard Seltzer", brand: "Molson Coors", name: "Coors Seltzer Slushie Variety", abv: 7, servingMl: 355, beerStyle: "Hard seltzer variety", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "arizona-hard-half-half-iced-tea-lemonade-473ml", category: "Hard Seltzer", brand: "AriZona", name: "AriZona Hard Half & Half Iced Tea Lemonade", servingMl: 473, beerStyle: "Hard iced tea", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "arizona-hard-iced-tea-peach-vodka-473ml", category: "Hard Seltzer", brand: "AriZona", name: "AriZona Hard Iced Tea Peach Vodka", servingMl: 473, beerStyle: "Hard iced tea", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "crown-royal-whisky-cola-473ml", category: "Hard Seltzer", brand: "Diageo", name: "Crown Royal Whisky & Cola", servingMl: 473, beerStyle: "Whisky RTD", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "bud-light-strawberry-lemonade-473ml", category: "Hard Seltzer", brand: "Labatt/AB InBev", name: "Bud Light Strawberry Lemonade", servingMl: 473, beerStyle: "Flavoured beer/RTD", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "waterloo-mango-passionfruit-radler-473ml", category: "Hard Seltzer", brand: "Waterloo Brewing", name: "Waterloo Mango Passionfruit Radler", servingMl: 473, beerStyle: "Radler", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "cowbell-cerveza-473ml", category: "Lager", brand: "Cowbell Brewing", name: "Cowbell Cerveza", servingMl: 473, beerStyle: "Mexican-style lager", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "cowbell-donnybrook-easy-ipa-473ml", category: "IPA & Craft Ale", brand: "Cowbell Brewing", name: "Cowbell Donnybrook Easy IPA", abv: 4.3, servingMl: 473, beerStyle: "Session IPA", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "flying-monkeys-sparklepuff-473ml", category: "IPA & Craft Ale", brand: "Flying Monkeys", name: "Flying Monkeys Sparklepuff", abv: 10.2, servingMl: 473, beerStyle: "Imperial/strong ale", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "flying-monkeys-kryptonite-473ml", category: "IPA & Craft Ale", brand: "Flying Monkeys", name: "Flying Monkeys Kryptonite", abv: 7, servingMl: 473, beerStyle: "Imperial pale ale/IPA", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "flying-monkeys-light-moves-473ml", category: "Light Beer", brand: "Flying Monkeys", name: "Flying Monkeys Light Moves", abv: 4, servingMl: 473, beerStyle: "Light ale/lager", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "flying-monkeys-juicy-ass-473ml", category: "IPA & Craft Ale", brand: "Flying Monkeys", name: "Flying Monkeys Juicy Ass", abv: 6.5, servingMl: 473, beerStyle: "Juicy IPA", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "cottage-springs-punched-up-pink-lemonade-473ml", barcodes: ["051497458348"], category: "Hard Seltzer", brand: "Cottage Springs", name: "Cottage Springs Punched Up Pink Lemonade", abv: 7, servingMl: 473, beerStyle: "Vodka soda/cooler", carbsPerCan: 0, sugarPerCan: 0, knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "verified" },
+  { id: "cottage-springs-punched-up-cherry-vodka-limeade-473ml", barcodes: ["051497480608"], category: "Hard Seltzer", brand: "Cottage Springs", name: "Cottage Springs Punched Up Cherry Vodka Limeade", abv: 7, servingMl: 473, beerStyle: "Vodka cooler", carbsPerCan: 0, sugarPerCan: 0, knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "verified" },
+  { id: "cottage-springs-hard-seltzer-variety-355ml", barcodes: ["628055980995"], category: "Hard Seltzer", brand: "Cottage Springs", name: "Cottage Springs Hard Seltzer Variety", abv: 5, servingMl: 355, beerStyle: "Hard seltzer", caloriesPerCan: 100, carbsPerCan: 0, sugarPerCan: 0, knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "verified" },
+  { id: "black-fly-vodka-sour-raspberry-473ml", barcodes: ["883043000844"], category: "Hard Seltzer", brand: "Black Fly", name: "Black Fly Vodka Sour Raspberry", abv: 7, servingMl: 473, beerStyle: "Vodka RTD", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "smirnoff-ice-berry-blast-473ml", barcodes: ["082000785552"], category: "Hard Seltzer", brand: "Diageo", name: "Smirnoff Ice Berry Blast", servingMl: 473, beerStyle: "Malt/vodka cooler", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "smirnoff-ice-creamsicle-blast-473ml", barcodes: ["082000802440"], category: "Hard Seltzer", brand: "Diageo", name: "Smirnoff Ice Creamsicle Blast", servingMl: 473, beerStyle: "Cooler", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "coors-seltzer-slushie-variety-355ml", barcodes: ["056327024977"], category: "Hard Seltzer", brand: "Molson Coors", name: "Coors Seltzer Slushie Variety", abv: 7, servingMl: 355, beerStyle: "Hard seltzer variety", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "arizona-hard-iced-tea-peach-vodka-473ml", barcodes: ["056327017795"], category: "Hard Seltzer", brand: "AriZona", name: "AriZona Hard Iced Tea Peach Vodka", servingMl: 473, beerStyle: "Hard iced tea", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "crown-royal-whisky-cola-473ml", barcodes: ["082000796855"], category: "Hard Seltzer", brand: "Diageo", name: "Crown Royal Whisky & Cola", servingMl: 473, beerStyle: "Whisky RTD", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "bud-light-strawberry-lemonade-473ml", barcodes: ["062067380433"], category: "Hard Seltzer", brand: "Labatt/AB InBev", name: "Bud Light Strawberry Lemonade", servingMl: 473, beerStyle: "Flavoured beer/RTD", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "waterloo-mango-passionfruit-radler-473ml", barcodes: ["675325723332"], category: "Hard Seltzer", brand: "Waterloo Brewing", name: "Waterloo Mango Passionfruit Radler", servingMl: 473, beerStyle: "Radler", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "cowbell-cerveza-473ml", barcodes: ["628028021069"], category: "Lager", brand: "Cowbell Brewing", name: "Cowbell Cerveza", servingMl: 473, beerStyle: "Mexican-style lager", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "cowbell-donnybrook-easy-ipa-473ml", barcodes: ["628028021229"], category: "IPA & Craft Ale", brand: "Cowbell Brewing", name: "Cowbell Donnybrook Easy IPA", abv: 4.3, servingMl: 473, beerStyle: "Session IPA", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "flying-monkeys-sparklepuff-473ml", barcodes: ["870766000664"], category: "IPA & Craft Ale", brand: "Flying Monkeys", name: "Flying Monkeys Sparklepuff", abv: 10.2, servingMl: 473, beerStyle: "Imperial/strong ale", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "flying-monkeys-kryptonite-473ml", barcodes: ["870766001425"], category: "IPA & Craft Ale", brand: "Flying Monkeys", name: "Flying Monkeys Kryptonite", abv: 7, servingMl: 473, beerStyle: "Imperial pale ale/IPA", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "flying-monkeys-light-moves-473ml", barcodes: ["870766001555"], category: "Light Beer", brand: "Flying Monkeys", name: "Flying Monkeys Light Moves", abv: 4, servingMl: 473, beerStyle: "Light ale/lager", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
   { id: "nickel-brook-wicked-awesome-ipa-473ml", category: "IPA & Craft Ale", brand: "Nickel Brook", name: "Nickel Brook Wicked Awesome IPA", abv: 6.5, servingMl: 473, beerStyle: "IPA", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "bench-brewing-balls-fall-session-ipa-473ml", category: "IPA & Craft Ale", brand: "Bench Brewing", name: "Bench Brewing Balls Fall Session IPA", abv: 4.5, servingMl: 473, beerStyle: "Session IPA", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "london-brewing-co-front-porch-session-ipa-473ml", category: "IPA & Craft Ale", brand: "London Brewing", name: "London Brewing Co. Front Porch Session IPA", abv: 4, servingMl: 473, beerStyle: "Session IPA", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "apollo-seven-473ml", category: "IPA & Craft Ale", brand: "High Gravity Brewing", name: "Apollo Seven", abv: 7, servingMl: 473, beerStyle: "High-gravity ale", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "frank-brewing-simple-man-oatmeal-stout-473ml", category: "IPA & Craft Ale", brand: "Frank Brewing", name: "Frank Brewing Simple Man Oatmeal Stout", abv: 6.1, servingMl: 473, beerStyle: "Oatmeal stout", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "sneaky-weasel-473ml", category: "Lager", brand: "Sneaky Weasel Group", name: "Sneaky Weasel", abv: 5.6, servingMl: 473, beerStyle: "Lager/golden ale", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "sneaky-weasel-710ml", category: "Lager", brand: "Sneaky Weasel Group", name: "Sneaky Weasel", abv: 5.6, servingMl: 710, beerStyle: "Lager/golden ale", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "bench-brewing-balls-fall-session-ipa-473ml", barcodes: ["628055459019"], category: "IPA & Craft Ale", brand: "Bench Brewing", name: "Bench Brewing Balls Fall Session IPA", abv: 4.5, servingMl: 473, beerStyle: "Session IPA", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "london-brewing-co-front-porch-session-ipa-473ml", barcodes: ["752830951259"], category: "IPA & Craft Ale", brand: "London Brewing", name: "London Brewing Co. Front Porch Session IPA", abv: 4, servingMl: 473, beerStyle: "Session IPA", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "apollo-seven-473ml", barcodes: ["713160500050"], category: "IPA & Craft Ale", brand: "High Gravity Brewing", name: "Apollo Seven", abv: 7, servingMl: 473, beerStyle: "High-gravity ale", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "frank-brewing-simple-man-oatmeal-stout-473ml", barcodes: ["040232614934"], category: "IPA & Craft Ale", brand: "Frank Brewing", name: "Frank Brewing Simple Man Oatmeal Stout", abv: 6.1, servingMl: 473, beerStyle: "Oatmeal stout", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "sneaky-weasel-473ml", barcodes: ["626990366850"], category: "Lager", brand: "Sneaky Weasel Group", name: "Sneaky Weasel", abv: 5.6, servingMl: 473, beerStyle: "Lager/golden ale", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "sneaky-weasel-710ml", barcodes: ["628173970182"], category: "Lager", brand: "Sneaky Weasel Group", name: "Sneaky Weasel", abv: 5.6, servingMl: 710, beerStyle: "Lager/golden ale", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
   { id: "4est-lager-473ml", category: "Lager", brand: "4EST", name: "4EST Lager", abv: 5, servingMl: 473, beerStyle: "Lager", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "paulaner-hefe-weissbier-dunkel-500ml", category: "IPA & Craft Ale", brand: "Paulaner", name: "Paulaner Hefe-Weissbier Dunkel", abv: 5.3, servingMl: 500, beerStyle: "Dark wheat beer", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "tennent-s-lager-500ml", category: "Lager", brand: "Tennent's/C&C", name: "Tennent's Lager", abv: 4, servingMl: 500, beerStyle: "Pale lager", caloriesPerCan: 150, knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "verified" },
-  { id: "labatt-max-ice-473ml", category: "Lager", brand: "Labatt", name: "Labatt Max Ice", abv: 7.1, servingMl: 473, beerStyle: "Ice lager (strong)", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "labatt-blue-ice-473ml", category: "Lager", brand: "Labatt", name: "Labatt Blue Ice", abv: 5.5, servingMl: 473, beerStyle: "Ice lager", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "carlsberg-light-473ml", category: "Light Beer", brand: "Carlsberg", name: "Carlsberg Light", servingMl: 473, beerStyle: "Light lager", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "corona-cero-330ml", category: "Non-Alcoholic", brand: "Grupo Modelo/AB InBev", name: "Corona Cero", abv: 0, servingMl: 330, beerStyle: "Non-alcoholic lager", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
-  { id: "busch-740ml", category: "Lager", brand: "Labatt/AB InBev", name: "Busch", servingMl: 740, beerStyle: "Lager", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "paulaner-hefe-weissbier-dunkel-500ml", barcodes: ["4066600497615"], category: "IPA & Craft Ale", brand: "Paulaner", name: "Paulaner Hefe-Weissbier Dunkel", abv: 5.3, servingMl: 500, beerStyle: "Dark wheat beer", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "tennent-s-lager-500ml", barcodes: ["5391516930444"], category: "Lager", brand: "Tennent's/C&C", name: "Tennent's Lager", abv: 4, servingMl: 500, beerStyle: "Pale lager", caloriesPerCan: 150, knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "verified" },
+  { id: "labatt-max-ice-473ml", barcodes: ["062067333538"], category: "Lager", brand: "Labatt", name: "Labatt Max Ice", abv: 7.1, servingMl: 473, beerStyle: "Ice lager (strong)", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "carlsberg-light-473ml", barcodes: ["675325092223"], category: "Light Beer", brand: "Carlsberg", name: "Carlsberg Light", servingMl: 473, beerStyle: "Light lager", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "corona-cero-330ml", barcodes: ["062067424977"], category: "Non-Alcoholic", brand: "Grupo Modelo/AB InBev", name: "Corona Cero", abv: 0, servingMl: 330, beerStyle: "Non-alcoholic lager", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
+  { id: "busch-740ml", barcodes: ["062067318702"], category: "Lager", brand: "Labatt/AB InBev", name: "Busch", servingMl: 740, beerStyle: "Lager", knownAdditives: [], additiveCount: 0, gorillaPour: 3, availability: "LCBO", confidence: "partial" },
   ...WINES,
 ];
 
