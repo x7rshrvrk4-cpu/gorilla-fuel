@@ -14,6 +14,7 @@ const PRIMARY_LINKS = [
 ];
 
 const INTEL_LINKS = [
+  { href: "/top",      label: "Top Scored", color: "text-emerald-400", activeColor: "bg-emerald-900/20 text-emerald-400", indicator: "bg-emerald-500" },
   { href: "/approved", label: "Approved",  color: "text-gold",      activeColor: "bg-gold/10 text-gold",     indicator: "bg-gold" },
   { href: "/cheat",    label: "Cheat List", color: "text-amber-400", activeColor: "bg-amber-900/20 text-amber-400", indicator: "bg-amber-500" },
   { href: "/avoid",    label: "Stay Away",  color: "text-red-400",   activeColor: "bg-red-900/20 text-red-400",    indicator: "bg-red-600" },
@@ -29,7 +30,7 @@ const SECONDARY_LINKS = [
   { href: "/about",      label: "About" },
 ];
 
-const INTEL_PATHS = ["/approved", "/cheat", "/avoid"];
+const INTEL_PATHS = ["/top", "/approved", "/cheat", "/avoid"];
 
 export default function Navigation() {
   const pathname = usePathname();
