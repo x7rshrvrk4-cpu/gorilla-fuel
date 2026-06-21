@@ -38,26 +38,32 @@ function categoryToTab(cat: AlcoholCategory): PageTab {
 type BeerFilter =
   | "all" | "cleanest" | "low-carb" | "low-cal" | "gluten-free"
   | "london-on" | "ontario-craft" | "toronto" | "hamilton"
-  | "niagara-region" | "ottawa" | "eastern-ontario"
+  | "niagara-region" | "ottawa"
   | "ipa" | "lager" | "stout";
 
-const BEER_FILTERS: { key: BeerFilter; label: string }[] = [
-  { key: "all",            label: "All" },
-  { key: "cleanest",       label: "Cleanest" },
-  { key: "low-carb",       label: "Low Carb (<5g)" },
-  { key: "low-cal",        label: "Low Cal (<100 cal)" },
-  { key: "gluten-free",    label: "✓ Gluten Free" },
-  { key: "ipa",            label: "IPA" },
-  { key: "lager",          label: "Lager" },
-  { key: "stout",          label: "Stout" },
+// Grouped for a cleaner panel: Dietary (primary) / Style / Region (collapsible).
+// All groups still write to the single `beerFilter` state — grouping is visual.
+const BEER_DIETARY: { key: BeerFilter; label: string }[] = [
+  { key: "all",         label: "All" },
+  { key: "cleanest",    label: "Cleanest" },
+  { key: "low-carb",    label: "Low Carb (<5g)" },
+  { key: "low-cal",     label: "Low Cal (<100 cal)" },
+  { key: "gluten-free", label: "✓ Gluten Free" },
+];
+const BEER_STYLE: { key: BeerFilter; label: string }[] = [
+  { key: "ipa",   label: "IPA" },
+  { key: "lager", label: "Lager" },
+  { key: "stout", label: "Stout" },
+];
+const BEER_REGION: { key: BeerFilter; label: string }[] = [
   { key: "london-on",      label: "London ON" },
   { key: "ontario-craft",  label: "Ontario Craft" },
   { key: "toronto",        label: "Toronto" },
   { key: "hamilton",       label: "Hamilton" },
   { key: "niagara-region", label: "Niagara" },
   { key: "ottawa",         label: "Ottawa" },
-  { key: "eastern-ontario",label: "Eastern Ontario" },
 ];
+const BEER_REGION_KEYS = new Set<BeerFilter>(BEER_REGION.map((f) => f.key));
 
 // ── RTD filter chips ──────────────────────────────────────────────────────────
 
@@ -107,6 +113,7 @@ export default function AlcoholClient() {
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<PageTab>("BEER");
   const [beerFilter, setBeerFilter] = useState<BeerFilter>("all");
+  const [regionOpen, setRegionOpen] = useState(false);
   const [rtdFilter, setRtdFilter] = useState<RtdFilter>("all");
   const [wineFilter, setWineFilter] = useState<WineFilter>("all");
   const [wineSort, setWineSort] = useState<WineSort>("gorilla");
@@ -149,7 +156,6 @@ export default function AlcoholClient() {
           case "hamilton":        return p.cityRegion === "Hamilton";
           case "niagara-region":  return p.cityRegion === "Niagara";
           case "ottawa":          return p.cityRegion === "Ottawa";
-          case "eastern-ontario": return p.cityRegion === "Ottawa";
           case "ipa":             return p.beerStyle?.toLowerCase().includes("ipa") || p.category === "IPA & Craft Ale";
           case "lager":           return p.beerStyle?.toLowerCase().includes("lager") || p.beerStyle?.toLowerCase().includes("pilsner") || p.category === "Lager";
           case "stout":           return p.beerStyle?.toLowerCase().includes("stout") || p.beerStyle?.toLowerCase().includes("porter");
@@ -211,6 +217,29 @@ export default function AlcoholClient() {
   }, [tab, beerFilter, rtdFilter, wineFilter, wineSort, isBeer, isRtd, isWine]);
 
   const searchPlaceholder = isWine ? "Search wines by name or winery…" : "Search beers, seltzers, ciders…";
+
+  // Region is collapsed by default; auto-expanded (and flagged) when a region is the active filter.
+  const regionActive = BEER_REGION_KEYS.has(beerFilter);
+  const activeRegionLabel = BEER_REGION.find((f) => f.key === beerFilter)?.label;
+  const regionEffectiveOpen = regionOpen || regionActive;
+
+  /** Single beer chip — every group calls this, so all stay single-select on `beerFilter`. */
+  const renderBeerChip = (f: { key: BeerFilter; label: string }) => (
+    <button
+      key={f.key}
+      type="button"
+      onClick={() => setBeerFilter(f.key)}
+      className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-[0.2em] transition-colors ${
+        beerFilter === f.key
+          ? f.key === "london-on"
+            ? "border-emerald-500 text-emerald-400"
+            : "border-amber-400 text-amber-400"
+          : "border-slate-700 text-slate-400 hover:border-amber-400/50 hover:text-foreground"
+      }`}
+    >
+      {f.label}
+    </button>
+  );
 
   return (
     <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
@@ -291,25 +320,37 @@ export default function AlcoholClient() {
         ))}
       </div>
 
-      {/* FILTER CHIPS — beer */}
+      {/* FILTER CHIPS — beer (grouped: Dietary / Style / Region) */}
       {isBeer && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {BEER_FILTERS.map((f) => (
+        <div className="mt-4 space-y-3">
+          {/* Dietary */}
+          <div>
+            <p className="mb-1.5 text-[10px] uppercase tracking-[0.25em] text-slate-500">Dietary</p>
+            <div className="flex flex-wrap gap-2">{BEER_DIETARY.map(renderBeerChip)}</div>
+          </div>
+
+          {/* Style */}
+          <div>
+            <p className="mb-1.5 text-[10px] uppercase tracking-[0.25em] text-slate-500">Style</p>
+            <div className="flex flex-wrap gap-2">{BEER_STYLE.map(renderBeerChip)}</div>
+          </div>
+
+          {/* Region (collapsed by default; auto-expands when a region is active) */}
+          <div>
             <button
-              key={f.key}
               type="button"
-              onClick={() => setBeerFilter(f.key)}
-              className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-[0.2em] transition-colors ${
-                beerFilter === f.key
-                  ? f.key === "london-on"
-                    ? "border-emerald-500 text-emerald-400"
-                    : "border-amber-400 text-amber-400"
-                  : "border-slate-700 text-slate-400 hover:border-amber-400/50 hover:text-foreground"
-              }`}
+              onClick={() => setRegionOpen((v) => !v)}
+              aria-expanded={regionEffectiveOpen}
+              className="mb-1.5 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.25em] text-slate-500 transition-colors hover:text-foreground"
             >
-              {f.label}
+              Region
+              {regionActive && <span className="normal-case tracking-normal text-amber-400">· {activeRegionLabel}</span>}
+              <span aria-hidden>{regionEffectiveOpen ? "▴" : "▾"}</span>
             </button>
-          ))}
+            {regionEffectiveOpen && (
+              <div className="flex flex-wrap gap-2">{BEER_REGION.map(renderBeerChip)}</div>
+            )}
+          </div>
         </div>
       )}
 
