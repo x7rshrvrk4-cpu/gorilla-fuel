@@ -6,12 +6,18 @@ import UniversalSearch from "./components/UniversalSearch";
 import { ALCOHOL_PRODUCTS } from "./alcohol/lib/products";
 import { INTEL_APPROVED, amazonUrl } from "./intel/lib/products";
 import { PRODUCTS, GRADE_RANK } from "./rankings/lib/products";
+import { getTopOverall } from "./lib/topProducts";
+import TopProductCard from "./components/TopProductCard";
 
 export const metadata: Metadata = {
   description:
     "Canada's free barcode scanner for food, supplements and alcohol. Scan any product and get an instant no-BS health score. No ads. No sponsors. Just data.",
   alternates: { canonical: "/" },
 };
+
+// ISR: refresh hourly so the live "Top Rated Foods" rail reflects the re-scored
+// cache (matches /top). The curated Picks/Doors/Pillars sections are unaffected.
+export const revalidate = 3600;
 
 // ── Auto picks — computed server-side from live data arrays ──────────────────
 
@@ -82,10 +88,11 @@ const PILLARS = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
   const alcoholPick = getAlcoholPick();
   const foodPick = getFoodPick();
   const suppPick = getSuppPick();
+  const topFoods = await getTopOverall(8);
 
   return (
     <>
@@ -164,13 +171,13 @@ export default function Home() {
       <section className="border-b border-line bg-surface">
         <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
           <p className="font-display text-sm tracking-[0.3em] text-gold">
-            AUTO-GENERATED FROM CURATED DATABASE
+            HAND-PICKED BY GORILLA FUEL
           </p>
           <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
             This Week&apos;s Gorilla Picks
           </h2>
           <p className="mt-3 text-sm text-muted">
-            Highest scoring product in each category, updated automatically as scores change.
+            Our top editorial pick in each category.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
@@ -307,6 +314,39 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ── TOP RATED FOODS (live, re-score-backed) ──────────────────────── */}
+      {topFoods.length > 0 && (
+        <section className="border-b border-line bg-background">
+          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
+            <p className="font-display text-sm tracking-[0.3em] text-gold">
+              LIVE FROM THE DATABASE
+            </p>
+            <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
+              Top Rated Foods
+            </h2>
+            <p className="mt-3 text-sm text-muted">
+              The highest-scoring foods in the database, ranked by our algorithm — updates as
+              scores change. Macros per 100g.
+            </p>
+
+            <div className="mt-8 grid gap-2 sm:grid-cols-2">
+              {topFoods.map((row, i) => (
+                <TopProductCard key={row.barcode} row={row} rank={i + 1} />
+              ))}
+            </div>
+
+            <div className="mt-6">
+              <Link
+                href="/top"
+                className="inline-flex items-center rounded-sm border border-gold px-6 py-3 font-display text-sm tracking-widest text-gold transition-colors hover:bg-gold hover:text-background"
+              >
+                See all 250 →
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── THREE PILLARS ─────────────────────────────────────────────────── */}
       <section className="border-b border-line bg-background">
