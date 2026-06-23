@@ -423,6 +423,41 @@ function carbScore(carbsPer100ml: number | null): number {
   return 20;
 }
 
+// ── BEER fitness bands (per ACTUAL serving, not per-100mL density) ────────────
+// Beer's fitness cost is its TOTAL load in the glass, so these score the whole
+// can/serving — a 568mL/234-cal IPA is penalised for its full 234 cal, not its
+// flattering 41 kcal/100mL density. Null inputs return a neutral 70 (don't punish
+// unknowns). Calibrated so a ~100-cal light lager scores high and a ~230-cal IPA low.
+function calorieServingScore(kcalPerServing: number | null): number {
+  if (kcalPerServing === null) return 70;
+  if (kcalPerServing <= 105) return 100;
+  if (kcalPerServing <= 135) return 85;
+  if (kcalPerServing <= 165) return 65;
+  if (kcalPerServing <= 205) return 45;
+  if (kcalPerServing <= 255) return 25;
+  return 10;
+}
+/** Higher ABV = more alcohol calories + less fitness-friendly to drink regularly. */
+function abvFitnessScore(abv: number | null): number {
+  if (abv === null) return 70;
+  if (abv <= 4) return 100;
+  if (abv <= 5) return 80;
+  if (abv <= 6) return 60;
+  if (abv <= 7) return 40;
+  if (abv <= 9) return 20;
+  return 10;
+}
+/** Total carbohydrate grams per actual serving. */
+function carbServingScore(carbsPerServing: number | null): number {
+  if (carbsPerServing === null) return 70;
+  if (carbsPerServing <= 6) return 100;
+  if (carbsPerServing <= 11) return 80;
+  if (carbsPerServing <= 16) return 55;
+  if (carbsPerServing <= 22) return 30;
+  if (carbsPerServing <= 30) return 15;
+  return 5;
+}
+
 function cleanlinessScore(
   detected: DetectedAlcoholAdditive[],
   hasIngredients: boolean,
@@ -451,6 +486,8 @@ export type AlcoholScoreResult = {
   cleanlinessScore: number;
   calorieDensityScore: number;
   carbScore: number;
+  /** Beer only — the ABV fitness sub-score (0-100); undefined for other kinds. */
+  abvScore?: number;
   abv: number | null;
   kcalPer100ml: number | null;
   kcalPerServing: number | null;
@@ -495,10 +532,22 @@ export function computeAlcoholScore(
   const calScore = calorieDensityScore(kcalPer100ml);
   const carbSc = carbScore(carbsPer100ml);
 
-  // Ingredient cleanliness dominates (70% = 40% cleanliness + 30% additive) so
-  // that a sweetener-heavy zero-sugar seltzer scores in the 45-55 range rather
-  // than getting propped up by its low calorie/carb numbers.
-  const score = Math.round(cScore * 0.7 + calScore * 0.2 + carbSc * 0.1);
+  // ── BEER: fitness-led re-calibration ──────────────────────────────────────
+  // Beer calories come from carbs + alcohol, and a big can's TOTAL load matters
+  // more than per-100mL density. Score total calories PER ACTUAL SERVING (40%) +
+  // ABV (20%) + total carbs/serving (20%) + ingredient cleanliness (20%, demoted
+  // so a missing ingredient list no longer dominates). Sugar stays OUT.
+  const beerCalScore = calorieServingScore(kcalPerServing);
+  const beerAbvScore = abvFitnessScore(abv);
+  const beerCarbScore = carbServingScore(carbsPerServing);
+  const isBeer = kind === "beer";
+
+  // Other kinds (wine/seltzer/cider/spirits) keep the cleanliness-dominant
+  // formula (70% = cleanliness + additive) — unchanged, so the zero-sugar-seltzer
+  // and wine-scan behaviour is preserved exactly.
+  const score = isBeer
+    ? Math.round(beerCalScore * 0.4 + beerAbvScore * 0.2 + beerCarbScore * 0.2 + cScore * 0.2)
+    : Math.round(cScore * 0.7 + calScore * 0.2 + carbSc * 0.1);
   const grade = alcoholGradeFromScore(score);
   const gorillaPour = gorillaPourRating(score);
 
@@ -540,8 +589,9 @@ export function computeAlcoholScore(
     grade,
     gorillaPour,
     cleanlinessScore: cScore,
-    calorieDensityScore: calScore,
-    carbScore: carbSc,
+    calorieDensityScore: isBeer ? beerCalScore : calScore,
+    carbScore: isBeer ? beerCarbScore : carbSc,
+    abvScore: isBeer ? beerAbvScore : undefined,
     abv,
     kcalPer100ml,
     kcalPerServing,
