@@ -6,8 +6,6 @@ import UniversalSearch from "./components/UniversalSearch";
 import { ALCOHOL_PRODUCTS } from "./alcohol/lib/products";
 import { INTEL_APPROVED, amazonUrl } from "./intel/lib/products";
 import { PRODUCTS, GRADE_RANK } from "./rankings/lib/products";
-import { getTopOverall } from "./lib/topProducts";
-import TopProductCard from "./components/TopProductCard";
 
 export const metadata: Metadata = {
   description:
@@ -15,8 +13,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-// ISR: refresh hourly so the live "Top Rated Foods" rail reflects the re-scored
-// cache (matches /top). The curated Picks/Doors/Pillars sections are unaffected.
+// ISR: hourly revalidation. The Picks / Category doors / Pillars are computed
+// from in-memory data arrays, so the page is effectively static between builds.
 export const revalidate = 3600;
 
 // ── Auto picks — computed server-side from live data arrays ──────────────────
@@ -70,6 +68,12 @@ const DOORS = [
     sub: "Protein · Performance · Recovery · Vitamins",
     tagline: "150+ products ranked",
   },
+  {
+    href: "/top",
+    label: "TOP RATED",
+    sub: "Highest-scoring foods in the database, ranked live",
+    tagline: "250+ foods ranked",
+  },
 ];
 
 // ── Pillars data ──────────────────────────────────────────────────────────────
@@ -88,11 +92,10 @@ const PILLARS = [
   },
 ];
 
-export default async function Home() {
+export default function Home() {
   const alcoholPick = getAlcoholPick();
   const foodPick = getFoodPick();
   const suppPick = getSuppPick();
-  const topFoods = await getTopOverall(8);
 
   return (
     <>
@@ -135,10 +138,10 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── THREE CATEGORY DOORS ─────────────────────────────────────────── */}
+      {/* ── CATEGORY DOORS ───────────────────────────────────────────────── */}
       <section className="border-b border-line bg-background">
         <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {DOORS.map((door) => (
               <Link
                 key={door.href}
@@ -314,39 +317,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
-      {/* ── TOP RATED FOODS (live, re-score-backed) ──────────────────────── */}
-      {topFoods.length > 0 && (
-        <section className="border-b border-line bg-background">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
-            <p className="font-display text-sm tracking-[0.3em] text-gold">
-              LIVE FROM THE DATABASE
-            </p>
-            <h2 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
-              Top Rated Foods
-            </h2>
-            <p className="mt-3 text-sm text-muted">
-              The highest-scoring foods in the database, ranked by our algorithm — updates as
-              scores change. Macros per 100g.
-            </p>
-
-            <div className="mt-8 grid gap-2 sm:grid-cols-2">
-              {topFoods.map((row, i) => (
-                <TopProductCard key={row.barcode} row={row} rank={i + 1} />
-              ))}
-            </div>
-
-            <div className="mt-6">
-              <Link
-                href="/top"
-                className="inline-flex items-center rounded-sm border border-gold px-6 py-3 font-display text-sm tracking-widest text-gold transition-colors hover:bg-gold hover:text-background"
-              >
-                See all 250 →
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ── THREE PILLARS ─────────────────────────────────────────────────── */}
       <section className="border-b border-line bg-background">
