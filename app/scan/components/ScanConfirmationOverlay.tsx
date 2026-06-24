@@ -3,7 +3,7 @@
 import Image from "next/image";
 
 type Props = {
-  /** "scanning" shows the gorilla + SCANNING; "not-found" switches text to red NOT FOUND + action buttons */
+  /** "scanning" shows the gorilla + SCANNING; "not-found" shows the friendly NEW PRODUCT! invite + action buttons */
   phase: "scanning" | "not-found";
   /** Barcode that was scanned — shown in the not-found state for reference */
   barcode: string;
@@ -35,18 +35,18 @@ export default function ScanConfirmationOverlay({ phase, barcode, exiting, onTry
           <path d="M6 6l12 12M18 6L6 18" />
         </svg>
       </button>
-      {/* ── Gorilla face with layered pulsing glow ───────────────────────── */}
+      {/* ── Gorilla face with layered glow (gold while scanning, calm gold tint when not found) ── */}
       <div className="relative flex items-center justify-center">
-        {/* Outer ambient ring — slow pulse */}
+        {/* Outer ambient ring — slow pulse while scanning, calm static gold tint when not found */}
         <span
           className={`absolute h-56 w-56 rounded-full transition-colors duration-500 sm:h-72 sm:w-72 ${
-            phase === "not-found" ? "bg-red-500/8 blur-3xl" : "gorilla-glow-outer blur-3xl"
+            phase === "not-found" ? "bg-gold/10 blur-3xl" : "gorilla-glow-outer blur-3xl"
           }`}
         />
-        {/* Inner tight ring — faster pulse */}
+        {/* Inner tight ring */}
         <span
           className={`absolute h-44 w-44 rounded-full transition-colors duration-500 sm:h-56 sm:w-56 ${
-            phase === "not-found" ? "bg-red-500/12 blur-2xl" : "gorilla-glow-inner blur-2xl"
+            phase === "not-found" ? "bg-gold/15 blur-2xl" : "gorilla-glow-inner blur-2xl"
           }`}
         />
         <Image
@@ -79,27 +79,27 @@ export default function ScanConfirmationOverlay({ phase, barcode, exiting, onTry
           </>
         ) : (
           <>
-            <p className="font-display text-4xl tracking-[0.45em] text-red-400 [text-shadow:0_0_20px_rgba(239,68,68,0.4)] sm:text-5xl">
-              NOT FOUND
+            <p className="font-display text-4xl tracking-[0.3em] text-gold [text-shadow:0_0_24px_rgba(255,215,0,0.5)] sm:text-5xl">
+              NEW PRODUCT!
             </p>
-            <p className="mt-2 font-mono text-xs tracking-widest text-white/35">{barcode}</p>
-            <p className="mt-3 max-w-[260px] text-center text-sm leading-relaxed text-white/55">
-              This product is not in our database yet.
+            <p className="mt-3 max-w-[290px] text-center text-sm leading-relaxed text-white/70">
+              We don&rsquo;t have this one yet — help us add it to the Gorilla database?
             </p>
+            <p className="mt-3 font-mono text-xs tracking-widest text-white/35">{barcode}</p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <button
                 type="button"
-                onClick={onTryAgain}
+                onClick={onSubmit}
                 className="rounded-sm bg-gold px-6 py-3 font-display text-sm tracking-widest text-background transition-opacity hover:opacity-90 active:opacity-75"
               >
-                Try Again
+                Add This Product
               </button>
               <button
                 type="button"
-                onClick={onSubmit}
+                onClick={onTryAgain}
                 className="rounded-sm border border-white/20 px-6 py-3 font-display text-sm tracking-widest text-white/65 transition-colors hover:border-gold/50 hover:text-gold"
               >
-                Submit This Product
+                Try Again
               </button>
             </div>
           </>
