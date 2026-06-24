@@ -185,16 +185,19 @@ export async function lookupCommunityProduct(
 export type SubmitResult = { ok: boolean; status: number | string; message?: string };
 
 /**
- * Submit a new community product. Always stores as verified = false — admin
- * review is required before it appears in scanner results.
+ * Generic community submission — POSTs to any community_* table. Always stores
+ * as verified = false (RLS requires it), so admin review is required before a
+ * row appears in scanner results. Mirrors the alcohol submit logic exactly,
+ * just table-parameterized. Returns the real HTTP status/message on failure.
  */
-export async function submitCommunityProduct(
-  data: Omit<CommunityAlcoholProduct, "id" | "submitted_at" | "verified">
+export async function submitCommunity(
+  table: string,
+  data: Record<string, unknown>
 ): Promise<SubmitResult> {
   const url = sbUrl();
   if (!url || !sbKey()) return { ok: false, status: "config", message: "Database not configured" };
   try {
-    const res = await fetch(`${url}/rest/v1/${TABLE}`, {
+    const res = await fetch(`${url}/rest/v1/${table}`, {
       method: "POST",
       headers: { ...baseHeaders(), Prefer: "return=minimal" },
       body: JSON.stringify({ ...data, verified: false }),
@@ -210,11 +213,21 @@ export async function submitCommunityProduct(
     } catch {
       if (text) message = text;
     }
-    scanLog(`Community Submit ✗ HTTP ${res.status} — ${message}`);
-    console.error("[submitCommunityProduct] failed:", res.status, text);
+    scanLog(`Community Submit ✗ [${table}] HTTP ${res.status} — ${message}`);
+    console.error("[submitCommunity] failed:", table, res.status, text);
     return { ok: false, status: res.status, message };
   } catch (e) {
-    console.error("[submitCommunityProduct] threw:", e);
+    console.error("[submitCommunity] threw:", table, e);
     return { ok: false, status: "network", message: e instanceof Error ? e.message : "Network error" };
   }
+}
+
+/**
+ * Submit a new community ALCOHOL product. Thin typed wrapper over submitCommunity
+ * — preserved so the alcohol path is unchanged. Always stores verified = false.
+ */
+export async function submitCommunityProduct(
+  data: Omit<CommunityAlcoholProduct, "id" | "submitted_at" | "verified">
+): Promise<SubmitResult> {
+  return submitCommunity(TABLE, data as unknown as Record<string, unknown>);
 }

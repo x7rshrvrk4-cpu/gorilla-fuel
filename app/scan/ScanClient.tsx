@@ -35,6 +35,7 @@ import {
 } from "./lib/alcoholScoring";
 import AlcoholResultCard from "./components/AlcoholResultCard";
 import AlcoholSubmitForm from "./components/AlcoholSubmitForm";
+import CommunitySubmitPicker from "./components/CommunitySubmitPicker";
 import {
   lookupCommunityProduct,
   productTypeToAlcoholKind,
@@ -71,7 +72,6 @@ import { lookupCuratedFood } from "./lib/curatedFoods";
 import { applyScoringGate } from "./lib/curatedScores";
 import { lookupBarcodeAlias } from "./lib/barcodeAliases";
 import { scanLog, sinceMs } from "./lib/scanLog";
-import MultiPackPrompt from "./components/MultiPackPrompt";
 import {
   lookupProductCache,
   upsertProductCache,
@@ -1234,13 +1234,13 @@ export default function ScanClient() {
               </div>
             </div>
 
-            {/* SECONDARY — multipack / different-size attach (alcohol) */}
-            <MultiPackPrompt barcode={lookup.barcode} primary />
-
-            {/* SECONDARY — full product submit, revealed on demand */}
+            {/* SECONDARY — community submit. Picker chooses the product kind and
+                swaps the matching form; the alcohol branch keeps its multipack +
+                notify siblings. Revealed on demand. */}
             {showSubmitForm ? (
-              <AlcoholSubmitForm
+              <CommunitySubmitPicker
                 barcode={lookup.barcode}
+                defaultType={fallbackProduct ? "alcohol" : "food"}
                 initialName={fallbackProduct?.name}
                 initialBrand={fallbackProduct?.brand}
                 initialAbv={fallbackProduct?.abv ?? undefined}
@@ -1260,7 +1260,7 @@ export default function ScanClient() {
               </button>
             )}
 
-            {/* TERTIARY — notify, low emphasis */}
+            {/* TERTIARY — general email waitlist, all product types, low emphasis */}
             <div className="mt-4">
               <NotifyMeExpandable barcode={lookup.barcode} productName={fallbackProduct?.name} />
             </div>
