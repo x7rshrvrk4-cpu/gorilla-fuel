@@ -12,6 +12,8 @@ import {
   APPROVED_CATEGORIES,
   CHEAT_CATEGORIES,
 } from "../lib/products";
+import CuratedPicksSection from "./CuratedPicksSection";
+import type { CuratedPick } from "../lib/curatedPicks";
 
 // ─── Tier metadata ───────────────────────────────────────────────────────────
 
@@ -288,9 +290,12 @@ function Disclaimer() {
 export default function IntelTierPage({
   tier,
   products,
+  curatedPicks = [],
 }: {
   tier: IntelTier;
   products: IntelProduct[];
+  /** Cache-backed hand-approved picks (approved/cheat only); empty renders nothing. */
+  curatedPicks?: CuratedPick[];
 }) {
   const meta = TIER_META[tier];
 
@@ -352,6 +357,9 @@ export default function IntelTierPage({
           ))}
         </div>
       )}
+
+      {/* Cache-backed curated picks (approved/cheat only; renders nothing when empty) */}
+      {tier !== "avoid" && <CuratedPicksSection picks={curatedPicks} tier={tier} />}
 
       <Disclaimer />
       <CrossLinks tier={tier} />
