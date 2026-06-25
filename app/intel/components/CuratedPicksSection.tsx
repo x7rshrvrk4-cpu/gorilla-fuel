@@ -1,4 +1,6 @@
 import type { CuratedPick, CuratedTier } from "../lib/curatedPicks";
+import { hasAmazonLink } from "../lib/curatedPicks";
+import { amazonUrl } from "../lib/products";
 
 /**
  * Cache-backed curated list rendered below the editorial cards on /approved + /cheat.
@@ -48,7 +50,7 @@ export default function CuratedPicksSection({
               )}
             </div>
 
-            {/* Name + brand */}
+            {/* Name + brand (+ optional affiliate link for allowlisted national/shelf-stable items) */}
             <div className="min-w-0 flex-1">
               {p.brand && (
                 <p className="truncate text-[10px] uppercase tracking-[0.2em] text-muted">{p.brand}</p>
@@ -56,6 +58,16 @@ export default function CuratedPicksSection({
               <p className="truncate text-sm leading-tight text-foreground" title={p.product_name ?? ""}>
                 {p.product_name ?? "—"}
               </p>
+              {hasAmazonLink(p.barcode) && p.product_name && (
+                <a
+                  href={amazonUrl(p.product_name)}
+                  target="_blank"
+                  rel="nofollow sponsored noopener"
+                  className="mt-1 inline-block font-display text-[10px] uppercase tracking-[0.15em] text-gold/80 transition-colors hover:text-gold"
+                >
+                  Buy on Amazon ↗
+                </a>
+              )}
             </div>
 
             {/* Score */}

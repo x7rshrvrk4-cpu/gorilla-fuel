@@ -22,6 +22,32 @@ export const CURATED_REVALIDATE = 3600;
 function sbUrl() { return process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""; }
 function sbKey() { return process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? ""; }
 
+const normBarcode = (b: string) => b.replace(/\D/g, "").replace(/^0+/, "") || "0";
+
+/**
+ * Per-barcode allowlist for Amazon affiliate links on the curated grid. ONLY
+ * national-brand, shelf-stable products get a tagged search link — retailer
+ * house brands, perishables (fresh produce/dairy/eggs/bread), and obscure or
+ * not-yet-reviewed items stay link-free. Barcodes are stored normalized (digits,
+ * leading zeros stripped). Add more here as you review additional picks.
+ */
+const AMAZON_LINK_BARCODES = new Set<string>([
+  "39978002167", "39978004949", "39978325464", "5000354926662", "55000207669",
+  "55577101100", "55577101681", "55577331002", "55900002265", "58854431105",
+  "59443200218", "59443602166", "62356501198", "62356543006", "627843610229",
+  "628451868729", "64200130738", "64200130790", "64821122808", "66200020118",
+  "6717401", "68062021388", "68062021517", "685666003307", "692991201339",
+  "70177229993", "722252121479", "72878290470", "74410518790", "76808011036",
+  "770795520884", "779921000658", "8033406261210", "807176540572", "812582000527",
+  "833125001108", "8332669642065", "848860046246", "85981311659", "8734963003649",
+  "877693003454", "886930000323", "9765800001", "98100010012", "990312098164",
+]);
+
+/** True when this product is on the affiliate-link allowlist. */
+export function hasAmazonLink(barcode: string): boolean {
+  return AMAZON_LINK_BARCODES.has(normBarcode(barcode));
+}
+
 /** Chunk an array into groups of `size` (keeps PostgREST in.() URLs bounded). */
 function chunk<T>(arr: T[], size: number): T[][] {
   const out: T[][] = [];
