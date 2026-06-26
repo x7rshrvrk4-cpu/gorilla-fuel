@@ -1008,6 +1008,64 @@ export function isWholeFoodNova4(n: Nutriments, novaGroup?: number | null): bool
   );
 }
 
+// Tight produce allowlist — raw/fresh/frozen fruit, vegetables, legumes only.
+// Specific enough that processed derivatives (juices, snacks, candied/sweetened,
+// chips, desserts) are NOT matched here, and are explicitly excluded below.
+const WHOLE_FOOD_CATEGORY_PATTERN =
+  /\ben:(fruits|vegetables|fresh-fruits|fresh-vegetables|frozen-fruits|frozen-vegetables|legumes|berries|blueberries|strawberries|raspberries|blackberries|cranberries|spinach|broccoli|cauliflower|kale|carrots|peas|green-beans|edamame|mangoes|pineapples|peaches|cherries|leafy-vegetables|root-vegetables)\b/;
+// If ANY of these appear in the tags, it is NOT a raw whole food — block the
+// category branch even when a produce tag is also present (e.g. "fruit juices").
+const PROCESSED_CATEGORY_PATTERN =
+  /\ben:(juices|fruit-juices|fruit-based-snacks|fruit-based-beverages|candied-fruits|dried-fruits|sweetened-dried-fruits|vegetable-chips|chips|crisps|snacks|sweet-snacks|desserts|sauces|jams|fruit-compotes|smoothies|sodas|sugar|confectioneries|ice-cream)\b/;
+// Name lexicon (EN + FR) — only consulted alongside the nutriment SIGNATURE guard.
+// Stems (no trailing \b) so plurals/inflections match: "bleuets", "blueberries",
+// "fraises", "carrots", "tomatoes". Leading \b keeps matches at word starts.
+const WHOLE_FOOD_NAME_PATTERN =
+  /\b(blueberr|bleuet|strawberr|fraise|raspberr|framboise|blackberr|m[ûu]re|cranberr|canneberge|cherr|cerise|grape|raisin|peach|p[êe]che|pear|poire|apple|pomme|banana|banane|mango|mangue|pineapple|ananas|melon|watermelon|spinach|[ée]pinard|broccoli|brocoli|cauliflower|chou-fleur|kale|carrot|carotte|green bean|haricot|edamame|asparagus|asperge|zucchini|courgette|cucumber|concombre|tomato|tomate|lentil|lentille|chickpea|pois chiche|black bean|kidney bean|avocado|avocat|betterave|brussels sprout|sweet potato|patate douce)/i;
+
+/**
+ * Detects a single-ingredient whole food (raw/fresh/frozen fruit, vegetable, or
+ * legume) so the data-ABSENCE penalties (missing-critical-nutrient deduction;
+ * additive-50 cap for a missing ingredient list) can be skipped — a plain fruit
+ * is clean by nature; its "ingredient" is the food itself. Fires when ANY:
+ *   1. NOVA 1 (authoritative "unprocessed").
+ *   2. categories/labels match the tight produce allowlist AND carry no processed tag.
+ *   3. the product name matches the produce lexicon AND the nutriment signature of
+ *      raw produce holds (protein ≤5, fat ≤3, sat-fat ~0/missing, salt ≤0.1) — the
+ *      signature guard rejects "blueberry muffin"/"fruit punch"/"veggie chips".
+ * It NEVER grants points — callers use it only to withhold data-gap penalties, so
+ * real macro demerits (sugar/sat-fat/sodium/calorie bands) still apply in full.
+ */
+export function isWholeFood(n: Nutriments, context?: ScoringContext): boolean {
+  // 1) NOVA 1
+  if (asNovaGroup(context?.novaGroup ?? undefined) === 1) return true;
+
+  const tags = [...(context?.categoriesTags ?? []), ...(context?.labelsTags ?? [])].join(" ").toLowerCase();
+
+  // 2) tight produce category/label, with processed derivatives excluded
+  if (WHOLE_FOOD_CATEGORY_PATTERN.test(tags) && !PROCESSED_CATEGORY_PATTERN.test(tags)) return true;
+
+  // 3) name lexicon + raw-produce nutriment signature (signature is mandatory)
+  const name = (context?.productName ?? "").toLowerCase();
+  if (WHOLE_FOOD_NAME_PATTERN.test(name) && !PROCESSED_CATEGORY_PATTERN.test(tags)) {
+    // Nutriments tracks saturated fat (not total fat). Raw produce has very low
+    // protein, ~0 saturated fat, and ~0 sodium — a muffin (butter→sat-fat),
+    // chips (oil+salt), or candy fails this, so they don't get the produce exemption.
+    const protein = n.proteins_100g ?? 0;
+    const satFat = n["saturated-fat_100g"] ?? 0; // missing → 0, which passes (raw produce has ~none)
+    const salt = n.salt_100g ?? 0;
+    // Sugar bound: fresh/frozen produce tops out ~20g/100g (grapes/mango/banana);
+    // dried/candied/juice are already excluded by the processed-category check, so
+    // a high-sugar item named with a fruit word (e.g. "strawberry punch" candy)
+    // fails here and keeps the conservative penalties — no free pass for sugar bombs.
+    const sugars = n.sugars_100g ?? 0;
+    const signature = protein <= 5 && satFat <= 0.5 && salt <= 0.1 && sugars <= 25;
+    if (signature) return true;
+  }
+
+  return false;
+}
+
 /**
  * Core-nutriment completeness: calories + protein + sugar + saturated fat all
  * present (non-null). Fiber is deliberately NOT required (treated as 0 when
@@ -1423,7 +1481,12 @@ export function scoreNutrition(
   // Low-cal condiments/beverages are exempt (like NOVA-1 whole foods): their
   // absent sodium/sugar/sat-fat is legitimately ~0, not hidden harm — so the
   // conservative penalty AND its "incomplete data" warning are both withheld.
-  const missingHarmfulData = missingCriticalCount > 0 && nova !== 1 && !lowCalCondiment;
+  // Whole foods (NOVA 1, or detected produce by tags/name+signature) are exempt
+  // like NOVA 1 already is: a plain fruit/veg legitimately has ~0 sodium/added
+  // sugar/sat-fat, so a gap in those fields is not hidden harm. Real macro bands
+  // below still apply, so this withholds the data-gap penalty only — no free points.
+  const missingHarmfulData =
+    missingCriticalCount > 0 && nova !== 1 && !lowCalCondiment && !isWholeFood(n, context);
   if (missingHarmfulData) {
     score -= missingCriticalCount * 12;
     const missingNames = [
@@ -1637,7 +1700,11 @@ export function computeScore(
   // means we DO have additive information even when no ingredient text came back.
   const hasIngredientText = !!(ingredientsText && ingredientsText.trim().length > 0);
   const hasAdditivesTags = (context?.additivesTags?.length ?? 0) > 0;
-  const additivesUnverified = !hasIngredientText && !hasAdditivesTags && !inferredSweeteners;
+  // Whole foods (raw/fresh/frozen produce) are exempt from the missing-ingredient
+  // cap: their "ingredient" is the food itself, so an absent list is not a hidden
+  // additive risk. They fall through to the whole-food additive band below (88/100).
+  const additivesUnverified =
+    !hasIngredientText && !hasAdditivesTags && !inferredSweeteners && !isWholeFood(nutriments, context);
   if (additivesUnverified) {
     effectiveAdditiveScore = Math.min(effectiveAdditiveScore, 50);
   }
