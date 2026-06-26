@@ -38,12 +38,23 @@ export default function CuratedPicksSection({
   if (!picks.length) return null;
 
   const accent =
-    tier === "approved" ? "border-gold text-gold" : "border-amber-500 text-amber-400";
-  const heading = tier === "approved" ? "MORE GORILLA-APPROVED PRODUCTS" : "MORE ON THE CHEAT LIST";
+    tier === "approved"
+      ? "border-gold text-gold"
+      : tier === "cheat"
+      ? "border-amber-500 text-amber-400"
+      : "border-red-500 text-red-400";
+  const heading =
+    tier === "approved"
+      ? "MORE GORILLA-APPROVED PRODUCTS"
+      : tier === "cheat"
+      ? "MORE ON THE CHEAT LIST"
+      : "MORE TO STEER CLEAR OF";
   const blurb =
     tier === "approved"
       ? "Real, recognizable products that scored 75+ on the Gorilla engine. Hand-checked, pulled live from the scan database — the score here is the score you get when you scan them."
-      : "Recognizable products landing in the honest middle (45–65). Hand-checked, pulled live from the scan database.";
+      : tier === "cheat"
+      ? "Recognizable products landing in the honest middle (45–65). Hand-checked, pulled live from the scan database."
+      : "Recognizable products that scored poorly on the Gorilla engine. Hand-checked, pulled live from the scan database — the low score here is the score you get when you scan them.";
 
   return (
     <div className="mt-16">

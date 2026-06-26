@@ -5,7 +5,7 @@
 // Read-only. Returns [] on any failure (table absent, network, misconfig) so the
 // pages degrade gracefully to their editorial content with no curated section.
 
-export type CuratedTier = "approved" | "cheat";
+export type CuratedTier = "approved" | "cheat" | "avoid";
 
 export type CuratedPick = {
   barcode: string;

@@ -358,8 +358,8 @@ export default function IntelTierPage({
         </div>
       )}
 
-      {/* Cache-backed curated picks (approved/cheat only; renders nothing when empty) */}
-      {tier !== "avoid" && <CuratedPicksSection picks={curatedPicks} tier={tier} />}
+      {/* Cache-backed curated picks (all tiers; renders nothing when empty) */}
+      <CuratedPicksSection picks={curatedPicks} tier={tier} />
 
       <Disclaimer />
       <CrossLinks tier={tier} />
