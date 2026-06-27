@@ -1021,9 +1021,12 @@ const WHOLE_FOOD_CATEGORY_TAGS = new Set([
   "en:pineapples", "en:peaches", "en:cherries", "en:leafy-vegetables", "en:root-vegetables",
 ]);
 // If ANY of these appear in the tags, it is NOT a raw whole food — block the
-// category branch even when a produce tag is also present (e.g. "fruit juices").
+// category branch even when a produce tag is also present (e.g. "fruit juices",
+// "candied nuts"). Two parts: specific en: category tags, plus processing
+// ADJECTIVES anywhere in the tag string (candied/honey-roasted/salted/sweetened/
+// seasoned/…). "\bsalted\b" deliberately does NOT match "unsalted".
 const PROCESSED_CATEGORY_PATTERN =
-  /\ben:(juices|fruit-juices|fruit-based-snacks|fruit-based-beverages|candied-fruits|dried-fruits|sweetened-dried-fruits|vegetable-chips|chips|crisps|snacks|sweet-snacks|desserts|sauces|jams|fruit-compotes|smoothies|sodas|sugar|confectioneries|ice-cream)\b/;
+  /\ben:(juices|fruit-juices|fruit-based-snacks|fruit-based-beverages|candied-fruits|candied-nuts|dried-fruits|sweetened-dried-fruits|vegetable-chips|chips|crisps|snacks|sweet-snacks|salty-snacks|desserts|sauces|jams|fruit-compotes|smoothies|sodas|sugar|confectioneries|ice-cream)\b|\b(candied|honey[\s-]?roasted|roasted[\s-]and[\s-]salted|salted|sweetened|seasoned|flavou?red|caramel|chocolate[\s-]?coated|sugar[\s-]?coated|glazed)\b/;
 // Name lexicon (EN + FR) — only consulted alongside the nutriment SIGNATURE guard.
 // Stems (no trailing \b) so plurals/inflections match: "bleuets", "blueberries",
 // "fraises", "carrots", "tomatoes". Leading \b keeps matches at word starts.
@@ -1054,7 +1057,20 @@ export function isWholeFood(n: Nutriments, context?: ScoringContext): boolean {
 
   // 2) EXACT produce tag membership, with processed derivatives excluded. Exact
   //    match so the umbrella "en:fruits-and-vegetables-based-foods" can't match.
-  if (!processed && tagList.some((t) => WHOLE_FOOD_CATEGORY_TAGS.has(t))) return true;
+  //    Light macro guard: legumes/nuts (en:legumes etc.) legitimately have
+  //    protein >5, so the name-path protein guard can't apply here — but candied/
+  //    honey/BBQ/salted nuts carry the same tags. Reject when the macros indicate
+  //    processing: sugar present and >12 (raw beans/veg/nuts are low-sugar; candied
+  //    peanuts are 30+) OR salt >0.5 (raw produce is low-salt; seasoned/salted is
+  //    higher). Real canned beans/chickpeas (low sugar, salt ≤0.5), frozen veg, and
+  //    plain nuts pass; sweetened/seasoned variants are blocked.
+  if (!processed && tagList.some((t) => WHOLE_FOOD_CATEGORY_TAGS.has(t))) {
+    const sugars = n.sugars_100g;
+    const salt = n.salt_100g ?? 0;
+    const sweetened = typeof sugars === "number" && Number.isFinite(sugars) && sugars > 12;
+    const seasoned = salt > 0.5;
+    if (!sweetened && !seasoned) return true;
+  }
 
   // 3) name lexicon + raw-produce nutriment signature (signature is mandatory)
   const name = (context?.productName ?? "").toLowerCase();
