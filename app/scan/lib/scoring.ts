@@ -1009,10 +1009,17 @@ export function isWholeFoodNova4(n: Nutriments, novaGroup?: number | null): bool
 }
 
 // Tight produce allowlist — raw/fresh/frozen fruit, vegetables, legumes only.
-// Specific enough that processed derivatives (juices, snacks, candied/sweetened,
-// chips, desserts) are NOT matched here, and are explicitly excluded below.
-const WHOLE_FOOD_CATEGORY_PATTERN =
-  /\ben:(fruits|vegetables|fresh-fruits|fresh-vegetables|frozen-fruits|frozen-vegetables|legumes|berries|blueberries|strawberries|raspberries|blackberries|cranberries|spinach|broccoli|cauliflower|kale|carrots|peas|green-beans|edamame|mangoes|pineapples|peaches|cherries|leafy-vegetables|root-vegetables)\b/;
+// Matched as EXACT whole tags (a tag must EQUAL one of these), so the broad
+// umbrella tag "en:fruits-and-vegetables-based-foods" — carried by jams, sauces,
+// and juices — does NOT match "en:fruits".
+const WHOLE_FOOD_CATEGORY_TAGS = new Set([
+  "en:fruits", "en:vegetables", "en:fresh-fruits", "en:fresh-vegetables",
+  "en:frozen-fruits", "en:frozen-vegetables", "en:frozen-berries", "en:fresh-berries",
+  "en:legumes", "en:berries", "en:blueberries", "en:strawberries", "en:raspberries",
+  "en:blackberries", "en:cranberries", "en:spinach", "en:broccoli", "en:cauliflower",
+  "en:kale", "en:carrots", "en:peas", "en:green-beans", "en:edamame", "en:mangoes",
+  "en:pineapples", "en:peaches", "en:cherries", "en:leafy-vegetables", "en:root-vegetables",
+]);
 // If ANY of these appear in the tags, it is NOT a raw whole food — block the
 // category branch even when a produce tag is also present (e.g. "fruit juices").
 const PROCESSED_CATEGORY_PATTERN =
@@ -1040,26 +1047,34 @@ export function isWholeFood(n: Nutriments, context?: ScoringContext): boolean {
   // 1) NOVA 1
   if (asNovaGroup(context?.novaGroup ?? undefined) === 1) return true;
 
-  const tags = [...(context?.categoriesTags ?? []), ...(context?.labelsTags ?? [])].join(" ").toLowerCase();
+  const tagList = [...(context?.categoriesTags ?? []), ...(context?.labelsTags ?? [])]
+    .map((t) => String(t).trim().toLowerCase());
+  const tagsJoined = tagList.join(" ");
+  const processed = PROCESSED_CATEGORY_PATTERN.test(tagsJoined);
 
-  // 2) tight produce category/label, with processed derivatives excluded
-  if (WHOLE_FOOD_CATEGORY_PATTERN.test(tags) && !PROCESSED_CATEGORY_PATTERN.test(tags)) return true;
+  // 2) EXACT produce tag membership, with processed derivatives excluded. Exact
+  //    match so the umbrella "en:fruits-and-vegetables-based-foods" can't match.
+  if (!processed && tagList.some((t) => WHOLE_FOOD_CATEGORY_TAGS.has(t))) return true;
 
   // 3) name lexicon + raw-produce nutriment signature (signature is mandatory)
   const name = (context?.productName ?? "").toLowerCase();
-  if (WHOLE_FOOD_NAME_PATTERN.test(name) && !PROCESSED_CATEGORY_PATTERN.test(tags)) {
+  if (WHOLE_FOOD_NAME_PATTERN.test(name) && !processed) {
     // Nutriments tracks saturated fat (not total fat). Raw produce has very low
     // protein, ~0 saturated fat, and ~0 sodium — a muffin (butter→sat-fat),
     // chips (oil+salt), or candy fails this, so they don't get the produce exemption.
     const protein = n.proteins_100g ?? 0;
     const satFat = n["saturated-fat_100g"] ?? 0; // missing → 0, which passes (raw produce has ~none)
     const salt = n.salt_100g ?? 0;
-    // Sugar bound: fresh/frozen produce tops out ~20g/100g (grapes/mango/banana);
-    // dried/candied/juice are already excluded by the processed-category check, so
-    // a high-sugar item named with a fruit word (e.g. "strawberry punch" candy)
-    // fails here and keeps the conservative penalties — no free pass for sugar bombs.
-    const sugars = n.sugars_100g ?? 0;
-    const signature = protein <= 5 && satFat <= 0.5 && salt <= 0.1 && sugars <= 25;
+    // Sugar must be PRESENT and within the fresh/frozen-produce range (~≤20g/100g
+    // for grapes/mango/banana). Requiring it present blocks a fruit-named candy
+    // whose sugar wasn't disclosed (the data-gap case) from sneaking through the
+    // name path; an out-of-range value (e.g. "strawberry punch" at 60g) also fails.
+    const sugars = n.sugars_100g;
+    const sugarOk = typeof sugars === "number" && Number.isFinite(sugars) && sugars <= 25;
+    // Salt ≤0.2 covers naturally-higher-sodium whole veg (beets/celery/spinach
+    // ~0.1–0.2 g/100g) while still rejecting processed foods (chips/ketchup/sauces
+    // at 1–2+ g). Combined with protein/sat-fat/sugar guards.
+    const signature = protein <= 5 && satFat <= 0.5 && salt <= 0.2 && sugarOk;
     if (signature) return true;
   }
 
