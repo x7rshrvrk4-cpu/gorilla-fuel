@@ -999,6 +999,51 @@ function asNovaGroup(value: number | undefined): NovaGroup | null {
   return null;
 }
 
+// ── Refined-grain NOVA correction ────────────────────────────────────────────
+// Open Food Facts sometimes tags enriched/refined white grains — durum-semolina
+// pasta, white flour, white rice — as nova_group=1, the "unprocessed" tier. We
+// trust OFF's NOVA verbatim, so that single mislabel cascades: isWholeFood()
+// returns true (NOVA-1 short-circuit), nutrition gets the +2 NOVA-1 bonus instead
+// of the NOVA-3 -20 penalty, and the additive "simple" cap is skipped — inflating
+// refined pasta to ~90/Excellent.
+//
+// This detector identifies a refined grain from its ingredient text (MULTILINGUAL
+// — English-only misses French "sémoule" / Italian "semola") OR a pasta/white-rice
+// category backstop (for products whose ingredient text is missing). A whole-grain
+// or legume token ALWAYS wins over the refined match, so legume pastas
+// (CHICKAPEA / felicia / Catelli Protein) and brown-rice noodles are never caught.
+// Diacritics are stripped from both the text and the tokens so accented terms match.
+const REFINED_GRAIN_RE =
+  /\bdurum|semolina|semoule|semola|enriched|enrichi|white flour|wheat flour|farine de ble|farine blanche|white rice|riz blanc|bleached|blanchie/;
+// Exclude tokens — these WIN over any refined match. Faithful to the audit spec.
+const WHOLE_GRAIN_LEGUME_RE =
+  /whole[\s-]?wheat|wholewheat|whole[\s-]?grain|wholegrain|whole[\s-]?meal|ble entier|\bcomplet|rolled oat|\boats?\b|\bavoine|brown rice|riz brun|chickpea|pois chiche|\blentil|lentille|pea protein|\bpeas?\b|\bpois\b|quinoa|edamame|black bean|\bmung/;
+// Category backstop catches refined products whose ingredient text is missing.
+// The whole/legume ingredient exclude still applies first, so legume pastas that
+// carry en:pastas are protected whenever their ingredient list is present.
+const REFINED_GRAIN_CATEGORIES = new Set(["en:pastas", "en:white-rice", "en:white-rices"]);
+
+/**
+ * True when a product is a refined grain — used to override a too-low OFF NOVA
+ * to 3 at scoring time only (the stored cache nova_group is never mutated).
+ */
+function isRefinedGrain(
+  ingredientsText: string | undefined | null,
+  context?: ScoringContext
+): boolean {
+  const text = stripDiacritics((ingredientsText ?? "").toLowerCase());
+
+  // Whole-grain / legume tokens ALWAYS win — protects legume pastas, brown-rice
+  // noodles, oats, etc. even when they also carry a refined token (durum + lentil)
+  // or the pasta category backstop.
+  if (WHOLE_GRAIN_LEGUME_RE.test(text)) return false;
+
+  if (REFINED_GRAIN_RE.test(text)) return true;
+
+  const cats = (context?.categoriesTags ?? []).map((t) => t.toLowerCase());
+  return cats.some((t) => REFINED_GRAIN_CATEGORIES.has(t));
+}
+
 /**
  * Whole-food macro signature on a NOVA-4 product: high protein, real fiber, and
  * low sugar — the profile of a mis-tagged whole food (roasted nuts, legumes,
@@ -1705,7 +1750,20 @@ export function computeScore(
   ingredientsText: string | undefined | null,
   context?: ScoringContext
 ): ScoreResult {
-  const nutrition = scoreNutrition(nutriments, context);
+  // ── Refined-grain NOVA override (at scoring time, never mutates the cache) ──
+  // OFF mislabels some enriched/refined white grains as nova_group=1. Where our
+  // refined-grain detector fires AND OFF's NOVA is too low (<3), score against an
+  // effective context with novaGroup forced to 3. This flows the correction into
+  // the nutrition NOVA penalty, isWholeFood(), and the additive "simple" cap in
+  // one place. Products already tagged NOVA 3/4 are left untouched.
+  const baseNova = asNovaGroup(context?.novaGroup ?? undefined);
+  const refinedGrainOverride =
+    (baseNova === null || baseNova < 3) && isRefinedGrain(ingredientsText, context);
+  const effContext: ScoringContext | undefined = refinedGrainOverride
+    ? { ...(context ?? {}), novaGroup: 3 }
+    : context;
+
+  const nutrition = scoreNutrition(nutriments, effContext);
   const additives = scoreAdditives(ingredientsText, context?.additivesTags);
 
   const organicCertified = detectOrganicCertification(context);
@@ -1754,7 +1812,7 @@ export function computeScore(
   // cap: their "ingredient" is the food itself, so an absent list is not a hidden
   // additive risk. They fall through to the whole-food additive band below (88/100).
   const additivesUnverified =
-    !hasIngredientText && !hasAdditivesTags && !inferredSweeteners && !isWholeFood(nutriments, context);
+    !hasIngredientText && !hasAdditivesTags && !inferredSweeteners && !isWholeFood(nutriments, effContext);
   if (additivesUnverified) {
     effectiveAdditiveScore = Math.min(effectiveAdditiveScore, 50);
   }
@@ -1766,7 +1824,7 @@ export function computeScore(
   // Requires a REAL additive signal (ingredient text OR additives_tags) — with
   // neither, the unverified branch above owns it.
   if (effectiveAdditiveScore === 100 && !inferredSweeteners && (hasIngredientText || hasAdditivesTags)) {
-    const nova = asNovaGroup(context?.novaGroup ?? undefined);
+    const nova = asNovaGroup(effContext?.novaGroup ?? undefined);
     const ing = (ingredientsText ?? "").trim();
     const ingCount = ing ? ing.replace(/\([^)]*\)/g, "").split(",").filter((s) => s.trim()).length : 0;
     const isSimple = (nova === 1 || nova === 2) || (ingCount > 0 && ingCount <= 3);
@@ -2006,7 +2064,7 @@ export function computeScore(
   // macros (and all normal penalties + the sugar-dominant cap still bind, so junk
   // with full nutriments still scores low). The ceiling stays as a safety net for
   // genuinely thin rows missing core macros. Applies to live scans and imports.
-  if (additivesUnverified && context?.novaGroup == null && !hasCoreNutriments(nutriments) && finalScore > 65) {
+  if (additivesUnverified && effContext?.novaGroup == null && !hasCoreNutriments(nutriments) && finalScore > 65) {
     finalScore = 65;
     flags.push("Limited data — no ingredient list and no processing (NOVA) data available; can't fully assess, so the score is capped at 65.");
   }
