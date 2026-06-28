@@ -13,6 +13,9 @@ export const TOP_REVALIDATE = 3600;
 export type CacheRow = {
   barcode: string;
   product_name: string | null;
+  /** Display-only English name (Phase A backfill); render via display_name_en ?? product_name.
+   *  Never read by scoring — the scorer reads product_name. */
+  display_name_en?: string | null;
   brand: string | null;
   gorilla_score: number | null;
   score_grade: string | null;
@@ -47,24 +50,28 @@ export async function getTopOverall(limit: number): Promise<CacheRow[]> {
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) return [];
   try {
-    const endpoint = new URL(`${url}/rest/v1/gorilla_product_cache`);
-    endpoint.searchParams.set(
-      "select",
-      "barcode,product_name,brand,gorilla_score,score_grade,image_url,nutrition_data"
-    );
-    endpoint.searchParams.set("gorilla_score", "gte.75");
-    endpoint.searchParams.set("is_alcohol", "eq.false");
-    endpoint.searchParams.set("is_beauty", "eq.false");
-    // Exclude supplements: the food engine is miscalibrated for them (scoring a
-    // protein tub on sugar/sat-fat bands is meaningless), so their scores are
-    // invalid for a foods ranking.
-    endpoint.searchParams.set("is_supplement", "eq.false");
-    endpoint.searchParams.set("order", "gorilla_score.desc,barcode.asc"); // stable, non-artifact
-    endpoint.searchParams.set("limit", "1000");
-    const res = await fetch(endpoint.toString(), {
-      headers: { apikey: key, Authorization: `Bearer ${key}`, Accept: "application/json" },
-      next: { revalidate: TOP_REVALIDATE },
-    });
+    const build = (withEn: boolean) => {
+      const endpoint = new URL(`${url}/rest/v1/gorilla_product_cache`);
+      endpoint.searchParams.set(
+        "select",
+        `barcode,product_name,${withEn ? "display_name_en," : ""}brand,gorilla_score,score_grade,image_url,nutrition_data`
+      );
+      endpoint.searchParams.set("gorilla_score", "gte.75");
+      endpoint.searchParams.set("is_alcohol", "eq.false");
+      endpoint.searchParams.set("is_beauty", "eq.false");
+      // Exclude supplements: the food engine is miscalibrated for them (scoring a
+      // protein tub on sugar/sat-fat bands is meaningless), so their scores are
+      // invalid for a foods ranking.
+      endpoint.searchParams.set("is_supplement", "eq.false");
+      endpoint.searchParams.set("order", "gorilla_score.desc,barcode.asc"); // stable, non-artifact
+      endpoint.searchParams.set("limit", "1000");
+      return endpoint;
+    };
+    const opts = { headers: { apikey: key, Authorization: `Bearer ${key}`, Accept: "application/json" }, next: { revalidate: TOP_REVALIDATE } };
+    // Prefer the English display column; fall back to a select without it so the
+    // page still works before the Phase-A column exists (graceful, no ordering dep).
+    let res = await fetch(build(true).toString(), opts);
+    if (!res.ok) res = await fetch(build(false).toString(), opts);
     if (!res.ok) return [];
     const rows: CacheRow[] = await res.json();
     const tb = (r: CacheRow) => (macro(r.nutrition_data, "proteins_100g") ?? 0) + (macro(r.nutrition_data, "fiber_100g") ?? 0);

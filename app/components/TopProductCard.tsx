@@ -44,7 +44,7 @@ export default function TopProductCard({ row, rank }: { row: CacheRow; rank?: nu
 
       {/* Name + macros */}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm text-foreground">{row.product_name}</p>
+        <p className="truncate text-sm text-foreground">{row.display_name_en ?? row.product_name}</p>
         <p className="truncate text-xs text-muted">{row.brand || "—"}</p>
         <div className="mt-2 flex gap-4">
           <Macro label="Protein" value={macro(row.nutrition_data, "proteins_100g")} unit="g" />

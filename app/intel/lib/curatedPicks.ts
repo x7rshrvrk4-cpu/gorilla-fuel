@@ -10,6 +10,8 @@ export type CuratedTier = "approved" | "cheat" | "avoid";
 export type CuratedPick = {
   barcode: string;
   product_name: string | null;
+  /** Display-only English name (Phase A); render via display_name_en ?? product_name. */
+  display_name_en?: string | null;
   brand: string | null;
   gorilla_score: number | null;
   score_grade: string | null;
@@ -78,16 +80,22 @@ export async function getCuratedPicks(tier: CuratedTier): Promise<CuratedPick[]>
     // 2) live cache rows for those barcodes (chunked in.() lookups)
     const rows: Record<string, unknown>[] = [];
     for (const group of chunk(picks.map((p) => p.barcode), 150)) {
-      const ep = new URL(`${url}/rest/v1/gorilla_product_cache`);
-      ep.searchParams.set("select", "barcode,product_name,brand,gorilla_score,score_grade,image_url");
-      ep.searchParams.set("barcode", `in.(${group.join(",")})`);
-      const r = await fetch(ep.toString(), { headers, next: { revalidate: CURATED_REVALIDATE } });
+      const build = (withEn: boolean) => {
+        const ep = new URL(`${url}/rest/v1/gorilla_product_cache`);
+        ep.searchParams.set("select", `barcode,product_name,${withEn ? "display_name_en," : ""}brand,gorilla_score,score_grade,image_url`);
+        ep.searchParams.set("barcode", `in.(${group.join(",")})`);
+        return ep;
+      };
+      // Prefer the English display column; fall back without it (works pre-Phase-A column).
+      let r = await fetch(build(true).toString(), { headers, next: { revalidate: CURATED_REVALIDATE } });
+      if (!r.ok) r = await fetch(build(false).toString(), { headers, next: { revalidate: CURATED_REVALIDATE } });
       if (r.ok) rows.push(...(await r.json()));
     }
 
     const merged: CuratedPick[] = rows.map((r) => ({
       barcode: String(r.barcode),
       product_name: (r.product_name as string) ?? null,
+      display_name_en: (r.display_name_en as string) ?? null,
       brand: (r.brand as string) ?? null,
       gorilla_score: (r.gorilla_score as number) ?? null,
       score_grade: (r.score_grade as string) ?? null,

@@ -69,6 +69,7 @@ export default function CuratedPicksSection({
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {picks.map((p) => {
           const brand = displayBrand(p.brand);
+          const displayName = p.display_name_en ?? p.product_name; // English when backfilled, else French original
           return (
             <div key={p.barcode} className="gorilla-card flex items-center gap-3 rounded-sm p-3">
               {/* Product image (or initial fallback) */}
@@ -78,7 +79,7 @@ export default function CuratedPicksSection({
                   <img src={p.image_url} alt="" loading="lazy" className="h-full w-full object-contain" />
                 ) : (
                   <span className="font-display text-lg text-muted">
-                    {(p.product_name ?? "?").trim().charAt(0).toUpperCase()}
+                    {(displayName ?? "?").trim().charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
@@ -88,12 +89,12 @@ export default function CuratedPicksSection({
                 {brand && (
                   <p className="truncate text-[10px] uppercase tracking-[0.2em] text-muted">{brand}</p>
                 )}
-                <p className="truncate text-sm leading-tight text-foreground" title={p.product_name ?? ""}>
-                  {p.product_name ?? "—"}
+                <p className="truncate text-sm leading-tight text-foreground" title={displayName ?? ""}>
+                  {displayName ?? "—"}
                 </p>
-                {hasAmazonLink(p.barcode) && p.product_name && (
+                {hasAmazonLink(p.barcode) && displayName && (
                   <a
-                    href={amazonUrl(p.product_name)}
+                    href={amazonUrl(displayName)}
                     target="_blank"
                     rel="nofollow sponsored noopener"
                     className="mt-1 inline-block font-display text-[10px] uppercase tracking-[0.15em] text-gold/80 transition-colors hover:text-gold"
