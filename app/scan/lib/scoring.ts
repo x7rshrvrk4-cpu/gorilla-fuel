@@ -1027,6 +1027,9 @@ const WHOLE_FOOD_CATEGORY_TAGS = new Set([
 // seasoned/…). "\bsalted\b" deliberately does NOT match "unsalted".
 const PROCESSED_CATEGORY_PATTERN =
   /\ben:(juices|fruit-juices|fruit-based-snacks|fruit-based-beverages|candied-fruits|candied-nuts|dried-fruits|sweetened-dried-fruits|vegetable-chips|chips|crisps|snacks|sweet-snacks|salty-snacks|desserts|sauces|jams|fruit-compotes|smoothies|sodas|sugar|confectioneries|ice-cream)\b|\b(candied|honey[\s-]?roasted|roasted[\s-]and[\s-]salted|salted|sweetened|seasoned|flavou?red|caramel|chocolate[\s-]?coated|sugar[\s-]?coated|glazed)\b/;
+// Juice / fruit-drink tokens (EN + FR) — if present in the product NAME, the
+// whole-food exemption is denied (juice is concentrated sugar, not whole produce).
+const JUICE_NAME_PATTERN = /\b(jus|juice|nectar|smoothie|boisson|drink|limonade|lemonade|punch)\b/i;
 // Name lexicon (EN + FR) — only consulted alongside the nutriment SIGNATURE guard.
 // Stems (no trailing \b) so plurals/inflections match: "bleuets", "blueberries",
 // "fraises", "carrots", "tomatoes". Leading \b keeps matches at word starts.
@@ -1047,6 +1050,14 @@ const WHOLE_FOOD_NAME_PATTERN =
  * real macro demerits (sugar/sat-fat/sodium/calorie bands) still apply in full.
  */
 export function isWholeFood(n: Nutriments, context?: ScoringContext): boolean {
+  // 0) JUICE / fruit-drink name disqualifier. "Jus de pomme-raisin" has a fruit
+  //    name + low per-100g sugar (juice is mostly water) and would otherwise pass
+  //    the name path, but juice is concentrated sugar, NOT a whole food. The
+  //    PROCESSED_CATEGORY_PATTERN already blocks juice CATEGORY tags; this also
+  //    blocks it by NAME (tags are frequently absent). Plain produce names never
+  //    contain these tokens, so frozen fruit / canned veg / beans are unaffected.
+  if (JUICE_NAME_PATTERN.test((context?.productName ?? "").toLowerCase())) return false;
+
   // 1) NOVA 1
   if (asNovaGroup(context?.novaGroup ?? undefined) === 1) return true;
 
