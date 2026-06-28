@@ -1376,7 +1376,7 @@ export function scoreNutrition(
       score -= 40;
       flags.push(`Extreme sugar per serving — ${sg.toFixed(1)}g per ${servingTag}`);
     } else if (sg > 20) {
-      score -= 25;
+      score -= 35;
       flags.push(`Very high sugar per serving — ${sg.toFixed(1)}g per ${servingTag}`);
     } else if (sg > 12) {
       score -= 15;
