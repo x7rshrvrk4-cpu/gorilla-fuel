@@ -11,6 +11,7 @@ const PRIMARY_LINKS = [
   { href: "/alcohol",  label: "ALCOHOL",     gold: false, dropdown: false },
   { href: "/energy",   label: "BEVERAGES",   gold: false, dropdown: false },
   { href: "/rankings", label: "SUPPLEMENTS", gold: false, dropdown: false },
+  { href: "/fitness",  label: "FITNESS",     gold: false, dropdown: false },
 ];
 
 const INTEL_LINKS = [
