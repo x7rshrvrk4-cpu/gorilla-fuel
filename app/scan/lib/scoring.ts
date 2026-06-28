@@ -659,7 +659,15 @@ const ADDITIVES: AdditiveEntry[] = [
     healthBodyPosition: "The FDA, EFSA, and Health Canada all mandate sulfite labeling because the evidence that it can trigger severe breathing reactions in people with asthma or sulfite sensitivity is strong and uncontested — 'high risk for a known subgroup' is settled science here, not speculation.",
     gorillaPosition: "If you're asthmatic or know you're sulfite-sensitive, the consensus isn't subtle — this is a 'know your own body and check the label' situation with real regulatory teeth behind it.",
     sources: ["FDA — Sulfites: An Important Food Safety Issue", "Health Canada — Sulphites in Food", "EFSA ANS Panel — Re-evaluation of Sulphur Dioxide and Sulphites (2016)"],
-    matchers: [name("Sulphur dioxide"), name("Sulfur dioxide"), ecode("E220")],
+    matchers: [
+      name("Sulphur dioxide"), name("Sulfur dioxide"),
+      name("Sulfites"), name("Sulphites"), name("Sulfite"), name("Sulphite"),
+      name("Sodium sulfite"), name("Sodium sulphite"), name("Potassium sulfite"), name("Potassium sulphite"),
+      name("Metabisulfite"), name("Metabisulphite"), name("Sodium metabisulfite"), name("Potassium metabisulfite"),
+      name("Sodium bisulfite"), name("Potassium bisulfite"), name("Bisulfite"), name("Bisulphite"),
+      name("Anhydride sulfureux"), name("Sulfurous anhydride"),
+      ecode("E220"), ecode("E221"), ecode("E222"), ecode("E223"), ecode("E224"), ecode("E225"), ecode("E226"), ecode("E227"), ecode("E228"),
+    ],
   },
 
   {
