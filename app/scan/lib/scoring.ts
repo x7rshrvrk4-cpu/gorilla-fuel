@@ -1432,6 +1432,30 @@ export function scoreNutrition(
   // 0-calorie condiment reads middling, not harmful and not virtuous.
   const lowCalCondiment = isLowCalCondimentBeverage(n, context);
 
+  // ── Pure-oil missing-data exemption ──────────────────────────────────────
+  // A recognized pure/single oil (olive/canola/avocado/grapeseed/corn/sunflower/
+  // safflower/sesame/coconut/peanut/vegetable/soybean/walnut/flax/rice-bran)
+  // legitimately has ~0 sodium and ~0 sugar; when the OFF row simply OMITS those
+  // fields it was being hit by the missing-data conservative cap (45) — a pure
+  // data-completeness artifact (Gallo EVOO 78 discloses zeros vs Saporito EVOO 41
+  // omits them, same product). Exempt pure oils from the missing-data penalty ONLY.
+  // They STILL take full sat-fat + calorie penalties — coconut oil (~90g sat-fat)
+  // still scores low. Narrow: recognized oil NAME or oil-category tag, NOT
+  // margarine/mayo/dressing/spread/butter/spray/flavoured/blended, AND an oil macro
+  // signature (≥700 kcal/100g, protein ≤1) so a non-oil that merely names an oil
+  // (e.g. "olive oil cake", "olive oil chips") can't qualify.
+  const oilName = (context?.productName ?? "").toLowerCase();
+  const oilCats = (context?.categoriesTags ?? []).map((t) => String(t).toLowerCase()).join(" ");
+  const oilHay = `${oilName} ${oilCats}`;
+  const OIL_NAME_RE = /\b(olive|canola|avocado|grape[\s-]?seed|corn|sunflower|safflower|sesame|coconut|peanut|groundnut|vegetable|soybean|soya|walnut|flax(?:seed)?|rice[\s-]?bran)\s+oils?\b/i;
+  const OIL_NAME_FR = /\bhuile\s+(?:d['e]\s*)?(?:olive|canola|avocat|p[ée]pins|ma[iï]s|tournesol|s[ée]same|coco|arachide|v[ée]g[ée]tale|soja|carthame|noix|lin)\b/i;
+  const OIL_CAT_RE = /\ben:(?:olive-oils?|sunflower-oils?|vegetable-oils?|coconut-oils?|rapeseed-oils?|canola-oils?|corn-oils?|sesame-oils?|avocado-oils?|grapeseed-oils?|peanut-oils?|cooking-oils?|oils)\b/;
+  const OIL_EXCLUDE = /margarine|mayo|mayonnaise|dressing|vinaigrette|tartinade|spread|\bbutter\b|beurre|spray|flavou?red|infused|truffle|garlic|chil(?:i|li)|\bherb|lemon|basil|spiced|sauce|\bdip\b|blend|\bwith\b|&|\+/i;
+  const isPureOil =
+    (OIL_NAME_RE.test(oilName) || OIL_NAME_FR.test(oilName) || OIL_CAT_RE.test(oilCats)) &&
+    !OIL_EXCLUDE.test(oilHay) &&
+    calories >= 700 && protein <= 1;
+
   // ── NOVA — applied first as the dominant processing signal ───────────────
   // NOVA 4 (ultra-processed) caps nutrition at 45 before other factors.
   // NOVA 1 (unprocessed whole foods) receives a small bonus.
@@ -1641,7 +1665,7 @@ export function scoreNutrition(
   // sugar/sat-fat, so a gap in those fields is not hidden harm. Real macro bands
   // below still apply, so this withholds the data-gap penalty only — no free points.
   const missingHarmfulData =
-    missingCriticalCount > 0 && nova !== 1 && !lowCalCondiment && !isWholeFood(n, context);
+    missingCriticalCount > 0 && nova !== 1 && !lowCalCondiment && !isPureOil && !isWholeFood(n, context);
   if (missingHarmfulData) {
     score -= missingCriticalCount * 12;
     const missingNames = [
