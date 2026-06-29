@@ -537,7 +537,11 @@ export function ingredientSanityCap(
   if (MSG_RE.test(ing)) caps.push({ cap: 55, reason: "MSG" });
   if (/high\s*fructose\s*corn\s*syrup|glucose[\s-]?fructose/i.test(ing))
     caps.push({ cap: 45, reason: "high fructose corn syrup / glucose-fructose" });
-  if (/partially\s*hydrogenated|trans\s*fat/i.test(ing))
+  // Gate on the actual harmful INGREDIENT (partially hydrogenated oil), NOT the bare
+  // words "trans fat" — those appear in nutrition-panel CLAIM text that gets parsed
+  // into ingredients_text ("not a significant source of saturated fat, trans fat, …"),
+  // which was wrongly capping zero-trans-fat products (Natural Spring Water, sugar) to 30.
+  if (/partially\s*hydrogenated/i.test(ing))
     caps.push({ cap: 30, reason: "partially hydrogenated oil / trans fat" });
   if (/\bbha\b|\bbht\b|butylated\s*hydroxy/i.test(ing)) caps.push({ cap: 45, reason: "BHA/BHT preservatives" });
   if (/sodium\s*nitrate|sodium\s*nitrite/i.test(ing)) caps.push({ cap: 45, reason: "sodium nitrate/nitrite" });
