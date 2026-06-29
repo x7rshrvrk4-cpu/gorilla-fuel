@@ -1083,6 +1083,21 @@ const PROCESSED_CATEGORY_PATTERN =
 // Juice / fruit-drink tokens (EN + FR) — if present in the product NAME, the
 // whole-food exemption is denied (juice is concentrated sugar, not whole produce).
 const JUICE_NAME_PATTERN = /\b(jus|juice|nectar|smoothie|boisson|drink|limonade|lemonade|punch)\b/i;
+// Processed-product NAME disqualifier (EN + FR). Same idea as JUICE_NAME_PATTERN
+// but for the broader processed-but-fruit/veg-NAMED class that otherwise rides the
+// name branch to a false "whole food": sweetened drinks, candy, jams/spreads,
+// processed dough, canned-in-syrup/gelatin. Applied ONLY in the NAME branch
+// (branch 3) below — the nova (1) and category (2) branches are left untouched, so
+// the 368 NOVA-1 and 113 tagged-produce exemptions are unaffected.
+// Two deliberate constraints, both proven against the live exempt population:
+//   • "thé" (FR tea) is ACCENT-REQUIRED — it must NOT match English "the" (which
+//     would clip "Cherry Tomatoes On The Vine"). The name here is lowercased but
+//     NOT diacritic-stripped, so \bthés?\b only fires on the accented French word.
+//   • "puree/purée/compote" are DELIBERATELY EXCLUDED — they name genuine produce
+//     (tomato/broccoli/baby/applesauce purées) and sugar cannot separate them from
+//     sweetened ones, so a name token there clips ~10 legit produce rows.
+const PROCESSED_NAME_PATTERN =
+  /\b(soda|seltz?er|sparkling|probiotic|tonic|tisane|tea|kombucha|soft drink|cola|candy|gumm(?:y|ies)|bonbon|fuzzy peach|licorice|fruit snack|fruit chew|marshmallow|taffy|jam|jell(?:y|o)|confiture|tartinade|spread|preserves?|marme?lade|pierogi(?:es)?|dumpling|ravioli|dough|pastr(?:y|ies)|in syrup|g[ée]latine?)\b|\br[ée]glisse\b|\bthés?(?![a-zà-ÿ])/i;
 // Name lexicon (EN + FR) — only consulted alongside the nutriment SIGNATURE guard.
 // Stems (no trailing \b) so plurals/inflections match: "bleuets", "blueberries",
 // "fraises", "carrots", "tomatoes". Leading \b keeps matches at word starts.
@@ -1136,9 +1151,11 @@ export function isWholeFood(n: Nutriments, context?: ScoringContext): boolean {
     if (!sweetened && !seasoned) return true;
   }
 
-  // 3) name lexicon + raw-produce nutriment signature (signature is mandatory)
+  // 3) name lexicon + raw-produce nutriment signature (signature is mandatory).
+  //    A processed-product name token (soda/candy/jam/pierogi/in syrup/…) denies
+  //    the exemption here — a fruit-NAMED soda or jam is not a whole food.
   const name = (context?.productName ?? "").toLowerCase();
-  if (WHOLE_FOOD_NAME_PATTERN.test(name) && !processed) {
+  if (WHOLE_FOOD_NAME_PATTERN.test(name) && !processed && !PROCESSED_NAME_PATTERN.test(name)) {
     // Nutriments tracks saturated fat (not total fat). Raw produce has very low
     // protein, ~0 saturated fat, and ~0 sodium — a muffin (butter→sat-fat),
     // chips (oil+salt), or candy fails this, so they don't get the produce exemption.
