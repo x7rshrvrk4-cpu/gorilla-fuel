@@ -1015,9 +1015,14 @@ function asNovaGroup(value: number | undefined): NovaGroup | null {
 // Diacritics are stripped from both the text and the tokens so accented terms match.
 const REFINED_GRAIN_RE =
   /\bdurum|semolina|semoule|semola|enriched|enrichi|white flour|wheat flour|farine de ble|farine blanche|white rice|riz blanc|bleached|blanchie/;
-// Exclude tokens — these WIN over any refined match. Faithful to the audit spec.
+// Exclude tokens — these WIN over any refined match (and over the en:pastas
+// category backstop). Legumes/brown-rice plus the whole-grain family: a product
+// carrying any of these is a whole/ancient grain or legume, not a refined white
+// grain, even if its category is en:pastas. Checked against NAME + ingredients,
+// because the whole-grain signal often lives only in the name
+// ("Kamut Spaghetti 100% Whole Grain", "Soba", "Multigrain Loaf").
 const WHOLE_GRAIN_LEGUME_RE =
-  /whole[\s-]?wheat|wholewheat|whole[\s-]?grain|wholegrain|whole[\s-]?meal|ble entier|\bcomplet|rolled oat|\boats?\b|\bavoine|brown rice|riz brun|chickpea|pois chiche|\blentil|lentille|pea protein|\bpeas?\b|\bpois\b|quinoa|edamame|black bean|\bmung/;
+  /whole[\s-]?wheat|wholewheat|whole[\s-]?grain|wholegrain|whole[\s-]?meal|ble entier|grains? entiers?|\bcomplet|rolled oat|\boats?\b|\bavoine|brown rice|riz brun|chickpea|pois chiche|\blentil|lentille|pea protein|\bpeas?\b|\bpois\b|quinoa|edamame|black bean|\bmung|\bkamut\b|\bkhorasan\b|\bspelt\b|epeautre|\bseigle\b|\brye\b|\bsoba\b|buckwheat|sarrasin|multi[\s-]?grain|\bmillet\b|\bteff\b|amaranth|\bfarro\b|einkorn|ancient grains?/;
 // Category backstop catches refined products whose ingredient text is missing.
 // The whole/legume ingredient exclude still applies first, so legume pastas that
 // carry en:pastas are protected whenever their ingredient list is present.
@@ -1032,11 +1037,14 @@ function isRefinedGrain(
   context?: ScoringContext
 ): boolean {
   const text = stripDiacritics((ingredientsText ?? "").toLowerCase());
+  const name = stripDiacritics((context?.productName ?? "").toLowerCase());
 
   // Whole-grain / legume tokens ALWAYS win — protects legume pastas, brown-rice
-  // noodles, oats, etc. even when they also carry a refined token (durum + lentil)
-  // or the pasta category backstop.
-  if (WHOLE_GRAIN_LEGUME_RE.test(text)) return false;
+  // noodles, oats, and whole/ancient grains (kamut, spelt, rye, soba, quinoa,
+  // millet…), even when they also carry a refined token (durum + lentil) or the
+  // pasta category backstop. Scanned across NAME + ingredients so a whole-grain
+  // product whose only signal is in the name still wins.
+  if (WHOLE_GRAIN_LEGUME_RE.test(`${name} ${text}`)) return false;
 
   if (REFINED_GRAIN_RE.test(text)) return true;
 
