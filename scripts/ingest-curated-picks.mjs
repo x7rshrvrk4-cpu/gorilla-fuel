@@ -64,8 +64,17 @@ async function pullBand(scoreQs) {
   let from = 0; const page = 1000; const all = [];
   for (;;) {
     const u = `${URL}/rest/v1/gorilla_product_cache?select=barcode,product_name,brand,gorilla_score,image_url&${FOOD}&${scoreQs}&brand=neq.&image_url=not.is.null&order=barcode.asc&limit=${page}&offset=${from}`;
-    const r = await fetch(u, { headers: H }); const rows = await r.json();
-    all.push(...rows); if (rows.length < page) break; from += from + page > 100000 ? 1e9 : page;
+    // Retry/backoff: the widened bands page through tens of requests; a transient
+    // throttle returns a non-array error object, so retry before giving up.
+    let rows = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const r = await fetch(u, { headers: H });
+      const j = await r.json().catch(() => null);
+      if (r.ok && Array.isArray(j)) { rows = j; break; }
+      await new Promise((res) => setTimeout(res, 600 * (attempt + 1)));
+    }
+    if (!rows) throw new Error(`pullBand failed after retries at offset ${from} for [${scoreQs}]`);
+    all.push(...rows); if (rows.length < page) break; from += page;
   }
   return all.filter((p) => !isJunkBarcode(p.barcode) && !isGarbageName(p.product_name) && p.brand && p.brand.trim() && !isSuppBrand(p.brand));
 }
@@ -73,7 +82,8 @@ async function pullBand(scoreQs) {
 async function main() {
   if (!URL || !ANON) { console.error("Supabase not configured (.env.local)"); process.exit(1); }
   const approvedRows = await pullBand("gorilla_score=gte.75");
-  const cheatRows = await pullBand("gorilla_score=gte.45&gorilla_score=lte.65");
+  const cheatRows = await pullBand("gorilla_score=gte.45&gorilla_score=lte.74"); // widened 45-65 -> 45-74 (closes 66-74 gap)
+  const avoidRows = await pullBand("gorilla_score=lt.45");                        // new AVOID band
 
   // brand -> qualifying barcodes (sorted by score desc)
   const byBrand = (rows) => {
@@ -82,23 +92,25 @@ async function main() {
     for (const v of m.values()) v.sort((a, b) => b.gorilla_score - a.gorilla_score);
     return m;
   };
-  const aBrands = byBrand(approvedRows), cBrands = byBrand(cheatRows);
+  const aBrands = byBrand(approvedRows), cBrands = byBrand(cheatRows), vBrands = byBrand(avoidRows);
 
-  // ── GEN-INPUT: write a default input (brands with >=3 high-scoring rows, 90+ items pre-approved) ──
+  // ── GEN-INPUT: write a default input (brands with >=3 rows; explicit-item lists empty for hand-curation) ──
   if (mode === "gen") {
     const topBrands = (m) => [...m.entries()].filter(([, v]) => v.length >= 3)
       .sort((a, b) => b[1].length - a[1].length).map(([k, v]) => v[0].brand); // display = top-scoring row's brand string
     const def = {
-      _note: "EDIT ME. approvedBrands/cheatBrands = brand display names to allowlist (matched by normalized key). approvedItems/cheatItems = explicit barcodes. skipItems = barcodes to drop. Default = brands with >=3 high-scoring rows + the 90+ band pre-listed as approvedItems.",
+      _note: "EDIT ME. {approved,cheat,avoid}Brands = brand display names to allowlist (matched by normalized key). {approved,cheat,avoid}Items = explicit barcodes (preferred — pins exact SKUs). skipItems = barcodes to drop. Precedence approved>cheat>avoid. Cheat band 45-74, Avoid band <45.",
       approvedBrands: topBrands(aBrands),
       cheatBrands: topBrands(cBrands),
+      avoidBrands: topBrands(vBrands),
       approvedItems: approvedRows.filter((p) => p.gorilla_score >= 90).map((p) => p.barcode),
       cheatItems: [],
+      avoidItems: [],
       skipItems: [],
     };
     writeFileSync(INPUT, JSON.stringify(def, null, 2));
     console.log(`Wrote ${INPUT}`);
-    console.log(`  approvedBrands: ${def.approvedBrands.length} | cheatBrands: ${def.cheatBrands.length} | approvedItems(90+): ${def.approvedItems.length}`);
+    console.log(`  approvedBrands: ${def.approvedBrands.length} | cheatBrands: ${def.cheatBrands.length} | avoidBrands: ${def.avoidBrands.length} | approvedItems(90+): ${def.approvedItems.length}`);
     return;
   }
 
@@ -119,22 +131,48 @@ async function main() {
   };
   let approved = expand(input.approvedBrands, aBrands, input.approvedItems, approvedRows);
   let cheat = expand(input.cheatBrands, cBrands, input.cheatItems, cheatRows);
+  let avoid = expand(input.avoidBrands, vBrands, input.avoidItems, avoidRows);
 
-  // approved wins if a barcode lands in both
+  // precedence approved > cheat > avoid (most-favorable tier wins a duplicate barcode)
   const aSet = new Set(approved.map((p) => p.barcode));
   cheat = cheat.filter((p) => !aSet.has(p.barcode));
+  const acSet = new Set([...approved, ...cheat].map((p) => p.barcode));
+  avoid = avoid.filter((p) => !acSet.has(p.barcode));
 
-  // rank by score desc within tier
+  // rank: approved best-first (desc, unchanged); cheat + avoid WORST-first (asc) per curation intent
   approved.sort((a, b) => b.gorilla_score - a.gorilla_score);
-  cheat.sort((a, b) => b.gorilla_score - a.gorilla_score);
+  cheat.sort((a, b) => a.gorilla_score - b.gorilla_score || a.barcode.localeCompare(b.barcode));
+  avoid.sort((a, b) => a.gorilla_score - b.gorilla_score || a.barcode.localeCompare(b.barcode));
   const rows = [
     ...approved.map((p, i) => ({ barcode: p.barcode, tier: "approved", rank: i })),
     ...cheat.map((p, i) => ({ barcode: p.barcode, tier: "cheat", rank: i })),
+    ...avoid.map((p, i) => ({ barcode: p.barcode, tier: "avoid", rank: i })),
   ];
 
-  console.log(`PLAN: approved ${approved.length} | cheat ${cheat.length} | total rows ${rows.length}`);
-  console.log("  sample approved:", approved.slice(0, 5).map((p) => `${p.gorilla_score} ${p.brand} — ${p.product_name}`).join(" | "));
-  console.log("  sample cheat   :", cheat.slice(0, 5).map((p) => `${p.gorilla_score} ${p.brand} — ${p.product_name}`).join(" | "));
+  // ── BAND-DRIFT detection: every explicitly-listed item that did NOT land in its
+  //    intended band (e.g. post-recompute score moved it out). Look it up across all
+  //    three bands to report where it went.
+  const whereMap = new Map(); // normBc -> {band, score, brand, name}
+  const addWhere = (rs, band) => { for (const p of rs) { const k = normBc(p.barcode); if (!whereMap.has(k)) whereMap.set(k, { band, score: p.gorilla_score, brand: p.brand, name: p.product_name }); } };
+  addWhere(approvedRows, "approved(>=75)"); addWhere(cheatRows, "cheat(45-74)"); addWhere(avoidRows, "avoid(<45)");
+  const landed = (arr) => new Set(arr.map((p) => normBc(p.barcode)));
+  const avoidLanded = landed(avoid), cheatLanded = landed(cheat);
+  const drift = [];
+  for (const bc of input.avoidItems ?? []) { const k = normBc(bc); if (!avoidLanded.has(k)) drift.push({ bc, want: "avoid", got: whereMap.get(k) }); }
+  for (const bc of input.cheatItems ?? []) { const k = normBc(bc); if (!cheatLanded.has(k)) drift.push({ bc, want: "cheat", got: whereMap.get(k) }); }
+
+  // ── full populate plan ──
+  const line = (p, i) => `  #${String(i).padStart(2)} [${String(p.gorilla_score).padStart(3)}] ${(p.brand ?? "").slice(0, 18).padEnd(18)} | ${(p.product_name ?? "").slice(0, 40).padEnd(40)} ${p.barcode}`;
+  console.log(`\n===== POPULATE PLAN (DRY-RUN) =====`);
+  console.log(`COUNTS: approved ${approved.length} (NOT written unless listed) | cheat ${cheat.length} | avoid ${avoid.length} | total rows ${rows.length}`);
+  console.log(`\n--- AVOID (worst-score-first), ${avoid.length} ---`);
+  avoid.forEach((p, i) => console.log(line(p, i)));
+  console.log(`\n--- CHEAT (worst-score-first), ${cheat.length} ---`);
+  cheat.forEach((p, i) => console.log(line(p, i)));
+  if (approved.length) { console.log(`\n--- APPROVED (this run would write ${approved.length}) ---`); approved.forEach((p, i) => console.log(line(p, i))); }
+  console.log(`\n===== BAND-DRIFT (listed items that did NOT land in intended band): ${drift.length} =====`);
+  for (const d of drift) console.log(`  ⚠ ${d.bc} wanted=${d.want} but now=${d.got ? `${d.got.band} score=${d.got.score} (${d.got.name})` : "NOT FOUND in any band (filtered out / score moved / image gone)"}`);
+  if (!drift.length) console.log("  (none — every listed item is in its intended band)");
 
   if (mode !== "write") { console.log("\n(DRY RUN — no write. Re-run with --write to upsert into curated_picks.)"); return; }
 
