@@ -1162,8 +1162,16 @@ export function isWholeFood(n: Nutriments, context?: ScoringContext): boolean {
   // 3) name lexicon + raw-produce nutriment signature (signature is mandatory).
   //    A processed-product name token (soda/candy/jam/pierogi/in syrup/…) denies
   //    the exemption here — a fruit-NAMED soda or jam is not a whole food.
+  // Scan NAME + BRAND for the processed/juice disqualifier: a token in the BRAND
+  // ("Solly's Craft Soda", "East Van Jam") denies the exemption even when the
+  // product_name lacks it. Safe here because this is branch 3 only — NOVA-1 and
+  // tagged-produce rows already returned at branches 1/2, so a produce brand whose
+  // name happens to contain a token never reaches (or loses) this path. The product
+  // must still be produce-NAMED (WHOLE_FOOD_NAME_PATTERN on name) to be a candidate.
   const name = (context?.productName ?? "").toLowerCase();
-  if (WHOLE_FOOD_NAME_PATTERN.test(name) && !processed && !PROCESSED_NAME_PATTERN.test(name)) {
+  const nameAndBrand = `${name} ${(context?.brand ?? "").toLowerCase()}`;
+  if (WHOLE_FOOD_NAME_PATTERN.test(name) && !processed
+      && !PROCESSED_NAME_PATTERN.test(nameAndBrand) && !JUICE_NAME_PATTERN.test(nameAndBrand)) {
     // Nutriments tracks saturated fat (not total fat). Raw produce has very low
     // protein, ~0 saturated fat, and ~0 sodium — a muffin (butter→sat-fat),
     // chips (oil+salt), or candy fails this, so they don't get the produce exemption.
@@ -1229,6 +1237,11 @@ export type ScoringContext = {
   categoriesTags?: string[] | null;
   /** Product name used only to infer artificial sweetener presence when ingredient text is absent. */
   productName?: string | null;
+  /** Brand string — scanned (alongside productName) by the whole-food name disqualifier
+   *  so a processed/juice token in the BRAND (e.g. "Solly's Craft Soda", "East Van Jam")
+   *  denies the produce exemption even when product_name lacks the token. Display/scoring
+   *  read-only; never the scanner. */
+  brand?: string | null;
   /** Open Food Facts additives_tags (language-neutral E-codes, e.g. "en:e407") — a primary, language-independent additive signal. */
   additivesTags?: string[] | null;
 };

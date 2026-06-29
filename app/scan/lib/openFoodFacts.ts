@@ -48,6 +48,7 @@ export function scoringContext(product: OffProduct): ScoringContext {
     labelsTags: product.labels_tags,
     categoriesTags: product.categories_tags,
     productName: resolveProductName(product),
+    brand: product.brands ?? null,
     additivesTags: product.additives_tags,
   };
 }
