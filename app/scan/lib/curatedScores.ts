@@ -447,7 +447,15 @@ function categoryCap(name: string, cats: string, ing: string): { cap: number; re
   if (/cheese\s*(puffs?|curls?|doodles?)/.test(hay)) return { cap: 25, reason: "cheese puff/curl category" };
   if (/(chips?|crisps?|puffs?|curls?)\b/.test(hay) && (hasColour || hasFlavour || hasMsg))
     return { cap: 45, reason: "chips/puffs with artificial colours/flavours/MSG" };
-  if (/\b(candy|candies|confectionery|sweets)\b/.test(hay)) return { cap: 35, reason: "candy/confectionery category" };
+  // Whole-grain / cereal / granola bars are frequently MIS-TAGGED by OFF with
+  // candy tags (en:chocolate-candies, en:candy-chocolate-bars). Exclude them from
+  // the candy cap — mirrors the savoryComposite guard the sugar-dominant rule
+  // below already uses — so a real granola bar (e.g. Kashi Dark Chocolate Almond,
+  // whole-grain-oats-first) scores on its normal NOVA-4 + sugar penalties instead
+  // of a false candy cap. Real candy (no granola/oats/whole-grain signal) still caps.
+  const wholeGrainBar =
+    /\b(granola|m[üu]esli|cereal[\s-]?bars?|cereal-bars?|oat[\s-]?bars?|oats?|oatmeal|whole[\s-]?grain|whole[\s-]?wheat)\b/.test(hay);
+  if (!wholeGrainBar && /\b(candy|candies|confectionery|sweets)\b/.test(hay)) return { cap: 35, reason: "candy/confectionery category" };
   // ── Sugar-dominant products (the product IS sugar/honey/syrup/jam/dried fruit) ─
   // OFF frequently stores wildly understated sugar for these (e.g. raw cane sugar
   // as sugars_100g=4, real ~100), so the macro-based nutrition score can't be
