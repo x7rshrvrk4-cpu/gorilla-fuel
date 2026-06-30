@@ -2082,7 +2082,17 @@ export function computeScore(
     const JUNK_PATTERN =
       /\b(chips?|crisps?|savoury[\s-]snacks?|salty[\s-]snacks?|cheese[\s-]snacks?|cheese[\s-]puffs?|cheese[\s-]sticks?|party[\s-]mix|snack[\s-]mix|nachos?|tortilla[\s-]chips?|corn[\s-]chips?|flavou?red[\s-]crackers?|savoury[\s-]crackers?|candy|candies|confectionery|chocolate[\s-]bars?|chocolate[\s-]candies?|ice[\s-]cream|frozen[\s-]desserts?|cookies?|sweet[\s-]biscuits?|flavou?red[\s-]popcorn|instant[\s-]noodles?|fast[\s-]food|junk[\s-]food)\b/;
 
-    const isJunkCap = JUNK_PATTERN.test(capCats);
+    // Whole-grain/granola/cereal bars are frequently MIS-TAGGED by OFF with candy
+    // tags (en:chocolate-candies, en:candy-chocolate-bars). Mirror the gate's
+    // candy-cap exclusion (curatedScores.ts) here so a mistagged whole-grain bar
+    // (e.g. Kashi) isn't junk-capped at 45 — it falls through to normal NOVA-4 +
+    // sugar penalties. Real candy (no whole-grain/oat signal) still caps. Checked
+    // against NAME + categories so the OFF "whole grain bars" name also exempts.
+    const capHay = `${context?.productName ?? ""} ${capCats}`.toLowerCase();
+    const isWholeGrainBar =
+      /\b(granola|m[üu]esli|cereal[\s-]?bars?|cereal-bars?|oat[\s-]?bars?|oats?|oatmeal|whole[\s-]?grain|whole[\s-]?wheat)\b/.test(capHay);
+
+    const isJunkCap = JUNK_PATTERN.test(capCats) && !isWholeGrainBar;
 
     // Rule 4: Junk category + completely missing nutrition → max 35
     // (Reinforces the per-component cap applied earlier; ensures the final score lands low.)
