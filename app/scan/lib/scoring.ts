@@ -1450,11 +1450,15 @@ export function scoreNutrition(
   const OIL_NAME_RE = /\b(olive|canola|avocado|grape[\s-]?seed|corn|sunflower|safflower|sesame|coconut|peanut|groundnut|vegetable|soybean|soya|walnut|flax(?:seed)?|rice[\s-]?bran)\s+oils?\b/i;
   const OIL_NAME_FR = /\bhuile\s+(?:d['e]\s*)?(?:olive|canola|avocat|p[ée]pins|ma[iï]s|tournesol|s[ée]same|coco|arachide|v[ée]g[ée]tale|soja|carthame|noix|lin)\b/i;
   const OIL_CAT_RE = /\ben:(?:olive-oils?|sunflower-oils?|vegetable-oils?|coconut-oils?|rapeseed-oils?|canola-oils?|corn-oils?|sesame-oils?|avocado-oils?|grapeseed-oils?|peanut-oils?|cooking-oils?|oils)\b/;
-  const OIL_EXCLUDE = /margarine|mayo|mayonnaise|dressing|vinaigrette|tartinade|spread|\bbutter\b|beurre|spray|flavou?red|infused|truffle|garlic|chil(?:i|li)|\bherb|lemon|basil|spiced|sauce|\bdip\b|blend|\bwith\b|&|\+/i;
+  const OIL_EXCLUDE = /margarine|mayo|mayonnaise|dressing|vinaigrette|tartinade|spread|\bbutter\b|buttery|butter[\s-]?style|beurre|spray|flavou?red|infused|truffle|garlic|chil(?:i|li)|\bherb|lemon|basil|spiced|sauce|\bdip\b|blend|\bwith\b|&|\+/i;
+  // Sat-fat ceiling: a genuine pure cooking oil isn't 50–90% saturated fat — that's
+  // coconut/palm/tropical or a data error. Such rows KEEP the conservative missing-
+  // data cap and stay low (structural, not dependent on the sat-fat band binding;
+  // fixes high-sat-fat oils with small/ml servings rising via the per-serving band).
   const isPureOil =
     (OIL_NAME_RE.test(oilName) || OIL_NAME_FR.test(oilName) || OIL_CAT_RE.test(oilCats)) &&
     !OIL_EXCLUDE.test(oilHay) &&
-    calories >= 700 && protein <= 1;
+    calories >= 700 && protein <= 1 && satFat <= 25;
 
   // ── NOVA — applied first as the dominant processing signal ───────────────
   // NOVA 4 (ultra-processed) caps nutrition at 45 before other factors.
