@@ -597,6 +597,57 @@ function gradeForScore(score: number): Grade {
   return "Bad";
 }
 
+// ── CHOCOLATE UNDER-CAP FALLBACK — CURATED OVERRIDE — DO NOT REMOVE ──────────
+// OFF sometimes returns a sugary chocolate product with NULL NOVA and ZERO
+// category tags (e.g. "Choco délice", a chocolate-coated bar at 38.7 g sugar/100g),
+// so neither the NOVA-4 cap, the engine junk cap, nor categoryCap() can bite and
+// it floats on its macros alone. This fallback caps such products at 50. It is
+// tightly gated so it never repeats the Kashi mis-cap (a real bar caught by
+// "chocolate" in its name):
+//   guard 1 — fire ONLY when OFF gave NO category tags (the real blind spot);
+//   guard 2 — exclude snack/energy/protein/granola/cereal/chewy bars (name),
+//             the whole-grain guard, and a bare "bar" that isn't a candy bar;
+//   guard 3 — RESCUE oats-first / whole-grain-led products by INGREDIENTS
+//             (e.g. MadeGood "Chocolate seizzled": no oat token in the name and
+//             no tags, but ingredients start "Pure gluten free oats"). Gated on
+//             oats LEADING the list, not merely appearing deep in it.
+//   plus: name contains chocolate, sugars_100g > 25, and NOT ≥70% dark chocolate.
+const CHOC_NAME_RE = /\bchoco(?:olate|late|lat)?\b|\bchoc\b/;
+const DARKCHOC_PCT_RE = /\b([7-9]\d|100)\s*%/;
+const COCOA_CONTEXT_RE = /\b(cocoa|cacao|dark\s*chocolate|noir|extra\s*dark|unsweetened\s*chocolate|baking\s*chocolate)\b/;
+const NAMED_BAR_RE = /\b(protein|energy|snack|granola|cereal|chewy|fruit|nut|seed|oat)\s*bars?\b/;
+const CANDY_BAR_RE = /\b(chocolate|candy)\s*bars?\b/;
+const WHOLEGRAIN_BAR_RE = /\b(granola|m[üu]esli|cereal[\s-]?bars?|cereal-bars?|oat[\s-]?bars?|oats?|oatmeal|whole[\s-]?grain|whole[\s-]?wheat)\b/;
+// Oats-first / whole-grain-led ingredient signal: the list LEADS with oats /
+// whole grain / granola (optionally after pure/organic/gluten-free/rolled… and a
+// leading OFF emphasis marker like "_"). Anchored at the start, not any-mention.
+const OATS_FIRST_RE =
+  /^[\s_*]*(?:pure\s+|organic\s+|gluten[\s-]?free\s+|whole[\s-]?grain\s+|rolled\s+|quick\s+|old[\s-]?fashioned\s+|sprouted\s+)*(?:oats?|rolled\s*oats?|whole[\s-]?grain|whole[\s-]?wheat|granola|m[üu]esli|oat\s*(?:flakes?|bran|groats?))\b/i;
+
+function chocolateFallbackCap(
+  name: string,
+  catsJoined: string,
+  ing: string,
+  nutriments?: Nutriments | null
+): { cap: number; reason: string } | null {
+  const nameLc = (name ?? "").toLowerCase();
+  if (!CHOC_NAME_RE.test(nameLc)) return null;
+  const sugar = nutriments?.sugars_100g;
+  if (typeof sugar !== "number" || sugar <= 25) return null;
+  // guard 1 — only the tag-less metadata blind spot
+  if ((catsJoined ?? "").trim().length > 0) return null;
+  const hay = `${nameLc} ${(catsJoined ?? "").toLowerCase()}`;
+  // ≥70% dark chocolate — let it score on merits (sugar gate alone misses these)
+  if (DARKCHOC_PCT_RE.test(hay) && COCOA_CONTEXT_RE.test(hay)) return null;
+  // guard 2 — snack/energy/protein/granola/cereal bars + whole-grain + bare bar
+  const bareBar = /\bbars?\b/.test(nameLc) && !CANDY_BAR_RE.test(nameLc);
+  if (WHOLEGRAIN_BAR_RE.test(hay) || NAMED_BAR_RE.test(hay) || bareBar) return null;
+  // guard 3 — RESCUE oats-first / whole-grain-led products by ingredients
+  const ingLc = (ing ?? "").trim().toLowerCase();
+  if (ingLc && OATS_FIRST_RE.test(ingLc)) return null;
+  return { cap: 50, reason: "chocolate product, no OFF category data — sugar-dominant, metadata-blind" };
+}
+
 export type GateInput = {
   barcode: string;
   productName: string;
@@ -674,6 +725,21 @@ export function applyScoringGate(algorithmScore: number, input: GateInput): Gate
     score = catCap.cap;
     if (source === "algorithm") source = "category-scored";
     capReason = capReason ?? `${catCap.reason} (max ${catCap.cap})`;
+  }
+
+  // ── STEP 4b — CURATED OVERRIDE — DO NOT REMOVE: chocolate under-cap fallback ─
+  // Catches sugary chocolate products OFF left metadata-blind (no NOVA, no tags)
+  // that categoryCap can't see; guarded against whole-grain/oat bars and dark choc.
+  const chocCap = chocolateFallbackCap(
+    input.productName,
+    (input.categoriesTags ?? []).join(" "),
+    input.ingredientsText ?? "",
+    input.nutriments
+  );
+  if (chocCap && score > chocCap.cap) {
+    score = chocCap.cap;
+    if (source === "algorithm") source = "category-scored";
+    capReason = capReason ?? `${chocCap.reason} (max ${chocCap.cap})`;
   }
 
   // ── STEP 6 — CURATED OVERRIDE — DO NOT REMOVE: ingredient sanity check ─────
