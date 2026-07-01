@@ -1086,8 +1086,8 @@ export default function ScanClient() {
         </h1>
         <p className="mt-4 text-muted">
           Activate your camera, hold a barcode steady in the frame, and Gorilla
-          Fuel checks 12 data sources instantly — food, supplements, alcohol, beauty,
-          and medication barcodes all supported.
+          Fuel checks 12 data sources instantly — food, supplements, alcohol,
+          and beauty barcodes all supported.
         </p>
       </div>
 
