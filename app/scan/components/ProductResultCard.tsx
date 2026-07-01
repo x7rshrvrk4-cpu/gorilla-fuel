@@ -17,6 +17,7 @@ import ScoreDisclaimer from "./ScoreDisclaimer";
 import ScoreRing from "./ScoreRing";
 import SourcesFooter from "./SourcesFooter";
 import SourceBadge, { type DataSource } from "./SourceBadge";
+import { isDataBlind } from "../lib/dataConfidence";
 
 const NOVA_COLOR: Record<NovaGroup, string> = {
   1: "#3ddc84",
@@ -48,6 +49,10 @@ export default function ProductResultCard({ product, result, alternatives, alter
   // RULE 2 is condensed into the nuance note, so drop the raw incomplete-data
   // flag from the FLAGS list to avoid showing the same caveat twice.
   const displayFlags = result.flags.filter((f) => !f.includes(INCOMPLETE_DATA_FLAG_PREFIX));
+
+  // Data-blind = scored on macros alone (no ingredients / additive tags / NOVA /
+  // categories). Display-only honesty signal; does not affect the score.
+  const dataBlind = isDataBlind(product, result.novaGroup);
 
   return (
     <div className="gorilla-card animate-rise overflow-hidden rounded-sm">
@@ -112,6 +117,25 @@ export default function ProductResultCard({ product, result, alternatives, alter
               </span>
             )}
           </div>
+
+          {/* LIMITED-DATA honesty strip — shown only for data-blind products
+              (scored on macros alone). Informational, not an alarm: matte amber,
+              info icon. Qualifies the score; never changes it. */}
+          {dataBlind && (
+            <div className="mt-3 flex max-w-md items-start gap-2 rounded-sm border border-amber-500/40 bg-amber-500/[0.07] px-3 py-2">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
+              </svg>
+              <div>
+                <p className="font-display text-[10px] uppercase tracking-[0.18em] text-amber-300">Limited data</p>
+                <p className="mt-0.5 text-xs leading-relaxed text-muted">
+                  Scored on nutrition facts alone — no ingredient list on file.
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="mt-3 max-w-md">
             <LabdoorCrossCheck productName={product.product_name} brand={product.brands} categoryTags={product.categories_tags} />
           </div>
