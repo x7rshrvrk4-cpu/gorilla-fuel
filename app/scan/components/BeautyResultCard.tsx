@@ -8,6 +8,7 @@ import ScoreDisclaimer from "./ScoreDisclaimer";
 import ScoreRing from "./ScoreRing";
 import SourcesFooter from "./SourcesFooter";
 import SourceBadge from "./SourceBadge";
+import { beautyHasNoIngredients, inferUnderCoveredCategory } from "../lib/beautyConfidence";
 
 type Props = {
   product: ObfProduct;
@@ -17,6 +18,10 @@ type Props = {
 export default function BeautyResultCard({ product, result }: Props) {
   const image = beautyProductImage(product);
   const gradeColor = GRADE_COLORS[result.grade];
+
+  // Display-only honesty signals — never change the score.
+  const noIngredients = beautyHasNoIngredients(product);
+  const underCovered = inferUnderCoveredCategory(product.product_name);
 
   return (
     <div className="gorilla-card animate-rise overflow-hidden rounded-sm">
@@ -68,6 +73,43 @@ export default function BeautyResultCard({ product, result }: Props) {
 
         <ScoreRing score={result.score} grade={result.grade} />
       </div>
+
+      {/* SIGNAL 1 — data-blind: OBF had no ingredient list, so nothing could be
+          flagged. Mirrors the food "Limited data" badge. Informational, amber. */}
+      {noIngredients && (
+        <div className="flex items-start gap-2 border-b border-amber-500/30 bg-amber-500/[0.06] px-6 py-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
+          </svg>
+          <div>
+            <p className="font-display text-[10px] uppercase tracking-[0.18em] text-amber-300">Limited data</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-muted">
+              Scored on available data — no ingredient list on file, so nothing could be flagged. A clean
+              score here reflects missing data, not a verified formula.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* SIGNAL 2 — limited coverage: this looks like a category the cosmetic
+          dictionary is thin on (sunscreen/deodorant/makeup). Informational, slate. */}
+      {underCovered && (
+        <div className="flex items-start gap-2 border-b border-slate-400/30 bg-slate-500/[0.07] px-6 py-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 h-4 w-4 shrink-0 text-slate-300" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
+          </svg>
+          <div>
+            <p className="font-display text-[10px] uppercase tracking-[0.18em] text-slate-300">Limited coverage</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-muted">
+              This looks like a {underCovered.label} product. Our cosmetic checks are strongest for skincare,
+              hair and body wash — they don&apos;t fully assess {underCovered.whatWeMiss} yet, so a high score
+              here isn&apos;t a complete safety check.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* SCORE EXPLAINER */}
       <div className="border-b border-line bg-surface p-6">
