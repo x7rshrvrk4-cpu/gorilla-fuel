@@ -232,10 +232,13 @@ export async function fetchAlternativesMultiLevel(
 
   for (let i = 0; i < enTags.length; i++) {
     const tag = enTags[i]!;
-    // Most specific level: require full overlap with original categories (strict).
-    // Parent levels: only require the tag itself (relaxed — prevents over-filtering).
-    const matchCategories = i === 0 ? originalCategories : [tag];
-    lastResults = await fetchAlternativesInCategory(tag, matchCategories, product.code);
+    // Require overlap with the ORIGINAL category set at EVERY level (not just the
+    // most specific). Searching a broader parent tag is fine for surfacing more
+    // candidates, but each candidate must still share ≥2 of the scanned product's
+    // real tags — otherwise a thin niche category relaxes into "any snack" and
+    // pulls in unrelated products (sandwich biscuits, brioche) that merely share
+    // an umbrella. Keeping originalCategories here is what prevents that leakage.
+    lastResults = await fetchAlternativesInCategory(tag, originalCategories, product.code);
     if (lastResults.length >= targetCount) return lastResults;
   }
 

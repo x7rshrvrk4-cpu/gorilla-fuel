@@ -193,12 +193,26 @@ function categoriesIndicateAlcohol(categoriesTags: string[]): boolean {
   });
 }
 
-/** Returns the first 2 meaningful category slugs from an OFF tags array for same-category comparison. */
+// Generic "umbrella" category slugs shared by wildly different product types.
+// Two products sharing only one of these (e.g. "snacks") are NOT the same
+// category — a granola bar and a sandwich biscuit both sit under "snacks".
+const GENERIC_UMBRELLA_SLUGS = new Set([
+  "snacks", "sweet-snacks", "salty-snacks", "savoury-snacks",
+  "plant-based-foods", "plant-based-foods-and-beverages",
+  "foods", "beverages", "drinks", "groceries", "desserts",
+  "meals", "frozen-foods", "canned-foods", "dairies", "cocoa-and-its-products",
+]);
+
+/** Returns the MOST-SPECIFIC category slugs for same-category comparison. OFF
+ *  stores tags general → specific, so the specific tags are the TAIL. We drop
+ *  generic umbrellas first, then keep the 3 most specific — so "same category"
+ *  means cereal-bars ≈ cereal-bars, not snacks ≈ snacks. */
 function topCategorySlugs(tags: string[]): string[] {
-  return tags
+  const slugs = tags
     .map((t) => t.replace(/^[a-z]{2}:/, "").toLowerCase())
-    .filter((t) => t.length > 2)
-    .slice(0, 3);
+    .filter((t) => t.length > 2);
+  const specific = slugs.filter((s) => !GENERIC_UMBRELLA_SLUGS.has(s));
+  return (specific.length > 0 ? specific : slugs).slice(-3);
 }
 
 /** Returns true if two products share at least one top-level category. */
@@ -561,7 +575,7 @@ export default function ScanClient() {
                   .sort((a, b) => b.candidateResult.finalScore - a.candidateResult.finalScore)
                   .slice(0, 3)
                   .map(({ candidate, candidateResult }) => ({ type: "off-match" as const, product: candidate, score: candidateResult.finalScore }));
-                setAlternatives(cBetter.length > 0 ? cBetter : gorillaSuggestionsFor(cachedProduct.categories_tags ?? []));
+                setAlternatives(cBetter.length > 0 ? cBetter : gorillaSuggestionsFor(cachedProduct.categories_tags ?? [], cachedProduct.product_name));
               } finally {
                 setAlternativesLoading(false);
               }
@@ -758,7 +772,7 @@ export default function ScanClient() {
             .sort((a, b) => b.candidateResult.finalScore - a.candidateResult.finalScore)
             .slice(0, 3)
             .map(({ candidate, candidateResult }) => ({ type: "off-match" as const, product: candidate, score: candidateResult.finalScore }));
-          setAlternatives(cfBetter.length > 0 ? cfBetter : gorillaSuggestionsFor(curatedFoodHit.categories_tags ?? []));
+          setAlternatives(cfBetter.length > 0 ? cfBetter : gorillaSuggestionsFor(curatedFoodHit.categories_tags ?? [], curatedFoodHit.product_name));
           setAlternativesLoading(false);
           inFlightRef.current = null;
           return;
@@ -806,7 +820,7 @@ export default function ScanClient() {
             .sort((a, b) => b.candidateResult.finalScore - a.candidateResult.finalScore)
             .slice(0, 3)
             .map(({ candidate, candidateResult }) => ({ type: "off-match" as const, product: candidate, score: candidateResult.finalScore }));
-          setAlternatives(better.length > 0 ? better : gorillaSuggestionsFor(hit.categories_tags ?? []));
+          setAlternatives(better.length > 0 ? better : gorillaSuggestionsFor(hit.categories_tags ?? [], hit.product_name));
           setAlternativesLoading(false);
         };
 

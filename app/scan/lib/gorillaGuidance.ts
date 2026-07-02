@@ -216,8 +216,78 @@ const CATEGORY_MAP: Record<string, Suggestion> = {
   },
 };
 
-/** Returns a Gorilla Suggestion card for a product's category tags. Always returns at least the generic fallback. */
-export function gorillaSuggestionsFor(categoriesTags: string[]): Alternative[] {
+// ── Name-keyword → category inference ────────────────────────────────────────
+// The universal fallback for the ~84.5% of products that arrive with NO category
+// tags: infer a category from the product NAME so a tag-less "granola bar" still
+// gets its specific advice instead of the generic catch-all.
+//
+// CONSERVATIVE BY DESIGN (this is the same name-matching mechanism that caused the
+// Kashi candy-cap bug): rules use SPECIFIC multi-word tokens, never loose ones.
+//   • never bare "bar" or bare "chocolate" (a chocolate granola bar is a BAR) —
+//     require "granola/cereal/… bar" or "chocolate bar";
+//   • never bare "chips" (chocolate chips) — require "potato/tortilla/… chip";
+//   • ordered so composites resolve correctly ("granola bar" before "chocolate
+//     bar"; "cookie" before "oatmeal", so "oatmeal cookies" → cookies).
+// Anything without a CLEAR category token returns null → generic. A wrong guess is
+// worse than a generic suggestion: conservative-or-generic, never confident-wrong.
+const NAME_CATEGORY_RULES: { re: RegExp; slug: string }[] = [
+  // — bars (specific bar types only; "granola bar" wins over "chocolate bar") —
+  { re: /\b(granola|cereal|m[üu]esli|oat|whole[\s-]?grain|chewy|snack|fruit|nut|seed)\s+bars?\b/i, slug: "granola-bars" },
+  { re: /\bprotein\s+bars?\b/i, slug: "protein-bars" },
+  { re: /\bcandy\s+bars?\b/i, slug: "candies" },
+  { re: /\bchocolate\s+bars?\b/i, slug: "chocolates" },
+  // — baked (before oatmeal/cereal: "oatmeal cookies" / "cereal biscuits" → cookies) —
+  { re: /\b(cookies?|biscuits?|wafers?|shortbread)\b/i, slug: "cookies" },
+  // — chips / salty (never bare "chips") —
+  { re: /\b(potato|tortilla|corn|kettle|veggie|vegetable|pita|bagel)\s+chips?\b/i, slug: "chips-and-crisps" },
+  { re: /\bcrisps?\b/i, slug: "crisps" },
+  { re: /\bpopcorn\b/i, slug: "popcorn" },
+  { re: /\b(crackers?|crispbreads?)\b/i, slug: "crackers" },
+  // — drinks —
+  { re: /\bcolas?\b/i, slug: "colas" },
+  { re: /\benergy\s+drinks?\b/i, slug: "energy-drinks" },
+  { re: /\b(sodas?|soft\s+drinks?|soda\s+pop)\b/i, slug: "soft-drinks" },
+  { re: /\bjuices?\b/i, slug: "fruit-juices" },
+  // — frozen sweets / candy —
+  { re: /\b(ice\s*cream|gelato|sorbets?|frozen\s+yog(?:urt|hurt|ourt|hourt))\b/i, slug: "ice-creams" },
+  { re: /\b(candy|candies|gummies?|gummy|licorice|liquorice|lollipops?|jelly\s+beans?|marshmallows?)\b/i, slug: "candies" },
+  // — dairy —
+  { re: /\byog(?:urt|hurt|ourt|hourt)s?\b/i, slug: "yogurts" },
+  // — spreads (peanut before generic nut) —
+  { re: /\bpeanut\s+butters?\b/i, slug: "peanut-butters" },
+  { re: /\b(almond|cashew|sunflower|nut)\s+butters?\b/i, slug: "nut-butters" },
+  // — cereal / oats (after cookies & bars) —
+  { re: /\b(oatmeal|porridge|rolled\s+oats)\b/i, slug: "oatmeals" },
+  { re: /\b(breakfast\s+cereals?|cereals?)\b/i, slug: "cereals" },
+  // — bakery (tortilla/pita CHIPS already handled above) —
+  { re: /\b(breads?|bagels?|baguettes?|sourdough|tortillas?|pitas?)\b/i, slug: "breads" },
+  // — condiments —
+  { re: /\bketchup\b/i, slug: "ketchup" },
+  { re: /\b(mayo|mayonnaise)\b/i, slug: "mayonnaises" },
+  { re: /\b(bbq|barbecue|barbeque)\s+sauce\b/i, slug: "barbecue-sauces" },
+  { re: /\bhot\s+sauce\b/i, slug: "hot-sauces" },
+  { re: /\b(salad\s+dressings?|vinaigrettes?)\b/i, slug: "salad-dressings" },
+  { re: /\b(pasta\s+sauce|marinara|tomato\s+sauce|pizza\s+sauce)\b/i, slug: "sauces" },
+  // — frozen meals —
+  { re: /\bfrozen\s+pizzas?\b/i, slug: "frozen-pizzas" },
+  { re: /\bfrozen\s+(meals?|dinners?|entr[ée]es?)\b/i, slug: "frozen-meals" },
+];
+
+/** Infer a CATEGORY_MAP slug from a product NAME, conservatively. Returns null
+ *  when the name doesn't clearly indicate a category (→ caller uses generic). */
+export function inferCategorySlugFromName(productName: string | null | undefined): string | null {
+  const name = (productName ?? "").toLowerCase();
+  if (!name.trim()) return null;
+  for (const rule of NAME_CATEGORY_RULES) {
+    if (rule.re.test(name)) return rule.slug;
+  }
+  return null;
+}
+
+/** Returns a Gorilla Suggestion card for a product's category tags, falling back
+ *  to NAME-based inference (for the tag-less majority) before the generic card.
+ *  Always returns at least the generic fallback. */
+export function gorillaSuggestionsFor(categoriesTags: string[], productName?: string | null): Alternative[] {
   // Most specific category first (OFF stores tags general → specific)
   const slugs = (categoriesTags ?? [])
     .map((t) => t.replace(/^[a-z]{2}:/, "").toLowerCase())
@@ -237,6 +307,13 @@ export function gorillaSuggestionsFor(categoriesTags: string[]): Alternative[] {
         return [{ type: "gorilla-suggestion", headline: s.headline, brands: s.brands }];
       }
     }
+  }
+
+  // NAME-based inference — the universal fallback for tag-less products.
+  const nameSlug = inferCategorySlugFromName(productName);
+  if (nameSlug) {
+    const s = CATEGORY_MAP[nameSlug];
+    if (s) return [{ type: "gorilla-suggestion", headline: s.headline, brands: s.brands }];
   }
 
   const generic = CATEGORY_MAP["generic"]!;
