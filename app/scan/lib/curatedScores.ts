@@ -262,7 +262,15 @@ const NAME_OVERRIDES: NameEntry[] = [
   { patterns: [/\bchomps\b.*\bturkey\b/i],                                      override: CHOMPS_TURKEY },
   { patterns: [/wonderful.*pistachio/i],                                         override: PISTACHIOS },
   { patterns: [/blue\s*diamond.*almond/i],                                       override: ALMONDS },
-  { patterns: [/pumpkin\s*seeds?\s*(unsalted)?/i, /pepitas?\s*(unsalted)?/i],   override: PUMPKIN_SEEDS },
+  // Plain pumpkin seeds / pepitas ONLY — the 88 pin is for the one-ingredient
+  // whole food. A start-anchored negative lookahead drops processed DERIVATIVES
+  // (oil/butter/granola/bar/spread) and seasoned/flavoured/roasted variants so the
+  // whole-food pin doesn't leak onto them (Kashi-class over-match); those score on
+  // their own merits.
+  { patterns: [
+      /^(?!.*\b(oil|butter|granola|roasted|seasoned|bar|flavou?red|spread|bread|crispbread|sourdough|crisp|protein|powder|milk|chocolate|brittle|cluster|cranberry|sauce|dip|cheese|bbq|barbecue|spicy|sweet|chill?i|honey|caramel|maple|ranch|dill|salt|salted|snack|trail|cereal)\b).*\bpumpkin\s*seeds?\b/i,
+      /^(?!.*\b(oil|butter|granola|roasted|seasoned|bar|flavou?red|spread|bread|crispbread|sourdough|crisp|protein|powder|milk|chocolate|brittle|cluster|cranberry|sauce|dip|cheese|bbq|barbecue|spicy|sweet|chill?i|honey|caramel|maple|ranch|dill|salt|salted|snack|trail|cereal)\b).*\bpepitas?\b/i,
+    ], override: PUMPKIN_SEEDS },
   { patterns: [/\bnomz\b/i],                                                     override: NOMZ },
   { patterns: [/libert[eé].*greek.*0\s*%/i, /libert[eé].*plain.*0\s*%/i],      override: LIBERTE_GREEK },
   { patterns: [/larabar.*apple.*pie/i, /apple.*pie.*larabar/i],                  override: LARABAR_APPLE },

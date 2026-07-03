@@ -4,7 +4,7 @@
  */
 
 import { computeScore } from "./scoring";
-import { applyScoringGate } from "./curatedScores";
+import { applyScoringGate, lookupCuratedScore } from "./curatedScores";
 import type { UpsertPayload } from "./productCache";
 
 /** Bumped whenever the scoring algorithm or gate logic changes materially.
@@ -187,6 +187,23 @@ export function buildOffRow(p: Record<string, unknown>): UpsertPayload | null {
       score_grade = gated.grade;
     } catch {
       // Non-fatal — store the row without a score
+    }
+  }
+
+  // ── Data-blind curated fallback ─────────────────────────────────────────────
+  // The scoring block above only runs WITH nutrition_data, so a CURATED product
+  // imported without macros (e.g. RXBar arriving as a UPC-DB stub) would store a
+  // null score even though a curated override exists for it. Apply that override
+  // directly here — via the SAME barcode/name lookup the live scan re-gates with —
+  // so the pinned score is stored even when the row is data-blind. Only fires when
+  // the row is still unscored (no nutrition, or the gate threw) and is not
+  // alcohol/supplement. Non-curated data-blind rows get no hit → stay null (unchanged);
+  // nutrition-bearing rows already have a score set above → skipped (scoring unchanged).
+  if (gorilla_score === null && !alcohol && !supplement) {
+    const curated = lookupCuratedScore(barcode, (p.product_name as string) ?? "");
+    if (curated) {
+      gorilla_score = curated.score;
+      score_grade = curated.grade;
     }
   }
 
