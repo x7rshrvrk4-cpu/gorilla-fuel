@@ -20,26 +20,28 @@ export function beautyHasNoIngredients(product: ObfProduct): boolean {
 export type UnderCoveredCategory = {
   category: "sunscreen" | "deodorant" | "makeup";
   label: string; // human label shown in the notice
-  whatWeMiss: string; // the ingredient class the 12-entry dictionary doesn't cover
+  covers: string; // the main flagged-ingredient class the dictionary now DOES cover
 };
 
-// Signal 2 — the cosmetic dictionary is strong on skincare/hair/body-wash
-// (parabens/sulfates/fragrance/preservatives) but structurally thin on these
-// categories, where a high score is mostly "nothing the dictionary knows to look
-// for was present". Detect via NAME keywords, CONSERVATIVELY (same discipline as
-// the food name-inference): only clear tokens fire; ambiguous names → null.
+// Signal 2 — the cosmetic dictionary now covers the main flagged ingredients in
+// these categories (sunscreen UV filters, aluminium antiperspirant actives, talc
+// & carbon-black), but that coverage is newer and not exhaustive (mineral
+// sunscreens correctly score high by absence; not every makeup concern is
+// screened). So the notice is a "newer/lighter coverage — may miss some" caveat,
+// NOT a "can't assess" claim. Detect via NAME keywords, CONSERVATIVELY (same
+// discipline as the food name-inference): only clear tokens fire; ambiguous → null.
 const COVERAGE_RULES: { re: RegExp; cat: UnderCoveredCategory }[] = [
   {
     re: /\b(sunscreens?|sunblock|sun\s*block|spf\s*\d+|\bspf\b)\b/i,
-    cat: { category: "sunscreen", label: "sunscreen", whatWeMiss: "UV filters" },
+    cat: { category: "sunscreen", label: "sunscreen", covers: "UV filters" },
   },
   {
     re: /\b(deodorants?|anti[\s-]?perspirants?)\b/i,
-    cat: { category: "deodorant", label: "deodorant / antiperspirant", whatWeMiss: "aluminium compounds" },
+    cat: { category: "deodorant", label: "deodorant / antiperspirant", covers: "aluminium compounds" },
   },
   {
     re: /\b(mascaras?|foundations?|lipsticks?|lip\s*gloss(?:es)?|eye\s*shadows?|eyeshadows?|eyeliners?|concealers?|blush(?:es)?|bronzers?|make[\s-]?up|bb\s*creams?|cc\s*creams?|setting\s*powders?|nail\s*polish(?:es)?)\b/i,
-    cat: { category: "makeup", label: "makeup / colour cosmetic", whatWeMiss: "talc and colour additives" },
+    cat: { category: "makeup", label: "makeup / colour cosmetic", covers: "talc & colour additives" },
   },
 ];
 

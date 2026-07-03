@@ -101,11 +101,11 @@ export default function BeautyResultCard({ product, result }: Props) {
             <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
           </svg>
           <div>
-            <p className="font-display text-[10px] uppercase tracking-[0.18em] text-slate-300">Limited coverage</p>
+            <p className="font-display text-[10px] uppercase tracking-[0.18em] text-slate-300">Newer coverage</p>
             <p className="mt-0.5 text-xs leading-relaxed text-muted">
-              This looks like a {underCovered.label} product. Our cosmetic checks are strongest for skincare,
-              hair and body wash — they don&apos;t fully assess {underCovered.whatWeMiss} yet, so a high score
-              here isn&apos;t a complete safety check.
+              This looks like a {underCovered.label} product. Our cosmetic checks here are newer — they cover
+              the main flagged ingredients ({underCovered.covers}) but may not catch every concern in this
+              category yet, so treat a high score as a partial check.
             </p>
           </div>
         </div>

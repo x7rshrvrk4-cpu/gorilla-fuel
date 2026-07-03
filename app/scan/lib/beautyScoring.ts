@@ -1,6 +1,6 @@
 import { gradeFromScore, type EvidenceTier, type Grade, type RiskLevel } from "./scoring";
 
-export type BeautyConcern = "Paraben" | "Endocrine Disruptor" | "Irritant" | "Allergen / Sensitizer" | "Carcinogen Concern";
+export type BeautyConcern = "Paraben" | "Endocrine Disruptor" | "Irritant" | "Allergen / Sensitizer" | "Carcinogen Concern" | "Contested Systemic";
 
 export type BeautyIngredientInfo = {
   id: string;
@@ -189,6 +189,91 @@ const BEAUTY_INGREDIENTS: BeautyEntry[] = [
     sources: ["EU Cosmetics Regulation (EC) No 1223/2009 — Annex III, Fragrance Allergen Labeling", "American Contact Dermatitis Society — Fragrance Allergen Research", "PubMed — fragrance-induced contact dermatitis reviews"],
     matchers: [name("Parfum"), name("Fragrance"), name("Artificial fragrance"), name("Perfume")],
   },
+
+  // ── SUNSCREEN — chemical UV filters (oxybenzone is above at -15) ─────────────
+  {
+    id: "octinoxate",
+    concern: "Endocrine Disruptor",
+    risk: "medium",
+    penalty: 15,
+    note: "A very common chemical UV-B filter (ethylhexyl/octyl methoxycinnamate) — one of the two filters singled out in reef-protection bans alongside oxybenzone, and restricted in the EU over hormone-activity concerns.",
+    tier: "contested",
+    healthBodyPosition: "Hawaii, Key West and Palau banned it from sunscreens alongside oxybenzone over coral-reef toxicity; the EU's Scientific Committee on Consumer Safety has assessed its endocrine activity and restricts its use, while the FDA's 2019 proposed rule left it (like most chemical filters) as 'not yet shown GRASE' pending more absorption and safety data — an actively unsettled picture rather than a clean bill.",
+    gorillaPosition: "This is the closest sibling to oxybenzone on this list — same reef bans, same 'regulators want more data' status. If you're choosing a sunscreen and want to sidestep the contested chemical filters, a mineral (zinc oxide / titanium dioxide) formula avoids both.",
+    sources: ["EU SCCS Opinion on Octyl Methoxycinnamate (Ethylhexyl Methoxycinnamate)", "Hawaii SB 2571 — Oxybenzone/Octinoxate Sunscreen Restriction (2018)", "FDA Proposed Rule — Sunscreen Drug Products GRASE Determination (2019)"],
+    matchers: [name("Octinoxate"), name("Ethylhexyl methoxycinnamate"), name("Octyl methoxycinnamate"), name("Methoxycinnamate")],
+  },
+  {
+    id: "homosalate",
+    concern: "Endocrine Disruptor",
+    risk: "medium",
+    penalty: 10,
+    note: "A chemical UV-B filter the EU specifically cut the allowed concentration on — from typical use levels down to 7.34% in face products — after a hormone-disruption review.",
+    tier: "contested",
+    healthBodyPosition: "The EU's Scientific Committee on Consumer Safety (2021) concluded homosalate was not safe at prior use levels and restricted its maximum concentration in leave-on face products over endocrine-disruption concern; the FDA has it in the same 'more data needed' bucket as the other chemical filters. A concrete regulatory action, not just a theoretical worry.",
+    gorillaPosition: "When Europe reduces the legal limit of an ingredient specifically over hormone concerns, that's a real signal worth knowing — moderate rather than severe, because it's a concentration restriction, not an outright ban.",
+    sources: ["EU SCCS Opinion on Homosalate (SCCS/1638/21)", "FDA Proposed Rule — Sunscreen Drug Products GRASE Determination (2019)"],
+    matchers: [name("Homosalate")],
+  },
+  {
+    id: "octocrylene",
+    concern: "Endocrine Disruptor",
+    risk: "low",
+    penalty: 8,
+    note: "A widely used chemical UV filter and stabiliser — the emerging concern is that it can slowly degrade into benzophenone, a compound with its own safety questions, as the product ages.",
+    tier: "emerging-evidence",
+    healthBodyPosition: "The EU permits octocrylene and its SCCS re-review (2021) found it safe as used, but flagged the benzophenone-degradation pathway; a 2021 peer-reviewed study (Downs et al.) reported measurable benzophenone accumulation in aged octocrylene sunscreens. This is a newer, still-developing research thread rather than a settled regulatory finding.",
+    gorillaPosition: "The concern here isn't the ingredient as-sold but what it can turn into over time — an emerging finding, which is why we deduct lightly rather than heavily. Worth knowing on a sunscreen that's been in your bag for a couple of summers.",
+    sources: ["EU SCCS Opinion on Octocrylene (SCCS/1627/21)", "Downs et al. — Benzophenone accumulation in octocrylene sunscreens, Chemical Research in Toxicology (2021)"],
+    matchers: [name("Octocrylene")],
+  },
+
+  // ── DEODORANT / ANTIPERSPIRANT — aluminium actives ──────────────────────────
+  {
+    id: "aluminium-antiperspirant",
+    concern: "Contested Systemic",
+    risk: "medium",
+    penalty: 11,
+    note: "The active in antiperspirants — aluminium salts plug sweat ducts to stop wetness. It's the ingredient consumers most often ask about, though the widely-feared cancer/Alzheimer's links are NOT established.",
+    tier: "contested",
+    healthBodyPosition: "Aluminium antiperspirant salts are FDA-regulated OTC drug actives. The American Cancer Society, Health Canada, the FDA and the Alzheimer's Association all state that a causal link between antiperspirant aluminium and breast cancer or Alzheimer's is NOT established by the evidence, and the EU's Scientific Committee on Consumer Safety (2020) concluded aluminium in antiperspirants is safe at typical exposure. What remains is an unresolved research thread on dermal absorption — enough for transparency, not for alarm.",
+    gorillaPosition: "We surface this because it's the single ingredient people most want to know is present, and there's a genuine (if unproven) absorption question — NOT because harm is demonstrated. If you prefer to avoid it, that's a personal-preference call; an aluminium-free deodorant simply won't carry this flag. We deliberately don't score it as if the cancer link were real.",
+    sources: ["EU SCCS Opinion on the safety of aluminium in cosmetic products (SCCS/1613/19)", "American Cancer Society — Antiperspirants and Breast Cancer Risk", "Health Canada — Aluminium in antiperspirants safety assessment"],
+    matchers: [
+      name("Aluminum chlorohydrate"), name("Aluminium chlorohydrate"),
+      name("Aluminum zirconium tetrachlorohydrex gly"), name("Aluminium zirconium tetrachlorohydrex gly"),
+      name("Aluminum zirconium"), name("Aluminium zirconium"),
+      name("Aluminum sesquichlorohydrate"), name("Aluminium sesquichlorohydrate"),
+      name("Aluminum chlorohydrex"), name("Aluminium chlorohydrex"),
+      name("Aluminum chloride"), name("Aluminium chloride"),
+    ],
+  },
+
+  // ── MAKEUP — talc contamination + carbon-black colorant ─────────────────────
+  {
+    id: "talc",
+    concern: "Carcinogen Concern",
+    risk: "medium",
+    penalty: 12,
+    note: "A mineral bulking/absorbing agent in powders, foundations and eyeshadows. Talc itself isn't the issue — the concern is potential asbestos contamination, since the two minerals form together and asbestos is a known carcinogen.",
+    tier: "contested",
+    healthBodyPosition: "IARC classifies perineal (genital) use of talc-based body powder as 'possibly carcinogenic to humans' (Group 2B), and the concern that drove the J&J litigation and FDA testing is asbestos contamination of mined talc (asbestos is IARC Group 1). Cosmetic-grade talc is required to be asbestos-free, but FDA testing has intermittently found asbestos in marketed products, so the contamination risk isn't fully closed.",
+    gorillaPosition: "This is a contamination-transparency flag, not a claim that talc is inherently toxic — the real question is whether a given batch is verified asbestos-free, which a label can't tell you. Talc-free alternatives (cornstarch, mica-based) sidestep the question entirely.",
+    sources: ["IARC Monographs Volume 93 — Carbon Black, Titanium Dioxide, and Talc", "FDA — Talc and Cosmetics (asbestos testing program)"],
+    matchers: [name("Talc"), name("Talcum")],
+  },
+  {
+    id: "carbon-black",
+    concern: "Carcinogen Concern",
+    risk: "low",
+    penalty: 8,
+    note: "A deep-black pigment used in mascara, eyeliner and some eyeshadows (also listed as D&C Black No. 2 or CI 77266).",
+    tier: "contested",
+    healthBodyPosition: "IARC classifies carbon black as 'possibly carcinogenic to humans' (Group 2B) — but that classification is based on INHALATION in occupational settings, not dermal cosmetic use, and it can carry trace polycyclic-aromatic-hydrocarbon impurities the EU limits. The dermal/eye cosmetic exposure is a much lower-risk route than the inhalation evidence the 2B rating rests on.",
+    gorillaPosition: "We flag it lightly and honestly: the IARC concern is about breathing it in industrially, which isn't how you meet it in mascara — so this is a small transparency deduction, not a serious alarm. Worth knowing it's there; not worth losing sleep over.",
+    sources: ["IARC Monographs Volume 93 — Carbon Black, Titanium Dioxide, and Talc", "EU Cosmetics Regulation (EC) No 1223/2009 — Annex IV (Carbon Black, PAH purity limits)"],
+    matchers: [name("Carbon black"), name("D&C Black No. 2"), name("CI 77266"), name("Acetylene black")],
+  },
 ];
 
 export type BeautyScoreResult = {
@@ -238,9 +323,11 @@ export function computeBeautyScore(ingredientsText: string | undefined | null): 
     const irritants = detected.filter((d) => d.concern === "Irritant");
     const allergens = detected.filter((d) => d.concern === "Allergen / Sensitizer");
     const carcinogens = detected.filter((d) => d.concern === "Carcinogen Concern");
+    const contested = detected.filter((d) => d.concern === "Contested Systemic");
 
     if (carcinogens.length > 0) flags.push(`${carcinogens.length} carcinogen-concern ingredient${carcinogens.length > 1 ? "s" : ""} detected: ${carcinogens.map((d) => d.name).join(", ")}`);
     if (endocrine.length > 0) flags.push(`${endocrine.length} possible endocrine disruptor${endocrine.length > 1 ? "s" : ""} detected: ${endocrine.map((d) => d.name).join(", ")}`);
+    if (contested.length > 0) flags.push(`${contested.length} contested-concern ingredient${contested.length > 1 ? "s" : ""} detected (widely questioned, harm not established): ${contested.map((d) => d.name).join(", ")}`);
     if (parabens.length > 0) flags.push(`${parabens.length} paraben${parabens.length > 1 ? "s" : ""} detected: ${parabens.map((d) => d.name).join(", ")}`);
     if (allergens.length > 0) flags.push(`${allergens.length} allergen/sensitizer source${allergens.length > 1 ? "s" : ""} detected: ${allergens.map((d) => d.name).join(", ")}`);
     if (irritants.length > 0) flags.push(`${irritants.length} known irritant${irritants.length > 1 ? "s" : ""} detected: ${irritants.map((d) => d.name).join(", ")}`);
