@@ -18,6 +18,7 @@ import ScoreRing from "./ScoreRing";
 import SourcesFooter from "./SourcesFooter";
 import SourceBadge, { type DataSource } from "./SourceBadge";
 import { isDataBlind } from "../lib/dataConfidence";
+import OcrCapturePanel from "./OcrCapturePanel";
 
 const NOVA_COLOR: Record<NovaGroup, string> = {
   1: "#3ddc84",
@@ -135,6 +136,11 @@ export default function ProductResultCard({ product, result, alternatives, alter
               </div>
             </div>
           )}
+
+          {/* OCR-at-scan (Phase 0): offer to photograph the ingredients panel,
+              ONLY on data-blind products. Captured text goes to a staging queue —
+              it never changes the score in Phase 0. */}
+          {dataBlind && product.code && <OcrCapturePanel barcode={product.code} />}
 
           <div className="mt-3 max-w-md">
             <LabdoorCrossCheck productName={product.product_name} brand={product.brands} categoryTags={product.categories_tags} />
