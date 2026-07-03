@@ -7,6 +7,7 @@ import { PRODUCTS as RANKED_SUPPLEMENTS } from "../rankings/lib/products";
 import { INTEL_APPROVED, INTEL_CHEAT, INTEL_AVOID, type IntelProduct } from "../intel/lib/products";
 import { KIDS_APPROVED, KIDS_CHEAT, KIDS_STAY_AWAY, type KidsProduct } from "../kids/lib/products";
 import { searchCuratedFoods, searchCuratedSupplements } from "../scan/lib/curatedFoods";
+import { gradeFromScore } from "../scan/lib/scoring";
 import type { SearchProduct } from "../api/search/route";
 
 const KIDS_ALL: KidsProduct[] = [...KIDS_APPROVED, ...KIDS_CHEAT, ...KIDS_STAY_AWAY];
@@ -124,7 +125,9 @@ export function getProductLink(result: SearchResult): string {
 
 /** Map a Supabase cache row to a CacheResult (food/beauty). */
 export function cacheRowToFood(r: SearchProduct): CacheResult {
-  return { type: "food", barcode: r.barcode, name: r.product_name, brand: r.brand, score: r.gorilla_score, grade: r.score_grade };
+  // Derive the food tier from the numeric score (unchanged) so search labels track
+  // the current 4-tier cutoffs, not the stale stored score_grade string.
+  return { type: "food", barcode: r.barcode, name: r.product_name, brand: r.brand, score: r.gorilla_score, grade: r.gorilla_score != null ? gradeFromScore(r.gorilla_score) : null };
 }
 
 /** Map a Supabase cache row to a CacheResult (supplement). */

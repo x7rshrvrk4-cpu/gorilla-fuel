@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { GRADE_COLORS, type Grade } from "../scan/lib/scoring";
+import { GRADE_COLORS, gradeFromScore } from "../scan/lib/scoring";
 import { macro, type CacheRow } from "../lib/topProducts";
 
 function Macro({ label, value, unit }: { label: string; value: number | null; unit: string }) {
@@ -21,8 +21,10 @@ function Macro({ label, value, unit }: { label: string; value: number | null; un
  * optional — when omitted the rank chip is hidden.
  */
 export default function TopProductCard({ row, rank }: { row: CacheRow; rank?: number }) {
-  const grade = (row.score_grade ?? "Good") as Grade;
-  const color = GRADE_COLORS[grade] ?? GRADE_COLORS.Good;
+  // Derive the tier from the numeric score (unchanged) so labels track the current
+  // 4-tier cutoffs, not the stale stored score_grade string.
+  const grade = gradeFromScore(row.gorilla_score ?? 0);
+  const color = GRADE_COLORS[grade];
   return (
     <Link
       href={`/scan?b=${encodeURIComponent(row.barcode)}`}

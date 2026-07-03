@@ -970,7 +970,7 @@ const ADDITIVES: AdditiveEntry[] = [
   },
 ];
 
-export type Grade = "Excellent" | "Good" | "Poor" | "Bad";
+export type Grade = "Excellent" | "Good" | "Moderate" | "Poor";
 
 export type Nutriments = {
   sugars_100g?: number;
@@ -1295,10 +1295,12 @@ export type ScoreResult = {
 };
 
 export function gradeFromScore(score: number): Grade {
-  if (score >= 75) return "Excellent";
-  if (score >= 50) return "Good";
-  if (score >= 25) return "Poor";
-  return "Bad";
+  // 4-tier: Poor 0-39 · Moderate 40-64 · Good 65-84 · Excellent 85-100.
+  // The Moderate band straddles 50 so near-50 products share a tier (no cliff).
+  if (score >= 85) return "Excellent";
+  if (score >= 65) return "Good";
+  if (score >= 40) return "Moderate";
+  return "Poor";
 }
 
 /**
@@ -2182,8 +2184,8 @@ export function computeScore(
 }
 
 export const GRADE_COLORS: Record<Grade, string> = {
-  Excellent: "#3ddc84",
-  Good: "#ffd700",
-  Poor: "#ff9d2e",
-  Bad: "#ff4d4d",
+  Excellent: "#3ddc84", // signature green (top tier)
+  Good: "#a3e635",      // lime
+  Moderate: "#ff9d2e",  // amber
+  Poor: "#ff4d4d",      // red
 };

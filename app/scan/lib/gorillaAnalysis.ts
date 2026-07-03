@@ -67,7 +67,7 @@ export function buildGorillaTake(detected: AdditiveInfo[], grade: Grade, nutriti
   }
 
   let positionStatement: string;
-  if (grade === "Bad" || grade === "Poor") {
+  if (grade === "Poor" || grade === "Moderate") {
     positionStatement =
       high.length > 0
         ? `An informed athlete should read this as a "skip it or save it for rare occasions" product — the additive profile alone (${high.map((a) => a.name).join(", ")}) is enough reason to look for an alternative, and the overall grade backs that up.`

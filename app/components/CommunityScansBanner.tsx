@@ -1,17 +1,6 @@
 import Link from "next/link";
-import { getTopScanned, type TopScannedProduct } from "../scan/lib/productCache";
-
-function gradeColor(grade: TopScannedProduct["score_grade"]): string {
-  switch (grade) {
-    case "S": return "text-emerald-400";
-    case "A": return "text-green-400";
-    case "B": return "text-lime-400";
-    case "C": return "text-yellow-400";
-    case "D": return "text-orange-400";
-    case "F": return "text-red-400";
-    default:  return "text-muted";
-  }
-}
+import { getTopScanned } from "../scan/lib/productCache";
+import { gradeFromScore, GRADE_COLORS } from "../scan/lib/scoring";
 
 export default async function CommunityScansBanner() {
   // Truncate to midnight so the Supabase URL is stable for a full day —
@@ -66,8 +55,13 @@ export default async function CommunityScansBanner() {
               </div>
               <div className="flex shrink-0 flex-col items-end gap-0.5">
                 {p.gorilla_score !== null && (
-                  <span className={`font-display text-xl ${gradeColor(p.score_grade)}`}>
-                    {p.score_grade}
+                  // Food rows derive the 4-tier label from the numeric score; alcohol/
+                  // supplement rows keep their own stored grade (own labelling system).
+                  <span
+                    className="font-display text-xl"
+                    style={!p.is_alcohol && !p.is_supplement ? { color: GRADE_COLORS[gradeFromScore(p.gorilla_score)] } : undefined}
+                  >
+                    {!p.is_alcohol && !p.is_supplement ? gradeFromScore(p.gorilla_score) : p.score_grade}
                     <span className="ml-1 text-xs text-muted">
                       {p.gorilla_score}
                     </span>

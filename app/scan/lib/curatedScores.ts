@@ -2,10 +2,11 @@
  * Hardcoded Gorilla Score overrides — curated scores always win over the
  * scoring algorithm. Checked by barcode (exact) then by product-name pattern.
  *
- * Three tiers:
- *   GORILLA APPROVED  — S/A+/A → "Excellent" grade
- *   GORILLA CHEAT LIST — B     → "Good"    grade
- *   STAY AWAY         — C/D   → "Poor" / "Bad" grade
+ * Grades are 4-tier (Poor / Moderate / Good / Excellent), DERIVED from the score
+ * via gradeForScore (cutoffs 40/65/85):
+ *   GORILLA APPROVED  — clean whole foods → Good / Excellent
+ *   GORILLA CHEAT LIST — passable snacks   → Moderate / Good
+ *   STAY AWAY         — junk              → Poor
  */
 
 import type { Grade, Nutriments } from "./scoring";
@@ -22,127 +23,131 @@ type BarcodeEntry = { barcode: string; override: ScoreOverride };
 type NameEntry = { patterns: RegExp[]; override: ScoreOverride };
 
 // ── Helper ────────────────────────────────────────────────────────────────────
-function o(score: number, grade: Grade, positives: string[] = [], flags: string[] = []): ScoreOverride {
-  return { score, grade, flags, positives };
+// Grade is DERIVED from the score via the 4-tier gradeForScore (single source of
+// truth) — curated pins no longer hardcode a label, so every curated product's
+// tier stays consistent with the cutoffs (e.g. KIND 71 → Good, Tostitos 62 →
+// Moderate). gradeForScore is hoisted (function declaration), so it's callable here.
+function o(score: number, positives: string[] = [], flags: string[] = []): ScoreOverride {
+  return { score, grade: gradeForScore(score), flags, positives };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GORILLA APPROVED
 // ─────────────────────────────────────────────────────────────────────────────
-const RXBAR              = o(82, "Excellent", ["Whole food ingredients only", "No additives", "High protein"]);
-const CHOMPS_BEEF        = o(88, "Excellent", ["Grass fed", "Zero sugar", "Zero additives"]);
-const CHOMPS_TURKEY      = o(87, "Excellent", ["Free range", "Zero sugar", "Zero additives"]);
-const PISTACHIOS         = o(85, "Excellent", ["Two ingredients", "Healthy fat", "Good protein"]);
-const ALMONDS            = o(90, "Excellent", ["One ingredient", "Perfect macros"]);
-const PUMPKIN_SEEDS      = o(88, "Excellent", ["One ingredient", "Highest magnesium of any snack"]);
-const NOMZ               = o(78, "Excellent", ["Canadian brand", "Five whole food ingredients", "Date sweetened only"]);
-const LIBERTE_GREEK      = o(91, "Excellent", ["Canadian brand", "Two ingredients", "15g protein"]);
-const LARABAR_APPLE      = o(76, "Excellent", ["Three ingredients", "Fruit sweetened only"]);
-const KIND_DARK_CHOC     = o(71, "Excellent", ["Real nuts first", "Low sugar for a bar"]);
-const WASA_CRISPBREAD    = o(80, "Excellent", ["Four ingredients", "Zero sugar", "Whole grain"]);
-const SKINNYPOP_OG       = o(78, "Excellent", ["Three ingredients", "Zero sugar"]);
-const GIMME_SEAWEED      = o(85, "Excellent", ["Three ingredients", "Iodine rich", "Lowest calorie satisfying snack"]);
+const RXBAR              = o(82, ["Whole food ingredients only", "No additives", "High protein"]);
+const CHOMPS_BEEF        = o(88, ["Grass fed", "Zero sugar", "Zero additives"]);
+const CHOMPS_TURKEY      = o(87, ["Free range", "Zero sugar", "Zero additives"]);
+const PISTACHIOS         = o(85, ["Two ingredients", "Healthy fat", "Good protein"]);
+const ALMONDS            = o(90, ["One ingredient", "Perfect macros"]);
+const PUMPKIN_SEEDS      = o(88, ["One ingredient", "Highest magnesium of any snack"]);
+const NOMZ               = o(78, ["Canadian brand", "Five whole food ingredients", "Date sweetened only"]);
+const LIBERTE_GREEK      = o(91, ["Canadian brand", "Two ingredients", "15g protein"]);
+const LARABAR_APPLE      = o(76, ["Three ingredients", "Fruit sweetened only"]);
+const KIND_DARK_CHOC     = o(71, ["Real nuts first", "Low sugar for a bar"]);
+const WASA_CRISPBREAD    = o(80, ["Four ingredients", "Zero sugar", "Whole grain"]);
+const SKINNYPOP_OG       = o(78, ["Three ingredients", "Zero sugar"]);
+const GIMME_SEAWEED      = o(85, ["Three ingredients", "Iodine rich", "Lowest calorie satisfying snack"]);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GORILLA CHEAT LIST
 // ─────────────────────────────────────────────────────────────────────────────
-const TOSTITOS           = o(62, "Good");
-const MISS_VICKIES       = o(55, "Good");
-const LAYS_CLASSIC       = o(58, "Good");
-const HARDBITE           = o(60, "Good");
-const LINDT_85           = o(65, "Good");
-const LINDT_70           = o(60, "Good");
-const GREEN_BLACKS_70    = o(62, "Good");
-const NATURE_VALLEY_OAT  = o(52, "Good");
-const TRISCUITS          = o(60, "Good");
-const BRETON             = o(55, "Good");
-const SMARTFOOD_CHEDDAR  = o(50, "Good");
-const BOOM_CHICKA_WHITE  = o(52, "Good");
-const BUBLY              = o(82, "Excellent");
-const GATORADE           = o(30, "Bad");   // D tier despite score ≥25
-const GATORADE_ZERO      = o(52, "Good");
-const BABYBEL            = o(82, "Excellent", ["Four ingredients", "Individual portion", "5g protein"]);
+const TOSTITOS           = o(62);
+const MISS_VICKIES       = o(55);
+const LAYS_CLASSIC       = o(58);
+const HARDBITE           = o(60);
+const LINDT_85           = o(65);
+const LINDT_70           = o(60);
+const GREEN_BLACKS_70    = o(62);
+const NATURE_VALLEY_OAT  = o(52);
+const TRISCUITS          = o(60);
+const BRETON             = o(55);
+const SMARTFOOD_CHEDDAR  = o(50);
+const BOOM_CHICKA_WHITE  = o(52);
+const BUBLY              = o(82);
+const GATORADE           = o(30);   // D tier despite score ≥25
+const GATORADE_ZERO      = o(52);
+const BABYBEL            = o(82, ["Four ingredients", "Individual portion", "5g protein"]);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // STAY AWAY
 // ─────────────────────────────────────────────────────────────────────────────
-const DORITOS            = o(20, "Bad");
-const CHEETOS            = o(15, "Bad");
-const OREO               = o(22, "Bad");
-const POP_TARTS          = o(18, "Bad");
-const LUNCHABLES         = o(25, "Bad");
-const NUTELLA            = o(28, "Bad");
-const HARVEST_CRUNCH     = o(35, "Poor");
-const CLIF_BAR           = o(38, "Poor");
-const VITAMIN_WATER      = o(32, "Bad");
-const ACTIVIA_STRAW      = o(35, "Poor");
-const SPECIAL_K_BAR      = o(33, "Bad");
-const OLD_DUTCH_PARTY    = o(30, "Bad");
-const OLD_DUTCH_RIPPLE   = o(28, "Bad");
-const OLD_DUTCH_KETCHUP  = o(25, "Bad");
-const OLD_DUTCH_DRESSED  = o(25, "Bad");
-const HUMPTY_DUMPTY_CHZ  = o(22, "Bad");
-const HD_RIPPLE          = o(22, "Bad");
-const HD_CHEESE_CURLS    = o(18, "Bad");
-const HD_ONION_RINGS     = o(20, "Bad");
-const HD_PARTY_MIX       = o(20, "Bad");
-const HD_BBQ             = o(25, "Bad");
-const HD_SALT_VINEGAR    = o(28, "Bad");
-const HD_SOUR_CREAM      = o(24, "Bad");
-const OREO_DOUBLE        = o(20, "Bad");
-const LUCKY_CHARMS       = o(18, "Bad");
-const FROOT_LOOPS        = o(20, "Bad");
-const FRUIT_BY_FOOT      = o(18, "Bad");
-const GUSHERS            = o(15, "Bad");
-const DUNKAROOS          = o(22, "Bad");
-const WELCHS_SNACKS      = o(22, "Bad");
-const KOOL_AID_JAMMERS   = o(15, "Bad");
-const ARRIBA_NACHO       = o(28, "Bad");
-const CANADA_DRY_ZERO    = o(48, "Poor");
-const COCA_COLA          = o(23, "Bad");
-const PEPSI_REGULAR      = o(22, "Bad");
-const SPRITE_REGULAR     = o(24, "Bad");
-const DIET_COKE          = o(45, "Poor", [], ["Aspartame artificial sweetener", "Caramel colour (class IV)", "Phosphoric acid"]);
-const COKE_ZERO          = o(46, "Poor", [], ["Aspartame", "Acesulfame potassium", "Caramel colour (class IV)", "Phosphoric acid"]);
-const DIET_PEPSI_COLA    = o(44, "Poor", [], ["Aspartame artificial sweetener", "Caramel colour", "Phosphoric acid"]);
-const PEPSI_ZERO_SUGAR   = o(45, "Poor", [], ["Aspartame", "Acesulfame potassium", "Caramel colour"]);
-const FRESCA_SODA        = o(48, "Poor", [], ["Aspartame artificial sweetener", "Potassium citrate", "Artificial flavour"]);
+const DORITOS            = o(20);
+const CHEETOS            = o(15);
+const OREO               = o(22);
+const POP_TARTS          = o(18);
+const LUNCHABLES         = o(25);
+const NUTELLA            = o(28);
+const HARVEST_CRUNCH     = o(35);
+const CLIF_BAR           = o(38);
+const VITAMIN_WATER      = o(32);
+const ACTIVIA_STRAW      = o(35);
+const SPECIAL_K_BAR      = o(33);
+const OLD_DUTCH_PARTY    = o(30);
+const OLD_DUTCH_RIPPLE   = o(28);
+const OLD_DUTCH_KETCHUP  = o(25);
+const OLD_DUTCH_DRESSED  = o(25);
+const HUMPTY_DUMPTY_CHZ  = o(22);
+const HD_RIPPLE          = o(22);
+const HD_CHEESE_CURLS    = o(18);
+const HD_ONION_RINGS     = o(20);
+const HD_PARTY_MIX       = o(20);
+const HD_BBQ             = o(25);
+const HD_SALT_VINEGAR    = o(28);
+const HD_SOUR_CREAM      = o(24);
+const OREO_DOUBLE        = o(20);
+const LUCKY_CHARMS       = o(18);
+const FROOT_LOOPS        = o(20);
+const FRUIT_BY_FOOT      = o(18);
+const GUSHERS            = o(15);
+const DUNKAROOS          = o(22);
+const WELCHS_SNACKS      = o(22);
+const KOOL_AID_JAMMERS   = o(15);
+const ARRIBA_NACHO       = o(28);
+const CANADA_DRY_ZERO    = o(48);
+const COCA_COLA          = o(23);
+const PEPSI_REGULAR      = o(22);
+const SPRITE_REGULAR     = o(24);
+const DIET_COKE          = o(45, [], ["Aspartame artificial sweetener", "Caramel colour (class IV)", "Phosphoric acid"]);
+const COKE_ZERO          = o(46, [], ["Aspartame", "Acesulfame potassium", "Caramel colour (class IV)", "Phosphoric acid"]);
+const DIET_PEPSI_COLA    = o(44, [], ["Aspartame artificial sweetener", "Caramel colour", "Phosphoric acid"]);
+const PEPSI_ZERO_SUGAR   = o(45, [], ["Aspartame", "Acesulfame potassium", "Caramel colour"]);
+const FRESCA_SODA        = o(48, [], ["Aspartame artificial sweetener", "Potassium citrate", "Artificial flavour"]);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LAKER — Carlsberg Canada / Waterloo Brewing. Any Laker that ends up in
 // the food scoring path (rare, but possible if OFF lacks alcohol categories)
 // gets a hard score override rather than the algorithm's default ~90.
 // ─────────────────────────────────────────────────────────────────────────────
-const LAKER_ICE          = o(38, "Poor",  [], ["High ABV ice beer", "High calorie", "NOVA Group 4"]);
-const LAKER_LAGER        = o(45, "Poor",  [], ["Mainstream value lager", "Moderate calorie"]);
-const LAKER_LIGHT        = o(52, "Good",  [], ["Light lager", "Lower calorie"]);
-const LAKER_PREMIUM      = o(48, "Poor",  [], ["Value premium lager"]);
+const LAKER_ICE          = o(38,  [], ["High ABV ice beer", "High calorie", "NOVA Group 4"]);
+const LAKER_LAGER        = o(45,  [], ["Mainstream value lager", "Moderate calorie"]);
+const LAKER_LIGHT        = o(52,  [], ["Light lager", "Lower calorie"]);
+const LAKER_PREMIUM      = o(48,  [], ["Value premium lager"]);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SNACK CALIBRATION TARGETS — confirmed via real-world scanning 2026-06
 // Christie/Nabisco/Mondelez biscuit line. These barcodes came from Canadian
 // UPC labels returned by the UPC database with inflated algorithm scores.
 // ─────────────────────────────────────────────────────────────────────────────
-const RITZ              = o(48, "Poor", [], ["Enriched flour first ingredient", "Palm oil", "Moderately processed biscuit"]);
-const CHIPS_AHOY        = o(28, "Bad",  [], ["High sugar", "Palm oil", "Artificial flavour", "Christie/Nabisco ultra-processed cookie"]);
-const BTS_OREO          = o(30, "Bad",  [], ["Novelty cookie high sugar", "Ultra-processed", "Christie limited edition"]);
+const RITZ              = o(48, [], ["Enriched flour first ingredient", "Palm oil", "Moderately processed biscuit"]);
+const CHIPS_AHOY        = o(28,  [], ["High sugar", "Palm oil", "Artificial flavour", "Christie/Nabisco ultra-processed cookie"]);
+const BTS_OREO          = o(30,  [], ["Novelty cookie high sugar", "Ultra-processed", "Christie limited edition"]);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SAUCE & CONDIMENT CALIBRATION — confirmed 2026-06 vs Yuka real-world scans
 // ─────────────────────────────────────────────────────────────────────────────
-const PRIMO_PIZZA_SQUEEZE    = o(48, "Poor", [], ["Sodium benzoate preservative", "Modified corn starch", "Unspecified vegetable oil", "Ultra-processed tomato sauce"]);
-const CLASSICO_VODKA         = o(42, "Poor", [], ["NOVA Group 4", "Sodium phosphates emulsifier", "Multi-cheese processed sauce", "Database stores full 600g jar as serving size"]);
-const COMPLIMENTS_RICE       = o(63, "Good", ["No added sugar", "Four clean ingredients", "Zero artificial additives"], ["Corn maltodextrin (processed starch)", "NOVA Group 4"]);
-const OLD_EL_PASO_SALSA      = o(50, "Good", ["Low calorie tomato-based sauce", "Vegetable-forward ingredient list"], ["Sodium benzoate preservative", "Potassium sorbate preservative", "NOVA Group 4"]);
-const HEINZ_KETCHUP_CA       = o(38, "Poor", [], ["Very high sugar concentration 27g per 100g", "NOVA Group 4 ultra-processed condiment", "No nutrition upside per serving"]);
-const KRAFT_RANCHERS         = o(28, "Bad",  [], ["Phosphoric acid (high risk — bone density)", "Sodium benzoate preservative", "Sorbic acid", "Artificial colours Yellow 5 and Yellow 6", "Ultra-processed dressing"]);
+const PRIMO_PIZZA_SQUEEZE    = o(48, [], ["Sodium benzoate preservative", "Modified corn starch", "Unspecified vegetable oil", "Ultra-processed tomato sauce"]);
+const CLASSICO_VODKA         = o(42, [], ["NOVA Group 4", "Sodium phosphates emulsifier", "Multi-cheese processed sauce", "Database stores full 600g jar as serving size"]);
+const COMPLIMENTS_RICE       = o(63, ["No added sugar", "Four clean ingredients", "Zero artificial additives"], ["Corn maltodextrin (processed starch)", "NOVA Group 4"]);
+const OLD_EL_PASO_SALSA      = o(50, ["Low calorie tomato-based sauce", "Vegetable-forward ingredient list"], ["Sodium benzoate preservative", "Potassium sorbate preservative", "NOVA Group 4"]);
+const HEINZ_KETCHUP_CA       = o(38, [], ["Very high sugar concentration 27g per 100g", "NOVA Group 4 ultra-processed condiment", "No nutrition upside per serving"]);
+const KRAFT_RANCHERS         = o(28,  [], ["Phosphoric acid (high risk — bone density)", "Sodium benzoate preservative", "Sorbic acid", "Artificial colours Yellow 5 and Yellow 6", "Ultra-processed dressing"]);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CHEESE CALIBRATION — confirmed 2026-06 vs Yuka real-world scans
 // 20g sat fat per 100g / high sodium — Yuka scored both 24 Bad
 // ─────────────────────────────────────────────────────────────────────────────
-const BLACK_DIAMOND_CHEDDAR  = o(32, "Bad",  [], ["20g saturated fat per 100g", "High sodium", "Calorie-dense 400 kcal per 100g", "Annatto colourant"]);
-const WOOLWICH_GOAT_CHEDDAR  = o(30, "Bad",  [], ["20g saturated fat per 100g", "High sodium", "Calorie-dense 390 kcal per 100g", "Annatto colourant"]);
+const BLACK_DIAMOND_CHEDDAR  = o(32,  [], ["20g saturated fat per 100g", "High sodium", "Calorie-dense 400 kcal per 100g", "Annatto colourant"]);
+const WOOLWICH_GOAT_CHEDDAR  = o(30,  [], ["20g saturated fat per 100g", "High sodium", "Calorie-dense 390 kcal per 100g", "Annatto colourant"]);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BARCODE LOOKUP TABLE  (first match wins — exact after stripping leading zeros)
@@ -591,10 +596,11 @@ export function ingredientSanityCap(
 }
 
 function gradeForScore(score: number): Grade {
-  if (score >= 75) return "Excellent";
-  if (score >= 50) return "Good";
-  if (score >= 25) return "Poor";
-  return "Bad";
+  // MUST match gradeFromScore in scoring.ts exactly (4-tier: 40/65/85).
+  if (score >= 85) return "Excellent";
+  if (score >= 65) return "Good";
+  if (score >= 40) return "Moderate";
+  return "Poor";
 }
 
 // ── CHOCOLATE UNDER-CAP FALLBACK — CURATED OVERRIDE — DO NOT REMOVE ──────────
