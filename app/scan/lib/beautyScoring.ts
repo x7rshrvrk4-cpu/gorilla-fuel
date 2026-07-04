@@ -1,6 +1,6 @@
 import { gradeFromScore, type EvidenceTier, type Grade, type RiskLevel } from "./scoring";
 
-export type BeautyConcern = "Paraben" | "Endocrine Disruptor" | "Irritant" | "Allergen / Sensitizer" | "Carcinogen Concern" | "Contested Systemic";
+export type BeautyConcern = "Paraben" | "Endocrine Disruptor" | "Irritant" | "Allergen / Sensitizer" | "Carcinogen Concern" | "Contested Systemic" | "Reproductive Toxicity";
 
 export type BeautyIngredientInfo = {
   id: string;
@@ -175,7 +175,19 @@ const BEAUTY_INGREDIENTS: BeautyEntry[] = [
     healthBodyPosition: "The Cosmetic Ingredient Review panel considers most PEG compounds safe as formulated, but flags the same ethoxylation-byproduct concern the FDA tracks for sulfates — plus a smaller, plausible concern that PEGs can help other ingredients penetrate compromised or broken skin more readily than they otherwise would.",
     gorillaPosition: "The compound itself is the least of the story here — it's what can hitch a ride with it (manufacturing residue, or other ingredients riding deeper into your skin) that's worth a second look.",
     sources: ["Cosmetic Ingredient Review — Safety Assessment of PEG Compounds", "FDA — 1,4-Dioxane in Cosmetic Products"],
-    matchers: [name("PEG-100"), name("PEG-40"), name("PEG-20"), name("PEG-8"), name("Polyethylene glycol")],
+    // Ethoxylated-surfactant class (the 1,4-dioxane-carrier concern applies to the
+    // whole class). SPECIFIC patterns only — each requires the full stem plus a
+    // numeric suffix, so unrelated "-eth-" words (ethyl, ether, methyl,
+    // Ethylhexylglycerin, Ethylhexyl methoxycinnamate) never match.
+    matchers: [
+      { label: "PEG-n", pattern: /\bPEG-\d+\b/i },
+      { label: "PPG-n", pattern: /\bPPG-\d+\b/i },
+      { label: "Steareth-n", pattern: /\bsteareth-\d+\b/i },
+      { label: "Laureth-n", pattern: /\blaureth-\d+\b/i },
+      { label: "Ceteareth-n", pattern: /\bceteareth-\d+\b/i },
+      { label: "Oleth-n", pattern: /\boleth-\d+\b/i },
+      name("Polyethylene glycol"),
+    ],
   },
   {
     id: "artificial-fragrance",
@@ -274,6 +286,44 @@ const BEAUTY_INGREDIENTS: BeautyEntry[] = [
     sources: ["IARC Monographs Volume 93 — Carbon Black, Titanium Dioxide, and Talc", "EU Cosmetics Regulation (EC) No 1223/2009 — Annex IV (Carbon Black, PAH purity limits)"],
     matchers: [name("Carbon black"), name("D&C Black No. 2"), name("CI 77266"), name("Acetylene black")],
   },
+
+  // ── FRAGRANCE / PRESERVATIVE / EMOLLIENT — recent regulatory gaps ────────────
+  {
+    id: "lilial",
+    concern: "Reproductive Toxicity",
+    risk: "high",
+    penalty: 24,
+    note: "A synthetic floral (lily-of-the-valley) fragrance ingredient, INCI 'Butylphenyl Methylpropional' (also BMHCA / Lilial). The EU banned it outright from cosmetics after classifying it a reproductive toxicant.",
+    tier: "strong-consensus",
+    healthBodyPosition: "The EU classified Butylphenyl Methylpropional as Reprotoxic Category 1B and BANNED it from all cosmetic products under Regulation (EU) 2019/1966 (in force since March 2022); Health Canada restricts it on the Cosmetic Ingredient Hotlist. This is a hard regulatory ban on a CMR-classified ingredient, not a precautionary flag.",
+    gorillaPosition: "This is about as unambiguous as cosmetic-ingredient calls get — Europe removed it from the market entirely over reproductive-toxicity evidence. If it's on a label you're using, that product predates the ban or wasn't reformulated for the EU market; either way it's the clearest 'look for an alternative' on this list.",
+    sources: ["EU Regulation (EU) 2019/1966 — CMR ban (Butylphenyl Methylpropional, Reprotoxic 1B)", "Health Canada — Cosmetic Ingredient Hotlist", "EU SCCS Opinion on Butylphenyl Methylpropional (SCCS/1591/17)"],
+    matchers: [name("Butylphenyl methylpropional"), name("Butylphenyl-methylpropional"), name("BMHCA"), name("p-BMHCA"), name("Lilial"), name("Lily aldehyde")],
+  },
+  {
+    id: "phenoxyethanol",
+    concern: "Irritant",
+    risk: "medium",
+    penalty: 10,
+    note: "A very common preservative (often the paraben replacement). Generally well tolerated, but restricted to a maximum concentration because it can irritate and, at higher exposure, carries a systemic-exposure concern flagged for infants.",
+    tier: "contested",
+    healthBodyPosition: "The EU's Scientific Committee on Consumer Safety concluded phenoxyethanol is safe as a preservative up to 1% and the EU Cosmetics Regulation caps it there (Annex V); Health Canada restricts it on the Cosmetic Ingredient Hotlist, and the FDA once warned about a nipple-cream product over infant exposure. A restricted-concentration preservative — not banned, but not unlimited either.",
+    gorillaPosition: "This is a 'restricted, not forbidden' ingredient — fine for most people at the capped levels, which is exactly why regulators set a cap rather than a ban. Worth knowing it's the preservative doing the work, especially on anything used on or around infants.",
+    sources: ["EU Cosmetics Regulation (EC) No 1223/2009 — Annex V (Phenoxyethanol, 1% max)", "EU SCCS Opinion on Phenoxyethanol (SCCS/1575/16)", "Health Canada — Cosmetic Ingredient Hotlist"],
+    matchers: [name("Phenoxyethanol")],
+  },
+  {
+    id: "petrolatum",
+    concern: "Carcinogen Concern",
+    risk: "low",
+    penalty: 6,
+    note: "Petroleum jelly — an occlusive emollient. The refined, cosmetic-grade (USP) material is not the concern; the issue is potential polycyclic-aromatic-hydrocarbon (PAH) contamination in incompletely refined grades.",
+    tier: "precautionary",
+    healthBodyPosition: "The EU permits petrolatum in cosmetics only when the full refining history is known and shown to be non-carcinogenic (Annex II condition) — fully-refined USP-grade petrolatum is not classified carcinogenic and is widely regarded as safe, so the concern is specifically PAH contamination in unrefined material, not the refined ingredient itself.",
+    gorillaPosition: "Refining-dependent, and cosmetic-grade petrolatum is largely fine — which is why this is a light flag, not a heavy one. It's a 'know how it was refined' transparency note; on a reputable finished product the refined grade is the norm.",
+    sources: ["EU Cosmetics Regulation (EC) No 1223/2009 — Annex II (petrolatum refining condition)", "Cosmetic Ingredient Review — Safety Assessment of Petrolatum", "IARC Monograph — Mineral oils, untreated/mildly-treated"],
+    matchers: [name("Petrolatum"), name("Petroleum jelly")],
+  },
 ];
 
 export type BeautyScoreResult = {
@@ -324,7 +374,9 @@ export function computeBeautyScore(ingredientsText: string | undefined | null): 
     const allergens = detected.filter((d) => d.concern === "Allergen / Sensitizer");
     const carcinogens = detected.filter((d) => d.concern === "Carcinogen Concern");
     const contested = detected.filter((d) => d.concern === "Contested Systemic");
+    const reprotox = detected.filter((d) => d.concern === "Reproductive Toxicity");
 
+    if (reprotox.length > 0) flags.push(`${reprotox.length} reproductive-toxicity ingredient${reprotox.length > 1 ? "s" : ""} detected (EU-banned CMR): ${reprotox.map((d) => d.name).join(", ")}`);
     if (carcinogens.length > 0) flags.push(`${carcinogens.length} carcinogen-concern ingredient${carcinogens.length > 1 ? "s" : ""} detected: ${carcinogens.map((d) => d.name).join(", ")}`);
     if (endocrine.length > 0) flags.push(`${endocrine.length} possible endocrine disruptor${endocrine.length > 1 ? "s" : ""} detected: ${endocrine.map((d) => d.name).join(", ")}`);
     if (contested.length > 0) flags.push(`${contested.length} contested-concern ingredient${contested.length > 1 ? "s" : ""} detected (widely questioned, harm not established): ${contested.map((d) => d.name).join(", ")}`);
