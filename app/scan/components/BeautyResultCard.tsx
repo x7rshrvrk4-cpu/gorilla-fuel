@@ -9,6 +9,8 @@ import ScoreRing from "./ScoreRing";
 import SourcesFooter from "./SourcesFooter";
 import SourceBadge from "./SourceBadge";
 import { beautyHasNoIngredients, inferUnderCoveredCategory } from "../lib/beautyConfidence";
+import { findBeautyRecall } from "../lib/beautyRecalls";
+import BeautyRecallBanner from "./BeautyRecallBanner";
 
 type Props = {
   product: ObfProduct;
@@ -22,6 +24,8 @@ export default function BeautyResultCard({ product, result }: Props) {
   // Display-only honesty signals — never change the score.
   const noIngredients = beautyHasNoIngredients(product);
   const underCovered = inferUnderCoveredCategory(product.product_name);
+  // Display-only safety context — line-level recall notice, never scores.
+  const recall = findBeautyRecall(product);
 
   return (
     <div className="gorilla-card animate-rise overflow-hidden rounded-sm">
@@ -73,6 +77,11 @@ export default function BeautyResultCard({ product, result }: Props) {
 
         <ScoreRing score={result.score} grade={result.grade} />
       </div>
+
+      {/* SAFETY NOTICE — line-level recall context (amber). Sits above the
+          data-confidence signals: a safety notice outranks them. Display-only,
+          never changes the score. */}
+      {recall && <BeautyRecallBanner recall={recall} />}
 
       {/* SIGNAL 1 — data-blind: OBF had no ingredient list, so nothing could be
           flagged. Mirrors the food "Limited data" badge. Informational, amber. */}
