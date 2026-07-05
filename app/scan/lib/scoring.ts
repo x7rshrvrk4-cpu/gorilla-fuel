@@ -1835,6 +1835,90 @@ function isProbablyArtificialSweetened(
   return /zero|diet(?!\s+(?:beer|cider|wine))|sugar[\s-]?free|no[\s-]sugar|artificially[\s-]sweetened|ginger[\s-]ale|tonic\b|en:sodas|en:soft-drinks|en:cola|en:carbonated-drink|en:energy-drink|en:diet|powerade|gatorade|crystal\s?light|kool[\s-]?aid/i.test(combined);
 }
 
+/** Additive IDs treated as artificial sweeteners for the zero-sugar beverage cap
+ *  and the plain-water sweetener guard. Module-scoped so both paths share it. */
+const SWEETENER_IDS = new Set([
+  "aspartame",
+  "acesulfame-k",
+  "sucralose",
+  "saccharin",
+  "cyclamate",
+  "artificial-sweeteners-inferred",
+]);
+
+/**
+ * PLAIN-WATER PATH — detects genuine plain / sparkling / mineral / spring water
+ * (still or carbonated, optionally with natural flavour) so it scores like the
+ * reference healthy beverage (nothing harmful present) instead of being bucketed
+ * with condiments and clamped to the 45 nutrition ceiling. Fixes the class bug
+ * where OFF tags "carbonated water + natural flavour" as NOVA-4 and the condiment
+ * ceiling dragged waters to ~55 (and data-blind waters to 18–42).
+ *
+ * The conjunction below IS the over-match guard — ALL must hold. A sugary
+ * "sparkling" drink (soda, tonic, sparkling juice/lemonade, sweet fermented tea)
+ * fails the macro/ingredient gate; a diet soda fails the sweetener gate; a hard
+ * seltzer fails the alcohol gate; a real soda (Coca-Cola/Sprite) fails the water
+ * IDENTITY gate outright (its categories are en:sodas/en:colas, not en:*-waters).
+ *
+ * `sweetenedSignal` is passed in by the caller (true when a sweetener additive was
+ * detected OR the no-ingredients artificial-sweetener inference fired).
+ */
+function isPlainWater(
+  nutriments: Nutriments,
+  ingredientsText: string | undefined | null,
+  context: ScoringContext | undefined,
+  sweetenedSignal: boolean
+): boolean {
+  const name = (context?.productName ?? "").toLowerCase();
+  const cats = (context?.categoriesTags ?? []).map((t) => String(t).toLowerCase()).join(" ");
+
+  // #1 WATER IDENTITY — an explicit water category tag, a water name token, or a
+  // water-only brand (for iconic bottled waters whose OFF record has no category
+  // tags, e.g. "S. Pellegrino", "Lacroix"). Deliberately NOT en:carbonated-drinks
+  // / en:sodas / en:soft-drinks / en:*-juices (those are sodas/juices). The
+  // downstream macro + ingredient + sweetener gates still apply to brand matches,
+  // so a Sanpellegrino Aranciata (sugary) is still excluded by its sugar.
+  const WATER_CAT_RE =
+    /en:(waters|carbonated-waters|natural-mineral-waters|mineral-waters|spring-waters|sparkling-waters|soda-water)\b/;
+  const WATER_NAME_RE =
+    /\b(sparkling|carbonated|mineral|spring|soda|seltzer)[\s-]?water\b|\bclub[\s-]?soda\b|\bseltzer\b|\bsoda[\s-]?water\b|\beau\s+(p[ée]tillante|gaz[ée]ifi[ée]e|min[ée]rale|de\s+source)\b/;
+  const WATER_BRAND_RE =
+    /\b(perrier|s\.?\s*pellegrino|san\s*pellegrino|sanpellegrino|la\s*croix|lacroix|evian|fiji|voss|dasani|aquafina|smart\s*water|smartwater|topo\s*chico|gerolsteiner|badoit|vittel|volvic|montellier|eska|naya|ice\s*river|bubly)\b/;
+  const brandHay = `${name} ${(context?.brand ?? "").toLowerCase()}`;
+  const hasWaterIdentity =
+    WATER_CAT_RE.test(cats) || WATER_NAME_RE.test(name) || WATER_BRAND_RE.test(brandHay);
+  if (!hasWaterIdentity) return false;
+
+  // #5 NOT ALCOHOLIC — excludes hard seltzers (also routed to the alcohol scorer
+  // upstream, but guarded here defensively via alcohol macro + name markers).
+  if ((nutriments.alcohol_100g ?? 0) >= 0.5) return false;
+  if (/\bhard\s+seltzer\b|\bspiked\b|\bvodka\b|\bwhite\s+claw\b|\d+(?:\.\d+)?\s*%\s*(?:alc|abv)/.test(name)) return false;
+
+  // #4 NOT ARTIFICIALLY SWEETENED — a diet/zero soda is not water.
+  if (sweetenedSignal) return false;
+
+  // #2 NEAR-ZERO MACROS (primary guard) — any PRESENT sugar/calorie value must be
+  // near zero. Missing values are allowed (data-blind case, handled with #3).
+  const sugar = nutriments.sugars_100g ?? nutriments.sugars_serving;
+  const cal = nutriments["energy-kcal_100g"] ?? nutriments["energy-kcal_serving"];
+  if (sugar !== undefined && sugar > 0.5) return false;
+  if (cal !== undefined && cal > 5) return false;
+
+  // #3 CLEAN INGREDIENTS — when an ingredient list is present it must be
+  // essentially water + carbonation + natural flavour/aroma. Any sugar / juice /
+  // syrup / sweetener / honey token disqualifies. (When absent → data-blind water:
+  // allowed on identity + no-sugar-signal, since water is near-certain zero-cal.
+  // A data-blind SODA can't reach here — it fails the identity gate above.)
+  const ing = (ingredientsText ?? "").toLowerCase();
+  if (ing.trim().length > 0) {
+    const DIRTY_ING_RE =
+      /\bsugars?\b|\bsucre\b|\bjuice\b|\bjus\b|\bsyrup\b|\bsirop\b|sweeten|[ée]dulcorant|\bhoney\b|\bmiel\b|\bnectar\b|\bcane\b|\bagave\b|aspartame|sucralose|acesulfame|ac[ée]sulfame|saccharin|\bstevia\b|cyclamate|\bfructose\b|\bglucose\b|\bdextrose\b|maltodextrin|sorbitol|xylitol|erythritol/;
+    if (DIRTY_ING_RE.test(ing)) return false;
+  }
+
+  return true;
+}
+
 export function computeScore(
   nutriments: Nutriments,
   ingredientsText: string | undefined | null,
@@ -1869,9 +1953,29 @@ export function computeScore(
   let effectiveNutritionScore = nutrition.score;
   let effectiveAdditiveScore = additives.score;
   let effectiveDetected = additives.detected;
-  const inferredSweeteners =
+  const rawInferredSweeteners =
     isProbablyArtificialSweetened(nutriments, ingredientsText, context) &&
     additives.detected.length === 0;
+
+  // ── Plain-water path ──────────────────────────────────────────────────────
+  // Genuine plain/sparkling/mineral water scores like the reference healthy
+  // beverage (nothing harmful present), not the condiment ceiling (45). The
+  // sweetener gate uses only ACTUALLY-DETECTED sweetener additives — NOT the
+  // no-ingredients soda inference, which false-fires on plain water tagged
+  // en:carbonated-drinks (e.g. Perrier) and must not block the water path.
+  const detectedSweetener = additives.detected.some((a) => SWEETENER_IDS.has(a.id));
+  const plainWater = isPlainWater(nutriments, ingredientsText, context, detectedSweetener);
+  // Suppress the inferred-sweetener penalty when it's plain water — a zero-sugar
+  // carbonated water is not a diet soda. Data-blind DIET SODAS can't reach here:
+  // they fail the water IDENTITY gate (en:sodas/en:colas, not en:*-waters), so the
+  // inference still fires for them.
+  const inferredSweeteners = rawInferredSweeteners && !plainWater;
+  if (plainWater) {
+    // Override the condiment ceiling / NOVA-4 relaxation math: water is the
+    // healthy baseline, so nutrition reads high. NOVA-4 cap + thin-data ceiling +
+    // unverified-additive cap are all exempted below (like whole foods).
+    effectiveNutritionScore = 92;
+  }
 
   // For snack-category products with no ingredient text, the additive score of 100
   // ("nothing detected = clean") overstates confidence — we simply don't know what's
@@ -1901,8 +2005,10 @@ export function computeScore(
   // Whole foods (raw/fresh/frozen produce) are exempt from the missing-ingredient
   // cap: their "ingredient" is the food itself, so an absent list is not a hidden
   // additive risk. They fall through to the whole-food additive band below (88/100).
+  // Plain water is exempt like whole foods: its "ingredient" is water, so an absent
+  // list is not a hidden-additive risk — this keeps data-blind waters (Perrier) high.
   const additivesUnverified =
-    !hasIngredientText && !hasAdditivesTags && !inferredSweeteners && !isWholeFood(nutriments, effContext);
+    !hasIngredientText && !hasAdditivesTags && !inferredSweeteners && !plainWater && !isWholeFood(nutriments, effContext);
   if (additivesUnverified) {
     effectiveAdditiveScore = Math.min(effectiveAdditiveScore, 50);
   }
@@ -1968,15 +2074,25 @@ export function computeScore(
   // Without this cap, a clean-looking nutrition profile (100) + mild additive
   // penalties still produces ~80. The sweetener burden is real even when macros
   // look clean — the cap enforces the rule regardless of which sweetener was detected.
-  const SWEETENER_IDS = new Set(["aspartame", "acesulfame-k", "sucralose", "saccharin", "cyclamate", "artificial-sweeteners-inferred"]);
   const hasSweetener = effectiveDetected.some((a) => SWEETENER_IDS.has(a.id));
   const isZeroSugarProduct = (nutriments.sugars_100g ?? 1) <= 0.5;
   if (hasSweetener && isZeroSugarProduct) {
     finalScore = Math.min(finalScore, 55);
   }
 
-  const flags = [...nutrition.flags];
+  // Plain water: drop the condiment/NOVA-4 nutrition flags (they no longer apply
+  // once it's scored on the water path) and add a clear water positive.
+  const flags = plainWater
+    ? nutrition.flags.filter(
+        (f) => !/condiment\/beverage|ultra-processed penalty reduced|NOVA Group 4/i.test(f)
+      )
+    : [...nutrition.flags];
   const positives = [...nutrition.positives];
+  if (plainWater) {
+    positives.push(
+      "Plain water — zero calories, sugar, and sodium, with no harmful ingredients. The healthiest beverage baseline."
+    );
+  }
 
   if (inferredSweeteners) {
     flags.push("Artificial sweeteners almost certain — zero-sugar, zero-calorie beverage with no ingredient data available from Open Food Facts to verify");
@@ -2106,7 +2222,7 @@ export function computeScore(
     // Rule 3: NOVA Group 4 (ultra-processed) → max 50, or 65 for simple products.
     // Whole-food macro signature (see isWholeFoodNova4) is exempt — a mis-tagged
     // nut/legume scores on its merits instead of being re-crushed to 50/65.
-    if (asNovaGroup(context?.novaGroup ?? undefined) === 4 && !isWholeFoodNova4(nutriments, context?.novaGroup)) {
+    if (asNovaGroup(context?.novaGroup ?? undefined) === 4 && !isWholeFoodNova4(nutriments, context?.novaGroup) && !plainWater) {
       const ingText4 = (ingredientsText ?? "").toLowerCase();
       const ingStripped4 = ingText4.replace(/\([^)]*\)/g, "");
       const ingCount4 = ingStripped4.trim() ? ingStripped4.split(",").filter(s => s.trim()).length : 99;
@@ -2164,7 +2280,7 @@ export function computeScore(
   // macros (and all normal penalties + the sugar-dominant cap still bind, so junk
   // with full nutriments still scores low). The ceiling stays as a safety net for
   // genuinely thin rows missing core macros. Applies to live scans and imports.
-  if (additivesUnverified && effContext?.novaGroup == null && !hasCoreNutriments(nutriments) && finalScore > 65) {
+  if (additivesUnverified && effContext?.novaGroup == null && !hasCoreNutriments(nutriments) && !plainWater && finalScore > 65) {
     finalScore = 65;
     flags.push("Limited data — no ingredient list and no processing (NOVA) data available; can't fully assess, so the score is capped at 65.");
   }
