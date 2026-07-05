@@ -14,6 +14,18 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    // Intuitive external/typed URLs that match visible labels but aren't real
+    // routes. The app has NO broken internal links — these only catch inbound
+    // links and users typing the obvious URL. Permanent (308) so search engines
+    // transfer link value to the destination. Neither source is a real route.
+    return [
+      // Nav/footer label "Supplements" → the rankings hub lives at /rankings.
+      { source: "/supplements", destination: "/rankings", permanent: true },
+      // Footer "INFO" section heading → the info content lives at /about.
+      { source: "/info", destination: "/about", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
