@@ -115,6 +115,18 @@ function validateConfidence(
   if (product.code && norm(product.code) !== norm(scannedBarcode)) {
     return { pass: false, reason: "barcode-mismatch" };
   }
+  // Significant-digit floor. OFF collapses leading zeros, so a scanned full-length
+  // barcode padding to a tiny number (e.g. 0*1608) matches OFF's junk internal code
+  // "00001608" (Bofrost Frühlingsrollen) — and the symmetric norm() above made the
+  // collision invisible (norm("0000000001608") === norm("00001608") === "1608").
+  // norm(code) is already leading-zero-stripped, so its length IS the significant-
+  // digit count. Legit GS1 codes all carry ≥7 significant digits (UPC-A/EAN-13 ~11-12,
+  // EAN-8 ~7-8); <6 is an implausible GS1 identifier / short-code collision. The
+  // threshold 6 sits in the empty 5-6 gap (observed legit minimum = 7), catching the
+  // collision with a 1-digit margin while passing every real UPC-A/EAN-13/EAN-8.
+  if (product.code && norm(product.code).length < 6) {
+    return { pass: false, reason: "implausible-short-code" };
+  }
   if (!product.product_name?.trim()) {
     return { pass: false, reason: "no-name" };
   }
