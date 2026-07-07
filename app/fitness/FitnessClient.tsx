@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { PRODUCTS, GRADE_RANK, type Category } from "../rankings/lib/products";
 import ProductCard from "../rankings/components/ProductCard";
+import GoalPicker from "./components/GoalPicker";
 import {
   ACTIVITY,
   GOALS,
@@ -156,6 +157,21 @@ export default function FitnessClient() {
 
   return (
     <div className="mt-8 flex flex-col gap-6">
+      {/* ── FIND YOUR PLAN — entry point to the goal picker → plan routes ────── */}
+      <section className="gorilla-card rounded-sm border-gold/40 bg-gold/[0.05] p-5">
+        <div className="flex items-center gap-4">
+          <h2 className="font-display text-sm tracking-[0.3em] text-gold">FIND YOUR PLAN</h2>
+          <div className="h-px flex-1 bg-line" />
+        </div>
+        <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
+          Not sure where to start? Pick a goal and get a simple, sustainable plan — how to eat, how to
+          move, and what to reach for. The calculator below gives you the numbers; a plan gives you the shape.
+        </p>
+        <div className="mt-4">
+          <GoalPicker />
+        </div>
+      </section>
+
       {/* ── STEP 1 — Inputs ─────────────────────────────────────────────────── */}
       <section className="gorilla-card rounded-sm p-5">
         <div className="flex items-center justify-between gap-3">
