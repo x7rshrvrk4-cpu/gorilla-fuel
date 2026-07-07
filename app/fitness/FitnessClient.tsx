@@ -4,6 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { PRODUCTS, GRADE_RANK, type Category } from "../rankings/lib/products";
 import ProductCard from "../rankings/components/ProductCard";
+import {
+  ACTIVITY,
+  GOALS,
+  FAT_PER_KG,
+  computeFitness,
+  type Sex,
+  type ActivityKey,
+  type GoalKey,
+} from "./lib/calc";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const STORAGE_KEY = "gorilla-fitness";
@@ -11,25 +20,7 @@ const LB_PER_KG = 2.2046226218;
 const KG_PER_LB = 0.45359237;
 const CM_PER_IN = 2.54;
 
-type Sex = "male" | "female";
 type Units = "metric" | "imperial";
-type ActivityKey = "sedentary" | "light" | "moderate" | "very" | "athlete";
-type GoalKey = "cut" | "cut500" | "maintain" | "leanbulk";
-
-const ACTIVITY: { key: ActivityKey; label: string; mult: number; note: string }[] = [
-  { key: "sedentary", label: "Sedentary", mult: 1.2, note: "Little/no exercise, desk job" },
-  { key: "light", label: "Light", mult: 1.375, note: "Light exercise 1–3 days/wk" },
-  { key: "moderate", label: "Moderate", mult: 1.55, note: "Moderate exercise 3–5 days/wk" },
-  { key: "very", label: "Very Active", mult: 1.725, note: "Hard exercise 6–7 days/wk" },
-  { key: "athlete", label: "Athlete", mult: 1.9, note: "Physical job or 2-a-day training" },
-];
-
-const GOALS: { key: GoalKey; label: string; note: string }[] = [
-  { key: "cut", label: "Cut (−20%)", note: "Fat loss — aggressive deficit" },
-  { key: "cut500", label: "Cut (−500 kcal)", note: "Fat loss — ~0.5 kg/wk" },
-  { key: "maintain", label: "Maintain", note: "Body recomposition / hold weight" },
-  { key: "leanbulk", label: "Lean Bulk (+12%)", note: "Slow muscle gain, minimal fat" },
-];
 
 // Protein-powder categories from the curated rankings catalogue.
 const PROTEIN_CATEGORIES: Category[] = ["Whey Protein", "Casein Protein", "Plant Protein"];
@@ -38,9 +29,6 @@ const CATEGORY_SLUG: Record<string, string> = {
   "Casein Protein": "casein-protein",
   "Plant Protein": "plant-protein",
 };
-
-const PROTEIN_PER_KG_DEFAULT = 1.8; // within the 1.6–2.2 g/kg range
-const FAT_PER_KG = 0.8;
 
 const num = (s: string): number | null => {
   const v = parseFloat(s);
@@ -111,37 +99,11 @@ export default function FitnessClient() {
   const ready = weightKg !== null && heightCmVal !== null && ageVal !== null;
 
   // ── The chain ───────────────────────────────────────────────────────────────
+  // Math lives in ./lib/calc (computeFitness) so the plan builder portions against
+  // the same source of truth. Output shape is identical to the former inline calc.
   const calc = useMemo(() => {
     if (!ready) return null;
-    const kg = weightKg!, cm = heightCmVal!, a = ageVal!;
-    const bmr = 10 * kg + 6.25 * cm - 5 * a + (sex === "male" ? 5 : -161);
-    const mult = ACTIVITY.find((x) => x.key === activity)!.mult;
-    const tdee = bmr * mult;
-    let target: number;
-    if (goal === "cut") target = tdee * 0.8;
-    else if (goal === "cut500") target = tdee - 500;
-    else if (goal === "leanbulk") target = tdee * 1.12;
-    else target = tdee;
-
-    // Macros
-    const proteinG = kg * PROTEIN_PER_KG_DEFAULT;
-    const proteinRangeLo = round(kg * 1.6);
-    const proteinRangeHi = round(kg * 2.2);
-    const fatG = kg * FAT_PER_KG;
-    const proteinCal = proteinG * 4;
-    const fatCal = fatG * 9;
-    const carbCal = Math.max(0, target - proteinCal - fatCal);
-    const carbG = carbCal / 4;
-
-    const pct = (cal: number) => (target > 0 ? round((cal / target) * 100) : 0);
-    return {
-      bmr: round(bmr), tdee: round(tdee), target: round(target),
-      proteinG: round(proteinG), fatG: round(fatG), carbG: round(carbG),
-      proteinCal: round(proteinCal), fatCal: round(fatCal), carbCal: round(carbCal),
-      proteinPct: pct(proteinCal), fatPct: pct(fatCal), carbPct: pct(carbCal),
-      proteinRangeLo, proteinRangeHi, proteinPerKg: PROTEIN_PER_KG_DEFAULT,
-      kg: round(kg * 10) / 10,
-    };
+    return computeFitness({ kg: weightKg!, cm: heightCmVal!, age: ageVal!, sex, activity, goal });
   }, [ready, weightKg, heightCmVal, ageVal, sex, activity, goal]);
 
   // ── Persist (only after initial load, so we don't clobber stored values) ────
