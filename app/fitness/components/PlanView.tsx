@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { GUARDRAILS, type Plan } from "../lib/plans";
+import MealSection from "./MealSection";
 
 /**
  * Renders a single plan's TEXT skeleton — header, daily-shape copy, empty
@@ -39,15 +40,13 @@ export default function PlanView({ plan }: { plan: Plan }) {
           </div>
         </section>
 
-        {/* ── YOUR MEALS — empty shell (filled next stage) ─────────────────── */}
-        <section className="gorilla-card rounded-sm p-5">
+        {/* ── YOUR MEALS ───────────────────────────────────────────────────── */}
+        <section>
           <div className="flex items-center gap-4">
             <h2 className="font-display text-sm tracking-[0.3em] text-muted">YOUR MEALS</h2>
             <div className="h-px flex-1 bg-line" />
           </div>
-          <p className="mt-3 text-xs italic leading-relaxed text-muted/60">
-            Meal picks land here next — the foods this plan is built around, each linked to its score.
-          </p>
+          <MealSection plan={plan} />
         </section>
 
         {/* ── YOUR MOVEMENT — empty shell (filled next stage) ──────────────── */}
