@@ -67,6 +67,7 @@ export const PANTRY: PantryItem[] = [
   { id: "broccoli",         name: "Broccoli",             barcode: null, scoreHint: 95, affiliate: "grocery", category: "produce" },
   { id: "berries",          name: "Mixed Berries",        barcode: null, scoreHint: 92, affiliate: "grocery", category: "produce" },
   { id: "banana",           name: "Banana",               barcode: null, scoreHint: 88, affiliate: "grocery", category: "produce" },
+  { id: "apple",            name: "Apple",                barcode: null, scoreHint: 90, affiliate: "grocery", category: "produce" },
   { id: "bell-peppers",     name: "Bell Peppers",         barcode: null, scoreHint: 92, affiliate: "grocery", category: "produce" },
   { id: "brussels-sprouts", name: "Brussels Sprouts",     barcode: null, scoreHint: 92, affiliate: "grocery", category: "produce" },
 

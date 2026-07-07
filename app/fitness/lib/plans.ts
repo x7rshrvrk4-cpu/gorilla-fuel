@@ -38,176 +38,185 @@ export const PLANS: Plan[] = [
     id: "lean-down",
     slug: "lean-down",
     goalLabel: "Lean Down",
-    oneLiner: "Lose fat without losing your mind — or your muscle.",
+    oneLiner: "Drop fat steadily without starving — eat enough protein, move most days.",
     whoItsFor:
-      "You want the scale to move down. High-protein, high-volume eating keeps you full in a deficit so fat comes off while muscle stays.",
+      "You want the scale to move and you're carrying extra weight. This is the honest, sustainable version — about 0.5–1 lb a week, not a crash.",
     calorieFraming:
-      "Eat in a modest deficit — your calculator target already applies the cut. Aim to lose ~0.5–1% of bodyweight per week; if the scale stalls for two weeks, trim about 150 kcal.",
+      "A gentle deficit — for most bigger beginners that's roughly a 400–600 cal/day pullback from maintenance. Start here and adjust to how your energy and the scale respond over 2–3 weeks. It's a starting point, not a hard number to chase.",
     plateRule:
-      "Half the plate non-starchy veg, a palm or two of lean protein, one cupped handful of smart carbs, a thumb of fat. Volume from vegetables is your appetite's best friend.",
+      "Half the plate veg, a palm or two of protein, a fist of smart carb, a thumb of healthy fat.",
     proteinCue:
-      "Protein is non-negotiable on a cut — hit the high end of your range (aim ~2.2 g/kg) to protect muscle. Anchor every meal around a protein.",
+      "Anchor every meal with a protein — it keeps you full and protects muscle while you lose.",
     mealAnchors: [
-      "chicken-breast", "white-fish", "shrimp", "eggs", "greek-yogurt", "cottage-cheese",
-      "tofu", "lentils", "spinach", "broccoli", "bell-peppers", "brussels-sprouts",
-      "berries", "sweet-potato", "olive-oil", "whey-isolate",
+      "chicken-breast", "eggs", "canned-tuna", "greek-yogurt", "black-beans", "lentils",
+      "cottage-cheese", "rolled-oats", "sweet-potato", "brown-rice", "quinoa", "spinach",
+      "broccoli", "berries", "bell-peppers", "almonds", "natural-peanut-butter", "olive-oil",
+      "avocado",
     ],
     sampleDay: {
-      breakfast: "Plain Greek yogurt with berries and a spoon of chia.",
-      lunch: "Big spinach salad with grilled chicken breast, peppers, and an olive-oil drizzle.",
-      dinner: "Baked white fish with roasted broccoli and half a sweet potato.",
-      snack: "Cottage cheese, or a whey isolate shake.",
+      breakfast: "Greek yogurt with berries and a few almonds.",
+      lunch: "Big spinach salad with chicken breast and olive oil.",
+      dinner: "Salmon or chicken with broccoli and half a sweet potato.",
+      snack: "Cottage cheese, or an apple.",
     },
     cheatAllowance:
-      "One planned treat meal a week — eat it, enjoy it, no guilt. A single meal never undoes a week of deficit; the shame-spiral that follows is what does.",
+      "One sensible treat — a square or two of 70%+ dark chocolate, or air-popped popcorn. A plan you can keep beats a perfect plan you quit.",
     exercises: [
-      "march-in-place", "bodyweight-squat", "reverse-lunge", "push-up", "glute-bridge",
-      "mountain-climber", "high-knees", "plank", "bicycle-crunch",
+      "cross-body-knee-touch", "march-in-place", "wall-push-up", "knee-push-up",
+      "chair-assisted-squat", "bodyweight-squat", "glute-bridge", "standing-side-crunch",
+      "calf-raise", "plank",
     ],
     structure:
-      "3–4 short full-body sessions a week plus daily walking. Circuit the movements with minimal rest to keep the heart rate up and burn more in less time.",
+      "2 rounds of about 10–12 reps each (planks 15–20 seconds), 3× a week — plus aim for a daily walk.",
     progression:
-      "Add one rep per set or one round each week. When a movement feels easy for all sets, swap in its harder cousin (knee push-up → push-up, chair squat → bodyweight squat).",
+      "Add a 3rd round, then increase reps, then move wall → knee → full push-ups and hold planks longer. When it feels easy, add a little.",
   },
   {
     id: "build",
     slug: "build",
     goalLabel: "Build",
-    oneLiner: "Add muscle on purpose — eat, lift, recover, repeat.",
+    oneLiner: "Add strength and size — train the whole body, eat enough, prioritize protein.",
     whoItsFor:
-      "You want to gain size and strength. A slight surplus plus progressive overload and enough protein turns training into new muscle.",
+      "You want to get stronger and build muscle. That means eating at or slightly above maintenance — a lean-ish surplus — and training every major muscle group twice a week.",
     calorieFraming:
-      "Eat in a slight surplus — your lean-bulk target adds about 12%. Aim to gain ~0.25–0.5% of bodyweight per week; faster than that is mostly fat. Add ~150 kcal if you stall.",
+      "Eat at maintenance or a small surplus (about +200–300 cal). You can't build much on a big deficit. Prioritize protein and let the training drive the growth — adjust to how you're recovering.",
     plateRule:
-      "A palm or two of protein, one to two cupped handfuls of carbs to fuel training, a fist of veg, a thumb or two of fat. Carbs are your friend here — they power the work.",
+      "A protein at every meal (bigger portions than Lean Down), smart carbs around training, and plenty of veg.",
     proteinCue:
-      "Spread protein across 4+ meals, roughly 0.4 g/kg each, landing around 1.8–2.2 g/kg total. A whey isolate shake makes hitting it easy on busy days.",
+      "Protein is the build material — include a protein source at every meal and snack.",
     mealAnchors: [
-      "chicken-thigh", "lean-ground-beef", "salmon", "eggs", "greek-yogurt", "black-beans",
-      "rolled-oats", "brown-rice", "quinoa", "sweet-potato", "potato", "olive-oil",
-      "almonds", "natural-peanut-butter", "banana", "whey-isolate",
+      "chicken-breast", "chicken-thigh", "lean-ground-beef", "ground-turkey", "eggs",
+      "greek-yogurt", "cottage-cheese", "salmon", "canned-tuna", "whey-isolate", "rolled-oats",
+      "brown-rice", "quinoa", "potato", "whole-grain-bread", "natural-peanut-butter",
+      "almonds", "walnuts", "olive-oil", "avocado", "banana",
     ],
     sampleDay: {
-      breakfast: "Oats cooked with milk, banana, peanut butter, and a scoop of whey.",
-      lunch: "Ground beef with brown rice, black beans, and peppers.",
-      dinner: "Salmon with quinoa and roasted potatoes.",
-      snack: "Greek yogurt with almonds, or a shake before bed.",
+      breakfast: "Eggs with oats and a banana.",
+      lunch: "Chicken with rice and veg.",
+      dinner: "Beef or salmon with potato and broccoli.",
+      snack: "Post-workout whey and a banana; later, Greek yogurt with peanut butter.",
     },
     cheatAllowance:
-      "You have the most room here — a surplus tolerates the occasional indulgence. Keep it built on whole foods most of the time so you gain muscle, not just weight.",
+      "A bigger post-workout treat fits here — the surplus has room for it.",
     exercises: [
-      "bodyweight-squat", "sumo-squat", "forward-lunge", "reverse-lunge", "step-up",
-      "push-up", "plank", "side-plank", "sit-up",
+      "bodyweight-squat", "sumo-squat", "forward-lunge", "reverse-lunge", "knee-push-up",
+      "push-up", "incline-push-up", "glute-bridge", "plank", "side-plank", "bird-dog",
+      "calf-raise", "step-up", "wall-sit",
     ],
     structure:
-      "3–5 strength sessions a week, training each movement pattern (squat, push, hinge, core) twice. Rest 60–120s between hard sets so you can push each one.",
+      "Full-body, 2–3 sets of 8–12 reps, 3× a week (e.g. Mon/Wed/Fri) — hitting every major muscle group at least twice.",
     progression:
-      "Progressive overload is the whole game: add reps, then a harder variation, then a slow tempo or a pause. Log it — if the numbers aren't climbing, neither is the muscle.",
+      "Move to harder variations (knee → full push-ups; add a step for step-ups) and add sets or reps over time. Making it harder is the whole game.",
   },
   {
     id: "tone-up",
     slug: "tone-up",
     goalLabel: "Tone Up",
-    oneLiner: "Firm up and define — recomposition, not extremes.",
+    oneLiner: "Firm up and lean out — a blend of light deficit and full-body resistance.",
     whoItsFor:
-      "You're not chasing the scale up or down — you want to look tighter and more defined. Eat around maintenance, train consistently, and let body composition shift.",
+      "You don't want to be 'big,' you want to look defined — a bit leaner, a bit firmer. This is the popular middle: a slight deficit plus resistance training to keep the muscle you have.",
     calorieFraming:
-      "Eat at or just below maintenance — your maintain target is the anchor. 'Toning' is really building a little muscle while losing a little fat; it happens slowly, so judge by the mirror and the fit of your clothes, not the scale.",
+      "A light deficit — roughly 300–400 cal below maintenance — enough to lean out slowly while resistance training keeps you firm. 'Toned' just means a little less fat over the muscle you already have. Start here and adjust.",
     plateRule:
-      "A palm of protein, half a plate of veg, a cupped handful of carbs around workouts, a thumb of fat. Consistent and balanced beats extreme and short-lived.",
+      "Protein-forward, moderate carbs (more on training days), and lots of veg.",
     proteinCue:
-      "Keep protein high (~1.8–2.0 g/kg) — it's what turns training into definition. Anchor each meal with a protein and you'll rarely fall short.",
+      "Keep protein high even in a light deficit — it's what keeps you looking firm, not soft.",
     mealAnchors: [
-      "chicken-breast", "ground-turkey", "white-fish", "eggs", "greek-yogurt", "cottage-cheese",
-      "tofu", "chickpeas", "quinoa", "sweet-potato", "spinach", "broccoli",
-      "bell-peppers", "avocado", "almonds", "whey-isolate",
+      "chicken-breast", "white-fish", "shrimp", "eggs", "greek-yogurt", "tofu", "tempeh",
+      "cottage-cheese", "lentils", "quinoa", "sweet-potato", "brown-rice", "rolled-oats",
+      "avocado", "almonds", "olive-oil", "chia-seeds", "spinach", "broccoli",
+      "brussels-sprouts", "berries", "bell-peppers",
     ],
     sampleDay: {
-      breakfast: "Veggie omelette with spinach and peppers, side of berries.",
-      lunch: "Chickpea and quinoa bowl with turkey and avocado.",
-      dinner: "Grilled chicken with roasted broccoli and sweet potato.",
-      snack: "Greek yogurt or cottage cheese with a few almonds.",
+      breakfast: "Eggs with spinach and berries.",
+      lunch: "Chicken or tofu quinoa bowl loaded with veg.",
+      dinner: "White fish with brussels sprouts and a small sweet potato.",
+      snack: "Greek yogurt.",
     },
     cheatAllowance:
-      "A treat or two a week fits fine at maintenance — just keep it intentional, not a daily drift. Consistency is what reveals definition.",
+      "Dark chocolate, or a rice cake with peanut butter — small, regular, sustainable.",
     exercises: [
-      "bodyweight-squat", "sumo-squat", "forward-lunge", "glute-bridge", "push-up",
-      "knee-push-up", "plank", "side-plank", "crunch", "bicycle-crunch", "standing-oblique-twist",
+      "bodyweight-squat", "forward-lunge", "reverse-lunge", "push-up", "knee-push-up",
+      "glute-bridge", "plank", "side-plank", "bicycle-crunch", "dead-bug",
+      "standing-oblique-twist", "high-knees", "calf-raise",
     ],
     structure:
-      "3–4 full-body sessions mixing strength and core, plus regular walking. Superset a lower-body move with a core move to keep sessions short and dense.",
+      "A full-body circuit, 2–3 rounds of about 12–15 reps, 3–4× a week — with high-knees and oblique work as light conditioning between the strength moves.",
     progression:
-      "Chase quality reps and a little more each week — an extra rep, a longer plank, a slower lower. Add the harder variation once the current one feels controlled and easy.",
+      "Shorten the rest between moves (make it a circuit), then add rounds, then harder variations. Firming comes from consistency, not punishment.",
   },
   {
     id: "stay-healthy",
     slug: "stay-healthy",
     goalLabel: "Stay Healthy",
-    oneLiner: "Maintain, feel good, and keep the habits that last.",
+    oneLiner: "Feel good and stay well — balanced eating, move your body regularly, no extremes.",
     whoItsFor:
-      "You're happy where you are and want to stay there — steady weight, good energy, real food. No deficit, no surplus, just sustainable balance.",
+      "You're not chasing a big transformation — you want to eat well, stay active, and keep your body healthy. Maintenance calories and sustainable movement.",
     calorieFraming:
-      "Eat at maintenance — your maintain target holds your weight steady. Don't overthink the numbers; build meals from whole foods, eat to comfortable fullness, and let your weight sit in a stable range.",
+      "Eat around maintenance — no deficit, no surplus. The goal is balance and consistency, not a change on the scale.",
     plateRule:
-      "The classic balanced plate: half veg and fruit, a quarter protein, a quarter whole-food carbs, a little healthy fat. Simple, repeatable, forgiving.",
+      "The balanced plate — a protein, plenty of veg and fruit, whole-grain carbs, and healthy fats. Variety over restriction.",
     proteinCue:
-      "A palm of protein at each meal (~1.6 g/kg total) is plenty for general health and keeps you satisfied. Variety across the week covers your bases.",
+      "A protein source at most meals — but this plan is about the whole balanced plate, not maxing any one thing.",
     mealAnchors: [
-      "chicken-breast", "salmon", "eggs", "greek-yogurt", "tofu", "black-beans",
-      "lentils", "rolled-oats", "brown-rice", "whole-grain-bread", "sweet-potato", "spinach",
-      "broccoli", "berries", "banana", "olive-oil", "walnuts", "avocado",
+      "eggs", "chicken-breast", "salmon", "greek-yogurt", "black-beans", "lentils", "tofu",
+      "canned-tuna", "rolled-oats", "brown-rice", "quinoa", "sweet-potato", "whole-grain-bread",
+      "potato", "olive-oil", "avocado", "almonds", "walnuts", "natural-peanut-butter",
+      "chia-seeds", "spinach", "broccoli", "berries", "banana", "bell-peppers",
+      "brussels-sprouts",
     ],
     sampleDay: {
-      breakfast: "Oatmeal with berries and walnuts.",
-      lunch: "Whole-grain wrap with salmon or beans, greens, and avocado.",
-      dinner: "Chicken or tofu stir-fry with brown rice and mixed veg.",
-      snack: "A banana with peanut butter, or yogurt.",
+      breakfast: "Oats with berries and walnuts.",
+      lunch: "A mixed bowl — any protein with a grain and veg.",
+      dinner: "A whole-food protein with veg and a carb.",
+      snack: "Fruit and nuts, or yogurt.",
     },
     cheatAllowance:
-      "There's no 'cheat' at maintenance — there's just food. Follow the 80/20 rhythm: whole foods most of the time, whatever you love the rest, no rules to break.",
+      "The most relaxed of the plans — a healthy relationship with food, treats in moderation.",
     exercises: [
-      "march-in-place", "arm-circles", "bodyweight-squat", "reverse-lunge", "glute-bridge",
-      "incline-push-up", "calf-raise", "plank", "bird-dog", "dead-bug",
+      "bodyweight-squat", "push-up", "knee-push-up", "plank", "glute-bridge", "forward-lunge",
+      "reverse-lunge", "bird-dog", "march-in-place", "high-knees", "calf-raise", "arm-circles",
     ],
     structure:
-      "Move most days: 2–3 light strength sessions a week plus walking and whatever activity you enjoy. The goal is a routine you'll still be doing in a year.",
+      "About 2–3× a week of light full-body work — plus move daily: walk, take the stairs, stay active. Regular, not intense.",
     progression:
-      "Progress is optional here — maintain the habit first. If you want a little more, add a set or a slightly harder variation now and then. Consistency over intensity.",
+      "Optional — do more if you enjoy it. This plan is about keeping the habit, not pushing limits.",
   },
   {
     id: "energize",
     slug: "energize",
     goalLabel: "Energize",
-    oneLiner: "Eat for steady energy — no crashes, no fog.",
+    oneLiner: "Steady all-day energy — stable-blood-sugar meals, smart caffeine, regular movement.",
     whoItsFor:
-      "You want to feel switched-on all day. Balanced meals built on slow carbs, protein, and produce keep blood sugar steady so energy stays level.",
+      "You feel sluggish and want more consistent energy — fewer crashes, better focus. This is about food timing and quality and gentle regular movement more than weight change.",
     calorieFraming:
-      "Eat around maintenance — enough fuel to feel good, spread evenly across the day. Under-eating is the most common energy killer; crashing on sugar is the second. Regular, balanced meals are the fix.",
+      "Roughly maintenance — this plan is about what and when you eat, not how much. Steady energy comes from balanced meals that don't spike and crash.",
     plateRule:
-      "Pair a slow carb with a protein and some produce at every meal — that combo digests steadily and avoids the spike-and-crash. Add a little fat for staying power.",
+      "Protein + fiber + a smart carb at every meal — that combo blunts blood-sugar spikes. Avoid all-carb meals that crash you.",
     proteinCue:
-      "Include protein at every meal and snack (~1.6–1.8 g/kg total) — it blunts blood-sugar swings and keeps you full between meals, which is half of feeling energized.",
+      "Pair carbs with protein and fiber every time — that's the anti-crash formula. And don't skip meals.",
     mealAnchors: [
-      "eggs", "greek-yogurt", "chicken-breast", "canned-tuna", "chickpeas", "lentils",
-      "rolled-oats", "quinoa", "sweet-potato", "banana", "berries", "spinach",
-      "bell-peppers", "almonds", "chia-seeds", "natural-peanut-butter", "whey-isolate",
+      "eggs", "greek-yogurt", "chicken-breast", "canned-tuna", "black-beans", "lentils",
+      "cottage-cheese", "rolled-oats", "quinoa", "sweet-potato", "brown-rice", "berries",
+      "spinach", "avocado", "chia-seeds", "almonds", "walnuts", "natural-peanut-butter",
+      "banana",
     ],
     sampleDay: {
-      breakfast: "Overnight oats with chia, berries, and yogurt.",
-      lunch: "Quinoa bowl with chickpeas, spinach, peppers, and tuna.",
-      dinner: "Chicken with sweet potato and mixed vegetables.",
-      snack: "Banana with peanut butter, or a handful of almonds.",
+      breakfast: "Oats with chia, berries, and Greek yogurt.",
+      lunch: "Quinoa with chicken and veg.",
+      dinner: "Salmon with sweet potato and greens.",
+      snack: "Apple with peanut butter to beat the 3pm dip.",
     },
     cheatAllowance:
-      "Treats are fine — just pair sugar with protein or fat and eat it after a meal, not on an empty stomach, so it doesn't spike then crash you. Timing matters more than restriction here.",
+      "Fine — just framed around energy. Sugary treats spike then crash; enjoy them, but notice how you feel after.",
     exercises: [
-      "march-in-place", "cross-body-knee-touch", "arm-circles", "high-knees", "bodyweight-squat",
-      "step-up", "mountain-climber", "standing-oblique-twist", "glute-bridge",
+      "march-in-place", "high-knees", "arm-circles", "bodyweight-squat", "glute-bridge",
+      "cross-body-knee-touch", "standing-oblique-twist", "plank",
     ],
     structure:
-      "Short, frequent movement beats one long grind — a brisk 10–20 minute circuit or walk most days lifts energy more than an occasional hard session. Move in the morning or the mid-afternoon slump.",
+      "Short, near-daily sessions of 10–15 minutes, most days — plus a brisk walk, which does more for energy than you'd think. Time your coffee with the /caffeine tool — respect the half-life so it lifts you without a crash. Gentle by design.",
     progression:
-      "Build the daily-movement habit first, then nudge intensity: a few more minutes, a quicker pace, an extra round. The win is consistent energy, not exhaustion.",
+      "Consistency over intensity — the energy comes from the regularity, not from crushing yourself.",
   },
 ];
 
@@ -217,18 +226,21 @@ export const PLAN_BY_SLUG: Record<string, Plan> = Object.fromEntries(
 );
 
 /**
- * Shared safety copy rendered on every plan. One source of truth so the message
- * stays consistent across the plan UI.
+ * Shared safety copy rendered on every plan — exact researched-spec block. One
+ * source of truth so the message (including the disordered-eating guard) stays
+ * consistent across the plan UI. Structure: intro paragraph, four points, closing.
  */
 export const GUARDRAILS = {
-  title: "Before you start",
+  intro:
+    "This is guidance, not a prescription. These plans are sensible starting points built for a general beginner — they are not medical or dietitian advice. Everyone's body and needs are different.",
   points: [
-    "These plans are general education, not medical or nutrition advice. Individual needs vary — if you have a health condition, are pregnant or nursing, or take medication, talk to a qualified professional first.",
-    "Calorie and macro targets are estimates from the Mifflin-St Jeor equation and standard activity multipliers. Treat them as a starting point and adjust based on real results over 2–3 weeks.",
-    "Never train through sharp or joint pain. Start with the gentle variation of any movement, warm up first, and stop if something hurts — soreness is normal, pain is a signal.",
-    "Food scores reflect ingredient and nutrition quality, not your personal tolerances. Honor allergies, intolerances, and your own body over any list.",
-    "Fast weight change is rarely fat — aim for gradual, sustainable progress. Extreme deficits or surpluses backfire. Consistency beats intensity every time.",
+    "Talk to a professional before starting a new nutrition or exercise plan, especially if you have any health conditions, injuries, or take medication.",
+    "The numbers are starting points, not targets to chase. Adjust to how you feel. Never push into very low intakes — under-eating backfires.",
+    "If food or your body feels like a source of stress or control rather than health, please reach out to a professional. Health is the whole point here — not a number.",
+    "Ease in. Start with the gentle version of every exercise and only progress when it feels good. Stop if something hurts.",
   ],
+  closing:
+    "Gorilla Fuel scores products so you can choose well — it doesn't replace a doctor, dietitian, or trainer.",
 } as const;
 
 /**
