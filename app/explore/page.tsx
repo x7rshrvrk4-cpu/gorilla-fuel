@@ -90,22 +90,21 @@ export default function ExplorePage() {
           </Link>
         ))}
 
-        {/* MEAL OF THE WEEK — honestly marked Coming Soon: no link, dimmed, no gold hover. */}
-        <div
-          aria-disabled="true"
-          className="flex min-h-[220px] cursor-default flex-col justify-between rounded-sm border border-line bg-surface/50 p-8 opacity-60"
+        {/* FITNESS PLANS — now live: goal picker → per-goal meal + movement plan.
+            (Was the reserved "MEAL OF THE WEEK — Coming Soon" placeholder.) */}
+        <Link
+          href="/fitness"
+          className="group flex min-h-[220px] flex-col justify-between rounded-sm border border-gold/40 bg-surface p-8 transition-all hover:border-gold hover:shadow-[0_0_24px_rgba(255,215,0,0.12)]"
         >
           <div>
-            <h2 className="font-display text-3xl tracking-widest text-muted sm:text-4xl">MEAL OF THE WEEK</h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted">Recipes, ingredient-scored</p>
+            <h2 className="font-display text-3xl tracking-widest text-gold sm:text-4xl">FITNESS PLANS</h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted">Meals + movement, by goal</p>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase tracking-[0.2em] text-muted/70">Coming soon</span>
-            <span className="rounded-sm border border-line px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-muted/60">
-              Soon
-            </span>
+            <span className="text-xs uppercase tracking-[0.2em] text-muted/70">5 plans · pick your goal</span>
+            <span className="font-display text-gold opacity-0 transition-opacity group-hover:opacity-100">→</span>
           </div>
-        </div>
+        </Link>
       </div>
     </div>
   );
