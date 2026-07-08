@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { GUARDRAILS, type Plan } from "../lib/plans";
 import MealSection from "./MealSection";
+import MovementSection from "./MovementSection";
 
 /**
  * Renders a single plan's TEXT skeleton — header, daily-shape copy, empty
@@ -49,15 +50,13 @@ export default function PlanView({ plan }: { plan: Plan }) {
           <MealSection plan={plan} />
         </section>
 
-        {/* ── YOUR MOVEMENT — empty shell (filled next stage) ──────────────── */}
-        <section className="gorilla-card rounded-sm p-5">
+        {/* ── YOUR MOVEMENT ────────────────────────────────────────────────── */}
+        <section>
           <div className="flex items-center gap-4">
             <h2 className="font-display text-sm tracking-[0.3em] text-muted">YOUR MOVEMENT</h2>
             <div className="h-px flex-1 bg-line" />
           </div>
-          <p className="mt-3 text-xs italic leading-relaxed text-muted/60">
-            The movement routine lands here next — beginner-friendly exercises with form cues.
-          </p>
+          <MovementSection plan={plan} />
         </section>
 
         {/* ── Guardrails — calm, shown on every plan ───────────────────────── */}
