@@ -66,7 +66,7 @@ export default function CuratedPicksSection({
       </div>
       <p className="mt-2 max-w-2xl text-sm italic leading-relaxed text-muted/70">{blurb}</p>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {picks.map((p) => {
           const brand = displayBrand(p.brand);
           const displayName = p.display_name_en ?? p.product_name; // English when backfilled, else French original
