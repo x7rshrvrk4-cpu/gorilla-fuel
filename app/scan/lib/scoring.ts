@@ -1885,8 +1885,13 @@ function isPlainWater(
   const WATER_BRAND_RE =
     /\b(perrier|s\.?\s*pellegrino|san\s*pellegrino|sanpellegrino|la\s*croix|lacroix|evian|fiji|voss|dasani|aquafina|smart\s*water|smartwater|topo\s*chico|gerolsteiner|badoit|vittel|volvic|montellier|eska|naya|ice\s*river|bubly)\b/;
   const brandHay = `${name} ${(context?.brand ?? "").toLowerCase()}`;
-  const hasWaterIdentity =
-    WATER_CAT_RE.test(cats) || WATER_NAME_RE.test(name) || WATER_BRAND_RE.test(brandHay);
+  // NAME/BRAND identity is STRONG positive evidence — the product declares itself
+  // water ("… water", "club soda", "seltzer", "eau …", or a water-only brand).
+  // CATEGORY identity is WEAKER: OFF files sweetened flavoured drinks (e.g.
+  // Sparkling Ice) under en:carbonated-waters too, so a category-only match must
+  // later prove itself with a clean ingredient list (see positive-evidence gate).
+  const nameOrBrandIdentity = WATER_NAME_RE.test(name) || WATER_BRAND_RE.test(brandHay);
+  const hasWaterIdentity = nameOrBrandIdentity || WATER_CAT_RE.test(cats);
   if (!hasWaterIdentity) return false;
 
   // #5 NOT ALCOHOLIC — excludes hard seltzers (also routed to the alcohol scorer
@@ -1896,6 +1901,14 @@ function isPlainWater(
 
   // #4 NOT ARTIFICIALLY SWEETENED — a diet/zero soda is not water.
   if (sweetenedSignal) return false;
+  // Known artificially-sweetened "water"-branded drinks that go data-blind in OFF
+  // and would otherwise pass on a water-ish name/category. Sparkling Ice is the
+  // canonical case — every SKU is sucralose-sweetened, yet OFF rows show up with a
+  // "… Sparkling Water" name and no ingredients (so the sweetener gate can't see
+  // it). Brand/name denylist — generalizes across all their SKUs, not a per-barcode
+  // skip. (brandHay = name + brand, so it catches both the "Sparkling Ice …" name
+  // form and the brand="Sparkling Ice" form.)
+  if (/\bsparkling\s*ice\b/.test(brandHay)) return false;
 
   // #2 NEAR-ZERO MACROS (primary guard) — any PRESENT sugar/calorie value must be
   // near zero. Missing values are allowed (data-blind case, handled with #3).
@@ -1915,6 +1928,19 @@ function isPlainWater(
       /\bsugars?\b|\bsucre\b|\bjuice\b|\bjus\b|\bsyrup\b|\bsirop\b|sweeten|[ée]dulcorant|\bhoney\b|\bmiel\b|\bnectar\b|\bcane\b|\bagave\b|aspartame|sucralose|acesulfame|ac[ée]sulfame|saccharin|\bstevia\b|cyclamate|\bfructose\b|\bglucose\b|\bdextrose\b|maltodextrin|sorbitol|xylitol|erythritol/;
     if (DIRTY_ING_RE.test(ing)) return false;
   }
+
+  // POSITIVE-EVIDENCE gate (data-blind over-match guard): reaching the plain-water
+  // score requires positive PROOF of plain water — a clean, non-empty ingredient
+  // list, OR a strong name/brand identity. A CATEGORY-only match with NO clean
+  // ingredient list is only "absence of disqualifying evidence," not positive
+  // evidence: a data-blind sweetened sparkling drink (Sparkling Ice — sucralose,
+  // but the OFF row has empty ingredients and 0/0 macros) is tagged
+  // en:carbonated-waters yet must fall to the conservative missing-data path, not
+  // reach 85. Zero macros can't discriminate water from a diet drink (both read
+  // 0/0), so they are NOT positive evidence. Genuine data-blind waters (Perrier,
+  // Lacroix, "… spring water", "club soda") still qualify via name/brand identity.
+  const hasCleanIngredients = ing.trim().length > 0; // present AND passed DIRTY_ING_RE above
+  if (!hasCleanIngredients && !nameOrBrandIdentity) return false;
 
   return true;
 }
