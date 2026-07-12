@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getTopScanned } from "../../../scan/lib/productCache";
+import { gradeFromScore } from "../../../scan/lib/scoring";
 
 /**
  * GET /api/admin/top-scanned
@@ -46,7 +47,12 @@ export async function GET(request: NextRequest) {
       product_name: p.product_name,
       brand: p.brand,
       gorilla_score: p.gorilla_score,
-      score_grade: p.score_grade,
+      // Derive the food tier live (4-tier bands recut in 15a9f96) instead of the
+      // stored column; alcohol/supplement/beauty keep their own grade vocabularies.
+      score_grade:
+        !p.is_alcohol && !p.is_supplement && !p.is_beauty && p.gorilla_score != null
+          ? gradeFromScore(p.gorilla_score)
+          : p.score_grade,
       data_source: p.data_source,
       is_alcohol: p.is_alcohol,
       is_supplement: p.is_supplement,

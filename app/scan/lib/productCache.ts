@@ -200,6 +200,7 @@ export type TopScannedProduct = Pick<
   | "image_url"
   | "is_alcohol"
   | "is_supplement"
+  | "is_beauty"
   | "scan_count"
   | "last_scanned_at"
 >;
@@ -215,7 +216,7 @@ export async function getTopScanned(
     const endpoint = new URL(`${url}/rest/v1/${CACHE_TABLE}`);
     endpoint.searchParams.set("order", "scan_count.desc");
     endpoint.searchParams.set("limit", String(limit));
-    endpoint.searchParams.set("select", "barcode,product_name,brand,categories,gorilla_score,score_grade,data_source,image_url,is_alcohol,is_supplement,scan_count,last_scanned_at");
+    endpoint.searchParams.set("select", "barcode,product_name,brand,categories,gorilla_score,score_grade,data_source,image_url,is_alcohol,is_supplement,is_beauty,scan_count,last_scanned_at");
     if (sinceDate) {
       endpoint.searchParams.set("last_scanned_at", `gte.${sinceDate.toISOString()}`);
     }

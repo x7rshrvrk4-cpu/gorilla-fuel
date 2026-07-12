@@ -4,6 +4,7 @@
 //
 // Read-only. Returns [] on any failure (table absent, network, misconfig) so the
 // pages degrade gracefully to their editorial content with no curated section.
+import { gradeFromScore } from "../../scan/lib/scoring";
 
 export type CuratedTier = "approved" | "cheat" | "avoid";
 
@@ -98,7 +99,9 @@ export async function getCuratedPicks(tier: CuratedTier): Promise<CuratedPick[]>
       display_name_en: (r.display_name_en as string) ?? null,
       brand: (r.brand as string) ?? null,
       gorilla_score: (r.gorilla_score as number) ?? null,
-      score_grade: (r.score_grade as string) ?? null,
+      // Derive the tier live so the label always tracks the current 4-tier bands
+      // (recut in 15a9f96), never the stored score_grade column which can go stale.
+      score_grade: r.gorilla_score != null ? gradeFromScore(r.gorilla_score as number) : null,
       image_url: (r.image_url as string) ?? null,
       rank: rankBy.get(String(r.barcode)) ?? 0,
     }));

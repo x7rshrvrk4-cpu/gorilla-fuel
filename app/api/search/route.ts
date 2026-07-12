@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { gradeFromScore } from "../../scan/lib/scoring";
 
 export type SearchProduct = {
   barcode: string;
@@ -54,7 +55,15 @@ export async function GET(request: NextRequest) {
 
     if (!res.ok) return NextResponse.json([]);
     const rows: SearchProduct[] = await res.json();
-    return NextResponse.json(rows);
+    // Derive the food tier live (4-tier bands recut in 15a9f96) rather than trusting
+    // the stored score_grade column, which can lag the current cutoffs. Alcohol/
+    // supplement/beauty keep their own grade vocabularies, so pass those through.
+    const derived = rows.map((r) =>
+      !r.is_alcohol && !r.is_supplement && !r.is_beauty && r.gorilla_score != null
+        ? { ...r, score_grade: gradeFromScore(r.gorilla_score) }
+        : r
+    );
+    return NextResponse.json(derived);
   } catch {
     return NextResponse.json([]);
   }
