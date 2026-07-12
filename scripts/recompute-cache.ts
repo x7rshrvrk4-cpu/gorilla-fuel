@@ -21,6 +21,7 @@ import { config } from "dotenv";
 config({ path: ".env.local", override: true });
 import { writeFileSync } from "fs";
 import { computeScore, isWholeFood, type Nutriments } from "../app/scan/lib/scoring";
+import { randomUUID } from "node:crypto";
 import { applyScoringGate } from "../app/scan/lib/curatedScores";
 import { ALGO_VERSION } from "../app/scan/lib/productClassify";
 
@@ -28,6 +29,8 @@ const URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
 const DRY = !process.argv.includes("--write");
 const BATCH = 500;
+// One id per run — groups every correction row this pass writes (audit "batch").
+const BATCH_ID = randomUUID();
 
 if (!URL || !KEY) { console.error("Missing Supabase env vars — aborting."); process.exit(1); }
 const headers = { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json", Prefer: "return=minimal" };
@@ -114,7 +117,7 @@ async function main() {
         if (!patch.ok) { patchFail++; console.error(`  PATCH FAIL ${row.barcode}: ${patch.status} ${await patch.text().catch(() => "")}`); continue; }
         const logRes = await fetch(`${URL}/rest/v1/gorilla_score_corrections`, {
           method: "POST", headers,
-          body: JSON.stringify({ product_name: row.product_name, barcode: row.barcode, old_score: row.gorilla_score, new_score: outcome.score, correction_reason: "recompute: whole-food data-gap exemption" }),
+          body: JSON.stringify({ product_name: row.product_name, barcode: row.barcode, old_score: row.gorilla_score, new_score: outcome.score, correction_reason: "recompute: whole-food data-gap exemption", grade_after: outcome.grade, algorithm_version: ALGO_VERSION, batch_id: BATCH_ID }),
         }).catch(() => null);
         if (!logRes || !logRes.ok) logFail++;
       }

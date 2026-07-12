@@ -27,11 +27,15 @@
 import { config } from "dotenv";
 config({ path: ".env.local", override: true });
 import { writeFileSync } from "fs";
+import { randomUUID } from "node:crypto";
 import { applyScoringGate } from "../app/scan/lib/curatedScores";
+import { ALGO_VERSION } from "../app/scan/lib/productClassify";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
 const BATCH = 500;
+// One id per run — groups every correction row this pass writes (audit "batch").
+const BATCH_ID = randomUUID();
 
 if (!URL || !KEY) {
   console.error("Missing Supabase env vars — aborting.");
@@ -129,6 +133,9 @@ async function main() {
           old_score: row.gorilla_score,
           new_score: outcome.score,
           correction_reason: reason,
+          grade_after: outcome.grade,
+          algorithm_version: ALGO_VERSION,
+          batch_id: BATCH_ID,
         }),
       }).catch(() => null);
       if (!logRes || !logRes.ok) logFailures++;

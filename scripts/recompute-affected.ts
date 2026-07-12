@@ -14,9 +14,12 @@
 import { config } from "dotenv";
 config({ path: ".env.local", override: true });
 import { writeFileSync } from "fs";
+import { randomUUID } from "node:crypto";
 import { computeScore, isWholeFood, type Nutriments } from "../app/scan/lib/scoring";
 import { applyScoringGate } from "../app/scan/lib/curatedScores";
 import { ALGO_VERSION } from "../app/scan/lib/productClassify";
+// One id per run — groups every correction row this pass writes (audit "batch").
+const BATCH_ID = randomUUID();
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
@@ -91,10 +94,10 @@ async function main() {
       // classify cause
       const oldWhole = isWholeFoodOld(row.nutrition_data, row.nova_group, cats, row.labels_tags ?? [], row.product_name ?? "");
       const newWhole = isWholeFood(row.nutrition_data, ctx);
-      const rec = { bc: row.barcode, name: row.product_name ?? "?", brand: row.brand ?? "", before: row.gorilla_score, after: outcome.score, grade: outcome.grade, d: outcome.score - row.gorilla_score };
+      const rec = { bc: row.barcode, name: row.product_name ?? "?", brand: row.brand ?? "", before: row.gorilla_score, after: outcome.score, grade: outcome.grade, d: outcome.score - row.gorilla_score, reason: "recompute-affected" };
       let group = "other";
-      if (oldWhole && !newWhole) { disq.push(rec); group = "disq"; }
-      else if (isRefinedGrain(row.ingredients_text, cats, row.product_name)) { refined.push(rec); group = "refined"; }
+      if (oldWhole && !newWhole) { rec.reason = "recompute-affected: whole-food data-gap disqualified"; disq.push(rec); group = "disq"; }
+      else if (isRefinedGrain(row.ingredients_text, cats, row.product_name)) { rec.reason = "recompute-affected: refined-grain NOVA override"; refined.push(rec); group = "refined"; }
       else otherDrift.push(rec);
       if (PROTECTED.has(row.barcode)) protectedSeen.push(`${row.barcode} ${row.product_name} ${row.gorilla_score}->${outcome.score} [${group}]`);
       if (BENCH.has(row.barcode)) benchSeen.push(`${row.barcode} ${row.gorilla_score}->${outcome.score}`);
@@ -149,12 +152,14 @@ async function main() {
 
   if (!DRY) {
     console.log("\n──── WRITING (disqualifier + refined only) ────");
-    let ok=0, fail=0;
+    let ok=0, fail=0, logok=0;
     for (const r of [...disq, ...refined]) {
       const res = await fetch(`${URL}/rest/v1/gorilla_product_cache?barcode=eq.${encodeURIComponent(r.bc)}`, { method:"PATCH", headers, body: JSON.stringify({ gorilla_score: r.after, score_grade: r.grade, scored_at: new Date().toISOString(), algorithm_version: ALGO_VERSION }) });
-      if (res.ok) ok++; else { fail++; console.error(`  PATCH FAIL ${r.bc}: ${res.status}`); }
+      if (res.ok) ok++; else { fail++; console.error(`  PATCH FAIL ${r.bc}: ${res.status}`); continue; }
+      const lg = await fetch(`${URL}/rest/v1/gorilla_score_corrections`, { method:"POST", headers, body: JSON.stringify({ product_name: r.name, barcode: r.bc, old_score: r.before, new_score: r.after, correction_reason: r.reason, grade_after: r.grade, algorithm_version: ALGO_VERSION, batch_id: BATCH_ID }) }).catch(()=>null);
+      if (lg && lg.ok) logok++;
     }
-    console.log(`written ${ok}, patchFails ${fail}`);
+    console.log(`written ${ok}, patchFails ${fail}, corrections-logged ${logok}`);
   }
   writeFileSync("recompute-affected-dryrun.txt", [...disq, ...refined].map(r=>`${r.bc}\t${r.before}\t${r.after}\t${r.name}`).join("\n"), "utf8");
   console.log(`\nMODE: ${DRY ? "DRY-RUN — nothing written." : "WRITE complete."}`);
