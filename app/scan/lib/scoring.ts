@@ -1103,6 +1103,22 @@ const WHOLE_FOOD_CATEGORY_TAGS = new Set([
   "en:kale", "en:carrots", "en:peas", "en:green-beans", "en:edamame", "en:mangoes",
   "en:pineapples", "en:peaches", "en:cherries", "en:leafy-vegetables", "en:root-vegetables",
 ]);
+// Fruit/berry subset of the produce allowlist — these carry intrinsic sugar up to
+// ~18 g/100g when raw, so branch 2 uses a higher sugar ceiling for them (vegetables
+// and legumes stay on the tight 12 g ceiling). "en:citrus" included so sweet whole
+// citrus (Sumo mandarin) qualifies even where only the citrus tag is present.
+const FRUIT_CATEGORY_TAGS = new Set([
+  "en:fruits", "en:fresh-fruits", "en:frozen-fruits", "en:frozen-berries", "en:fresh-berries",
+  "en:berries", "en:blueberries", "en:strawberries", "en:raspberries", "en:blackberries",
+  "en:cranberries", "en:mangoes", "en:pineapples", "en:peaches", "en:cherries", "en:citrus",
+]);
+// Processed FRUIT FORMS — a purée/sauce/compote/blend is not a whole fruit even when
+// it carries a fruit tag and a clean nutriment signature (unsweetened applesauce is
+// just apples, but it's processed, so it scores on macros like any other food — no
+// intrinsic-sugar waiver). Name tokens (EN + FR) plus the matching OFF category tags.
+// Whole-fruit names never contain these tokens, so genuine raw fruit is unaffected.
+const PROCESSED_FRUIT_FORM = /\b(sauce|applesauce|apple[\s-]?sauce|pur[ée]e|puree|compote|mashed|coulis|jam|jell(?:y|o)|marme?lade|confiture|smoothie|blend(?:ed)?|spread|preserves?|nut[\s-]?butter)\b/i;
+const PROCESSED_FRUIT_FORM_CAT = /\ben:(compotes|fruit-compotes|applesauces?|pur[ée]es|purees|jams|marmalades|fruit-sauces|smoothies|fruit-spreads)\b/;
 // If ANY of these appear in the tags, it is NOT a raw whole food — block the
 // category branch even when a produce tag is also present (e.g. "fruit juices",
 // "candied nuts"). Two parts: specific en: category tags, plus processing
@@ -1176,7 +1192,16 @@ export function isWholeFood(n: Nutriments, context?: ScoringContext): boolean {
   if (!processed && tagList.some((t) => WHOLE_FOOD_CATEGORY_TAGS.has(t))) {
     const sugars = n.sugars_100g;
     const salt = n.salt_100g ?? 0;
-    const sweetened = typeof sugars === "number" && Number.isFinite(sugars) && sugars > 12;
+    // Intrinsic fruit sugar is not added sugar. A produce-tagged WHOLE fruit
+    // legitimately reaches ~10-18 g/100g (grape ~16, mango ~14, cherry ~13, sweet
+    // citrus like Sumo mandarin ~12-13) — the old flat >12 ceiling wrongly rejected
+    // those as "sweetened". Use an 18 g fruit ceiling when a fruit/berry tag is
+    // present; keep the tight 12 g ceiling for veg/legume/nut tags (naturally <5 g,
+    // so 12 already only trips candied/honey variants, which carry a processing tag
+    // caught by `processed`). Data-blind canned fruit (no tags) never reaches here.
+    const fruitTagged = tagList.some((t) => FRUIT_CATEGORY_TAGS.has(t));
+    const sugarCeiling = fruitTagged ? 18 : 12;
+    const sweetened = typeof sugars === "number" && Number.isFinite(sugars) && sugars > sugarCeiling;
     const seasoned = salt > 0.5;
     if (!sweetened && !seasoned) return true;
   }
@@ -1488,6 +1513,27 @@ export function scoreNutrition(
   const protein = n.proteins_100g ?? 0;
   const servingSize = context?.servingSize ?? null;
 
+  // Intrinsic-sugar waiver for a WHOLE single fruit. Its sugar is the fruit's own
+  // (Sumo mandarin ~12g, grapes ~16g), not added sugar — penalizing it demerits
+  // nature. Gated TIGHTLY because OFF's NOVA-1 and category tags are unreliable (it
+  // mislabels peanut butter/chicken base as NOVA-1, tags multi-fruit smoothies as
+  // en:fruits). ALL must hold:
+  //   • a produce FRUIT category tag (NOT the heuristic name path — that lets
+  //     fruit-named sorbet/cocktail through),
+  //   • a raw-produce nutriment signature (protein ≤2, sat-fat ≤0.5, salt ≤0.2) —
+  //     excludes nut butters, chicken base, avocado/dairy blends, the smoothie,
+  //   • isWholeFood (excludes juice/candy/canned-with-tags/dried/sweetened),
+  //   • NOT a processed fruit FORM (purée/sauce/compote/applesauce/jam/smoothie) by
+  //     name or category — those score on macros like any other food.
+  // Waives the SUGAR bands only — sat-fat/sodium/calorie demerits still apply.
+  const _waiveName = (context?.productName ?? "").toLowerCase();
+  const _waiveTags = [...(context?.categoriesTags ?? []), ...(context?.labelsTags ?? [])]
+    .map((t) => String(t).trim().toLowerCase());
+  const _fruitTagged = _waiveTags.some((t) => FRUIT_CATEGORY_TAGS.has(t));
+  const _rawSig = protein <= 2 && satFat <= 0.5 && salt <= 0.2;
+  const _processedForm = PROCESSED_FRUIT_FORM.test(_waiveName) || PROCESSED_FRUIT_FORM_CAT.test(_waiveTags.join(" "));
+  const wholeFoodSugarWaive = _fruitTagged && _rawSig && !_processedForm && isWholeFood(n, context);
+
   // ── Detect genuinely MISSING critical nutrients ──────────────────────────
   // The `?? 0` coercions above are fine for the band math, but a real 0 and a
   // *missing* value must be treated very differently for scoring. A missing
@@ -1576,9 +1622,11 @@ export function scoreNutrition(
       ? `${Math.round(servingGrams)}${isMlServing ? "ml" : "g"} serving`
       : "serving";
 
-    // ── Per-serving sugar ─────────────────────────────────────────────────
+    // ── Per-serving sugar (waived for whole produce — intrinsic fruit sugar) ──
     const sg = sugarServing!;
-    if (sg > 30) {
+    if (wholeFoodSugarWaive) {
+      /* intrinsic fruit sugar — no penalty */
+    } else if (sg > 30) {
       score -= 40;
       flags.push(`Extreme sugar per serving — ${sg.toFixed(1)}g per ${servingTag}`);
     } else if (sg > 20) {
@@ -1632,10 +1680,10 @@ export function scoreNutrition(
     // Condiments with tiny serving sizes (e.g., ketchup 15g) pass per-serving
     // thresholds cleanly, but their per-100g composition is still extreme.
     // These catch the concentrated-ingredient signal that serving math misses.
-    if (sugar > 30) {
+    if (!wholeFoodSugarWaive && sugar > 30) {
       score -= 15;
       flags.push(`Extremely sugar-dense product — ${sugar.toFixed(1)}g sugar per 100g`);
-    } else if (sugar > 20) {
+    } else if (!wholeFoodSugarWaive && sugar > 20) {
       score -= 10;
       flags.push(`Very sugar-dense product — ${sugar.toFixed(1)}g sugar per 100g`);
     }
@@ -1653,7 +1701,10 @@ export function scoreNutrition(
 
   } else {
     // ── Per-100g fallback (no serving data available) ─────────────────────
-    if (sugar > 22.5) {
+    // Sugar bands waived for whole produce (intrinsic fruit sugar).
+    if (wholeFoodSugarWaive) {
+      /* intrinsic fruit sugar — no penalty */
+    } else if (sugar > 22.5) {
       score -= 30;
       flags.push(`Very high sugar — ${sugar.toFixed(1)}g per 100g`);
     } else if (sugar > 15) {
