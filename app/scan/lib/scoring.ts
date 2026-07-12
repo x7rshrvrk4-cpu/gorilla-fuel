@@ -1395,6 +1395,46 @@ function isLowCalCondimentBeverage(n: Nutriments, context?: ScoringContext): boo
   return true;
 }
 
+/**
+ * Recognized single/pure cooking oil (olive/canola/avocado/grapeseed/corn/
+ * sunflower/safflower/sesame/coconut/peanut/vegetable/soybean/walnut/flax/
+ * rice-bran) with a genuine oil macro signature (≥700 kcal/100g, protein ≤1,
+ * saturated fat ≤25, sodium ~0). Excludes margarine/mayo/dressing/spread/butter/
+ * spray/flavoured/blended, the >25g-sat-fat coconut/palm/tropical/bogus-data rows,
+ * and any row carrying real sodium (salt >0.1 g/100g) — a pure oil is ~0 sodium, so
+ * measurable salt means a spread/margarine mislabeled "olive oil" (e.g. Becel,
+ * salt 1.75 g). All such rows keep the conservative caps and stay low.
+ *
+ * SINGLE SOURCE OF TRUTH for BOTH pure-oil exemptions — do not fork this:
+ *  - nutrition side: skip the missing-sodium/sugar conservative cap (45).
+ *  - additive side:  skip the unverified-additive cap (50) when no ingredient
+ *    list exists — a pure oil is single-ingredient and definitionally
+ *    additive-free, so an absent list isn't a hidden-additive risk. A pure oil
+ *    that DOES list a real additive still scores that additive normally (this
+ *    only relieves the "unverified because empty" cap, not additive detection).
+ */
+function isPureOilRow(n: Nutriments, context?: ScoringContext): boolean {
+  const satFat = n["saturated-fat_100g"] ?? 0;
+  const calories = n["energy-kcal_100g"] ?? 0;
+  const protein = n.proteins_100g ?? 0;
+  // Sodium gate: `?? 0` so a genuinely-omitted salt field (the case the missing-data
+  // exemption exists for) still qualifies, while a DISCLOSED salt >0.1 g/100g — a
+  // spread/margarine signature — disqualifies (real oils are ~0 sodium).
+  const salt = n.salt_100g ?? 0;
+  const oilName = (context?.productName ?? "").toLowerCase();
+  const oilCats = (context?.categoriesTags ?? []).map((t) => String(t).toLowerCase()).join(" ");
+  const oilHay = `${oilName} ${oilCats}`;
+  const OIL_NAME_RE = /\b(olive|canola|avocado|grape[\s-]?seed|corn|sunflower|safflower|sesame|coconut|peanut|groundnut|vegetable|soybean|soya|walnut|flax(?:seed)?|rice[\s-]?bran)\s+oils?\b/i;
+  const OIL_NAME_FR = /\bhuile\s+(?:d['e]\s*)?(?:olive|canola|avocat|p[ée]pins|ma[iï]s|tournesol|s[ée]same|coco|arachide|v[ée]g[ée]tale|soja|carthame|noix|lin)\b/i;
+  const OIL_CAT_RE = /\ben:(?:olive-oils?|sunflower-oils?|vegetable-oils?|coconut-oils?|rapeseed-oils?|canola-oils?|corn-oils?|sesame-oils?|avocado-oils?|grapeseed-oils?|peanut-oils?|cooking-oils?|oils)\b/;
+  const OIL_EXCLUDE = /margarine|mayo|mayonnaise|dressing|vinaigrette|tartinade|spread|\bbutter\b|buttery|butter[\s-]?style|beurre|spray|flavou?red|infused|truffle|garlic|chil(?:i|li)|\bherb|lemon|basil|spiced|sauce|\bdip\b|blend|\bwith\b|&|\+/i;
+  return (
+    (OIL_NAME_RE.test(oilName) || OIL_NAME_FR.test(oilName) || OIL_CAT_RE.test(oilCats)) &&
+    !OIL_EXCLUDE.test(oilHay) &&
+    calories >= 700 && protein <= 1 && satFat <= 25 && salt <= 0.1
+  );
+}
+
 export function scoreNutrition(
   n: Nutriments,
   context?: ScoringContext
@@ -1446,21 +1486,11 @@ export function scoreNutrition(
   // margarine/mayo/dressing/spread/butter/spray/flavoured/blended, AND an oil macro
   // signature (≥700 kcal/100g, protein ≤1) so a non-oil that merely names an oil
   // (e.g. "olive oil cake", "olive oil chips") can't qualify.
-  const oilName = (context?.productName ?? "").toLowerCase();
-  const oilCats = (context?.categoriesTags ?? []).map((t) => String(t).toLowerCase()).join(" ");
-  const oilHay = `${oilName} ${oilCats}`;
-  const OIL_NAME_RE = /\b(olive|canola|avocado|grape[\s-]?seed|corn|sunflower|safflower|sesame|coconut|peanut|groundnut|vegetable|soybean|soya|walnut|flax(?:seed)?|rice[\s-]?bran)\s+oils?\b/i;
-  const OIL_NAME_FR = /\bhuile\s+(?:d['e]\s*)?(?:olive|canola|avocat|p[ée]pins|ma[iï]s|tournesol|s[ée]same|coco|arachide|v[ée]g[ée]tale|soja|carthame|noix|lin)\b/i;
-  const OIL_CAT_RE = /\ben:(?:olive-oils?|sunflower-oils?|vegetable-oils?|coconut-oils?|rapeseed-oils?|canola-oils?|corn-oils?|sesame-oils?|avocado-oils?|grapeseed-oils?|peanut-oils?|cooking-oils?|oils)\b/;
-  const OIL_EXCLUDE = /margarine|mayo|mayonnaise|dressing|vinaigrette|tartinade|spread|\bbutter\b|buttery|butter[\s-]?style|beurre|spray|flavou?red|infused|truffle|garlic|chil(?:i|li)|\bherb|lemon|basil|spiced|sauce|\bdip\b|blend|\bwith\b|&|\+/i;
-  // Sat-fat ceiling: a genuine pure cooking oil isn't 50–90% saturated fat — that's
-  // coconut/palm/tropical or a data error. Such rows KEEP the conservative missing-
-  // data cap and stay low (structural, not dependent on the sat-fat band binding;
-  // fixes high-sat-fat oils with small/ml servings rising via the per-serving band).
-  const isPureOil =
-    (OIL_NAME_RE.test(oilName) || OIL_NAME_FR.test(oilName) || OIL_CAT_RE.test(oilCats)) &&
-    !OIL_EXCLUDE.test(oilHay) &&
-    calories >= 700 && protein <= 1 && satFat <= 25;
+  // Sat-fat ceiling (≤25) inside isPureOilRow: a genuine pure cooking oil isn't
+  // 50–90% saturated fat — that's coconut/palm/tropical or a data error. Such rows
+  // KEEP the conservative missing-data cap and stay low. Single detector shared
+  // with the additive-side exemption in computeScore (see isPureOilRow).
+  const isPureOil = isPureOilRow(n, context);
 
   // ── NOVA — applied first as the dominant processing signal ───────────────
   // NOVA 4 (ultra-processed) caps nutrition at 45 before other factors.
@@ -2033,8 +2063,15 @@ export function computeScore(
   // additive risk. They fall through to the whole-food additive band below (88/100).
   // Plain water is exempt like whole foods: its "ingredient" is water, so an absent
   // list is not a hidden-additive risk — this keeps data-blind waters (Perrier) high.
+  // Pure oils are exempt for the SAME reason: a recognized single oil (isPureOilRow —
+  // the same detector the nutrition path uses for the missing-data exemption) is
+  // single-ingredient and definitionally additive-free, so an absent list can't hide
+  // an additive. This ONLY relieves the "unverified because empty" cap — a pure oil
+  // that DOES list a real additive is unaffected (hasIngredientText is then true, so
+  // additivesUnverified is already false and the additive scores its penalty normally).
   const additivesUnverified =
-    !hasIngredientText && !hasAdditivesTags && !inferredSweeteners && !plainWater && !isWholeFood(nutriments, effContext);
+    !hasIngredientText && !hasAdditivesTags && !inferredSweeteners && !plainWater &&
+    !isWholeFood(nutriments, effContext) && !isPureOilRow(nutriments, effContext);
   if (additivesUnverified) {
     effectiveAdditiveScore = Math.min(effectiveAdditiveScore, 50);
   }
