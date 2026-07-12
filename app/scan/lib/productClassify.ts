@@ -127,13 +127,22 @@ export function buildOffRow(p: Record<string, unknown>): UpsertPayload | null {
   const labels: string[] = Array.isArray(p.labels_tags) ? (p.labels_tags as string[]) : [];
 
   const n = (p.nutriments as Record<string, number> | undefined) ?? {};
+  // Physical-plausibility guard: salt cannot exceed 100 g/100g (pure NaCl). OFF
+  // scale-error garbage (e.g. Monster Energy salt_100g = 92500, a mg-as-g error)
+  // would poison the score, so we DROP it (store undefined → absent = missing)
+  // rather than persist an impossible value. salt = 2.5 × sodium ⟹ salt>100 ⟺
+  // sodium>40. Same drop-to-missing behaviour as the scorer's stripImplausibleSodium.
+  const rawSalt = n["salt_100g"];
+  const saltImplausible =
+    (typeof rawSalt === "number" && rawSalt > 100) ||
+    (typeof n["sodium_100g"] === "number" && n["sodium_100g"] > 40);
   const nutrition_data =
     Object.keys(n).length > 0
       ? {
           "energy-kcal_100g": n["energy-kcal_100g"] ?? n["energy_100g"],
           sugars_100g: n["sugars_100g"],
           "saturated-fat_100g": n["saturated-fat_100g"],
-          salt_100g: n["salt_100g"],
+          salt_100g: saltImplausible ? undefined : rawSalt,
           proteins_100g: n["proteins_100g"],
           fiber_100g: n["fiber_100g"],
         }

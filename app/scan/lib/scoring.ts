@@ -1435,6 +1435,35 @@ function isPureOilRow(n: Nutriments, context?: ScoringContext): boolean {
   );
 }
 
+/**
+ * Physical-plausibility guard for sodium/salt. A product cannot contain more than
+ * 100 g of salt per 100 g — that's pure NaCl. OFF occasionally carries scale-error
+ * garbage (mg-as-g or a per-serving value dropped into the 100g field, e.g. Monster
+ * Energy salt_100g = 92500), which would otherwise fire an astronomical phantom
+ * sodium penalty and crush the score. Since salt = 2.5 × sodium, salt > 100 ⟺
+ * sodium > 40. We can't know the real value, so we DROP the impossible salt/sodium
+ * fields (return them as missing) rather than clamp — the existing missing-data
+ * conservative path then applies, instead of penalizing on known-bad data. Returns
+ * the input unchanged when nothing is implausible (the overwhelming common case).
+ */
+function stripImplausibleSodium(n: Nutriments): Nutriments {
+  const salt = n.salt_100g;
+  const rec = n as Record<string, number | undefined>;
+  const sodium100 = rec["sodium_100g"];
+  const impossible =
+    (typeof salt === "number" && salt > 100) ||
+    (typeof sodium100 === "number" && sodium100 > 40);
+  if (!impossible) return n;
+  const copy = { ...n } as Record<string, unknown>;
+  // Delete (not null) so the scorer's `=== undefined` missing-data detection fires;
+  // a null would read as a disclosed 0 and under-treat known-bad data as "low salt".
+  delete copy.salt_100g;
+  delete copy.salt_serving;
+  delete copy.sodium_100g;
+  delete copy.sodium_serving;
+  return copy as Nutriments;
+}
+
 export function scoreNutrition(
   n: Nutriments,
   context?: ScoringContext
@@ -1443,6 +1472,10 @@ export function scoreNutrition(
   flags: string[];
   positives: string[];
 } {
+  // Drop physically-impossible salt/sodium (OFF scale-error garbage) up front so it
+  // reads as MISSING everywhere below — no phantom per-100g or per-serving penalty.
+  n = stripImplausibleSodium(n);
+
   let score = 100;
   const flags: string[] = [];
   const positives: string[] = [];
