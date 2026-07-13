@@ -38,6 +38,17 @@ export function buildGorillaTake(detected: AdditiveInfo[], grade: Grade, nutriti
           "An informed athlete should not be misled by a clean additive profile. Extreme saturated fat, very high sodium, or very high sugar represent genuine daily nutrition concerns that no amount of additive-cleanliness offsets. Look at the flags section above — that's where the actual risk sits.",
       };
     }
+    // No ingredient list on file → the additive scan never ran. Absence of data is
+    // NOT evidence of safety, so don't claim a "clean scan" — say it's unverified.
+    if (nutritionFlags.some((f) => /ingredient list unavailable|could not be verified/i.test(f))) {
+      return {
+        tierBreakdown: breakdown,
+        scienceSummary:
+          "No ingredient list is on file for this product, so the additive scan couldn't run — this isn't a clean result, it's an unknown one. We can't tell you what isn't here.",
+        positionStatement:
+          "Treat the additive side as unverified, not safe. Judge it on the nutrition numbers above, and seek the full label before trusting the ingredient side.",
+      };
+    }
     return {
       tierBreakdown: breakdown,
       scienceSummary:
