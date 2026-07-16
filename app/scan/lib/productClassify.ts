@@ -5,6 +5,7 @@
 
 import { computeScore } from "./scoring";
 import { applyScoringGate, lookupCuratedScore } from "./curatedScores";
+import { computeAlcoholScore, detectAlcoholKind } from "./alcoholScoring";
 import type { UpsertPayload } from "./productCache";
 
 /** Bumped whenever the scoring algorithm or gate logic changes materially.
@@ -212,6 +213,28 @@ export function buildOffRow(p: Record<string, unknown>): UpsertPayload | null {
       });
       gorilla_score = gated.score;
       score_grade = gated.grade;
+    } catch {
+      // Non-fatal — store the row without a score
+    }
+  }
+
+  // ── Alcohol scoring ──────────────────────────────────────────────────────────
+  // Alcohol uses a dedicated fitness engine (ABV / calorie / carb / ingredient
+  // cleanliness), NOT the food scorer — so alcohol rows would otherwise stay null.
+  // Scored from the FULL OFF nutriments (n) so carbohydrates + alcohol_100g feed the
+  // score even though nutrition_data persists only the food subset. Where OFF omits
+  // ABV/carbs the engine falls back to neutral defaults (score reflects available
+  // data, not fabricated numbers). Emits an alcohol grade (Clean Pour/Moderate/
+  // Heavy/Avoid) — the grade readers already branch on is_alcohol.
+  if (gorilla_score === null && alcohol && !supplement) {
+    try {
+      const res = computeAlcoholScore(
+        n as Parameters<typeof computeAlcoholScore>[0],
+        (p.ingredients_text as string) ?? undefined,
+        detectAlcoholKind(cats)
+      );
+      gorilla_score = res.score;
+      score_grade = res.grade;
     } catch {
       // Non-fatal — store the row without a score
     }
