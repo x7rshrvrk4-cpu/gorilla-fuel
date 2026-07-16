@@ -11,19 +11,34 @@ import type { UpsertPayload } from "./productCache";
  *  Stored on every cache row so rescore-all can target stale entries. */
 export const ALGO_VERSION = "v2.3";
 
-const ALCOHOL_KW = [
-  "beer", "wine", "spirit", "cider", "seltzer", "alcoholic", "liqueur",
-  "whisky", "whiskey", "vodka", "rum", "gin", "tequila", "brandy", "mead",
-];
+// Whole-token alcohol category match. OFF pluralizes its category heads
+// (en:beers, en:red-wines, en:ciders, en:rums), so we match those delimited
+// TOKENS — never substrings. Substring matching mislabeled any tag that merely
+// CONTAINS an alcohol word: "gin"→virgin-olive-oils / ginger, "cider"→cider-
+// vinegars, "wine"→wine-vinegars, "beer"→ginger-ales. The ambiguous singulars
+// (cider/wine/beer/rum) are omitted because they appear as food MODIFIERS
+// (cider-vinegar, rum-raisin); their plural category heads still match. The
+// unambiguous ones (gin/vodka/whisky/…) keep both forms. "alcoholic" is guarded
+// against "non-alcoholic"/"alcohol-free" below.
+const ALCOHOL_TOKENS = new Set([
+  "beers", "wines", "spirits", "ciders", "seltzer", "seltzers",
+  "liqueur", "liqueurs", "whisky", "whiskies", "whiskey", "whiskeys",
+  "vodka", "vodkas", "rums", "gin", "gins", "tequila", "tequilas",
+  "brandy", "brandies", "mead", "meads", "alcoholic",
+]);
+const NON_ALCOHOL_TAG_RE = /non[-\s]?alcohol|alcohol[-\s]?free|spirit[-\s]?free|de-?alcohol|dealcohol/;
 const SUPPLEMENT_KW = [
   "supplement", "vitamin", "protein", "creatine", "pre-workout",
   "amino", "bcaa", "collagen", "probiotic", "omega",
 ];
 
 export function isOffAlcohol(categoriesTags: string[]): boolean {
-  return categoriesTags.some((c) =>
-    ALCOHOL_KW.some((kw) => c.toLowerCase().includes(kw))
-  );
+  return categoriesTags.some((c) => {
+    const t = c.toLowerCase();
+    // A "non-alcoholic"/"alcohol-free" tag is explicitly NOT alcohol.
+    if (NON_ALCOHOL_TAG_RE.test(t)) return false;
+    return t.split(/[:\-\s]+/).some((tok) => ALCOHOL_TOKENS.has(tok));
+  });
 }
 
 // ── Name/ABV alcohol fallback ────────────────────────────────────────────────
