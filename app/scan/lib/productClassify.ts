@@ -26,7 +26,10 @@ const ALCOHOL_TOKENS = new Set([
   "vodka", "vodkas", "rums", "gin", "gins", "tequila", "tequilas",
   "brandy", "brandies", "mead", "meads", "alcoholic",
 ]);
-const NON_ALCOHOL_TAG_RE = /non[-\s]?alcohol|alcohol[-\s]?free|spirit[-\s]?free|de-?alcohol|dealcohol/;
+// Explicit non-alcohol markers, plus root-beer/ginger-beer sodas that share the
+// plural "beers" category head but are non-alcoholic (a plain "en:beers" tag,
+// with no root/ginger prefix, still classifies as alcohol).
+const NON_ALCOHOL_TAG_RE = /non[-\s]?alcohol|alcohol[-\s]?free|spirit[-\s]?free|de-?alcohol|dealcohol|root[-\s]?beers?|ginger[-\s]?beers?/;
 const SUPPLEMENT_KW = [
   "supplement", "vitamin", "protein", "creatine", "pre-workout",
   "amino", "bcaa", "collagen", "probiotic", "omega",
