@@ -341,6 +341,7 @@ export type BeautyScoreResult = {
  */
 export function computeBeautyScore(ingredientsText: string | undefined | null): BeautyScoreResult {
   const text = ingredientsText ?? "";
+  const hasIngredients = text.trim().length > 0;
   const detected: BeautyIngredientInfo[] = [];
   let score = 100;
 
@@ -364,6 +365,12 @@ export function computeBeautyScore(ingredientsText: string | undefined | null): 
 
   score = Math.max(0, Math.min(100, score));
 
+  // Thin-data cap: an absent ingredient list can't be verified clean — a perfect
+  // 100 would present absence of data as evidence of safety. Cap at 65 (mirrors the
+  // food thin-data ceiling, scoring.ts:2430) when nothing was scanned. Conservative,
+  // not punitive; detection penalties and the dictionary are untouched.
+  if (!hasIngredients) score = Math.min(score, 65);
+
   const flags: string[] = [];
   const positives: string[] = [];
 
@@ -383,9 +390,11 @@ export function computeBeautyScore(ingredientsText: string | undefined | null): 
     if (parabens.length > 0) flags.push(`${parabens.length} paraben${parabens.length > 1 ? "s" : ""} detected: ${parabens.map((d) => d.name).join(", ")}`);
     if (allergens.length > 0) flags.push(`${allergens.length} allergen/sensitizer source${allergens.length > 1 ? "s" : ""} detected: ${allergens.map((d) => d.name).join(", ")}`);
     if (irritants.length > 0) flags.push(`${irritants.length} known irritant${irritants.length > 1 ? "s" : ""} detected: ${irritants.map((d) => d.name).join(", ")}`);
-  } else {
+  } else if (hasIngredients) {
     positives.push("No flagged irritants, allergens, endocrine disruptors, or parabens detected in the ingredients list");
   }
+  // When no ingredient list was available, push no false-clean positive — the card
+  // renders an honest "no data" empty-state + its Limited-data banner instead.
 
   return { score, grade: gradeFromScore(score), detected, flags, positives };
 }

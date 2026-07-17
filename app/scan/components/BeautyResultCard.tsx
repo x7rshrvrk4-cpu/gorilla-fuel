@@ -148,6 +148,8 @@ export default function BeautyResultCard({ product, result }: Props) {
                 </li>
               ))}
             </ul>
+          ) : noIngredients ? (
+            <p className="mt-3 text-sm text-muted">No ingredient list on file — nothing could be verified.</p>
           ) : (
             <p className="mt-3 text-sm text-muted">Nothing flagged. Clean sheet.</p>
           )}
@@ -186,6 +188,8 @@ export default function BeautyResultCard({ product, result }: Props) {
               <BeautyIngredientCard key={ingredient.id} ingredient={ingredient} />
             ))}
           </div>
+        ) : noIngredients ? (
+          <p className="mt-3 text-sm text-muted">No ingredient list on file — these cosmetic concerns could not be screened.</p>
         ) : (
           <p className="mt-3 text-sm text-muted">None of our flagged irritants, allergens, endocrine disruptors, or parabens were found in the ingredients list.</p>
         )}
