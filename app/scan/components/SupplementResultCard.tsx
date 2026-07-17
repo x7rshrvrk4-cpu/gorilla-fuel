@@ -2,6 +2,7 @@
 
 import type { NihDsldProduct } from "../../api/nihdsl/route";
 import SourceBadge from "./SourceBadge";
+import { supplementSafetyFlags } from "../lib/supplementSafety";
 
 type Props = {
   product: NihDsldProduct;
@@ -12,6 +13,18 @@ const INFORMED_CERTS = new Set(["informed sport", "informed choice", "informed p
 
 export default function SupplementResultCard({ product }: Props) {
   const certs = product.certifications ?? [];
+
+  // Display-only safety flags, computed live from the label text (no score, no DB).
+  const safetyFlags = supplementSafetyFlags(
+    [
+      product.productName,
+      ...(product.dietaryIngredients ?? []).map((i) => i.ingredientName),
+      product.otherIngredients,
+      product.labelStatement,
+    ]
+      .filter(Boolean)
+      .join(" | ")
+  );
 
   const hasNsf = certs.some((c) => NSF_CERTS.has(c.toLowerCase()));
   const hasInformed = certs.some((c) => INFORMED_CERTS.has(c.toLowerCase()));
@@ -79,6 +92,25 @@ export default function SupplementResultCard({ product }: Props) {
                 <p className="mt-0.5 font-display text-lg text-foreground">{product.servingsPerContainer}</p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* SAFETY FLAGS — display-only transparency notices (no score) */}
+        {safetyFlags.length > 0 && (
+          <div className="mt-5 rounded-sm border border-amber-500/30 bg-amber-500/8 p-4">
+            <div className="flex items-center gap-2">
+              <svg className="h-3.5 w-3.5 shrink-0 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <p className="font-display text-[10px] uppercase tracking-[0.2em] text-amber-400">Label Transparency</p>
+            </div>
+            <ul className="mt-2 space-y-1.5">
+              {safetyFlags.map((flag, i) => (
+                <li key={i} className="text-xs leading-relaxed text-muted">{flag}</li>
+              ))}
+            </ul>
           </div>
         )}
 
