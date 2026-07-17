@@ -55,6 +55,12 @@ export default function ProductResultCard({ product, result, alternatives, alter
   // categories). Display-only honesty signal; does not affect the score.
   const dataBlind = isDataBlind(product, result.novaGroup);
 
+  // Whether an ingredient list actually existed to scan — mirrors computeScore's
+  // hasIngredientText check. Drives the additive-section empty state so we don't
+  // claim "no flagged additives found in the ingredients list" when there was no
+  // list (absence of data is not evidence of safety — same doctrine as fd61b45).
+  const hasIngredients = !!((product.ingredients_text || product.ingredients_text_en || "").trim());
+
   return (
     <div className="gorilla-card animate-rise overflow-hidden rounded-sm">
       <RecallBanner brand={product.brands} productName={product.product_name} />
@@ -256,8 +262,10 @@ export default function ProductResultCard({ product, result, alternatives, alter
               <AdditiveCard key={additive.id} additive={additive} />
             ))}
           </div>
-        ) : (
+        ) : hasIngredients ? (
           <p className="mt-3 text-sm text-muted">No flagged additives found in the ingredients list.</p>
+        ) : (
+          <p className="mt-3 text-sm text-muted">No ingredient list on file — additives could not be verified.</p>
         )}
       </div>
 
