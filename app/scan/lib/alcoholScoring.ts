@@ -529,8 +529,34 @@ export function computeAlcoholScore(
   const detectedAdditives = detectAlcoholAdditives(ingredientsText);
 
   const cScore = cleanlinessScore(detectedAdditives, hasIngredients, kcalPer100ml, carbsPer100ml);
-  const calScore = calorieDensityScore(kcalPer100ml);
   const carbSc = carbScore(carbsPer100ml);
+
+  // ── Calorie sub-score: per-STANDARD-SERVING for kinds with a realistic pour ──
+  // Per-100mL calorie density unfairly nukes spirits/wine (a 40% spirit is
+  // ~220 kcal/100mL but a real 44mL pour is only ~97 kcal). For the kinds that
+  // HAVE a meaningful standard serving (wine 148 / spirits 44 / cider·seltzer 355),
+  // score calories on the actual pour via the beer per-serving band (calorieServing
+  // Score), NOT the per-100mL band. 'other' is deliberately EXCLUDED: its 355mL
+  // default would punish a misclassified spirit/liqueur as if drunk by the can, so
+  // 'other' keeps the existing per-100mL basis until it is correctly re-kinded.
+  // Primary input = measured energy-kcal_100g; when that's missing, fall back to an
+  // ABV-derived estimate that is FLOORED at the neutral 70 — strength alone never
+  // manufactures a penalty (a standard drink is ~1 std unit ≈ ~90-110 kcal either
+  // way); the estimate can only LIFT a data-blind row out of neutral, never sink it.
+  const SERVING_CALORIE_KINDS: AlcoholKind[] = ["wine", "spirits", "cider", "seltzer"];
+  let calScore: number;
+  if (SERVING_CALORIE_KINDS.includes(kind)) {
+    if (kcalPer100ml !== null) {
+      calScore = calorieServingScore(kcalPerServing); // measured → real pour
+    } else if (abv !== null) {
+      const estServingKcal = round1((abv / 100) * referenceServingMl * 0.789 * 7);
+      calScore = Math.max(70, calorieServingScore(estServingKcal)); // floored fallback
+    } else {
+      calScore = calorieDensityScore(kcalPer100ml); // no data → neutral 70, as before
+    }
+  } else {
+    calScore = calorieDensityScore(kcalPer100ml); // 'other' (+ any non-gated) unchanged
+  }
 
   // ── BEER: fitness-led re-calibration ──────────────────────────────────────
   // Beer calories come from carbs + alcohol, and a big can's TOTAL load matters
