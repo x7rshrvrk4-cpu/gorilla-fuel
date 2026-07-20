@@ -247,7 +247,7 @@ export default function AlcoholClient() {
       <div className="max-w-2xl">
         {isWine ? (
           <>
-            <p className="font-display text-sm tracking-[0.3em] text-rose-400">WINE INTELLIGENCE</p>
+            <p className="font-display text-sm tracking-[0.3em] text-rose-400">ONTARIO WINE INTELLIGENCE</p>
             <h1 className="mt-3 font-display text-5xl leading-[0.95] text-foreground sm:text-6xl">
               The <span className="text-rose-400">Wine</span> Rankings.
             </h1>
@@ -262,7 +262,7 @@ export default function AlcoholClient() {
           </>
         ) : (
           <>
-            <p className="font-display text-sm tracking-[0.3em] text-amber-400">BEER &amp; ALCOHOL INTELLIGENCE</p>
+            <p className="font-display text-sm tracking-[0.3em] text-amber-400">ONTARIO BEER &amp; ALCOHOL INTELLIGENCE</p>
             <h1 className="mt-3 font-display text-5xl leading-[0.95] text-foreground sm:text-6xl">
               The <span className="text-amber-400">Alcohol</span> Rankings.
             </h1>
