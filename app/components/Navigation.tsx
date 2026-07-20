@@ -7,9 +7,10 @@ import { useState, useRef } from "react";
 
 // Primary nav — GORILLA INTEL replaced FOOD
 const PRIMARY_LINKS = [
-  { href: "/scan",     label: "SCAN",        gold: true,  dropdown: false },
-  { href: "/alcohol",  label: "ALCOHOL",     gold: false, dropdown: false },
-  { href: "/energy",   label: "BEVERAGES",   gold: false, dropdown: false },
+  { href: "/scan",       label: "SCAN",       gold: true,  dropdown: false },
+  { href: "/alcohol",    label: "ALCOHOL",    gold: false, dropdown: false },
+  { href: "/bc-liquor",  label: "BC LIQUOR",  gold: false, dropdown: false },
+  { href: "/energy",     label: "BEVERAGES",  gold: false, dropdown: false },
   { href: "/rankings", label: "SUPPLEMENTS", gold: false, dropdown: false },
   { href: "/fitness",  label: "FITNESS",     gold: false, dropdown: false },
   { href: "/caffeine", label: "CAFFEINE",    gold: false, dropdown: false },
@@ -76,7 +77,7 @@ export default function Navigation() {
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden items-center gap-6 md:flex">
+        <div className="hidden items-center gap-6 xl:flex">
           {PRIMARY_LINKS.map((link) => {
             const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
             return link.gold ? (
@@ -155,7 +156,7 @@ export default function Navigation() {
           aria-label="Toggle navigation menu"
           aria-expanded={mobileOpen}
           onClick={() => setMobileOpen((v) => !v)}
-          className="flex flex-col gap-1.5 p-2 md:hidden"
+          className="flex flex-col gap-1.5 p-2 xl:hidden"
         >
           <span className={`h-0.5 w-6 bg-gold transition-transform ${mobileOpen ? "translate-y-2 rotate-45" : ""}`} />
           <span className={`h-0.5 w-6 bg-gold transition-opacity ${mobileOpen ? "opacity-0" : ""}`} />
@@ -165,7 +166,7 @@ export default function Navigation() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="border-t border-line bg-background px-5 pb-6 md:hidden">
+        <div className="border-t border-line bg-background px-5 pb-6 xl:hidden">
           <div className="flex flex-col gap-1 pt-4">
             {PRIMARY_LINKS.map((link) => {
               const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
