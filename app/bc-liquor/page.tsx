@@ -1,27 +1,66 @@
 import type { Metadata } from "next";
-import { getBcLiquor, getBcLiquorCounts, BC_KINDS } from "../lib/bcLiquor";
+import {
+  getBcLiquor,
+  getBcLiquorCounts,
+  getBcLiquorFilteredCount,
+  getBcCountries,
+  BC_KINDS,
+  WINE_STYLES,
+  SWEETNESS_BUCKETS,
+  BEER_TIERS,
+  type BcFilters,
+} from "../lib/bcLiquor";
 import BcLiquorClient from "./BcLiquorClient";
 
 export const metadata: Metadata = {
   title: "BC Liquor Catalogue — Gorilla Fuel",
   description:
-    "Browse the British Columbia Liquor Distribution Branch (BCLDB) product list — 8,000+ wines, spirits, beers and coolers with ABV, price and origin. British Columbia availability — separate from the Ontario rankings.",
+    "Browse the British Columbia Liquor Distribution Branch (BCLDB) product list — 8,000+ wines, spirits, beers and coolers with ABV, price and origin. Filter by BC-made, wine style, craft-beer tier, sweetness and country. BC availability — separate from the Ontario rankings.",
   alternates: { canonical: "/bc-liquor" },
 };
 
-// ISR-cached fetches, but the page reads searchParams (kind filter) so it renders
-// dynamically per filter. Underlying bc_liquor fetches are revalidated hourly.
+// ISR-cached fetches; page renders dynamically per filter (reads searchParams).
 export const revalidate = 3600;
 
 const LIMIT = 500;
 
-export default async function BcLiquorPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ kind?: string }>;
-}) {
-  const { kind } = await searchParams;
-  const activeKind = kind && (BC_KINDS as readonly string[]).includes(kind) ? kind : null;
-  const [counts, rows] = await Promise.all([getBcLiquorCounts(), getBcLiquor(activeKind, LIMIT)]);
-  return <BcLiquorClient counts={counts} rows={rows} activeKind={activeKind} limit={LIMIT} />;
+type SP = {
+  kind?: string;
+  bc?: string;
+  style?: string;
+  sweet?: string;
+  tier?: string;
+  country?: string;
+};
+
+export default async function BcLiquorPage({ searchParams }: { searchParams: Promise<SP> }) {
+  const sp = await searchParams;
+
+  // Validate every param against the known facet vocab (ignore anything unrecognized).
+  const kind = sp.kind && (BC_KINDS as readonly string[]).includes(sp.kind) ? sp.kind : null;
+  const bcWine = sp.bc === "1" && (kind === "wine" || kind === null);
+  const style = sp.style && WINE_STYLES.some((s) => s.key === sp.style) ? sp.style : null;
+  const sweet = sp.sweet && SWEETNESS_BUCKETS.some((s) => s.key === sp.sweet) ? sp.sweet : null;
+  const tier = sp.tier && BEER_TIERS.some((t) => t.key === sp.tier) ? sp.tier : null;
+  const country = sp.country ? sp.country : null;
+
+  const filters: BcFilters = { kind, bcWine, style, sweet, tier, country };
+
+  const [counts, countries, rows, filteredTotal] = await Promise.all([
+    getBcLiquorCounts(),
+    getBcCountries(),
+    getBcLiquor(filters, LIMIT),
+    getBcLiquorFilteredCount(filters),
+  ]);
+
+  return (
+    <BcLiquorClient
+      counts={counts}
+      countries={countries}
+      rows={rows}
+      filters={filters}
+      filteredTotal={filteredTotal}
+      limit={LIMIT}
+    />
+  );
 }
