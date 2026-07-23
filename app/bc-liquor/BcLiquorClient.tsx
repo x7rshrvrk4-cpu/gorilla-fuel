@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import BackToTop from "../components/BackToTop";
 import {
   BC_KINDS,
   WINE_STYLES,
@@ -282,6 +283,8 @@ export default function BcLiquorClient({ counts, countries, rows, filters, filte
         structured fields. Sweetness bands approximate the BCLDB 0–10 sweetness scale. Catalogue data for browsing
         only — not a purchase or availability guarantee.
       </p>
+
+      <BackToTop />
     </div>
   );
 }
