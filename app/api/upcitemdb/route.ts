@@ -54,7 +54,14 @@ export async function GET(request: NextRequest) {
       code: barcode,
       product_name: item.title,
       brands: item.brand ?? undefined,
-      ingredients_text: item.description ?? undefined,
+      // NOTE: item.description is deliberately NOT mapped to ingredients_text.
+      // UPCitemdb's `description` is marketing prose ("…made with no artificial
+      // colours or flavours…"), not an ingredient list. Feeding it to the additive
+      // detector produced negation-blind false positives (a "no artificial colours"
+      // claim matched the "Artificial colours" additive) AND falsely satisfied the
+      // hasIngredientText check, disabling the additivesUnverified conservative cap
+      // (→50). Leaving ingredients_text empty is correct: UPCitemdb has no real
+      // ingredient list, so the unverified cap applies and no prose-derived flags fire.
       nutriments: {},
       categories_tags: category ? [`en:${category}`] : [],
     };
