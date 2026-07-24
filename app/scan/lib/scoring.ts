@@ -1821,13 +1821,22 @@ export function scoreNutrition(
   }
 
   // ── Positive signals ─────────────────────────────────────────────────────
+  // Severe-sugar gate: a product carrying a severe sugar flag (>20 g/100g — the
+  // same threshold as the per-100g concentration penalty above, minus intrinsic
+  // whole-fruit sugar) does NOT earn the fiber/protein bonus. Otherwise a sugary
+  // bar/cereal/powder uses its fiber/protein density to cancel the sugar penalty
+  // straight back to "clean" (CLIFF BAR: +10 offsetting −25 sugar → 85). The
+  // positives are still SHOWN (the fiber/protein is genuinely present) — only the
+  // score credit is withheld. Genuinely lean high-fiber/protein foods WITHOUT
+  // severe sugar keep the bonus exactly as before.
+  const severeSugar = !wholeFoodSugarWaive && sugar > 20;
   if (fiber > 2.5) {
-    score += 5;
+    if (!severeSugar) score += 5;
     positives.push(`Good fiber content — ${fiber.toFixed(1)}g per 100g`);
   }
 
   if (protein > 15) {
-    score += 5;
+    if (!severeSugar) score += 5;
     positives.push(`Strong protein content — ${protein.toFixed(1)}g per 100g`);
   }
 
@@ -1835,17 +1844,23 @@ export function scoreNutrition(
     positives.push("No major nutrition red flags detected");
   }
 
-  // ── Hard cap: 2+ severe per-100g flags → nutrition score ≤ 55 ────────────
+  // ── Hard cap: severe macro flags → nutrition score ≤ 55 ──────────────────
   // A product cannot claim nutritional credibility while simultaneously
   // triggering multiple severe macro flags. This prevents protein-bonus inflation
   // from rescuing high-satfat, high-sodium dairy products to "Good" territory.
+  // SUGAR is additionally sufficient on its OWN: a severe sugar flag (>20 g/100g,
+  // intrinsic whole-fruit sugar excluded) triggers the cap even with no second
+  // flag — a very-high-sugar product can't grade nutritionally credible on
+  // fiber/protein density alone. The other three flags (sat-fat/salt/calorie)
+  // KEEP the 2-flag requirement — this does NOT newly cap high-sodium-only or
+  // high-calorie-only products.
   const severeCount = [
     satFat > 10,
     salt > 1.5,
     sugar > 20,
     calories > 400,
   ].filter(Boolean).length;
-  if (severeCount >= 2) {
+  if (severeCount >= 2 || severeSugar) {
     score = Math.min(score, 55);
   }
 
