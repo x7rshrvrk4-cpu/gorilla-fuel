@@ -15,7 +15,12 @@
 import { config } from "dotenv"; config({ path: ".env.local", override: true });
 import { randomUUID } from "node:crypto";
 import { computeScore as computeNew, type Nutriments } from "../app/scan/lib/scoring";
-import { computeScore as computeOld } from "../app/scan/lib/_scoring_old";
+// The pre-fix scorer is a THROWAWAY snapshot, regenerated before each run and NOT
+// committed (it would be a stale duplicate of scoring.ts). Loaded dynamically via a
+// computed path so a normal build type-checks cleanly when the snapshot is absent.
+// Regenerate before running:
+//   git show 76c9a8c~1:app/scan/lib/scoring.ts > app/scan/lib/_scoring_old.ts
+let computeOld: typeof computeNew;
 import { applyScoringGate } from "../app/scan/lib/curatedScores";
 import { ALGO_VERSION } from "../app/scan/lib/productClassify";
 
@@ -36,13 +41,17 @@ type Row = { barcode: string; product_name: string|null; brand: string|null; cat
 function scoreBoth(row: Row) {
   let cats: string[] = []; try { cats = JSON.parse(row.categories ?? "[]"); } catch {}
   const ctx = { servingSize: row.serving_size, novaGroup: row.nova_group, labelsTags: row.labels_tags, categoriesTags: cats, productName: row.product_name ?? "", additivesTags: null };
-  const gate = (fin: number, nova: number) => applyScoringGate(fin, { barcode: row.barcode, productName: row.product_name ?? "", brand: row.brand, ingredientsText: row.ingredients_text, categoriesTags: cats, novaGroup: row.nova_group ?? nova, nutriments: row.nutrition_data! });
+  const gate = (fin: number, nova: number | null) => applyScoringGate(fin, { barcode: row.barcode, productName: row.product_name ?? "", brand: row.brand, ingredientsText: row.ingredients_text, categoriesTags: cats, novaGroup: row.nova_group ?? nova ?? undefined, nutriments: row.nutrition_data! });
   const oB = computeOld(row.nutrition_data!, row.ingredients_text, ctx); const oldOut = gate(oB.finalScore, oB.novaGroup);
   const nB = computeNew(row.nutrition_data!, row.ingredients_text, ctx); const newOut = gate(nB.finalScore, nB.novaGroup);
   return { oldOut, newOut };
 }
 
 async function main() {
+  // Non-literal specifier → the type-checker does not resolve it, so the build stays
+  // green without the snapshot; at runtime the snapshot must exist (see note above).
+  try { ({ computeScore: computeOld } = await import("../app/scan/lib/" + "_scoring_old")); }
+  catch { console.error("Missing app/scan/lib/_scoring_old.ts snapshot — regenerate:\n  git show 76c9a8c~1:app/scan/lib/scoring.ts > app/scan/lib/_scoring_old.ts"); process.exit(1); }
   console.log(`♻️  Recompute sugar-gate — ${DRY ? "DRY-RUN" : "WRITE"} | algo ${ALGO_VERSION} | batch ${BATCH_ID}\n`);
   const changes: any[] = []; let scanned = 0, curated = 0, errors = 0, benchSeen: string[] = [], scopeViol = 0;
   for (let off = 0; ; off += BATCH) {
