@@ -1820,6 +1820,32 @@ export function scoreNutrition(
     );
   }
 
+  // ── LEVER 1 — disclosed-zero-sodium skepticism (gated to prepared/meat shape) ──
+  // A DISCLOSED salt_100g of exactly 0 (not missing — that path is handled above) is
+  // implausible on a prepared/processed item: cured meats, sausages, and deli items
+  // are sodium-dense, so a reported 0 is almost always a data error that silently
+  // skips every sodium band. Fire ONLY when the macro signature looks prepared —
+  // protein >8 AND fat >3 AND calories >120 per 100g — and NEVER for whole foods,
+  // low-cal condiments, or pure oils (a genuinely 0-sodium fruit/veg/oil is exempt).
+  // Treat as UNVERIFIED, not worst-case: a modest −12 (same magnitude as one missing
+  // critical nutrient above), withholding the free "clean sodium" credit without
+  // assuming a specific high value. Category-agnostic — keys on macros only.
+  // fiber ≤2 discriminates a meat/prepared shape from high-fiber whole plant foods:
+  // unsalted nuts/seeds/legumes share the protein+fat+calorie signature but carry
+  // real fiber (almonds ~12g), so this keeps them completely exempt even if
+  // isWholeFood() misses them. Cured/prepared meat is ~0 fiber.
+  const fatForShape = (n as Record<string, number | undefined>)["fat_100g"] ?? satFat;
+  const zeroSodiumSkeptical =
+    n.salt_100g === 0 &&
+    protein > 8 && fatForShape > 3 && calories > 120 && fiber <= 2 &&
+    !isWholeFood(n, context) && !lowCalCondiment && !isPureOil;
+  if (zeroSodiumSkeptical) {
+    score -= 12;
+    flags.push(
+      "Sodium reported as 0 g on a prepared/meat-shaped product — implausible for this macro profile; treated as unverified rather than clean, so no low-sodium credit is given."
+    );
+  }
+
   // ── Positive signals ─────────────────────────────────────────────────────
   // Severe-sugar gate: a product carrying a severe sugar flag (>20 g/100g — the
   // same threshold as the per-100g concentration penalty above, minus intrinsic
