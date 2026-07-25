@@ -1313,6 +1313,10 @@ export type ScoringContext = {
   brand?: string | null;
   /** Open Food Facts additives_tags (language-neutral E-codes, e.g. "en:e407") — a primary, language-independent additive signal. */
   additivesTags?: string[] | null;
+  /** Ingredient text, threaded from computeScore so the sodium-concentration bands can
+   *  gate on thin data (empty/absent ingredients) — the same signal additivesUnverified
+   *  uses. Read-only for scoring; never the scanner. */
+  ingredientsText?: string | null;
 };
 
 const ORGANIC_TAG_PATTERN = /organic|\bbio\b|biologique|ecologico|ekologisk/i;
@@ -1709,9 +1713,24 @@ export function scoreNutrition(
       score -= 10;
       flags.push(`Very sugar-dense product — ${sugar.toFixed(1)}g sugar per 100g`);
     }
-    if (salt > 2) {
-      score -= 10;
+    // Salt concentration (per-100g), GATED ON THIN DATA. When no ingredient list is
+    // available (the same signal additivesUnverified uses), deepen the penalty in
+    // tiers — a sodium-dense product whose small serving diluted the per-serving band
+    // into a mild tier (a 25g meat stick at 3.4g salt/100g reads only ~340mg/serving)
+    // gets penalised on its true density. Documented products (ingredient list present)
+    // are TRUSTED and keep the existing flat −10, fully unchanged. Consistent with the
+    // additivesUnverified doctrine: unverified data scored conservatively, documented
+    // data taken at face value.
+    const saltThinData = !(context?.ingredientsText && context.ingredientsText.trim().length > 0);
+    if (saltThinData && salt > 4) {
+      score -= 25;
+      flags.push(`Extreme salt concentration — ${salt.toFixed(2)}g per 100g`);
+    } else if (saltThinData && salt > 3) {
+      score -= 20;
       flags.push(`Very high salt concentration — ${salt.toFixed(2)}g per 100g`);
+    } else if (salt > 2) {
+      score -= saltThinData ? 15 : 10;
+      flags.push(`${saltThinData ? "High" : "Very high"} salt concentration — ${salt.toFixed(2)}g per 100g`);
     }
     if (satFat > 20) {
       score -= 20;
@@ -2140,7 +2159,7 @@ export function computeScore(
     ? { ...(context ?? {}), novaGroup: 3 }
     : context;
 
-  const nutrition = scoreNutrition(nutriments, effContext);
+  const nutrition = scoreNutrition(nutriments, { ...effContext, ingredientsText });
   const additives = scoreAdditives(ingredientsText, context?.additivesTags);
 
   const organicCertified = detectOrganicCertification(context);
