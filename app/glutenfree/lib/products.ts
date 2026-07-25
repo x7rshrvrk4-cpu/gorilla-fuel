@@ -41,12 +41,26 @@ export const GF_BREADS: GfFoodProduct[] = [
     amazonQuery: "Little Northern Bakehouse Millet Chia bread" },
   { id: "schar-artisan-white", name: "Schär Artisan Baker White", tier: "Better Options", score: 45, grade: "C", certifiedGf: true,
     blurb: "Rice flour and potato starch base. Low fiber but no artificial additives. The most widely available GF bread in Canada. Fine if you need it, but not nutritious." },
+  // ── DRAFT additions 2026-07-25 (cache/OFF nutrition-only scoring; NO verified ingredient
+  //    list for Queen Street / Little Stream) — certifiedGf/naturallyGf/canadian left UNSET:
+  //    verify GF certification + origin against packaging before flagging. ──
+  { id: "carbonaut-seeded-bread", name: "Carbonaut Seeded Bread", tier: "Better Options", score: 60, grade: "B",
+    blurb: "Scores 60 (Moderate). Standout macros for a gluten free bread — 23.5g fibre and 19g protein per 100g with zero sugar, well above the starch-based GF breads it sits beside. About 235 kcal per 100g, low saturated fat, moderate sodium (1.0g salt/100g). Score reflects the nutrition profile.",
+    amazonQuery: "Carbonaut Seeded Bread gluten free" },
+  { id: "queen-street-superfood-english-muffin", name: "Queen Street Bakery Superfood English Muffin", tier: "Better Options", score: 60, grade: "B",
+    blurb: "Scores 60 (Moderate). 10g fibre per 100g is well above typical GF baked goods, with modest protein (6.3g/100g), low sugar (3.8g/100g) and low saturated fat; about 250 kcal per 100g. No ingredient list on file — scored on the nutrition panel only.",
+    amazonQuery: "Queen Street Bakery Superfood English Muffin gluten free" },
   { id: "udis-white-sandwich", name: "Udi's Gluten Free White Sandwich Bread", tier: "Honest Assessments", score: 38, grade: "D", certifiedGf: true,
     blurb: "Tapioca starch and rice flour base. Low fiber, high glycemic, added sugar. Very common in Canada but nutritionally poor. Certified GF — but the GF label doesn't fix the nutrition." },
   { id: "pc-gf-white-bread", name: "PC Gluten Free White Bread", tier: "Honest Assessments", score: 36, grade: "D", certifiedGf: true, canadian: true,
     blurb: "Corn starch, tapioca starch, rice flour — three refined starches as primary ingredients. Zero fiber. Available at Loblaws." },
   { id: "kinnikinnick-white-sandwich", name: "Kinnikinnick White Sandwich Bread", tier: "Honest Assessments", score: 35, grade: "D", certifiedGf: true, canadian: true,
     blurb: "Tapioca and rice starch dominant. Very low fiber, very high glycemic. Certified GF but nutritionally one of the weakest options on this list." },
+  // ── DRAFT addition 2026-07-25 (cache nutrition-only scoring; NO verified ingredient list) —
+  //    certifiedGf/naturallyGf/canadian left UNSET: verify against packaging before flagging. ──
+  { id: "little-stream-buckwheat-loaf", name: "Little Stream Bakery Buckwheat Loaf", tier: "Honest Assessments", score: 42, grade: "C",
+    blurb: "Scores 42. Decent fibre (6.9g/100g) and protein (7.9g/100g) for a gluten free loaf and low in saturated fat, but the overall profile lands mid-pack rather than standout. About 219 kcal per 100g. No ingredient list on file — scored on the nutrition panel only.",
+    amazonQuery: "Little Stream Bakery Buckwheat Loaf gluten free" },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
