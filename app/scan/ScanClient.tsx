@@ -543,6 +543,11 @@ export default function ScanClient() {
                 ingredients_text: cached.ingredients_text ?? undefined,
                 nutriments: (cached.nutrition_data as Nutriments) ?? {},
                 nova_group: cached.nova_group ?? undefined,
+                // Thread serving_size through so the cache-hit rescore uses the SAME
+                // per-serving macro bands the stored (ingest-time) score used — without
+                // it, computeScore falls back to serving-blind per-100g bands and drifts
+                // from the stored/search score (e.g. Oasis apple juice 70 → 85).
+                serving_size: cached.serving_size ?? undefined,
                 image_front_url: cached.image_url ?? undefined,
               };
               // computeScore is re-run (not using cached.gorilla_score) because the

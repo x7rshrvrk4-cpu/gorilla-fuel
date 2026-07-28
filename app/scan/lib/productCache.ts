@@ -98,6 +98,10 @@ export type CachedProduct = {
   gorilla_score: number | null;
   score_grade: string | null;
   nova_group: number | null;
+  /** Raw OFF serving-size string (e.g. "250ml"). lookupProductCache does SELECT * so
+   *  this is already returned at runtime — declared here so the cache-hit rescore path
+   *  can thread it into scoringContext() and use per-serving (not per-100g) macro bands. */
+  serving_size: string | null;
   data_source: string | null;
   image_url: string | null;
   is_alcohol: boolean;
