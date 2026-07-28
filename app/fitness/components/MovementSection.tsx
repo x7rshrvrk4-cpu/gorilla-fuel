@@ -51,6 +51,23 @@ export default function MovementSection({ plan }: { plan: Plan }) {
         <p className="text-[10px] uppercase tracking-[0.2em] text-gold">How to level up</p>
         <p className="mt-1 text-sm leading-relaxed text-muted">{plan.progression}</p>
       </div>
+
+      {/* ── Attribution ────────────────────────────────────────────────────────
+          RepDB free-tier license requires a visible credit link wherever its
+          illustrations appear. Ours are algorithmically recolored (duotone) for the
+          dark theme — the source art is RepDB's. */}
+      <p className="text-[10px] leading-relaxed text-muted/50">
+        Exercise illustrations by{" "}
+        <a
+          href="https://repdb.co/free-exercise-dataset"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-gold"
+        >
+          RepDB (repdb.co)
+        </a>
+        , recolored to match the theme.
+      </p>
     </div>
   );
 }
