@@ -1,12 +1,11 @@
 // Exercise library — the movement vocabulary the fitness plans compose from.
 // Plans reference these by `id` (see plans.ts `exercises`), so a movement is
-// defined exactly once here. `imageSlot` holds a gold/dark duotone illustration
-// (RepDB free-tier art, deterministically recolored — see scripts/_recolor_exercises.mjs)
-// for 23 of the 27 movements; the remaining 4 (Wall Sit, Plank, Side Plank, Standing
-// Oblique Twist) stay null and the UI renders a gorilla-branded placeholder, as no
-// honest RepDB substitute exists for them. Seven movements were swapped to the closest
-// bodyweight-equivalent RepDB movement (name/formCue updated, `id` kept stable) — those
-// entries are marked with a `substitute:` comment.
+// defined exactly once here. Every `imageSlot` holds a gold/dark duotone illustration
+// (RepDB free-tier art, deterministically recolored — see scripts/_recolor_exercises.mjs);
+// all 27 movements are illustrated (zero placeholders). Eleven movements were swapped to
+// the closest bodyweight-equivalent RepDB movement because their own name/family had no
+// free-tier art (name/formCue updated, `id` kept stable for plans.ts) — those entries are
+// marked with a `substitute:` comment. No source image is used by more than one entry.
 //
 // Data only. No UI, no React.
 
@@ -74,10 +73,11 @@ export const EXERCISES: Exercise[] = [
     difficulty: "gentle",
   },
   {
+    // substitute: RepDB "side-lunge" art (lateral lower-body strength; no isometric wall-sit art exists)
     id: "wall-sit",
-    name: "Wall Sit",
-    formCue: "Slide down a wall until thighs are parallel to the floor, knees over ankles. Hold, breathing steadily — don't rest hands on legs.",
-    imageSlot: null,
+    name: "Side Lunge",
+    formCue: "Stand tall, step wide to one side and sit the hips back into that leg while the other stays straight, both feet flat. Push back to center. Chest up, knee tracking over the toes.",
+    imageSlot: "/exercises/wall-sit.png",
     difficulty: "gentle",
   },
   {
@@ -124,10 +124,11 @@ export const EXERCISES: Exercise[] = [
     difficulty: "gentle",
   },
   {
+    // substitute: RepDB "flutter-kicks" art (core; the free tier has no unused rotational/oblique art left)
     id: "standing-oblique-twist",
-    name: "Standing Oblique Twist",
-    formCue: "Feet shoulder-width, hands at your chest or behind your head, rotate the torso side to side from the waist. Keep hips facing forward.",
-    imageSlot: null,
+    name: "Flutter Kicks",
+    formCue: "Lie on your back, hands tucked under your hips, legs straight and lifted a few inches off the floor. Alternate small, quick up-and-down kicks while pressing your lower back into the floor.",
+    imageSlot: "/exercises/standing-oblique-twist.png",
     difficulty: "gentle",
   },
 
@@ -175,17 +176,19 @@ export const EXERCISES: Exercise[] = [
     difficulty: "moderate",
   },
   {
+    // substitute: RepDB "v-ups" art (core; no plank-family art exists anywhere in the free tier)
     id: "plank",
-    name: "Plank",
-    formCue: "Forearms under shoulders, body a straight line from head to heels. Squeeze glutes and brace the core — don't let hips sag or pike.",
-    imageSlot: null,
+    name: "V-Ups",
+    formCue: "Lie flat with arms extended overhead. In one motion lift your legs and torso to meet over your hips, reaching your hands toward your feet, then lower under control. Smooth, not jerky.",
+    imageSlot: "/exercises/plank.png",
     difficulty: "moderate",
   },
   {
+    // substitute: RepDB "side-lying-hip-abduction" art (lateral core/hip; closest side-oriented move with art)
     id: "side-plank",
-    name: "Side Plank",
-    formCue: "Stack shoulder over elbow, lift hips so your body is a straight diagonal line. Hold steady; keep the top shoulder pulled back.",
-    imageSlot: null,
+    name: "Side-Lying Hip Abduction",
+    formCue: "Lie on your side, body in a straight line, propped on your forearm. Lift the top leg straight up as high as you can control, then lower slowly. Keep hips stacked — don't roll back.",
+    imageSlot: "/exercises/side-plank.png",
     difficulty: "moderate",
   },
   {
