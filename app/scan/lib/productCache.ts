@@ -34,6 +34,14 @@
  * --   add column if not exists algorithm_version  text;
  * -- create index if not exists gorilla_cache_algo_idx
  * --   on public.gorilla_product_cache (algorithm_version);
+ * --
+ * -- countries_tags (Phase-1 UK expansion): JSON-encoded string[] of OFF country
+ * -- tags, e.g. '["en:united-kingdom","en:canada"]'. Stored as text to match how
+ * -- `categories` is persisted (JSON.stringify'd array) so PostgREST ilike filters
+ * -- work uniformly. Additive/non-destructive: existing 46k rows get NULL; new
+ * -- imports populate it. NO backfill in this migration (separate optional job).
+ * -- alter table public.gorilla_product_cache
+ * --   add column if not exists countries_tags text;
  *
  * create index if not exists gorilla_product_cache_barcode_idx
  *   on public.gorilla_product_cache (barcode);
@@ -93,6 +101,10 @@ export type CachedProduct = {
   brand: string | null;
   /** JSON-encoded string[] — parse with tryParseCategories() */
   categories: string | null;
+  /** JSON-encoded string[] of OFF country tags (e.g. ["en:united-kingdom"]).
+   *  Null on all pre-Phase-1 rows (never backfilled); populated on new imports.
+   *  Parse with tryParseCategories() — same JSON-array-in-text encoding. */
+  countries_tags: string | null;
   ingredients_text: string | null;
   nutrition_data: Nutriments | null;
   gorilla_score: number | null;
@@ -242,6 +254,8 @@ export type UpsertPayload = {
   product_name?: string | null;
   brand?: string | null;
   categories?: string | null;
+  /** JSON-encoded string[] of OFF country tags. Optional — omitted for non-OFF sources. */
+  countries_tags?: string | null;
   ingredients_text?: string | null;
   nutrition_data?: Nutriments | null;
   gorilla_score?: number | null;

@@ -145,6 +145,11 @@ export function buildOffRow(p: Record<string, unknown>): UpsertPayload | null {
   // organic bonus can fire on imported products.
   const labels: string[] = Array.isArray(p.labels_tags) ? (p.labels_tags as string[]) : [];
 
+  // Country tags (Phase-1 UK expansion). Stored JSON-encoded (same convention as
+  // `categories`) so the origin of an imported row is self-documenting and the
+  // Canada-first Top ranking can filter UK-tagged rows without brand guessing.
+  const countries: string[] = Array.isArray(p.countries_tags) ? (p.countries_tags as string[]) : [];
+
   const n = (p.nutriments as Record<string, number> | undefined) ?? {};
   // Physical-plausibility guard: salt cannot exceed 100 g/100g (pure NaCl). OFF
   // scale-error garbage (e.g. Monster Energy salt_100g = 92500, a mg-as-g error)
@@ -264,6 +269,7 @@ export function buildOffRow(p: Record<string, unknown>): UpsertPayload | null {
     product_name: (p.product_name as string) || null,
     brand: (p.brands as string) || null,
     categories: cats.length > 0 ? JSON.stringify(cats) : null,
+    countries_tags: countries.length > 0 ? JSON.stringify(countries) : null,
     ingredients_text: (p.ingredients_text as string) || null,
     nutrition_data,
     gorilla_score,

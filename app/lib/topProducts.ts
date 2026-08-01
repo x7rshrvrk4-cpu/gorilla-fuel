@@ -50,7 +50,7 @@ export async function getTopOverall(limit: number): Promise<CacheRow[]> {
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) return [];
   try {
-    const build = (withEn: boolean) => {
+    const build = (withEn: boolean, withCountry: boolean) => {
       const endpoint = new URL(`${url}/rest/v1/gorilla_product_cache`);
       endpoint.searchParams.set(
         "select",
@@ -63,15 +63,34 @@ export async function getTopOverall(limit: number): Promise<CacheRow[]> {
       // protein tub on sugar/sat-fat bands is meaningless), so their scores are
       // invalid for a foods ranking.
       endpoint.searchParams.set("is_supplement", "eq.false");
+      // Canada-first ranking (Phase-1 UK expansion). Keep a row when it is NOT a
+      // UK-tagged import: countries_tags is NULL (every pre-Phase-1 row — no
+      // backfill), OR it also carries "canada" (dual-market products stay), OR it
+      // simply doesn't contain "united-kingdom". Only a row that is UK-tagged AND
+      // not Canada-tagged is dropped. This touches ONLY the Top ranking — search
+      // (/api/search) and scan never call getTopOverall, so UK products remain
+      // fully searchable and scannable. Encoding is JSON-in-text, so substring
+      // ilike on "united-kingdom"/"canada" matches the stored tag values.
+      if (withCountry) {
+        endpoint.searchParams.set(
+          "or",
+          "(countries_tags.is.null,countries_tags.ilike.*canada*,countries_tags.not.ilike.*united-kingdom*)"
+        );
+      }
       endpoint.searchParams.set("order", "gorilla_score.desc,barcode.asc"); // stable, non-artifact
       endpoint.searchParams.set("limit", "1000");
       return endpoint;
     };
     const opts = { headers: { apikey: key, Authorization: `Bearer ${key}`, Accept: "application/json" }, next: { revalidate: TOP_REVALIDATE } };
-    // Prefer the English display column; fall back to a select without it so the
-    // page still works before the Phase-A column exists (graceful, no ordering dep).
-    let res = await fetch(build(true).toString(), opts);
-    if (!res.ok) res = await fetch(build(false).toString(), opts);
+    // Two independent optional columns (display_name_en, countries_tags) may not
+    // exist yet depending on migration order. Degrade gracefully so /top never
+    // breaks: drop the country filter first (newest column), then the en select.
+    // The country filter is Canada-first; if it can't run yet, the page shows the
+    // pre-UK behaviour (everything) rather than an empty ranking.
+    let res = await fetch(build(true, true).toString(), opts);
+    if (!res.ok) res = await fetch(build(true, false).toString(), opts);
+    if (!res.ok) res = await fetch(build(false, true).toString(), opts);
+    if (!res.ok) res = await fetch(build(false, false).toString(), opts);
     if (!res.ok) return [];
     const rows: CacheRow[] = await res.json();
     const tb = (r: CacheRow) => (macro(r.nutrition_data, "proteins_100g") ?? 0) + (macro(r.nutrition_data, "fiber_100g") ?? 0);
