@@ -17,7 +17,7 @@ import ScoreDisclaimer from "./ScoreDisclaimer";
 import ScoreRing from "./ScoreRing";
 import SourcesFooter from "./SourcesFooter";
 import SourceBadge, { type DataSource } from "./SourceBadge";
-import { isDataBlind } from "../lib/dataConfidence";
+import { additivesUnverifiedForDisplay } from "../lib/dataConfidence";
 import OcrCapturePanel from "./OcrCapturePanel";
 
 const NOVA_COLOR: Record<NovaGroup, string> = {
@@ -51,9 +51,14 @@ export default function ProductResultCard({ product, result, alternatives, alter
   // flag from the FLAGS list to avoid showing the same caveat twice.
   const displayFlags = result.flags.filter((f) => !f.includes(INCOMPLETE_DATA_FLAG_PREFIX));
 
-  // Data-blind = scored on macros alone (no ingredients / additive tags / NOVA /
-  // categories). Display-only honesty signal; does not affect the score.
-  const dataBlind = isDataBlind(product, result.novaGroup);
+  // Additives unverified = the additivesUnverified cap fired (no ingredient list,
+  // no additive tags, and not a whole-food/water/oil exempt row → additive sub-
+  // score pinned ≤50). Drives the "scored on nutrition facts alone" strip and the
+  // OCR panel so the disclosure shows on EVERY capped row — including rows that
+  // carry category tags, which the stricter isDataBlind used to hide. Display-only;
+  // mirrors scoring.ts's cap by reading its output (result.additiveScore), never
+  // re-running or changing any score.
+  const additivesUnverified = additivesUnverifiedForDisplay(product, result.additiveScore);
 
   // Whether an ingredient list actually existed to scan — mirrors computeScore's
   // hasIngredientText check. Drives the additive-section empty state so we don't
@@ -125,10 +130,10 @@ export default function ProductResultCard({ product, result, alternatives, alter
             )}
           </div>
 
-          {/* LIMITED-DATA honesty strip — shown only for data-blind products
+          {/* LIMITED-DATA honesty strip — shown whenever additives were unverified
               (scored on macros alone). Informational, not an alarm: matte amber,
               info icon. Qualifies the score; never changes it. */}
-          {dataBlind && (
+          {additivesUnverified && (
             <div className="mt-3 flex max-w-md items-start gap-2 rounded-sm border border-amber-500/40 bg-amber-500/[0.07] px-3 py-2">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" aria-hidden="true">
                 <circle cx="12" cy="12" r="10" />
@@ -144,9 +149,10 @@ export default function ProductResultCard({ product, result, alternatives, alter
           )}
 
           {/* OCR-at-scan (Phase 0): offer to photograph the ingredients panel,
-              ONLY on data-blind products. Captured text goes to a staging queue —
-              it never changes the score in Phase 0. */}
-          {dataBlind && product.code && <OcrCapturePanel barcode={product.code} />}
+              ONLY when additives were unverified (no ingredient list on file).
+              Captured text goes to a staging queue — it never changes the score in
+              Phase 0. */}
+          {additivesUnverified && product.code && <OcrCapturePanel barcode={product.code} />}
 
           <div className="mt-3 max-w-md">
             <LabdoorCrossCheck productName={product.product_name} brand={product.brands} categoryTags={product.categories_tags} />
