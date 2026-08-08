@@ -5,7 +5,9 @@
 > be verified from the repo (e.g. a table's DDL provisioned manually in Supabase), it is
 > called out explicitly rather than guessed.
 >
-> Snapshot commit: **`35a9797`** (HEAD at generation). Repo: `gorilla-fuel` v0.1.0.
+> Snapshot commit: **`0099383`** (current HEAD; no code commits since). Repo: `gorilla-fuel` v0.1.0.
+> Re-verified against live code + Supabase on **2026-08-07**. Only change vs. the prior
+> snapshot: the `countries_tags` column has since been provisioned in prod (see §3/§6).
 
 ---
 
@@ -78,7 +80,7 @@ There is **no runtime feature-flag system** (no LaunchDarkly/env-gated flags). "
 | `AFFILIATE_TAG` | **`"gorillafuel-20"`** | `app/lib/affiliates.ts:10` (and duplicated in `intel/`, `glutenfree/`, `kids/` product libs — not yet consolidated) | Amazon.ca affiliate tag on generated buy links. |
 | `TOP_REVALIDATE` / `CURATED_REVALIDATE` / page `revalidate` | **`3600`** (1h) everywhere | `topProducts.ts:11`, `curatedPicks.ts:23`, and `revalidate = 3600` on `/`, `/top`, `/approved`, `/cheat`, `/avoid`, `/bc-liquor` | ISR refresh cadence for cache-backed rankings. |
 | Supplement affiliate builders | **return `null` (stubs)** | `app/lib/affiliates.ts` — `legionUrl`, `transparentLabsUrl`, `thorneUrl`, `myproteinUrl` | No real ref params yet; callers must treat `null` as "render no link." `amazonUrl` works; `iherbUrl` is a plain (untagged) search. |
-| `countries_tags` column | **migration documented but NOT run in prod** | `productCache.ts` schema comment | Confirmed at snapshot: PostgREST returns `42703 column … does not exist`. The Canada-first `/top` filter degrades gracefully until it's added (see §6). |
+| `countries_tags` column | **provisioned in prod, 0 rows populated** (re-verified 2026-08-07) | `productCache.ts` schema comment | The column now exists (PostgREST returns `null`, no longer `42703`), but **0 of 46,074 rows are populated** and **0 are UK-tagged** — the migration was run but no origin data has been imported/backfilled yet. The Canada-first `/top` filter now runs on its primary path (query returns HTTP 200), but is a no-op in practice: every row's `countries_tags` is NULL, so all are kept (see §6). |
 
 **Env vars present** (names only; values redacted): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_API_KEY` (gates `/api/admin/*`), `CRON_SECRET` (gates the daily cron), `NEXT_PUBLIC_GA_ID`, `USDA_API_KEY`, `FATSECRET_CLIENT_ID`/`FATSECRET_CLIENT_SECRET`, `RAPIDAPI_KEY`, plus Turbo/Nx and Vercel-injected `VERCEL_*`.
 
@@ -170,7 +172,7 @@ There is **no runtime feature-flag system** (no LaunchDarkly/env-gated flags). "
 
 ## 6. Regional / provincial handling
 
-- **`countries_tags` capture (Phase-1 UK expansion, commit `37ff9f6`):** `buildOffRow()` now reads OFF `countries_tags` and stores it JSON-encoded (same convention as `categories`); `import-canada.ts` requests the field; `productCache.ts` types + documents the additive `ALTER TABLE … add column countries_tags text` migration. **The column is not yet provisioned in prod** (`42703` at snapshot) — capture is inert until the one-line migration is run in the Supabase SQL editor.
+- **`countries_tags` capture (Phase-1 UK expansion, commit `37ff9f6`):** `buildOffRow()` now reads OFF `countries_tags` and stores it JSON-encoded (same convention as `categories`); `import-canada.ts` requests the field; `productCache.ts` types + documents the additive `ALTER TABLE … add column countries_tags text` migration. **The column is now provisioned in prod** (re-verified 2026-08-07 — PostgREST returns `null`, no longer `42703`), but **0 rows are populated and 0 are UK-tagged**: the migration ran, yet no import/backfill has written origin data. So capture is live for *future* imports; existing rows remain origin-untagged. (No general backfill of the 46k existing rows has been run.)
 - **Canada-first `/top` filter (`app/lib/topProducts.ts`, `getTopOverall`):** drops UK-tagged rows from the merit ranking — keeps a row when `countries_tags` is NULL (all pre-Phase-1 rows), OR contains `canada` (dual-market), OR doesn't contain `united-kingdom`. It is guarded by a **4-way graceful fallback** (drops the country clause, then the `display_name_en` select) so `/top` never breaks whether or not the column exists. Search and scan do **not** call `getTopOverall`, so UK/any-origin products stay fully searchable/scannable.
 - **Provincial adapters:** there is **no general provincial-adapter abstraction.** What exists is **product-specific alcohol handling**: a **BC Liquor** staging table + `/bc-liquor` route + ingest (`scripts/ingest-bc-liquor.ts`, `seed-curated-alcohol.ts`), and the curated alcohol rankings are honestly labeled **Ontario** (commit `2772542`), not national. There is a **read-only UK-food ingest dry-run tool** (`scripts/uk-food-dryrun.ts`) but **no UK data has been imported** (the actual ingest is deferred pending an ingredient-completeness / `states_tags` strategy).
 
