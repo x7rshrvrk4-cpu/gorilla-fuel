@@ -24,6 +24,10 @@
 .DS_Store
 *.pem
 
+# OFF data dumps (multi-GB, never commit)
+/data/
+*.jsonl.gz
+
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -36,11 +40,18 @@ yarn-error.log*
 # vercel
 .vercel
 
-# claude code local session/config
-.claude/
+# claude code local session/config — ignore all local state EXCEPT the
+# version-controlled native hook config (settings.json + hooks/). Uses
+# `.claude/*` (not `.claude/`) so git descends into the dir; a fully-excluded
+# dir cannot have its children re-included.
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
+!.claude/hooks/pretooluse-guard.mjs
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
 .vercel
+.env*
