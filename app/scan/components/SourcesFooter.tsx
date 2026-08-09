@@ -15,7 +15,18 @@ export default function SourcesFooter() {
     <div className="border-t border-line bg-background/40 p-6">
       <h3 className="font-display text-sm uppercase tracking-[0.25em] text-gold">Sources &amp; Methodology</h3>
       <p className="mt-2 text-xs leading-relaxed text-muted">
-        This score was generated using: {SOURCES.join(" · ")}.
+        This score was generated using:{" "}
+        {/* OFF (SOURCES[0]) links to the ODbL attribution notice; the rest render as plain text. */}
+        <a href="/attribution" className="text-gold underline decoration-gold-dim underline-offset-4 hover:text-gold/80">
+          {SOURCES[0]}
+        </a>
+        {SOURCES.length > 1 ? ` · ${SOURCES.slice(1).join(" · ")}` : ""}.
+      </p>
+      <p className="mt-2 text-xs leading-relaxed text-muted">
+        Open Food Facts data is used under the Open Database License (ODbL).{" "}
+        <a href="/attribution" className="text-gold underline decoration-gold-dim underline-offset-4 hover:text-gold/80">
+          Attribution &amp; licenses →
+        </a>
       </p>
       <p className="mt-2 text-xs leading-relaxed text-muted">
         Gorilla Fuel does not accept payment for product placement. All scores are generated

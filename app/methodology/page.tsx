@@ -23,11 +23,11 @@ const TIER_APPLICATION: Record<EvidenceTier, string> = {
     "Limited human data, but mechanistic concerns exist. We apply conservative flagging while noting the uncertainty.",
 };
 
-const SOURCES: { name: string; description: string; badge?: string }[] = [
+const SOURCES: { name: string; description: string; badge?: string; href?: string }[] = [
   // ── Waterfall lookup order ─────────────────────────────────────────────────
   { name: "Gorilla Curated Database", badge: "Step 1 · GORILLA CURATED", description: "Our own hand-verified product database. Every entry is manually reviewed with confirmed nutrition and serving-size data. Checked first on every scan." },
   { name: "Community Submissions", badge: "Step 2 · COMMUNITY", description: "User-submitted products that have passed admin review. Enables Canadian and regional products not yet covered by major databases." },
-  { name: "Open Food Facts", badge: "Step 3 · OPEN FOOD FACTS", description: "The world's largest open food database — 3M+ products with ingredients, nutrition, additives, and NOVA processing group. Backbone of every food, drink, and supplement scan." },
+  { name: "Open Food Facts", badge: "Step 3 · OPEN FOOD FACTS", href: "/attribution", description: "The world's largest open food database — 3M+ products with ingredients, nutrition, additives, and NOVA processing group. Backbone of every food, drink, and supplement scan. Used under the Open Database License (ODbL) — see Attribution." },
   { name: "USDA FoodData Central", badge: "Step 4 · USDA", description: "The US Department of Agriculture's branded-food nutrition database." },
   { name: "FatSecret Platform", badge: "Step 5 · FATSECRET", description: "A large global food and nutrition database covering millions of branded foods." },
   { name: "Barcode Lookup", badge: "Step 6 · BARCODE DB", description: "A consumer product database with nutrition data where available." },
@@ -319,7 +319,13 @@ export default function MethodologyPage() {
           {SOURCES.filter((s) => s.badge).map((s) => (
             <div key={s.name} className="rounded-sm border border-gold/20 bg-surface p-4">
               <p className="font-display text-[10px] uppercase tracking-[0.25em] text-gold/60">{s.badge}</p>
-              <p className="mt-1 font-display text-base tracking-wide text-foreground">{s.name}</p>
+              <p className="mt-1 font-display text-base tracking-wide text-foreground">
+                {s.href ? (
+                  <a href={s.href} className="underline decoration-gold-dim underline-offset-4 hover:text-gold">{s.name}</a>
+                ) : (
+                  s.name
+                )}
+              </p>
               <p className="mt-1 text-xs leading-relaxed text-muted">{s.description}</p>
             </div>
           ))}

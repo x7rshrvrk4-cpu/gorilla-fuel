@@ -3,6 +3,11 @@ import Link from "next/link";
 export const LEGAL_DISCLAIMER =
   "Gorilla Fuel scores are generated algorithmically from publicly available data sources including Open Food Facts, PubMed, WHO, and Health Canada databases. Scores represent our independent analytical assessment and constitute opinion, not medical or nutritional advice. Individual health circumstances vary. Consult a qualified healthcare professional before making dietary or supplement decisions. Gorilla Fuel is not affiliated with, endorsed by, or sponsored by any brand or manufacturer. Product formulations change — always verify current ingredient information on the product label.";
 
+// Split the disclaimer around the single "Open Food Facts" mention so the footer
+// can render that phrase as a link to /attribution (ODbL notice) without altering
+// the canonical LEGAL_DISCLAIMER string used elsewhere.
+const [DISCLAIMER_BEFORE_OFF, DISCLAIMER_AFTER_OFF] = LEGAL_DISCLAIMER.split("Open Food Facts");
+
 const EXPLORE = [
   { href: "/alcohol",   label: "Alcohol" },
   { href: "/approved",  label: "Food and Snacks" },
@@ -23,6 +28,7 @@ const GORILLA_INTEL = [
 const INFO = [
   { href: "/methodology", label: "Methodology" },
   { href: "/about",        label: "About" },
+  { href: "/attribution",  label: "Attribution" },
   { href: "/about#privacy", label: "Privacy Policy" },
 ];
 
@@ -107,7 +113,16 @@ export default function SiteFooter() {
             Gorilla Fuel &mdash; Canadian Product Intelligence &mdash; No brand pays for placement.
             &nbsp;·&nbsp; © {new Date().getFullYear()} gorillafuel.ca
           </p>
-          <p className="mt-4 text-xs leading-relaxed text-muted/60">{LEGAL_DISCLAIMER}</p>
+          <p className="mt-4 text-xs leading-relaxed text-muted/60">
+            {/* Link "Open Food Facts" through to the ODbL attribution page. The
+                disclaimer text itself is unchanged (LEGAL_DISCLAIMER stays the
+                canonical string); only the OFF mention becomes a link. */}
+            {DISCLAIMER_BEFORE_OFF}
+            <Link href="/attribution" className="underline decoration-muted/40 underline-offset-2 transition-colors hover:text-gold">
+              Open Food Facts
+            </Link>
+            {DISCLAIMER_AFTER_OFF}
+          </p>
         </div>
       </div>
     </footer>
