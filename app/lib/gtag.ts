@@ -18,8 +18,13 @@ export function trackBarcodeScanned(barcode: string): void {
   gtagEvent("barcode_scanned", { barcode });
 }
 
-export function trackProductFound(source: string, barcode: string, productName?: string): void {
-  gtagEvent("product_found", { source, barcode, product_name: productName });
+// NOTE: the event param is `data_source_tier`, NOT `source` — `source` (like
+// medium/campaign/term/content) is a GA4-reserved traffic-source parameter, and
+// sending it overwrote session source/medium with the internal data_source value
+// (open-food-facts / gorilla-cache / …). The renamed key carries the same value
+// without colliding with GA4's referrer/UTM attribution.
+export function trackProductFound(dataSourceTier: string, barcode: string, productName?: string): void {
+  gtagEvent("product_found", { data_source_tier: dataSourceTier, barcode, product_name: productName });
 }
 
 export function trackProductNotFound(barcode: string): void {
