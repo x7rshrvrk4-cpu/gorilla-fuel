@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { BrowserMultiFormatReader as BrowserMultiFormatReaderType } from "@zxing/library";
+import { trackCameraError } from "../../lib/gtag";
 
 type Props = {
   active: boolean;
@@ -117,9 +118,11 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
         if (cancelled) return;
         if (err instanceof DOMException && err.name === "NotAllowedError") {
           setStatus("denied");
+          trackCameraError("denied");
         } else {
           setStatus("error");
           setErrorMessage(err instanceof Error ? err.message : "Camera failed to start.");
+          trackCameraError("error");
         }
       }
     }

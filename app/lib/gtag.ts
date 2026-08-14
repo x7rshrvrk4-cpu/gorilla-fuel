@@ -18,6 +18,10 @@ export function trackBarcodeScanned(barcode: string): void {
   gtagEvent("barcode_scanned", { barcode });
 }
 
+export function trackCameraError(reason: string): void {
+  gtagEvent("camera_error", { reason });
+}
+
 // NOTE: the event param is `data_source_tier`, NOT `source` — `source` (like
 // medium/campaign/term/content) is a GA4-reserved traffic-source parameter, and
 // sending it overwrote session source/medium with the internal data_source value
