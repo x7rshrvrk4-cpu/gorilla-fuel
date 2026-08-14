@@ -742,6 +742,522 @@ export const EXERCISES: Exercise[] = [
       "Repeat for the recommended amount of repetitions."
     ]
   },
+  {
+    "id": "Pullups",
+    "name": "Pullups",
+    "images": [
+      "/exercises/Pullups/0.jpg",
+      "/exercises/Pullups/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "pull",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "lats"
+    ],
+    "secondaryMuscles": [
+      "biceps",
+      "middle back"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Grab the pull-up bar with the palms facing forward using the prescribed grip. Note on grips: For a wide grip, your hands need to be spaced out at a distance wider than your shoulder width. For a medium grip, your hands need to be spaced out at a distance equal to your shoulder width and for a close grip at a distance smaller than your shoulder width.",
+      "As you have both arms extended in front of you holding the bar at the chosen grip width, bring your torso back around 30 degrees or so while creating a curvature on your lower back and sticking your chest out. This is your starting position.",
+      "Pull your torso up until the bar touches your upper chest by drawing the shoulders and the upper arms down and back. Exhale as you perform this portion of the movement. Tip: Concentrate on squeezing the back muscles once you reach the full contracted position. The upper torso should remain stationary as it moves through space and only the arms should move. The forearms should do no other work other than hold the bar.",
+      "After a second on the contracted position, start to inhale and slowly lower your torso back to the starting position when your arms are fully extended and the lats are fully stretched.",
+      "Repeat this motion for the prescribed amount of repetitions."
+    ]
+  },
+  {
+    "id": "Chin-Up",
+    "name": "Chin-Up",
+    "images": [
+      "/exercises/Chin-Up/0.jpg",
+      "/exercises/Chin-Up/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "pull",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "lats"
+    ],
+    "secondaryMuscles": [
+      "biceps",
+      "forearms",
+      "middle back"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Grab the pull-up bar with the palms facing your torso and a grip closer than the shoulder width.",
+      "As you have both arms extended in front of you holding the bar at the chosen grip width, keep your torso as straight as possible while creating a curvature on your lower back and sticking your chest out. This is your starting position. Tip: Keeping the torso as straight as possible maximizes biceps stimulation while minimizing back involvement.",
+      "As you breathe out, pull your torso up until your head is around the level of the pull-up bar. Concentrate on using the biceps muscles in order to perform the movement. Keep the elbows close to your body. Tip: The upper torso should remain stationary as it moves through space and only the arms should move. The forearms should do no other work other than hold the bar.",
+      "After a second of squeezing the biceps in the contracted position, slowly lower your torso back to the starting position; when your arms are fully extended. Breathe in as you perform this portion of the movement.",
+      "Repeat this motion for the prescribed amount of repetitions."
+    ]
+  },
+  {
+    "id": "V-Bar_Pullup",
+    "name": "V-Bar Pullup",
+    "images": [
+      "/exercises/V-Bar_Pullup/0.jpg",
+      "/exercises/V-Bar_Pullup/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "pull",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "lats"
+    ],
+    "secondaryMuscles": [
+      "biceps",
+      "middle back",
+      "shoulders"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Start by placing the middle of the V-bar in the middle of the pull-up bar (assuming that the pull-up station you are using does not have neutral grip handles). The V-Bar handles will be facing down so that you can hang from the pull-up bar through the use of the handles.",
+      "Once you securely place the V-bar, take a hold of the bar from each side and hang from it. Stick your chest out and lean yourself back slightly in order to better engage the lats. This will be your starting position.",
+      "Using your lats, pull your torso up while leaning your head back slightly so that you do not hit yourself with the chin-up bar. Continue until your chest nearly touches the V-bar. Exhale as you execute this motion.",
+      "After a second hold on the contracted position, slowly lower your body back to the starting position as you breathe in.",
+      "Repeat for the prescribed number of repetitions."
+    ]
+  },
+  {
+    "id": "Wide-Grip_Rear_Pull-Up",
+    "name": "Wide-Grip Rear Pull-Up",
+    "images": [
+      "/exercises/Wide-Grip_Rear_Pull-Up/0.jpg",
+      "/exercises/Wide-Grip_Rear_Pull-Up/1.jpg"
+    ],
+    "level": "intermediate",
+    "force": "pull",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "lats"
+    ],
+    "secondaryMuscles": [
+      "biceps",
+      "middle back",
+      "shoulders"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Grab the pull-up bar with the palms facing forward using a wide grip.",
+      "As you have both arms extended in front of you holding the bar, bring your torso forward and head so that there is an imaginary line from the pull-up bar to the back of your neck. This is your starting position.",
+      "Pull your torso up until the bar is near the back of your neck. To do this, draw the shoulders and upper arms down and back while slightly leaning your head forward. Exhale as you perform this portion of the movement. Tip: Concentrate on squeezing the back muscles once you reach the full contracted position. The upper torso should remain stationary as it moves through space and only the arms should move. The forearms should do no other work other than hold the bar.",
+      "After a second on the contracted position, start to inhale and slowly lower your torso back to the starting position when your arms are fully extended and the lats are fully stretched.",
+      "Repeat this motion for the prescribed amount of repetitions."
+    ]
+  },
+  {
+    "id": "Seated_Biceps",
+    "name": "Seated Biceps",
+    "images": [
+      "/exercises/Seated_Biceps/0.jpg",
+      "/exercises/Seated_Biceps/1.jpg"
+    ],
+    "level": "expert",
+    "force": "static",
+    "mechanic": "isolation",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "biceps"
+    ],
+    "secondaryMuscles": [
+      "chest",
+      "shoulders"
+    ],
+    "category": "stretching",
+    "instructions": [
+      "Sit on the floor with your knees bent and your partner standing behind you. Extend your arms straight behind you with your palms facing each other. Your partner will hold your wrists for you. This will be the starting position.",
+      "Attempt to flex your elbows, while your partner prevents any actual movement.",
+      "After 10-20 seconds, relax your arms while your partner gently pulls your wrists up to stretch your biceps. Be sure to let your partner know when the stretch is appropriate to prevent injury or overstretching."
+    ]
+  },
+  {
+    "id": "Hyperextensions_With_No_Hyperextension_Bench",
+    "name": "Hyperextensions With No Hyperextension Bench",
+    "images": [
+      "/exercises/Hyperextensions_With_No_Hyperextension_Bench/0.jpg",
+      "/exercises/Hyperextensions_With_No_Hyperextension_Bench/1.jpg"
+    ],
+    "level": "intermediate",
+    "force": "pull",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "lower back"
+    ],
+    "secondaryMuscles": [
+      "glutes",
+      "hamstrings"
+    ],
+    "category": "strength",
+    "instructions": [
+      "With someone holding down your legs, slide yourself down to the edge a flat bench until your hips hang off the end of the bench. Tip: Your entire upper body should be hanging down towards the floor. Also, you will be in the same position as if you were on a hyperextension bench but the range of motion will be shorter due to the height of the flat bench vs. that of the hyperextension bench.",
+      "With your body straight, cross your arms in front of you (my preference) or behind your head. This will be your starting position. Tip: You can also hold a weight plate for extra resistance in front of you under your crossed arms.",
+      "Start bending forward slowly at the waist as far as you can while keeping your back flat. Inhale as you perform this movement. Keep moving forward until you almost touch the floor or you feel a nice stretch on the hamstrings (whichever comes first). Tip: Never round the back as you perform this exercise.",
+      "Slowly raise your torso back to the initial position as you exhale. Tip: Avoid the temptation to arch your back past a straight line. Also, do not swing the torso at any time in order to protect the back from injury.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Natural_Glute_Ham_Raise",
+    "name": "Natural Glute Ham Raise",
+    "images": [
+      "/exercises/Natural_Glute_Ham_Raise/0.jpg",
+      "/exercises/Natural_Glute_Ham_Raise/1.jpg"
+    ],
+    "level": "intermediate",
+    "force": "pull",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "hamstrings"
+    ],
+    "secondaryMuscles": [
+      "calves",
+      "glutes",
+      "lower back"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Using the leg pad of a lat pulldown machine or a preacher bench, position yourself so that your ankles are under the pads, knees on the seat, and you are facing away from the machine. You should be upright and maintaining good posture.",
+      "This will be your starting position. Lower yourself under control until your knees are almost completely straight.",
+      "Remaining in control, raise yourself back up to the starting position.",
+      "If you are unable to complete a rep, use a band, a partner, or push off of a box to aid in completing a repetition."
+    ]
+  },
+  {
+    "id": "90_90_Hamstring",
+    "name": "90/90 Hamstring",
+    "images": [
+      "/exercises/90_90_Hamstring/0.jpg",
+      "/exercises/90_90_Hamstring/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": null,
+    "equipment": "body only",
+    "primaryMuscles": [
+      "hamstrings"
+    ],
+    "secondaryMuscles": [
+      "calves"
+    ],
+    "category": "stretching",
+    "instructions": [
+      "Lie on your back, with one leg extended straight out.",
+      "With the other leg, bend the hip and knee to 90 degrees. You may brace your leg with your hands if necessary. This will be your starting position.",
+      "Extend your leg straight into the air, pausing briefly at the top. Return the leg to the starting position.",
+      "Repeat for 10-20 repetitions, and then switch to the other leg."
+    ]
+  },
+  {
+    "id": "Front_Leg_Raises",
+    "name": "Front Leg Raises",
+    "images": [
+      "/exercises/Front_Leg_Raises/0.jpg",
+      "/exercises/Front_Leg_Raises/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "pull",
+    "mechanic": null,
+    "equipment": "body only",
+    "primaryMuscles": [
+      "hamstrings"
+    ],
+    "secondaryMuscles": [],
+    "category": "stretching",
+    "instructions": [
+      "Stand next to a chair or other support, holding on with one hand.",
+      "Swing your leg forward, keeping the leg straight. Continue with a downward swing, bringing the leg as far back as your flexibility allows. Repeat 5-10 times, and then switch legs."
+    ]
+  },
+  {
+    "id": "Inchworm",
+    "name": "Inchworm",
+    "images": [
+      "/exercises/Inchworm/0.jpg",
+      "/exercises/Inchworm/1.jpg"
+    ],
+    "level": "beginner",
+    "force": null,
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "hamstrings"
+    ],
+    "secondaryMuscles": [],
+    "category": "stretching",
+    "instructions": [
+      "Stand with your feet close together. Keeping your legs straight, stretch down and put your hands on the floor directly in front of you. This will be your starting position.",
+      "Begin by walking your hands forward slowly, alternating your left and your right. As you do so, bend only at the hip, keeping your legs straight.",
+      "Keep going until your body is parallel to the ground in a pushup position.",
+      "Now, keep your hands in place and slowly take short steps with your feet, moving only a few inches at a time.",
+      "Continue walking until your feet are by hour hands, keeping your legs straight as you do so."
+    ]
+  },
+  {
+    "id": "Knee_Tuck_Jump",
+    "name": "Knee Tuck Jump",
+    "images": [
+      "/exercises/Knee_Tuck_Jump/0.jpg",
+      "/exercises/Knee_Tuck_Jump/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "hamstrings"
+    ],
+    "secondaryMuscles": [
+      "abductors",
+      "adductors",
+      "calves",
+      "glutes",
+      "quadriceps"
+    ],
+    "category": "plyometrics",
+    "instructions": [
+      "Begin in a comfortable standing position with your knees slightly bent. Hold your hands in front of you, palms down with your fingertips together at chest height. This will be your starting position.",
+      "Rapidly dip down into a quarter squat and immediately explode upward. Drive the knees towards the chest, attempting to touch them to the palms of the hands.",
+      "Jump as high as you can, raising your knees up, and then ensure a good land be re-extending your legs, absorbing impact through be allowing the knees to rebend."
+    ]
+  },
+  {
+    "id": "Dips_-_Triceps_Version",
+    "name": "Dips - Triceps Version",
+    "images": [
+      "/exercises/Dips_-_Triceps_Version/0.jpg",
+      "/exercises/Dips_-_Triceps_Version/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "triceps"
+    ],
+    "secondaryMuscles": [
+      "chest",
+      "shoulders"
+    ],
+    "category": "strength",
+    "instructions": [
+      "To get into the starting position, hold your body at arm's length with your arms nearly locked above the bars.",
+      "Now, inhale and slowly lower yourself downward. Your torso should remain upright and your elbows should stay close to your body. This helps to better focus on tricep involvement. Lower yourself until there is a 90 degree angle formed between the upper arm and forearm.",
+      "Then, exhale and push your torso back up using your triceps to bring your body back to the starting position.",
+      "Repeat the movement for the prescribed amount of repetitions."
+    ]
+  },
+  {
+    "id": "Body_Tricep_Press",
+    "name": "Body Tricep Press",
+    "images": [
+      "/exercises/Body_Tricep_Press/0.jpg",
+      "/exercises/Body_Tricep_Press/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "isolation",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "triceps"
+    ],
+    "secondaryMuscles": [],
+    "category": "strength",
+    "instructions": [
+      "Position a bar in a rack at chest height.",
+      "Standing, take a shoulder width grip on the bar and step a yard or two back, feet together and arms extended so that you are leaning on the bar. This will be your starting position.",
+      "Begin by flexing the elbow, lowering yourself towards the bar.",
+      "Pause, and then reverse the motion by extending the elbows.",
+      "Progress from bodyweight by adding chains over your shoulders."
+    ]
+  },
+  {
+    "id": "Standing_Towel_Triceps_Extension",
+    "name": "Standing Towel Triceps Extension",
+    "images": [
+      "/exercises/Standing_Towel_Triceps_Extension/0.jpg",
+      "/exercises/Standing_Towel_Triceps_Extension/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "isolation",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "triceps"
+    ],
+    "secondaryMuscles": [],
+    "category": "strength",
+    "instructions": [
+      "To begin, stand up with both arms fully extended above the head holding one end of a towel with both hands. Your elbows should be in and the arms perpendicular to the floor with the palms facing each other while your feet should be shoulder width apart from each other. This is the starting position.",
+      "Now communicate with your partner so that he/she can grip the other side of the towel to apply resistance. Keeping your upper arms close to your head (elbows in) and perpendicular to the floor, lower the resistance in a semicircular motion behind your head until your forearms touch your biceps. Tip: The upper arms should remain stationary and only the forearms should move. Breathe in as you perform this step.",
+      "Go back to the starting position by using the triceps to raise the towel. Breathe out as you perform this step.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Incline_Push-Up_Close-Grip",
+    "name": "Incline Push-Up Close-Grip",
+    "images": [
+      "/exercises/Incline_Push-Up_Close-Grip/0.jpg",
+      "/exercises/Incline_Push-Up_Close-Grip/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "triceps"
+    ],
+    "secondaryMuscles": [
+      "chest",
+      "shoulders"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Stand facing a Smith machine bar or sturdy elevated platform at an appropriate height.",
+      "Place your hands next to one another on the bar.",
+      "Position your feet back from the bar with arms and body straight. This will be your starting position.",
+      "Keeping your body straight, lower your chest to the bar by bending the arms.",
+      "Return to the starting position by extending the elbows, pressing yourself back up."
+    ]
+  },
+  {
+    "id": "Push-Ups_-_Close_Triceps_Position",
+    "name": "Push-Ups - Close Triceps Position",
+    "images": [
+      "/exercises/Push-Ups_-_Close_Triceps_Position/0.jpg",
+      "/exercises/Push-Ups_-_Close_Triceps_Position/1.jpg"
+    ],
+    "level": "intermediate",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "triceps"
+    ],
+    "secondaryMuscles": [
+      "chest",
+      "shoulders"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Lie on the floor face down and place your hands closer than shoulder width for a close hand position. Make sure that you are holding your torso up at arms' length.",
+      "Lower yourself until your chest almost touches the floor as you inhale.",
+      "Using your triceps and some of your pectoral muscles, press your upper body back up to the starting position and squeeze your chest. Breathe out as you perform this step.",
+      "After a second pause at the contracted position, repeat the movement for the prescribed amount of repetitions."
+    ]
+  },
+  {
+    "id": "Handstand_Push-Ups",
+    "name": "Handstand Push-Ups",
+    "images": [
+      "/exercises/Handstand_Push-Ups/0.jpg",
+      "/exercises/Handstand_Push-Ups/1.jpg"
+    ],
+    "level": "expert",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "shoulders"
+    ],
+    "secondaryMuscles": [
+      "triceps"
+    ],
+    "category": "strength",
+    "instructions": [
+      "With your back to the wall bend at the waist and place both hands on the floor at shoulder width.",
+      "Kick yourself up against the wall with your arms straight. Your body should be upside down with the arms and legs fully extended. Keep your whole body as straight as possible. Tip: If doing this for the first time, have a spotter help you. Also, make sure that you keep facing the wall with your head, rather than looking down.",
+      "Slowly lower yourself to the ground as you inhale until your head almost touches the floor. Tip: It is of utmost importance that you come down slow in order to avoid head injury.",
+      "Push yourself back up slowly as you exhale until your elbows are nearly locked.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Single_Leg_Glute_Bridge",
+    "name": "Single Leg Glute Bridge",
+    "images": [
+      "/exercises/Single_Leg_Glute_Bridge/0.jpg",
+      "/exercises/Single_Leg_Glute_Bridge/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "isolation",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "glutes"
+    ],
+    "secondaryMuscles": [
+      "hamstrings"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Lay on the floor with your feet flat and knees bent.",
+      "Raise one leg off of the ground, pulling the knee to your chest. This will be your starting position.",
+      "Execute the movement by driving through the heel, extending your hip upward and raising your glutes off of the ground.",
+      "Extend as far as possible, pause and then return to the starting position."
+    ]
+  },
+  {
+    "id": "Glute_Kickback",
+    "name": "Glute Kickback",
+    "images": [
+      "/exercises/Glute_Kickback/0.jpg",
+      "/exercises/Glute_Kickback/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "glutes"
+    ],
+    "secondaryMuscles": [
+      "hamstrings"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Kneel on the floor or an exercise mat and bend at the waist with your arms extended in front of you (perpendicular to the torso) in order to get into a kneeling push-up position but with the arms spaced at shoulder width. Your head should be looking forward and the bend of the knees should create a 90-degree angle between the hamstrings and the calves. This will be your starting position.",
+      "As you exhale, lift up your right leg until the hamstrings are in line with the back while maintaining the 90-degree angle bend. Contract the glutes throughout this movement and hold the contraction at the top for a second. Tip: At the end of the movement the upper leg should be parallel to the floor while the calf should be perpendicular to it.",
+      "Go back to the initial position as you inhale and now repeat with the left leg.",
+      "Continue to alternate legs until all of the recommended repetitions have been performed."
+    ]
+  },
+  {
+    "id": "Leg_Lift",
+    "name": "Leg Lift",
+    "images": [
+      "/exercises/Leg_Lift/0.jpg",
+      "/exercises/Leg_Lift/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "isolation",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "glutes"
+    ],
+    "secondaryMuscles": [
+      "hamstrings"
+    ],
+    "category": "strength",
+    "instructions": [
+      "While standing up straight with both feet next to each other at around shoulder width, grab a sturdy surface such as the sides of a squat rack or the top of a chair to brace yourself and keep balance.",
+      "With or without an ankle weight, lift one leg behind you as if performing a leg curl but standing up while keeping the other leg straight. Breathe out as you perform this movement.",
+      "Slowly bring the raised leg back to the floor as you breathe in.",
+      "Repeat for the recommended amount of repetitions.",
+      "Repeat the movement with the opposite leg."
+    ]
+  },
 ];
 
 /** Fast id → Exercise lookup for the plan-composition layer and UI. */
