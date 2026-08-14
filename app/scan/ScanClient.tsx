@@ -1142,6 +1142,11 @@ export default function ScanClient() {
             </svg>
           </span>
         </button>
+        {/* Orientation hint — surrounding UI text only. Does NOT touch the
+            scanner/detection logic (that lives in BarcodeScanner.tsx). */}
+        <p className="mt-3 text-center text-xs text-muted/80 sm:text-left">
+          💡 Tip: hold the barcode horizontal and steady for best results.
+        </p>
         {/* Preventive helper — sets expectations before scanning. Wine/spirits
             are named here (and only here); the not-found message stays generic. */}
         <p className="mt-3 text-center text-xs leading-relaxed text-muted sm:text-left">
