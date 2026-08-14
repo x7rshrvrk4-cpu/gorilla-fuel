@@ -62,9 +62,9 @@ export const PLANS: Plan[] = [
     cheatAllowance:
       "One sensible treat — a square or two of 70%+ dark chocolate, or air-popped popcorn. A plan you can keep beats a perfect plan you quit.",
     exercises: [
-      "cross-body-knee-touch", "march-in-place", "wall-push-up", "knee-push-up",
-      "chair-assisted-squat", "bodyweight-squat", "glute-bridge", "standing-side-crunch",
-      "calf-raise", "plank",
+      "Cross-Body_Crunch", "Star_Jump", "Pushups_Close_and_Wide_Hand_Positions", "Incline_Push-Up_Medium",
+      "Rear_Leg_Raises", "Bodyweight_Squat", "Butt_Lift_Bridge", "Russian_Twist",
+      "Knee_Circles", "Plank",
     ],
     structure:
       "2 rounds of about 10–12 reps each (planks 15–20 seconds), 3× a week — plus aim for a daily walk.",
@@ -99,9 +99,9 @@ export const PLANS: Plan[] = [
     cheatAllowance:
       "A bigger post-workout treat fits here — the surplus has room for it.",
     exercises: [
-      "bodyweight-squat", "sumo-squat", "forward-lunge", "reverse-lunge", "knee-push-up",
-      "push-up", "incline-push-up", "glute-bridge", "plank", "side-plank", "bird-dog",
-      "calf-raise", "step-up", "wall-sit",
+      "Bodyweight_Squat", "Freehand_Jump_Squat", "Bodyweight_Walking_Lunge", "Scissors_Jump", "Incline_Push-Up_Medium",
+      "Pushups", "Incline_Push-Up", "Butt_Lift_Bridge", "Plank", "Side_Bridge", "Superman",
+      "Knee_Circles", "Step-up_with_Knee_Raise", "Double_Leg_Butt_Kick",
     ],
     structure:
       "Full-body, 2–3 sets of 8–12 reps, 3× a week (e.g. Mon/Wed/Fri) — hitting every major muscle group at least twice.",
@@ -136,9 +136,9 @@ export const PLANS: Plan[] = [
     cheatAllowance:
       "Dark chocolate, or a rice cake with peanut butter — small, regular, sustainable.",
     exercises: [
-      "bodyweight-squat", "forward-lunge", "reverse-lunge", "push-up", "knee-push-up",
-      "glute-bridge", "plank", "side-plank", "bicycle-crunch", "dead-bug",
-      "standing-oblique-twist", "high-knees", "calf-raise",
+      "Bodyweight_Squat", "Bodyweight_Walking_Lunge", "Scissors_Jump", "Pushups", "Incline_Push-Up_Medium",
+      "Butt_Lift_Bridge", "Plank", "Side_Bridge", "Air_Bike", "Dead_Bug",
+      "Oblique_Crunches", "Mountain_Climbers", "Knee_Circles",
     ],
     structure:
       "A full-body circuit, 2–3 rounds of about 12–15 reps, 3–4× a week — with high-knees and oblique work as light conditioning between the strength moves.",
@@ -174,8 +174,8 @@ export const PLANS: Plan[] = [
     cheatAllowance:
       "The most relaxed of the plans — a healthy relationship with food, treats in moderation.",
     exercises: [
-      "bodyweight-squat", "push-up", "knee-push-up", "plank", "glute-bridge", "forward-lunge",
-      "reverse-lunge", "bird-dog", "march-in-place", "high-knees", "calf-raise", "arm-circles",
+      "Bodyweight_Squat", "Pushups", "Incline_Push-Up_Medium", "Plank", "Butt_Lift_Bridge", "Bodyweight_Walking_Lunge",
+      "Scissors_Jump", "Superman", "Star_Jump", "Mountain_Climbers", "Knee_Circles", "Kneeling_Arm_Drill",
     ],
     structure:
       "About 2–3× a week of light full-body work — plus move daily: walk, take the stairs, stay active. Regular, not intense.",
@@ -210,8 +210,8 @@ export const PLANS: Plan[] = [
     cheatAllowance:
       "Fine — just framed around energy. Sugary treats spike then crash; enjoy them, but notice how you feel after.",
     exercises: [
-      "march-in-place", "high-knees", "arm-circles", "bodyweight-squat", "glute-bridge",
-      "cross-body-knee-touch", "standing-oblique-twist", "plank",
+      "Star_Jump", "Mountain_Climbers", "Kneeling_Arm_Drill", "Bodyweight_Squat", "Butt_Lift_Bridge",
+      "Cross-Body_Crunch", "Oblique_Crunches", "Plank",
     ],
     structure:
       "Short, near-daily sessions of 10–15 minutes, most days — plus a brisk walk, which does more for energy than you'd think. Time your coffee with the /caffeine tool — respect the half-life so it lifts you without a crash. Gentle by design.",

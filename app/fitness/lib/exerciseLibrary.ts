@@ -1,231 +1,746 @@
-// Exercise library — the movement vocabulary the fitness plans compose from.
+// Exercise library — movement vocabulary the fitness plans compose from.
 // Plans reference these by `id` (see plans.ts `exercises`), so a movement is
-// defined exactly once here. Every `imageSlot` holds a gold/dark duotone illustration
-// (RepDB free-tier art, deterministically recolored — see scripts/_recolor_exercises.mjs);
-// all 27 movements are illustrated (zero placeholders). Eleven movements were swapped to
-// the closest bodyweight-equivalent RepDB movement because their own name/family had no
-// free-tier art (name/formCue updated, `id` kept stable for plans.ts) — those entries are
-// marked with a `substitute:` comment. No source image is used by more than one entry.
+// defined exactly once here.
+//
+// SOURCE: yuhonas/free-exercise-db (https://github.com/yuhonas/free-exercise-db),
+// released under the Unlicense — PUBLIC DOMAIN, no attribution required. Data is
+// used exactly as provided by the source; the photos are self-hosted under
+// public/exercises/<id>/. This replaces the prior exercise art, which was licensed
+// non-commercial only and therefore incompatible with a commercial site.
+//
+// `formCue` is a short human-authored coaching cue to be filled in later; it is
+// undefined on every entry for now. Until then the UI renders the first steps of
+// `instructions` instead.
 //
 // Data only. No UI, no React.
 
-export type ExerciseDifficulty = "gentle" | "moderate";
+export type ExerciseLevel = "beginner" | "intermediate" | "expert";
 
 export type Exercise = {
   id: string;
   name: string;
-  /** Short "how to do it right" coaching cue. */
-  formCue: string;
-  /** Art slot — null until illustrations are added; UI shows a placeholder. */
-  imageSlot: string | null;
-  difficulty: ExerciseDifficulty;
+  /** Self-hosted photo paths under /public (public-domain source). */
+  images: string[];
+  level: ExerciseLevel;
+  force: string | null;
+  mechanic: string | null;
+  equipment: string | null;
+  primaryMuscles: string[];
+  secondaryMuscles: string[];
+  category: string;
+  instructions: string[];
+  /** Short "how to do it right" coaching cue — authored later; undefined for now. */
+  formCue?: string;
 };
 
 export const EXERCISES: Exercise[] = [
-  // ── Gentle / warm-up / low-impact ──────────────────────────────────────────
-  // NOTE: `id` is kept stable (plans.ts references it) even where the movement was
-  // swapped to a RepDB substitute — see the substitution table in the pipeline notes.
   {
-    // substitute: RepDB "cross-body-crunch" art (floor version of the same cross-body oblique move)
-    id: "cross-body-knee-touch",
-    name: "Cross-Body Crunch",
-    formCue: "Lie on your back, hands behind your head. Crunch up and bring one elbow toward the opposite bent knee while extending the other leg. Alternate sides slowly, twisting from the waist.",
-    imageSlot: "/exercises/cross-body-knee-touch.png",
-    difficulty: "gentle",
+    "id": "Pushups",
+    "name": "Pushups",
+    "images": [
+      "/exercises/Pushups/0.jpg",
+      "/exercises/Pushups/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Lie on the floor face down and place your hands about 36 inches apart while holding your torso up at arms length.",
+      "Next, lower yourself downward until your chest almost touches the floor as you inhale.",
+      "Now breathe out and press your upper body back up to the starting position while squeezing your chest.",
+      "After a brief pause at the top contracted position, you can begin to lower yourself downward again for as many repetitions as needed."
+    ]
   },
   {
-    // substitute: RepDB "jumping-jacks" art (standing warm-up cardio)
-    id: "march-in-place",
-    name: "Jumping Jacks",
-    formCue: "Start with feet together and arms at your sides. Jump the feet out wide while raising your arms overhead, then jump back in. Keep it light and springy — step it out instead of jumping to lower the impact.",
-    imageSlot: "/exercises/march-in-place.png",
-    difficulty: "gentle",
+    "id": "Incline_Push-Up",
+    "name": "Incline Push-Up",
+    "images": [
+      "/exercises/Incline_Push-Up/0.jpg",
+      "/exercises/Incline_Push-Up/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Stand facing bench or sturdy elevated platform. Place hands on edge of bench or platform, slightly wider than shoulder width.",
+      "Position forefoot back from bench or platform with arms and body straight. Arms should be perpendicular to body. Keeping body straight, lower chest to edge of box or platform by bending arms.",
+      "Push body up until arms are extended. Repeat."
+    ]
   },
   {
-    // substitute: RepDB "russian-twist" art (seated oblique rotation)
-    id: "standing-side-crunch",
-    name: "Russian Twist",
-    formCue: "Sit with knees bent and heels down, lean back slightly to switch on the core. Rotate your torso side to side, bringing your hands past each hip. Move from the waist, not the arms.",
-    imageSlot: "/exercises/standing-side-crunch.png",
-    difficulty: "gentle",
+    "id": "Incline_Push-Up_Medium",
+    "name": "Incline Push-Up Medium",
+    "images": [
+      "/exercises/Incline_Push-Up_Medium/0.jpg",
+      "/exercises/Incline_Push-Up_Medium/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "abdominals",
+      "shoulders",
+      "triceps"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Stand facing a Smith machine bar or sturdy elevated platform at an appropriate height.",
+      "Place your hands on the bar, with your hands about shoulder width apart.",
+      "Position your feet back from the bar with arms and body straight. This will be your starting position.",
+      "Keeping your body straight, lower your chest to the bar by bending the arms.",
+      "Return to the starting position by extending the elbows, pressing yourself back up."
+    ]
   },
   {
-    // substitute: RepDB "bodyweight-lateral-raise" art (shoulder raise)
-    id: "arm-circles",
-    name: "Lateral Raise",
-    formCue: "Stand tall, arms at your sides. Raise both arms out to the sides to about shoulder height, leading with the elbows, then lower slowly. Keep shoulders down and don't swing.",
-    imageSlot: "/exercises/arm-circles.png",
-    difficulty: "gentle",
+    "id": "Pushups_Close_and_Wide_Hand_Positions",
+    "name": "Pushups (Close and Wide Hand Positions)",
+    "images": [
+      "/exercises/Pushups_Close_and_Wide_Hand_Positions/0.jpg",
+      "/exercises/Pushups_Close_and_Wide_Hand_Positions/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "chest"
+    ],
+    "secondaryMuscles": [
+      "shoulders",
+      "triceps"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Lie on the floor face down and body straight with your toes on the floor and the hands wider than shoulder width for a wide hand position and closer than shoulder width for a close hand position. Make sure you are holding your torso up at arms length.",
+      "Lower yourself until your chest almost touches the floor as you inhale.",
+      "Using your pectoral muscles, press your upper body back up to the starting position and squeeze your chest. Breathe out as you perform this step.",
+      "After a second pause at the contracted position, repeat the movement for the prescribed amount of repetitions."
+    ]
   },
   {
-    id: "wall-push-up",
-    name: "Wall Push-Up",
-    formCue: "Hands on the wall at chest height, body in a straight line, bend the elbows to bring your chest toward the wall, then press away.",
-    imageSlot: "/exercises/wall-push-up.png",
-    difficulty: "gentle",
+    "id": "Bench_Dips",
+    "name": "Bench Dips",
+    "images": [
+      "/exercises/Bench_Dips/0.jpg",
+      "/exercises/Bench_Dips/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "triceps"
+    ],
+    "secondaryMuscles": [
+      "chest",
+      "shoulders"
+    ],
+    "category": "strength",
+    "instructions": [
+      "For this exercise you will need to place a bench behind your back. With the bench perpendicular to your body, and while looking away from it, hold on to the bench on its edge with the hands fully extended, separated at shoulder width. The legs will be extended forward, bent at the waist and perpendicular to your torso. This will be your starting position.",
+      "Slowly lower your body as you inhale by bending at the elbows until you lower yourself far enough to where there is an angle slightly smaller than 90 degrees between the upper arm and the forearm. Tip: Keep the elbows as close as possible throughout the movement. Forearms should always be pointing down.",
+      "Using your triceps to bring your torso up again, lift yourself back to the starting position.",
+      "Repeat for the recommended amount of repetitions."
+    ]
   },
   {
-    // substitute: RepDB "split-squat" art (beginner squat regression)
-    id: "chair-assisted-squat",
-    name: "Split Squat",
-    formCue: "Stand in a split stance, one foot forward. Lower straight down until the back knee nearly touches the floor, front shin vertical, then drive up through the front heel. Hold a wall for balance if needed.",
-    imageSlot: "/exercises/chair-assisted-squat.png",
-    difficulty: "gentle",
+    "id": "Bodyweight_Squat",
+    "name": "Bodyweight Squat",
+    "images": [
+      "/exercises/Bodyweight_Squat/0.jpg",
+      "/exercises/Bodyweight_Squat/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "glutes",
+      "hamstrings"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Stand with your feet shoulder width apart. You can place your hands behind your head. This will be your starting position.",
+      "Begin the movement by flexing your knees and hips, sitting back with your hips.",
+      "Continue down to full depth if you are able,and quickly reverse the motion until you return to the starting position. As you squat, keep your head and chest up and push your knees out."
+    ]
   },
   {
-    // substitute: RepDB "side-lunge" art (lateral lower-body strength; no isometric wall-sit art exists)
-    id: "wall-sit",
-    name: "Side Lunge",
-    formCue: "Stand tall, step wide to one side and sit the hips back into that leg while the other stays straight, both feet flat. Push back to center. Chest up, knee tracking over the toes.",
-    imageSlot: "/exercises/wall-sit.png",
-    difficulty: "gentle",
+    "id": "Freehand_Jump_Squat",
+    "name": "Freehand Jump Squat",
+    "images": [
+      "/exercises/Freehand_Jump_Squat/0.jpg",
+      "/exercises/Freehand_Jump_Squat/1.jpg"
+    ],
+    "level": "intermediate",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "calves",
+      "glutes",
+      "hamstrings"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Cross your arms over your chest.",
+      "With your head up and your back straight, position your feet at shoulder width.",
+      "Keeping your back straight and chest up, squat down as you inhale until your upper thighs are parallel, or lower, to the floor.",
+      "Now pressing mainly with the ball of your feet, jump straight up in the air as high as possible, using the thighs like springs. Exhale during this portion of the movement.",
+      "When you touch the floor again, immediately squat down and jump again.",
+      "Repeat for the recommended amount of repetitions."
+    ]
   },
   {
-    id: "calf-raise",
-    name: "Calf Raise",
-    formCue: "Rise onto the balls of your feet, pause at the top, lower slowly under control. Hold a wall for balance if needed.",
-    imageSlot: "/exercises/calf-raise.png",
-    difficulty: "gentle",
+    "id": "Bodyweight_Walking_Lunge",
+    "name": "Bodyweight Walking Lunge",
+    "images": [
+      "/exercises/Bodyweight_Walking_Lunge/0.jpg",
+      "/exercises/Bodyweight_Walking_Lunge/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": null,
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "calves",
+      "glutes",
+      "hamstrings"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Begin standing with your feet shoulder width apart and your hands on your hips.",
+      "Step forward with one leg, flexing the knees to drop your hips. Descend until your rear knee nearly touches the ground. Your posture should remain upright, and your front knee should stay above the front foot.",
+      "Drive through the heel of your lead foot and extend both knees to raise yourself back up.",
+      "Step forward with your rear foot, repeating the lunge on the opposite leg."
+    ]
   },
   {
-    id: "glute-bridge",
-    name: "Glute Bridge",
-    formCue: "Lie on your back, feet flat, drive hips up by squeezing your glutes until shoulders-hips-knees form a line. Don't arch the lower back.",
-    imageSlot: "/exercises/glute-bridge.png",
-    difficulty: "gentle",
+    "id": "Scissors_Jump",
+    "name": "Scissors Jump",
+    "images": [
+      "/exercises/Scissors_Jump/0.jpg",
+      "/exercises/Scissors_Jump/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "glutes",
+      "hamstrings"
+    ],
+    "category": "plyometrics",
+    "instructions": [
+      "Assume a lunge stance position with one foot forward with the knee bent, and the rear knee nearly touching the ground.",
+      "Ensure that the front knee is over the midline of the foot. Extending through both legs, jump as high as possible, swinging your arms to gain lift.",
+      "As you jump as high as you can, switch the position of your legs, moving your front leg to the back and the rear leg to the front.",
+      "As you land, absorb the impact through the legs by adopting the lunge position, and repeat."
+    ]
   },
   {
-    id: "knee-push-up",
-    name: "Knee Push-Up",
-    formCue: "From knees, hands under shoulders, keep a straight line from knees to head. Lower the chest, then press up — no sagging hips.",
-    imageSlot: "/exercises/knee-push-up.png",
-    difficulty: "gentle",
+    "id": "Double_Leg_Butt_Kick",
+    "name": "Double Leg Butt Kick",
+    "images": [
+      "/exercises/Double_Leg_Butt_Kick/0.jpg",
+      "/exercises/Double_Leg_Butt_Kick/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "abductors",
+      "adductors",
+      "calves",
+      "glutes",
+      "hamstrings"
+    ],
+    "category": "plyometrics",
+    "instructions": [
+      "Begin standing with your knees slightly bent.",
+      "Quickly squat a short distance, flexing the hips and knees, and immediately extend to jump for maximum vertical height.",
+      "As you go up, tuck your heels by flexing the knees, attempting to touch the buttocks.",
+      "Finish the motion by landing with the knees only partially bent, using your legs to absorb the impact."
+    ]
   },
   {
-    id: "incline-push-up",
-    name: "Incline Push-Up",
-    formCue: "Hands on a bench or counter, body straight, lower chest to the edge and press back up. The higher the surface, the easier.",
-    imageSlot: "/exercises/incline-push-up.png",
-    difficulty: "gentle",
+    "id": "Star_Jump",
+    "name": "Star Jump",
+    "images": [
+      "/exercises/Star_Jump/0.jpg",
+      "/exercises/Star_Jump/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "calves",
+      "glutes",
+      "hamstrings",
+      "shoulders"
+    ],
+    "category": "plyometrics",
+    "instructions": [
+      "Begin in a relaxed stance with your feet shoulder width apart and hold your arms close to the body.",
+      "To initiate the move, squat down halfway and explode back up as high as possible. Fully extend your entire body, spreading your legs and arms away from the body.",
+      "As you land, bring your limbs back in and absorb your impact through the legs."
+    ]
   },
   {
-    // substitute: RepDB "superman" art (prone posterior-chain hold, same spirit as bird-dog)
-    id: "bird-dog",
-    name: "Superman",
-    formCue: "Lie face down, arms extended overhead. Lift your arms, chest, and legs off the floor together by squeezing your glutes and lower back. Hold briefly, then lower with control.",
-    imageSlot: "/exercises/bird-dog.png",
-    difficulty: "gentle",
+    "id": "Mountain_Climbers",
+    "name": "Mountain Climbers",
+    "images": [
+      "/exercises/Mountain_Climbers/0.jpg",
+      "/exercises/Mountain_Climbers/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "pull",
+    "mechanic": "compound",
+    "equipment": null,
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [
+      "chest",
+      "hamstrings",
+      "shoulders"
+    ],
+    "category": "plyometrics",
+    "instructions": [
+      "Begin in a pushup position, with your weight supported by your hands and toes. Flexing the knee and hip, bring one leg until the knee is approximately under the hip. This will be your starting position.",
+      "Explosively reverse the positions of your legs, extending the bent leg until the leg is straight and supported by the toe, and bringing the other foot up with the hip and knee flexed. Repeat in an alternating fashion for 20-30 seconds."
+    ]
   },
   {
-    id: "dead-bug",
-    name: "Dead Bug",
-    formCue: "On your back, arms up, knees bent at 90°. Lower one arm and the opposite leg while pressing your lower back into the floor.",
-    imageSlot: "/exercises/dead-bug.png",
-    difficulty: "gentle",
+    "id": "Rear_Leg_Raises",
+    "name": "Rear Leg Raises",
+    "images": [
+      "/exercises/Rear_Leg_Raises/0.jpg",
+      "/exercises/Rear_Leg_Raises/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": null,
+    "equipment": "body only",
+    "primaryMuscles": [
+      "quadriceps"
+    ],
+    "secondaryMuscles": [],
+    "category": "stretching",
+    "instructions": [
+      "Place yourself on your hands knees on an exercise mat. Your head should be looking forward and the bend of the knees should create a 90-degree angle between the hamstrings and the calves. This will be your starting position.",
+      "Extend one leg up and behind you. The knee and hip should both extend. Repeat for 5-10 repetitions, and then switch sides."
+    ]
   },
   {
-    // substitute: RepDB "flutter-kicks" art (core; the free tier has no unused rotational/oblique art left)
-    id: "standing-oblique-twist",
-    name: "Flutter Kicks",
-    formCue: "Lie on your back, hands tucked under your hips, legs straight and lifted a few inches off the floor. Alternate small, quick up-and-down kicks while pressing your lower back into the floor.",
-    imageSlot: "/exercises/standing-oblique-twist.png",
-    difficulty: "gentle",
-  },
-
-  // ── Moderate / strength / higher-intensity ─────────────────────────────────
-  {
-    id: "bodyweight-squat",
-    name: "Bodyweight Squat",
-    formCue: "Feet shoulder-width, sit hips back and down to at least parallel, knees tracking over toes, chest up. Drive through the heels.",
-    imageSlot: "/exercises/bodyweight-squat.png",
-    difficulty: "moderate",
-  },
-  {
-    id: "sumo-squat",
-    name: "Sumo Squat",
-    formCue: "Wide stance, toes turned out ~30°, squat straight down keeping knees pushed out over the toes. Squeeze glutes at the top.",
-    imageSlot: "/exercises/sumo-squat.png",
-    difficulty: "moderate",
-  },
-  {
-    id: "forward-lunge",
-    name: "Forward Lunge",
-    formCue: "Step forward and lower until both knees are ~90°, front knee over the ankle. Push back to standing. Torso stays upright.",
-    imageSlot: "/exercises/forward-lunge.png",
-    difficulty: "moderate",
+    "id": "Knee_Circles",
+    "name": "Knee Circles",
+    "images": [
+      "/exercises/Knee_Circles/0.jpg",
+      "/exercises/Knee_Circles/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "pull",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "calves"
+    ],
+    "secondaryMuscles": [
+      "hamstrings",
+      "quadriceps"
+    ],
+    "category": "stretching",
+    "instructions": [
+      "Stand with your legs together and hands by your waist.",
+      "Now move your knees in a circular motion as you breathe normally.",
+      "Repeat for the recommended amount of repetitions."
+    ]
   },
   {
-    id: "reverse-lunge",
-    name: "Reverse Lunge",
-    formCue: "Step backward and drop the back knee toward the floor, front shin vertical. Drive through the front heel to return. Easier on the knees than forward.",
-    imageSlot: "/exercises/reverse-lunge.png",
-    difficulty: "moderate",
+    "id": "Kneeling_Arm_Drill",
+    "name": "Kneeling Arm Drill",
+    "images": [
+      "/exercises/Kneeling_Arm_Drill/0.jpg",
+      "/exercises/Kneeling_Arm_Drill/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "pull",
+    "mechanic": null,
+    "equipment": null,
+    "primaryMuscles": [
+      "shoulders"
+    ],
+    "secondaryMuscles": [
+      "abdominals"
+    ],
+    "category": "plyometrics",
+    "instructions": [
+      "This drill helps increase arm efficiency during the run. Begin kneeling, left foot in front, right knee down. Apply pressure through the front heel to keep your glutes and hamstrings activated.",
+      "Begin by blocking the arms in long, pendulum like swings. Close the arm angle, blocking with the arms as you would when jogging, progressing to a run and finally a sprint.",
+      "As soon as your hands pass the hip, accelerate them forward during the sprinting motion to move them as quickly as possible.",
+      "Switch knees and repeat."
+    ]
   },
   {
-    id: "step-up",
-    name: "Step-Up",
-    formCue: "Plant the whole foot on a sturdy step, drive through that heel to stand tall, control the way down. Don't push off the bottom foot.",
-    imageSlot: "/exercises/step-up.png",
-    difficulty: "moderate",
+    "id": "Superman",
+    "name": "Superman",
+    "images": [
+      "/exercises/Superman/0.jpg",
+      "/exercises/Superman/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "static",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "lower back"
+    ],
+    "secondaryMuscles": [
+      "glutes",
+      "hamstrings"
+    ],
+    "category": "stretching",
+    "instructions": [
+      "To begin, lie straight and face down on the floor or exercise mat. Your arms should be fully extended in front of you. This is the starting position.",
+      "Simultaneously raise your arms, legs, and chest off of the floor and hold this contraction for 2 seconds. Tip: Squeeze your lower back to get the best results from this exercise. Remember to exhale during this movement. Note: When holding the contracted position, you should look like superman when he is flying.",
+      "Slowly begin to lower your arms, legs and chest back down to the starting position while inhaling.",
+      "Repeat for the recommended amount of repetitions prescribed in your program."
+    ]
   },
   {
-    id: "push-up",
-    name: "Push-Up",
-    formCue: "Hands just wider than shoulders, body in one rigid line, lower until elbows are ~90°, then press up. Brace the core the whole time.",
-    imageSlot: "/exercises/push-up.png",
-    difficulty: "moderate",
+    "id": "Butt_Lift_Bridge",
+    "name": "Butt Lift (Bridge)",
+    "images": [
+      "/exercises/Butt_Lift_Bridge/0.jpg",
+      "/exercises/Butt_Lift_Bridge/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "isolation",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "glutes"
+    ],
+    "secondaryMuscles": [
+      "hamstrings"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Lie flat on the floor on your back with the hands by your side and your knees bent. Your feet should be placed around shoulder width. This will be your starting position.",
+      "Pushing mainly with your heels, lift your hips off the floor while keeping your back straight. Breathe out as you perform this part of the motion and hold at the top for a second.",
+      "Slowly go back to the starting position as you breathe in."
+    ]
   },
   {
-    // substitute: RepDB "v-ups" art (core; no plank-family art exists anywhere in the free tier)
-    id: "plank",
-    name: "V-Ups",
-    formCue: "Lie flat with arms extended overhead. In one motion lift your legs and torso to meet over your hips, reaching your hands toward your feet, then lower under control. Smooth, not jerky.",
-    imageSlot: "/exercises/plank.png",
-    difficulty: "moderate",
+    "id": "Step-up_with_Knee_Raise",
+    "name": "Step-up with Knee Raise",
+    "images": [
+      "/exercises/Step-up_with_Knee_Raise/0.jpg",
+      "/exercises/Step-up_with_Knee_Raise/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "push",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "glutes"
+    ],
+    "secondaryMuscles": [
+      "hamstrings",
+      "quadriceps"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Stand facing a box or bench of an appropriate height with your feet together. This will be your starting position.",
+      "Begin the movement by stepping up, putting your left foot on the top of the bench. Extend through the hip and knee of your front leg to stand up on the box. As you stand on the box with your left leg, flex your right knee and hip, bringing your knee as high as you can.",
+      "Reverse this motion to step down off the box, and then repeat the sequence on the opposite leg."
+    ]
   },
   {
-    // substitute: RepDB "side-lying-hip-abduction" art (lateral core/hip; closest side-oriented move with art)
-    id: "side-plank",
-    name: "Side-Lying Hip Abduction",
-    formCue: "Lie on your side, body in a straight line, propped on your forearm. Lift the top leg straight up as high as you can control, then lower slowly. Keep hips stacked — don't roll back.",
-    imageSlot: "/exercises/side-plank.png",
-    difficulty: "moderate",
+    "id": "Plank",
+    "name": "Plank",
+    "images": [
+      "/exercises/Plank/0.jpg",
+      "/exercises/Plank/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "static",
+    "mechanic": "isolation",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "category": "strength",
+    "instructions": [
+      "Get into a prone position on the floor, supporting your weight on your toes and your forearms. Your arms are bent and directly below the shoulder.",
+      "Keep your body straight at all times, and hold this position as long as possible. To increase difficulty, an arm or leg can be raised."
+    ]
   },
   {
-    id: "crunch",
-    name: "Crunch",
-    formCue: "On your back, knees bent, curl the shoulder blades off the floor by contracting the abs. Don't yank on the neck — chin off chest.",
-    imageSlot: "/exercises/crunch.png",
-    difficulty: "gentle",
+    "id": "Side_Bridge",
+    "name": "Side Bridge",
+    "images": [
+      "/exercises/Side_Bridge/0.jpg",
+      "/exercises/Side_Bridge/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "static",
+    "mechanic": null,
+    "equipment": "body only",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [
+      "shoulders"
+    ],
+    "category": "strength",
+    "instructions": []
   },
   {
-    id: "sit-up",
-    name: "Sit-Up",
-    formCue: "Full range from lying to sitting, hands crossed on the chest, controlled on the way down. Anchor feet only if needed.",
-    imageSlot: "/exercises/sit-up.png",
-    difficulty: "moderate",
+    "id": "Dead_Bug",
+    "name": "Dead Bug",
+    "images": [
+      "/exercises/Dead_Bug/0.jpg",
+      "/exercises/Dead_Bug/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "pull",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "category": "strength",
+    "instructions": [
+      "Begin lying on your back with your hands extended above you toward the ceiling.",
+      "Bring your feet, knees, and hips up to 90 degrees.",
+      "Exhale hard to bring your ribcage down and flatten your back onto the floor, rotating your pelvis up and squeezing your glutes. Hold this position throughout the movement. This will be your starting position.",
+      "Initiate the exercise by extending one leg, straightening the knee and hip to bring the leg just above the ground.",
+      "Maintain the position of your lumbar and pelvis as you perform the movement, as your back is going to want to arch.",
+      "Stay tight and return the working leg to the starting position.",
+      "Repeat on the opposite side, alternating until the set is complete."
+    ]
   },
   {
-    id: "bicycle-crunch",
-    name: "Bicycle Crunch",
-    formCue: "Bring the opposite elbow to the opposite knee while extending the other leg, alternating in a smooth pedaling rhythm. Slow beats fast.",
-    imageSlot: "/exercises/bicycle-crunch.png",
-    difficulty: "moderate",
+    "id": "Cross-Body_Crunch",
+    "name": "Cross-Body Crunch",
+    "images": [
+      "/exercises/Cross-Body_Crunch/0.jpg",
+      "/exercises/Cross-Body_Crunch/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "pull",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "category": "strength",
+    "instructions": [
+      "Lie flat on your back and bend your knees about 60 degrees.",
+      "Keep your feet flat on the floor and place your hands loosely behind your head. This will be your starting position.",
+      "Now curl up and bring your right elbow and shoulder across your body while bring your left knee in toward your left shoulder at the same time. Reach with your elbow and try to touch your knee. Exhale as you perform this movement. Tip: Try to bring your shoulder up towards your knee rather than just your elbow and remember that the key is to contract the abs as you perform the movement; not just to move the elbow.",
+      "Now go back down to the starting position as you inhale and repeat with the left elbow and the right knee.",
+      "Continue alternating in this manner until all prescribed repetitions are done."
+    ]
   },
   {
-    id: "mountain-climber",
-    name: "Mountain Climber",
-    formCue: "From a high plank, drive one knee toward the chest, then switch quickly, keeping hips low and shoulders over the hands.",
-    imageSlot: "/exercises/mountain-climber.png",
-    difficulty: "moderate",
+    "id": "Crunches",
+    "name": "Crunches",
+    "images": [
+      "/exercises/Crunches/0.jpg",
+      "/exercises/Crunches/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "pull",
+    "mechanic": "isolation",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "category": "strength",
+    "instructions": [
+      "Lie flat on your back with your feet flat on the ground, or resting on a bench with your knees bent at a 90 degree angle. If you are resting your feet on a bench, place them three to four inches apart and point your toes inward so they touch.",
+      "Now place your hands lightly on either side of your head keeping your elbows in. Tip: Don't lock your fingers behind your head.",
+      "While pushing the small of your back down in the floor to better isolate your abdominal muscles, begin to roll your shoulders off the floor.",
+      "Continue to push down as hard as you can with your lower back as you contract your abdominals and exhale. Your shoulders should come up off the floor only about four inches, and your lower back should remain on the floor. At the top of the movement, contract your abdominals hard and keep the contraction for a second. Tip: Focus on slow, controlled movement - don't cheat yourself by using momentum.",
+      "After the one second contraction, begin to come down slowly again to the starting position as you inhale.",
+      "Repeat for the recommended amount of repetitions."
+    ]
   },
   {
-    // substitute: RepDB "jump-squat" art (explosive lower-body cardio, same moderate intensity as high knees)
-    id: "high-knees",
-    name: "Jump Squat",
-    formCue: "Drop into a squat, then explode straight up into a jump, swinging your arms for momentum. Land soft through the whole foot and absorb straight into the next squat. Skip the jump to regress.",
-    imageSlot: "/exercises/high-knees.png",
-    difficulty: "moderate",
+    "id": "Oblique_Crunches",
+    "name": "Oblique Crunches",
+    "images": [
+      "/exercises/Oblique_Crunches/0.jpg",
+      "/exercises/Oblique_Crunches/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "pull",
+    "mechanic": "isolation",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "category": "strength",
+    "instructions": [
+      "Lie flat on the floor with your lower back pressed to the ground. For this exercise, you will need to put one hand beside your head and the other to the side against the floor.",
+      "Make sure your feet are elevated and resting on a flat surface.",
+      "Now lift the shoulder in which your hand is touching your head.",
+      "Simply elevate your shoulder and body upward until you touch your knee. For example, if you have your right hand besides your head, then you want to elevate your body upwards until your right elbow touches your left knee. The same variation can be applied doing the inverse and using your left elbow to touch your right knee.",
+      "After your knee touches your elbow, lower your body until you have reached the starting position.",
+      "Remember to breathe in during the eccentric (lowering) part of the exercise and to breathe out during the concentric (upward) part of the exercise.",
+      "Continue alternating in this manner until all of the recommended repetitions for each side have been completed."
+    ]
+  },
+  {
+    "id": "Russian_Twist",
+    "name": "Russian Twist",
+    "images": [
+      "/exercises/Russian_Twist/0.jpg",
+      "/exercises/Russian_Twist/1.jpg"
+    ],
+    "level": "intermediate",
+    "force": "pull",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [
+      "lower back"
+    ],
+    "category": "strength",
+    "instructions": [
+      "Lie down on the floor placing your feet either under something that will not move or by having a partner hold them. Your legs should be bent at the knees.",
+      "Elevate your upper body so that it creates an imaginary V-shape with your thighs. Your arms should be fully extended in front of you perpendicular to your torso and with the hands clasped. This is the starting position.",
+      "Twist your torso to the right side until your arms are parallel with the floor while breathing out.",
+      "Hold the contraction for a second and move back to the starting position while breathing out. Now move to the opposite side performing the same techniques you applied to the right side.",
+      "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  {
+    "id": "Air_Bike",
+    "name": "Air Bike",
+    "images": [
+      "/exercises/Air_Bike/0.jpg",
+      "/exercises/Air_Bike/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "pull",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "category": "strength",
+    "instructions": [
+      "Lie flat on the floor with your lower back pressed to the ground. For this exercise, you will need to put your hands beside your head. Be careful however to not strain with the neck as you perform it. Now lift your shoulders into the crunch position.",
+      "Bring knees up to where they are perpendicular to the floor, with your lower legs parallel to the floor. This will be your starting position.",
+      "Now simultaneously, slowly go through a cycle pedal motion kicking forward with the right leg and bringing in the knee of the left leg. Bring your right elbow close to your left knee by crunching to the side, as you breathe out.",
+      "Go back to the initial position as you breathe in.",
+      "Crunch to the opposite side as you cycle your legs and bring closer your left elbow to your right knee and exhale.",
+      "Continue alternating in this manner until all of the recommended repetitions for each side have been completed."
+    ]
+  },
+  {
+    "id": "Flutter_Kicks",
+    "name": "Flutter Kicks",
+    "images": [
+      "/exercises/Flutter_Kicks/0.jpg",
+      "/exercises/Flutter_Kicks/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "pull",
+    "mechanic": "compound",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "glutes"
+    ],
+    "secondaryMuscles": [
+      "hamstrings"
+    ],
+    "category": "strength",
+    "instructions": [
+      "On a flat bench lie facedown with the hips on the edge of the bench, the legs straight with toes high off the floor and with the arms on top of the bench holding on to the front edge.",
+      "Squeeze your glutes and hamstrings and straighten the legs until they are level with the hips. This will be your starting position.",
+      "Start the movement by lifting the left leg higher than the right leg.",
+      "Then lower the left leg as you lift the right leg.",
+      "Continue alternating in this manner (as though you are doing a flutter kick in water) until you have done the recommended amount of repetitions for each leg. Make sure that you keep a controlled movement at all times. Tip: You will breathe normally as you perform this movement."
+    ]
+  },
+  {
+    "id": "Sit-Up",
+    "name": "Sit-Up",
+    "images": [
+      "/exercises/Sit-Up/0.jpg",
+      "/exercises/Sit-Up/1.jpg"
+    ],
+    "level": "beginner",
+    "force": "pull",
+    "mechanic": "isolation",
+    "equipment": "body only",
+    "primaryMuscles": [
+      "abdominals"
+    ],
+    "secondaryMuscles": [],
+    "category": "strength",
+    "instructions": [
+      "Lie down on the floor placing your feet either under something that will not move or by having a partner hold them. Your legs should be bent at the knees.",
+      "Place your hands behind your head and lock them together by clasping your fingers. This is the starting position.",
+      "Elevate your upper body so that it creates an imaginary V-shape with your thighs. Breathe out when performing this part of the exercise.",
+      "Once you feel the contraction for a second, lower your upper body back down to the starting position while inhaling.",
+      "Repeat for the recommended amount of repetitions."
+    ]
   },
 ];
 
