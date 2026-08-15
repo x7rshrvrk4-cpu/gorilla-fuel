@@ -14,6 +14,9 @@ import { EXERCISE_IDS } from "./exerciseLibrary";
 
 export type PlanSlug = "lean-down" | "build" | "tone-up" | "stay-healthy" | "energize";
 
+/** One day of the weekly split. `exerciseIds` is empty on rest / walk days. */
+export type WeeklySplitDay = { day: string; focus: string; exerciseIds: string[] };
+
 export type Plan = {
   id: string;
   slug: PlanSlug;
@@ -29,6 +32,12 @@ export type Plan = {
   cheatAllowance: string;
   /** Exercise ids (see exerciseLibrary) — the movements this plan programs. */
   exercises: string[];
+  /**
+   * The day-by-day weekly split — the full Mon–Sun week, rest/walk days included
+   * explicitly (empty `exerciseIds`). Every id must exist in exerciseLibrary; the
+   * flat `exercises` array above is kept as the plan's full movement pool.
+   */
+  weeklySplit: WeeklySplitDay[];
   structure: string;
   progression: string;
 };
@@ -65,6 +74,18 @@ export const PLANS: Plan[] = [
       "Cross-Body_Crunch", "Star_Jump", "Pushups_Close_and_Wide_Hand_Positions", "Incline_Push-Up_Medium",
       "Rear_Leg_Raises", "Bodyweight_Squat", "Butt_Lift_Bridge", "Russian_Twist",
       "Knee_Circles", "Plank",
+    ],
+    // Beginner-oriented, carrying extra weight: gentle full-body 3×/week (Mon/Wed/Fri)
+    // with a daily walk on the between days — matches "move most days", no back-to-back
+    // strength sessions so recovery is easy.
+    weeklySplit: [
+      { day: "Monday", focus: "Full body", exerciseIds: ["Incline_Push-Up_Medium", "Bodyweight_Squat", "Plank"] },
+      { day: "Tuesday", focus: "Walk / active recovery", exerciseIds: [] },
+      { day: "Wednesday", focus: "Full body", exerciseIds: ["Pushups_Close_and_Wide_Hand_Positions", "Butt_Lift_Bridge", "Cross-Body_Crunch"] },
+      { day: "Thursday", focus: "Walk / active recovery", exerciseIds: [] },
+      { day: "Friday", focus: "Full body", exerciseIds: ["Rear_Leg_Raises", "Star_Jump", "Russian_Twist"] },
+      { day: "Saturday", focus: "Walk / active recovery", exerciseIds: [] },
+      { day: "Sunday", focus: "Rest", exerciseIds: [] },
     ],
     structure:
       "2 rounds of about 10–12 reps each (planks 15–20 seconds), 3× a week — plus aim for a daily walk.",
@@ -103,6 +124,19 @@ export const PLANS: Plan[] = [
       "Pushups", "Incline_Push-Up", "Butt_Lift_Bridge", "Plank", "Side_Bridge", "Superman",
       "Knee_Circles", "Step-up_with_Knee_Raise", "Double_Leg_Butt_Kick",
     ],
+    // Wants size/strength and to hit every major group twice a week → a 6-day
+    // Push / Pull / Legs rotation (each pattern trained twice), one rest day. The
+    // most advanced split of the five. Push = chest/triceps/shoulders, Pull =
+    // lats/biceps/lower-back, Legs = quads/glutes/hamstrings.
+    weeklySplit: [
+      { day: "Monday", focus: "Push (chest · triceps · shoulders)", exerciseIds: ["Pushups", "Bench_Dips", "Handstand_Push-Ups"] },
+      { day: "Tuesday", focus: "Pull (back · biceps)", exerciseIds: ["Pullups", "Chin-Up", "Superman"] },
+      { day: "Wednesday", focus: "Legs (quads · glutes · hamstrings)", exerciseIds: ["Bodyweight_Squat", "Bodyweight_Walking_Lunge", "Natural_Glute_Ham_Raise"] },
+      { day: "Thursday", focus: "Push (chest · triceps · shoulders)", exerciseIds: ["Incline_Push-Up", "Push-Ups_-_Close_Triceps_Position", "Kneeling_Arm_Drill"] },
+      { day: "Friday", focus: "Pull (back · lower back)", exerciseIds: ["Wide-Grip_Rear_Pull-Up", "V-Bar_Pullup", "Hyperextensions_With_No_Hyperextension_Bench"] },
+      { day: "Saturday", focus: "Legs (quads · glutes)", exerciseIds: ["Freehand_Jump_Squat", "Step-up_with_Knee_Raise", "Single_Leg_Glute_Bridge"] },
+      { day: "Sunday", focus: "Rest", exerciseIds: [] },
+    ],
     structure:
       "Full-body, 2–3 sets of 8–12 reps, 3× a week (e.g. Mon/Wed/Fri) — hitting every major muscle group at least twice.",
     progression:
@@ -139,6 +173,19 @@ export const PLANS: Plan[] = [
       "Bodyweight_Squat", "Bodyweight_Walking_Lunge", "Scissors_Jump", "Pushups", "Incline_Push-Up_Medium",
       "Butt_Lift_Bridge", "Plank", "Side_Bridge", "Air_Bike", "Dead_Bug",
       "Oblique_Crunches", "Mountain_Climbers", "Knee_Circles",
+    ],
+    // The "middle" plan — defined, not big. An Upper / Lower rotation 4×/week plus a
+    // dedicated core + conditioning day (the "light conditioning between strength
+    // moves" the structure copy describes), two rest days. More structured than the
+    // beginner full-body plans, lighter than the 6-day build split.
+    weeklySplit: [
+      { day: "Monday", focus: "Upper body", exerciseIds: ["Pushups", "Pullups", "Bench_Dips"] },
+      { day: "Tuesday", focus: "Lower body", exerciseIds: ["Bodyweight_Squat", "Bodyweight_Walking_Lunge", "Butt_Lift_Bridge"] },
+      { day: "Wednesday", focus: "Rest", exerciseIds: [] },
+      { day: "Thursday", focus: "Upper body", exerciseIds: ["Incline_Push-Up_Medium", "Chin-Up", "Handstand_Push-Ups"] },
+      { day: "Friday", focus: "Lower body", exerciseIds: ["Scissors_Jump", "Step-up_with_Knee_Raise", "90_90_Hamstring"] },
+      { day: "Saturday", focus: "Core & conditioning", exerciseIds: ["Plank", "Oblique_Crunches", "Mountain_Climbers"] },
+      { day: "Sunday", focus: "Rest", exerciseIds: [] },
     ],
     structure:
       "A full-body circuit, 2–3 rounds of about 12–15 reps, 3–4× a week — with high-knees and oblique work as light conditioning between the strength moves.",
@@ -177,6 +224,17 @@ export const PLANS: Plan[] = [
       "Bodyweight_Squat", "Pushups", "Incline_Push-Up_Medium", "Plank", "Butt_Lift_Bridge", "Bodyweight_Walking_Lunge",
       "Scissors_Jump", "Superman", "Star_Jump", "Mountain_Climbers", "Knee_Circles", "Kneeling_Arm_Drill",
     ],
+    // Not chasing a transformation — 3× light full-body work with daily movement on the
+    // between days ("move daily: walk, take the stairs"). No extremes, easy recovery.
+    weeklySplit: [
+      { day: "Monday", focus: "Full body", exerciseIds: ["Bodyweight_Squat", "Incline_Push-Up_Medium", "Plank"] },
+      { day: "Tuesday", focus: "Move daily (walk / stairs)", exerciseIds: [] },
+      { day: "Wednesday", focus: "Full body", exerciseIds: ["Bodyweight_Walking_Lunge", "Pushups", "Superman"] },
+      { day: "Thursday", focus: "Move daily (walk / stairs)", exerciseIds: [] },
+      { day: "Friday", focus: "Full body", exerciseIds: ["Butt_Lift_Bridge", "Star_Jump", "Mountain_Climbers"] },
+      { day: "Saturday", focus: "Move daily (walk / stairs)", exerciseIds: [] },
+      { day: "Sunday", focus: "Rest", exerciseIds: [] },
+    ],
     structure:
       "About 2–3× a week of light full-body work — plus move daily: walk, take the stairs, stay active. Regular, not intense.",
     progression:
@@ -212,6 +270,17 @@ export const PLANS: Plan[] = [
     exercises: [
       "Star_Jump", "Mountain_Climbers", "Kneeling_Arm_Drill", "Bodyweight_Squat", "Butt_Lift_Bridge",
       "Cross-Body_Crunch", "Oblique_Crunches", "Plank",
+    ],
+    // About energy, not training load: short (10–15 min) near-daily full-body mini-sessions,
+    // deliberately light, with a brisk-walk day and one full rest. Consistency over intensity.
+    weeklySplit: [
+      { day: "Monday", focus: "Energizer (short full body)", exerciseIds: ["Bodyweight_Squat", "Star_Jump", "Plank"] },
+      { day: "Tuesday", focus: "Energizer (short full body)", exerciseIds: ["Mountain_Climbers", "Butt_Lift_Bridge", "Cross-Body_Crunch"] },
+      { day: "Wednesday", focus: "Energizer (short full body)", exerciseIds: ["Kneeling_Arm_Drill", "Bodyweight_Squat", "Oblique_Crunches"] },
+      { day: "Thursday", focus: "Energizer (short full body)", exerciseIds: ["Star_Jump", "Butt_Lift_Bridge", "Plank"] },
+      { day: "Friday", focus: "Energizer (short full body)", exerciseIds: ["Mountain_Climbers", "Cross-Body_Crunch", "Oblique_Crunches"] },
+      { day: "Saturday", focus: "Brisk walk", exerciseIds: [] },
+      { day: "Sunday", focus: "Rest", exerciseIds: [] },
     ],
     structure:
       "Short, near-daily sessions of 10–15 minutes, most days — plus a brisk walk, which does more for energy than you'd think. Time your coffee with the /caffeine tool — respect the half-life so it lifts you without a crash. Gentle by design.",
@@ -256,6 +325,11 @@ export function validatePlanReferences(): { plan: string; kind: "pantry" | "exer
     }
     for (const id of plan.exercises) {
       if (!EXERCISE_IDS.has(id)) problems.push({ plan: plan.slug, kind: "exercise", id });
+    }
+    for (const day of plan.weeklySplit) {
+      for (const id of day.exerciseIds) {
+        if (!EXERCISE_IDS.has(id)) problems.push({ plan: plan.slug, kind: "exercise", id });
+      }
     }
   }
   return problems;

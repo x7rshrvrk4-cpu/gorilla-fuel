@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { EXERCISE_BY_ID, type Exercise, type ExerciseLevel } from "../lib/exerciseLibrary";
-import type { Plan } from "../lib/plans";
+import type { Plan, WeeklySplitDay } from "../lib/plans";
 
 /**
  * The movement side of a plan page: the routine structure, the plan's exercises
@@ -29,6 +29,20 @@ export default function MovementSection({ plan }: { plan: Plan }) {
 
   return (
     <div className="mt-4 flex flex-col gap-6">
+      {/* ── The week (day-by-day split) ────────────────────────────────────── */}
+      <div>
+        <p className="font-display text-sm tracking-[0.2em] text-gold">THE WEEK</p>
+        <p className="mt-1 text-xs leading-relaxed text-muted/70">
+          Your Monday-through-Sunday split. Rest and walk days are part of the plan — they&apos;re
+          when the work pays off.
+        </p>
+        <div className="mt-4 flex flex-col gap-3">
+          {plan.weeklySplit.map((day) => (
+            <WeekDay key={day.day} day={day} />
+          ))}
+        </div>
+      </div>
+
       {/* ── Structure ──────────────────────────────────────────────────────── */}
       <div className="gorilla-card rounded-sm p-5">
         <p className="font-display text-sm tracking-[0.2em] text-gold">THE ROUTINE</p>
@@ -37,7 +51,7 @@ export default function MovementSection({ plan }: { plan: Plan }) {
 
       {/* ── Exercise cards ─────────────────────────────────────────────────── */}
       <div>
-        <p className="font-display text-sm tracking-[0.2em] text-gold">THE MOVES</p>
+        <p className="font-display text-sm tracking-[0.2em] text-gold">ALL THE MOVES</p>
         <p className="mt-1 text-xs leading-relaxed text-muted/70">
           Beginner-friendly, no equipment. Start with the gentle version and only progress when it feels good.
         </p>
@@ -53,6 +67,45 @@ export default function MovementSection({ plan }: { plan: Plan }) {
         <p className="text-[10px] uppercase tracking-[0.2em] text-gold">How to level up</p>
         <p className="mt-1 text-sm leading-relaxed text-muted">{plan.progression}</p>
       </div>
+    </div>
+  );
+}
+
+/**
+ * One day of the weekly split: a labelled header (day + focus) with either the
+ * day's ExerciseCards or a compact "rest / walk" row when there are no movements.
+ * Reuses ExerciseCard so the split and the full move list share one card style.
+ */
+function WeekDay({ day }: { day: WeeklySplitDay }) {
+  const exercises = day.exerciseIds
+    .map((id) => EXERCISE_BY_ID[id])
+    .filter((e): e is Exercise => Boolean(e));
+  const isRest = exercises.length === 0;
+
+  return (
+    <div className="rounded-sm border border-line bg-surface p-4">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="font-display text-lg leading-none tracking-wide text-foreground">{day.day}</p>
+        <p
+          className={`font-display text-[10px] uppercase tracking-[0.15em] ${
+            isRest ? "text-muted/60" : "text-gold"
+          }`}
+        >
+          {day.focus}
+        </p>
+      </div>
+
+      {isRest ? (
+        <p className="mt-2 text-xs leading-relaxed text-muted/70">
+          No session today — {day.focus.toLowerCase()}.
+        </p>
+      ) : (
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {exercises.map((exercise) => (
+            <ExerciseCard key={exercise.id} exercise={exercise} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
