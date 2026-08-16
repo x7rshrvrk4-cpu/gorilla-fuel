@@ -280,22 +280,50 @@ async function fetchOffHit(barcode: string, scannedBarcode: string): Promise<Ext
   }
 }
 
-/** Tier A: Open Food Facts + high hit-rate food sources. First hit wins; 3 s window. */
+/** True if a nutriments object carries at least one real macro value — i.e. it's more than
+ *  a bare identity record. UPCitemdb returns `{}`, so its hits are always identity-only and
+ *  this returns false for them. */
+function hasRealNutriments(n: Nutriments | undefined | null): boolean {
+  if (!n) return false;
+  const macros: (keyof Nutriments)[] = [
+    "energy-kcal_100g", "energy-kcal_serving", "proteins_100g", "carbohydrates_100g",
+    "carbohydrates_serving", "sugars_100g", "sugars_serving", "saturated-fat_100g",
+    "saturated-fat_serving", "salt_100g", "salt_serving", "fiber_100g",
+  ];
+  return macros.some((k) => typeof n[k] === "number" && !Number.isNaN(n[k] as number));
+}
+
+/** True if a Tier-A hit is a bare UPCitemdb identity match (name only, no nutriments). Such a
+ *  hit is category-blind, so it must NOT be allowed to stand in for a real food answer or to
+ *  block the Tier-B specialty sources (Open Beauty Facts, supplements, drugs). */
+function isIdentityOnlyUpcHit(hit: ExternalHit | null): boolean {
+  return !!hit && hit.kind === "food" && hit.source === "upcitemdb" && !hasRealNutriments(hit.data.nutriments);
+}
+
+/** Tier A: Open Food Facts + high hit-rate food sources. First REAL hit wins; 3 s window.
+ *  A bare UPCitemdb identity hit (empty nutriments) does NOT win the race — it is held as a
+ *  fallback so a slower OFF/FatSecret/Nutritionix hit still takes precedence, and so the caller
+ *  can let Tier B (incl. Open Beauty Facts) run before settling for a low-data food result. */
 function raceTierA(barcode: string, scannedBarcode: string, windowMs = 3_000): Promise<ExternalHit | null> {
   return new Promise((resolve) => {
     let settled = false;
     let pending = 4;
-    const settle = (hit: ExternalHit | null) => {
-      if (!settled && hit !== null) { settled = true; resolve(hit); return; }
-      if (--pending === 0 && !settled) resolve(null);
-    };
-    const fail = () => { if (--pending === 0 && !settled) resolve(null); };
-    setTimeout(() => { if (!settled) { settled = true; resolve(null); } }, windowMs);
+    let upcFallback: ExternalHit | null = null;
+    const finish = (hit: ExternalHit | null) => { if (!settled) { settled = true; resolve(hit); } };
+    const done = () => { if (--pending === 0) finish(upcFallback); };
+    const settle = (hit: ExternalHit | null) => { if (hit !== null) finish(hit); else done(); };
+    setTimeout(() => finish(upcFallback), windowMs);
 
-    fetchOffHit(barcode, scannedBarcode).then(settle).catch(fail);
-    lookupUpcItemDb(barcode).then((d) => settle(d ? { kind: "food", data: d, source: "upcitemdb" } : null)).catch(fail);
-    lookupFatSecret(barcode).then((d) => settle(d ? { kind: "food", data: d, source: "fatsecret" } : null)).catch(fail);
-    lookupNutritionix(barcode).then((d) => settle(d ? { kind: "food", data: d, source: "nutritionix" } : null)).catch(fail);
+    fetchOffHit(barcode, scannedBarcode).then(settle, done);
+    // UPCitemdb is identity-only (empty nutriments). Hold it as a fallback rather than letting
+    // it win — otherwise a category-blind name match blocks the real food sources here AND the
+    // Open Beauty Facts / specialty sources in Tier B (the beauty-misrouting bug).
+    lookupUpcItemDb(barcode).then((d) => {
+      if (d) upcFallback = { kind: "food", data: d, source: "upcitemdb" };
+      done();
+    }, done);
+    lookupFatSecret(barcode).then((d) => settle(d ? { kind: "food", data: d, source: "fatsecret" } : null), done);
+    lookupNutritionix(barcode).then((d) => settle(d ? { kind: "food", data: d, source: "nutritionix" } : null), done);
   });
 }
 
@@ -845,10 +873,25 @@ export default function ScanClient() {
         // STEP 4 — TIER B: Specialty sources (only if Tier A misses)
         // NIH DSLD, Beauty, WineVybe, WineAnalyzer, COLA, GoUPC, DrugFacts
         // ─────────────────────────────────────────────────────────
-        const extHit: ExternalHit | null = tierAHit
-          ?? (console.log("[Gorilla] STEP 4 — Tier B race (specialty sources) for:", trimmed),
-              scanLog("STEP 4 — Tier A missed; Tier B race starting: NIH DSLD + Open Beauty Facts + WineVybe + Wine Analyzer + COLA Cloud + Go-UPC + Open Drug Facts (4s window)"),
-              await raceTierB(trimmed));
+        // A bare UPCitemdb identity hit is category-blind (name only, no nutriments) — it must
+        // not stand in for a real food answer or block Tier B. When that's all Tier A produced,
+        // run Tier B (incl. Open Beauty Facts) first and only fall back to the identity-only food
+        // result if Tier B also misses. A real Tier-A hit (OFF/FatSecret/Nutritionix, or any hit
+        // carrying nutriments) still short-circuits Tier B exactly as before.
+        let extHit: ExternalHit | null;
+        if (tierAHit && !isIdentityOnlyUpcHit(tierAHit)) {
+          extHit = tierAHit;
+        } else {
+          console.log("[Gorilla] STEP 4 — Tier B race (specialty sources) for:", trimmed);
+          scanLog(
+            tierAHit
+              ? "STEP 4 — Tier A only produced an identity-only UPCitemdb hit; running Tier B (incl. Open Beauty Facts) before settling for low-data food (4s window)"
+              : "STEP 4 — Tier A missed; Tier B race starting: NIH DSLD + Open Beauty Facts + WineVybe + Wine Analyzer + COLA Cloud + Go-UPC + Open Drug Facts (4s window)"
+          );
+          const tierBHit = await raceTierB(trimmed);
+          // Prefer any Tier-B specialty match; otherwise fall back to the identity-only UPC hit.
+          extHit = tierBHit ?? tierAHit;
+        }
 
         if (extHit) {
           console.log("[Gorilla] external hit kind:", extHit.kind);

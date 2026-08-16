@@ -11,6 +11,7 @@ import SourceBadge from "./SourceBadge";
 import { beautyHasNoIngredients, inferUnderCoveredCategory } from "../lib/beautyConfidence";
 import { findBeautyRecall } from "../lib/beautyRecalls";
 import BeautyRecallBanner from "./BeautyRecallBanner";
+import OcrCapturePanel from "./OcrCapturePanel";
 
 type Props = {
   product: ObfProduct;
@@ -98,6 +99,16 @@ export default function BeautyResultCard({ product, result }: Props) {
               score here reflects missing data, not a verified formula.
             </p>
           </div>
+        </div>
+      )}
+
+      {/* OCR ingredient capture (Phase 0) — offered only when Open Beauty Facts has no
+          ingredient list, mirroring the food card. Photographed text is user-confirmed and
+          goes ONLY to the community_ocr_ingredients staging queue; it never writes the live
+          cache and never changes this score. */}
+      {noIngredients && product.code && (
+        <div className="border-b border-line px-6 pb-4 pt-1">
+          <OcrCapturePanel barcode={product.code} />
         </div>
       )}
 

@@ -20,8 +20,14 @@ export type ObfLookupResult =
 /**
  * Open Beauty Facts is the Open Food Facts foundation's sister database for
  * cosmetics — same maintainers, same `/api/v2/product/{barcode}.json` shape.
- * We only reach for it once OFF has confirmed a barcode isn't food/drink, so a
- * scanned shampoo or toothpaste doesn't dead-end at "not in the database."
+ *
+ * GATING (see ScanClient raceTierA / raceTierB): this runs in Tier B, which fires
+ * when Tier A (Open Food Facts + FatSecret + Nutritionix + UPCitemdb) yields no
+ * confident food answer. Note a bare UPCitemdb *identity* hit (name only, empty
+ * nutriments) does NOT count as a confident food answer — it is held as a fallback
+ * so this beauty lookup still runs, then only used if Tier B also misses. That's
+ * what stops a category-blind UPCitemdb match (e.g. a shampoo) from pre-empting
+ * Open Beauty Facts and being mis-scored as food.
  */
 export async function lookupBeautyBarcode(barcode: string): Promise<ObfLookupResult> {
   const url = `https://world.openbeautyfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json`;
