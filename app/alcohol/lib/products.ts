@@ -21,6 +21,13 @@ export type AlcoholRankingProduct = {
   /** 1--5 -- how fitness-friendly this drink is to reach for regularly. */
   gorillaPour: number;
   availability: string;
+  /**
+   * "Buy at The Beer Store" deep link — a REAL, live-verified
+   * thebeerstore.ca/beers/{slug}_{pack} URL. Slugs are NOT programmatically
+   * derivable, so each is confirmed against the site's own sitemap + a live
+   * page fetch and set by hand; left undefined for anything unverified.
+   */
+  buyUrl?: string;
   /** Serving size in mL (default 355 for standard cans, 341 for longnecks, etc.). */
   servingMl?: number;
   barcodes?: string[];
@@ -210,6 +217,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   // â"€â"€â"€â"€â"€â"€â"€â"€â"€ LIGHT BEERS â"€â"€â"€â"€â"€â"€â"€â"€â"€
   {
     id: "coors-light",
+    buyUrl: "https://www.thebeerstore.ca/beers/coors-light_24-X-Bottle-341-ml",
     category: "Light Beer",
     glutenStatus: "contains-gluten",
     brand: "Molson Coors",
@@ -244,6 +252,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "michelob-ultra",
+    buyUrl: "https://www.thebeerstore.ca/beers/michelob-ultra_24-X-Bottle-341-ml",
     category: "Light Beer",
     glutenStatus: "contains-gluten",
     brand: "Labatt / AB InBev",
@@ -262,6 +271,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "sleeman-clear",
+    buyUrl: "https://www.thebeerstore.ca/beers/sleeman-clear-2-0_24-X-Bottle-341-ml",
     barcodes: ["056910301249", "056910300242"],
     category: "Light Beer",
     glutenStatus: "contains-gluten",
@@ -298,6 +308,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "busch-light",
+    buyUrl: "https://www.thebeerstore.ca/beers/busch-light_24-X-Bottle-341-ml",
     category: "Light Beer",
     glutenStatus: "contains-gluten",
     brand: "Anheuser-Busch / Labatt",
@@ -468,6 +479,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "budweiser-zero",
+    buyUrl: "https://www.thebeerstore.ca/beers/budweiser-zero_24-X-Can-355-ml",
     category: "Non-Alcoholic",
     glutenStatus: "contains-gluten",
     brand: "Labatt / AB InBev",
@@ -485,6 +497,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "molson-ultra",
+    buyUrl: "https://www.thebeerstore.ca/beers/molson-ultra_24-X-Bottle-341-ml",
     category: "Non-Alcoholic",
     glutenStatus: "contains-gluten",
     brand: "Molson Coors",
@@ -502,6 +515,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "partake-ipa",
+    buyUrl: "https://www.thebeerstore.ca/beers/partake-ipa_24-X-Can-355-ml",
     category: "Non-Alcoholic",
     glutenStatus: "contains-gluten",
     brand: "Partake Brewing",
@@ -845,6 +859,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "heineken-00",
+    buyUrl: "https://www.thebeerstore.ca/beers/heineken-0-0_24-X-Bottle-330-ml",
     category: "Lager",
     glutenStatus: "contains-gluten",
     brand: "Heineken N.V.",
@@ -2966,6 +2981,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "corona-cero",
+    buyUrl: "https://www.thebeerstore.ca/beers/corona-cero_24-X-Bottle-330-ml",
     category: "Non-Alcoholic",
     glutenStatus: "contains-gluten",
     brand: "Constellation Brands",
@@ -3017,6 +3033,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "sober-carpenter-ipa",
+    buyUrl: "https://www.thebeerstore.ca/beers/sober-carpenter-non-alcoholic-ipa_24-X-Can-473-ml",
     category: "Non-Alcoholic",
     glutenStatus: "contains-gluten",
     brand: "Sober Carpenter",
@@ -8371,6 +8388,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "sapporo-0-0-355ml",
+    buyUrl: "https://www.thebeerstore.ca/beers/sapporo-premium-0-0_24-X-Can-355-ml",
     category: "Non-Alcoholic",
     glutenStatus: "contains-gluten",
     beerStyle: "Non-Alcoholic Lager",
@@ -8388,6 +8406,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "guinness-0-0-440ml",
+    buyUrl: "https://www.thebeerstore.ca/beers/guinness-0-0-non-alc_24-X-Can-440-ml",
     category: "Non-Alcoholic",
     glutenStatus: "contains-gluten",
     beerStyle: "Non-Alcoholic Stout",
@@ -8406,6 +8425,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "molson-excel-0-5-355ml",
+    buyUrl: "https://www.thebeerstore.ca/beers/molson-exel-0-5_12-X-Can-355-ml",
     barcodes: ["056327913257"],
     category: "Non-Alcoholic",
     glutenStatus: "contains-gluten",
@@ -8442,6 +8462,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "coors-edge-0-5-473ml",
+    buyUrl: "https://www.thebeerstore.ca/beers/coors-edge-0-5_12-X-Can-473-ml",
     category: "Non-Alcoholic",
     glutenStatus: "contains-gluten",
     beerStyle: "Low Alcohol Lager",
@@ -8496,6 +8517,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "clausthaler-original-non-alcoholic-330ml",
+    buyUrl: "https://www.thebeerstore.ca/beers/clausthaler-original-non-alc_24-X-Bottle-330-ml",
     category: "Non-Alcoholic",
     glutenStatus: "contains-gluten",
     beerStyle: "Non-Alcoholic Lager",
@@ -9795,6 +9817,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "vizzy-blueberry-pomegranate-473ml",
+    buyUrl: "https://www.thebeerstore.ca/beers/vizzy-hard-seltzer-blueberry-pomegranate_24-X-Can-355-ml",
     category: "Hard Seltzer",
     maltBasedBeerStore: true,
     glutenStatus: "certified-gf",
@@ -10969,6 +10992,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "miller-lite-341ml",
+    buyUrl: "https://www.thebeerstore.ca/beers/miller-lite_24-X-Bottle-341-ml",
     category: "Light Beer",
     glutenStatus: "contains-gluten",
     beerStyle: "Light Lager",
@@ -11477,6 +11501,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "sober-carpenter-non-alcoholic-blonde-355ml",
+    buyUrl: "https://www.thebeerstore.ca/beers/sober-carpenter-non-alcoholic-craft-blonde-ale_24-X-Can-473-ml",
     category: "Non-Alcoholic",
     glutenStatus: "contains-gluten",
     beerStyle: "Non-Alcoholic Blonde",
@@ -11651,6 +11676,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "low-tide-90-calorie-beer-473ml",
+    buyUrl: "https://www.thebeerstore.ca/beers/lake-of-bays-low-tide-90-calorie-ipa_24-X-Can-473-ml",
     category: "Light Beer",
     glutenStatus: "contains-gluten",
     beerStyle: "Ultra Light",
@@ -11990,6 +12016,7 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   {
     id: "muskoka-rally-ultra-473ml",
+    buyUrl: "https://www.thebeerstore.ca/beers/muskoka-rally-ultra-light-lager_24-X-Can-473-ml",
     category: "Light Beer",
     glutenStatus: "contains-gluten",
     beerStyle: "Ultra Light",
