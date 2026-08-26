@@ -30,7 +30,7 @@ export type AlcoholResult = {
 };
 
 export type CacheResult = {
-  type: "food" | "supplement" | "beauty";
+  type: "food" | "supplement" | "beauty" | "alcohol-cache";
   barcode: string;
   name: string;
   brand: string | null;
@@ -78,7 +78,9 @@ export type SearchResult =
 
 export type GroupedResults = {
   food: (CacheResult | CuratedFoodResult)[];
-  alcohol: AlcoholResult[];
+  // Curated alcohol (AlcoholResult) plus scanned alcohol rows from the product
+  // cache (CacheResult, type "alcohol-cache"), same union shape as `food`.
+  alcohol: (AlcoholResult | CacheResult)[];
   wine: AlcoholResult[];
   supplement: CacheResult[];
   ranked: RankedSupplementResult[];
@@ -116,7 +118,7 @@ export function getProductLink(result: SearchResult): string {
     return `/kids?p=${encodeURIComponent(result.id)}`;
   }
   const barcode =
-    result.type === "food" || result.type === "supplement" || result.type === "beauty" || result.type === "curated-food"
+    result.type === "food" || result.type === "supplement" || result.type === "beauty" || result.type === "alcohol-cache" || result.type === "curated-food"
       ? result.barcode
       : undefined;
   if (barcode) return `/scan?b=${encodeURIComponent(barcode)}`;
@@ -133,6 +135,12 @@ export function cacheRowToFood(r: SearchProduct): CacheResult {
 /** Map a Supabase cache row to a CacheResult (supplement). */
 export function cacheRowToSupplement(r: SearchProduct): CacheResult {
   return { type: "supplement", barcode: r.barcode, name: r.product_name, brand: r.brand, score: r.gorilla_score, grade: r.score_grade };
+}
+
+/** Map a Supabase cache row to a CacheResult (scanned alcohol). Alcohol keeps its own
+ *  grade vocabulary, so pass the stored score_grade through as-is (same as supplement). */
+export function cacheRowToAlcohol(r: SearchProduct): CacheResult {
+  return { type: "alcohol-cache", barcode: r.barcode, name: r.product_name, brand: r.brand, score: r.gorilla_score, grade: r.score_grade };
 }
 
 /** Per-group caps. Omitted/undefined = uncapped (results page); the dropdown

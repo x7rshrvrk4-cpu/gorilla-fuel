@@ -12,9 +12,11 @@ import {
   emptyGrouped,
   cacheRowToFood,
   cacheRowToSupplement,
+  cacheRowToAlcohol,
   type GroupedResults,
   type CacheResult,
   type CuratedFoodResult,
+  type AlcoholResult,
   type SearchResult,
 } from "../lib/searchProducts";
 
@@ -42,6 +44,12 @@ function rightFor(item: SearchResult): React.ReactNode {
       return <span className={`font-display text-base ${colorScore(item.score)}`}>{item.score}</span>;
     case "kids":
       return <span className={`font-display text-base ${colorScore(item.score)}`}>{item.score}</span>;
+    case "alcohol-cache":
+      // Scanned alcohol carries a 0–100 gorilla score; show it like the numeric
+      // cache scores rather than the curated 5-gorilla pour rating.
+      return item.score !== null ? (
+        <span className={`font-display text-base ${colorScore(item.score)}`}>{item.score}</span>
+      ) : null;
     case "food":
     case "supplement":
       return item.score !== null ? (
@@ -64,6 +72,7 @@ function subFor(item: SearchResult): string {
       return "Kids Snack Guide";
     case "food":
     case "supplement":
+    case "alcohol-cache":
       return item.brand ?? "";
     case "curated-food":
       return item.brand;
@@ -128,6 +137,8 @@ export default function SearchResults() {
           .filter((r) => !r.is_alcohol && !r.is_supplement && !r.is_beauty)
           .map(cacheRowToFood);
         const cacheSupp: CacheResult[] = cacheRows.filter((r) => r.is_supplement).map(cacheRowToSupplement);
+        // Scanned alcohol rows the API already returns (previously discarded here).
+        const cacheAlcohol: CacheResult[] = cacheRows.filter((r) => r.is_alcohol).map(cacheRowToAlcohol);
 
         const foodBarcodes = new Set(curated.food.map((c) => c.barcode));
         const mergedFood = [
@@ -138,7 +149,19 @@ export default function SearchResults() {
         const supplBarcodes = new Set(curated.supplement.map((c) => c.barcode));
         const mergedSuppl = [...curated.supplement, ...cacheSupp.filter((c) => !supplBarcodes.has(c.barcode))];
 
-        setResults({ ...curated, food: mergedFood, supplement: mergedSuppl });
+        // Dedup scanned alcohol against curated beer + wine barcodes so a product
+        // already curated isn't listed twice; appended after the curated matches.
+        const alcoholBarcodes = new Set(
+          [...curated.alcohol, ...curated.wine]
+            .map((a) => ("barcode" in a ? a.barcode : undefined))
+            .filter((b): b is string => Boolean(b))
+        );
+        const mergedAlcohol: (AlcoholResult | CacheResult)[] = [
+          ...curated.alcohol,
+          ...cacheAlcohol.filter((c) => !alcoholBarcodes.has(c.barcode)),
+        ];
+
+        setResults({ ...curated, food: mergedFood, supplement: mergedSuppl, alcohol: mergedAlcohol });
       } catch {
         // Cache unavailable — keep curated results.
       } finally {

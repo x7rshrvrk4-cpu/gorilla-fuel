@@ -14,6 +14,7 @@ import {
   type GroupedResults,
   type CacheResult,
   type CuratedFoodResult,
+  type AlcoholResult,
 } from "../lib/searchProducts";
 
 function GorillaPourMini({ rating }: { rating: number }) {
@@ -263,10 +264,11 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
                 </ResultGroup>
               )}
 
-              {/* ALCOHOL */}
+              {/* ALCOHOL — dropdown is curated-only (searchCurated), so every entry here
+                  is an AlcoholResult; narrow to keep the pour-rating render type-safe. */}
               {results.alcohol.length > 0 && (
                 <ResultGroup label="Beer & Alcohol">
-                  {results.alcohol.map((r) => (
+                  {results.alcohol.filter((r): r is AlcoholResult => r.type === "alcohol").map((r) => (
                     <ResultRow
                       key={r.id}
                       href={getProductLink(r)}
