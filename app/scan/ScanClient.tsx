@@ -893,6 +893,82 @@ export default function ScanClient() {
           extHit = tierBHit ?? tierAHit;
         }
 
+        // ─────────────────────────────────────────────────────────
+        // BARCODE ALIAS CHECK (multi-pack / case barcodes)
+        // MUST run BEFORE accepting an external-source hit: a scanned pack/
+        // case barcode aliased to a curated parent has to resolve to that
+        // parent (correct single-serving basis), not to external case-level
+        // data (wrong/mismatched basis). Falls through to the external hit
+        // below only when no alias exists for this barcode.
+        // ─────────────────────────────────────────────────────────
+        console.log("[Gorilla] alias check (pre-external) for:", trimmed);
+        try {
+          const aliasHit = await lookupBarcodeAlias(trimmed);
+          if (aliasHit) {
+            console.log("[Gorilla] alias hit:", aliasHit.parent_product_name, aliasHit.pack_size);
+            const parentCurated = aliasHit.parent_barcode
+              ? lookupCuratedByBarcode(aliasHit.parent_barcode)
+              : null;
+            const parentByName = parentCurated ?? lookupCuratedByName(aliasHit.parent_product_name);
+            if (parentByName) {
+              const servingMl = parentByName.servingMl ?? 355;
+              const kind: AlcoholKind =
+                parentByName.category === "Hard Seltzer" ? "seltzer"
+                : parentByName.category === "Cider" ? "cider"
+                : parentByName.category === "Wines" ? "wine"
+                : "beer";
+              const nutriments = {
+                "energy-kcal_100g": ((parentByName.caloriesPerCan ?? 0) / servingMl) * 100,
+                carbohydrates_100g: ((parentByName.carbsPerCan ?? 0) / servingMl) * 100,
+                sugars_100g: ((parentByName.sugarPerCan ?? 0) / servingMl) * 100,
+                alcohol_100g: parentByName.abv,
+              };
+              const syntheticProduct: OffProduct = {
+                code: aliasHit.parent_barcode ?? trimmed,
+                product_name: parentByName.name,
+                brands: parentByName.brand,
+                categories_tags: [
+                  "en:alcoholic-beverages",
+                  `en:${parentByName.category.toLowerCase().replace(/\s+/g, "-")}`,
+                ],
+                nutriments,
+              };
+              const syntheticIngredients14 = parentByName.knownAdditives.length > 0
+                ? parentByName.knownAdditives.join(", ")
+                : undefined;
+              const computedResult14 = computeAlcoholScore(nutriments, syntheticIngredients14, kind, servingMl);
+              const curatedScore14 = gorillaPourToScore(parentByName.gorillaPour);
+              const alcoholResult: AlcoholScoreResult = {
+                ...computedResult14,
+                score: curatedScore14,
+                grade: alcoholGradeFromScore(curatedScore14),
+                gorillaPour: parentByName.gorillaPour,
+              };
+              setPackSizeBadge(aliasHit.pack_size);
+              trackProductFound("gorilla-curated", trimmed, parentByName.name);
+              trackScanModeAlcohol(trimmed, parentByName.name);
+              waterfallResult = `Barcode Alias → ${parentByName.name} (${aliasHit.pack_size})`;
+              setLookup({
+                phase: "found-alcohol",
+                product: syntheticProduct,
+                result: alcoholResult,
+                dataSource: "gorilla-curated",
+                lcboVerified: parentByName.lcboVerified ?? false,
+              });
+              setScannerActive(false);
+              scrollToResult();
+              persistHistory([
+                { barcode: trimmed, name: parentByName.name, brand: parentByName.brand, image: null, score: alcoholResult.score, color: ALCOHOL_GRADE_COLORS[alcoholResult.grade], scannedAt: Date.now() },
+                ...history.filter((h) => h.barcode !== trimmed),
+              ].slice(0, MAX_HISTORY));
+              inFlightRef.current = null;
+              return;
+            }
+          }
+        } catch (aliasErr) {
+          console.warn("[Gorilla] alias lookup failed (non-fatal):", aliasErr);
+        }
+
         if (extHit) {
           console.log("[Gorilla] external hit kind:", extHit.kind);
           waterfallResult = `External waterfall — kind=${extHit.kind}${
@@ -981,79 +1057,6 @@ export default function ScanClient() {
           }
           inFlightRef.current = null;
           return;
-        }
-
-        // ─────────────────────────────────────────────────────────
-        // STEP 14 — BARCODE ALIAS CHECK
-        // Check for known multi-pack or case barcodes. If found,
-        // return the parent single-unit product with a pack size badge.
-        // ─────────────────────────────────────────────────────────
-        console.log("[Gorilla] STEP 14 — alias check for:", trimmed);
-        try {
-          const aliasHit = await lookupBarcodeAlias(trimmed);
-          if (aliasHit) {
-            console.log("[Gorilla] STEP 14 alias hit:", aliasHit.parent_product_name, aliasHit.pack_size);
-            const parentCurated = aliasHit.parent_barcode
-              ? lookupCuratedByBarcode(aliasHit.parent_barcode)
-              : null;
-            const parentByName = parentCurated ?? lookupCuratedByName(aliasHit.parent_product_name);
-            if (parentByName) {
-              const servingMl = parentByName.servingMl ?? 355;
-              const kind: AlcoholKind =
-                parentByName.category === "Hard Seltzer" ? "seltzer"
-                : parentByName.category === "Cider" ? "cider"
-                : parentByName.category === "Wines" ? "wine"
-                : "beer";
-              const nutriments = {
-                "energy-kcal_100g": ((parentByName.caloriesPerCan ?? 0) / servingMl) * 100,
-                carbohydrates_100g: ((parentByName.carbsPerCan ?? 0) / servingMl) * 100,
-                sugars_100g: ((parentByName.sugarPerCan ?? 0) / servingMl) * 100,
-                alcohol_100g: parentByName.abv,
-              };
-              const syntheticProduct: OffProduct = {
-                code: aliasHit.parent_barcode ?? trimmed,
-                product_name: parentByName.name,
-                brands: parentByName.brand,
-                categories_tags: [
-                  "en:alcoholic-beverages",
-                  `en:${parentByName.category.toLowerCase().replace(/\s+/g, "-")}`,
-                ],
-                nutriments,
-              };
-              const syntheticIngredients14 = parentByName.knownAdditives.length > 0
-                ? parentByName.knownAdditives.join(", ")
-                : undefined;
-              const computedResult14 = computeAlcoholScore(nutriments, syntheticIngredients14, kind, servingMl);
-              const curatedScore14 = gorillaPourToScore(parentByName.gorillaPour);
-              const alcoholResult: AlcoholScoreResult = {
-                ...computedResult14,
-                score: curatedScore14,
-                grade: alcoholGradeFromScore(curatedScore14),
-                gorillaPour: parentByName.gorillaPour,
-              };
-              setPackSizeBadge(aliasHit.pack_size);
-              trackProductFound("gorilla-curated", trimmed, parentByName.name);
-              trackScanModeAlcohol(trimmed, parentByName.name);
-              waterfallResult = `Barcode Alias → ${parentByName.name} (${aliasHit.pack_size})`;
-              setLookup({
-                phase: "found-alcohol",
-                product: syntheticProduct,
-                result: alcoholResult,
-                dataSource: "gorilla-curated",
-                lcboVerified: parentByName.lcboVerified ?? false,
-              });
-              setScannerActive(false);
-              scrollToResult();
-              persistHistory([
-                { barcode: trimmed, name: parentByName.name, brand: parentByName.brand, image: null, score: alcoholResult.score, color: ALCOHOL_GRADE_COLORS[alcoholResult.grade], scannedAt: Date.now() },
-                ...history.filter((h) => h.barcode !== trimmed),
-              ].slice(0, MAX_HISTORY));
-              inFlightRef.current = null;
-              return;
-            }
-          }
-        } catch (aliasErr) {
-          console.warn("[Gorilla] alias lookup failed (non-fatal):", aliasErr);
         }
 
         // ─────────────────────────────────────────────────────────
