@@ -1590,6 +1590,100 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
 
   // â"€â"€â"€â"€â"€â"€â"€â"€â"€ LCBO VERIFIED -- Hard Seltzers / RTDs â"€â"€â"€â"€â"€â"€â"€â"€â"€
+  // ───────── US-SOURCED RTD BATCH (nutrition flag) ─────────
+  // sugar/calorie figures below were sourced primarily from US brand/nutrition
+  // data and are NOT confirmed against the Canadian label — distinct from the
+  // LCBO-direct wine data. caloriesPerCan/sugarPerCan are per 355mL standard
+  // serving (matching existing seltzers) even though the WC/NÜTRL cans are 473mL.
+  {
+    id: "white-claw-natural-lime-473ml",
+    category: "Hard Seltzer",
+    maltBasedBeerStore: true,
+    glutenStatus: "certified-gf",
+    brand: "Mark Anthony Brands",
+    name: "White Claw Natural Lime",
+    abv: 5.0,
+    caloriesPerCan: 100,
+    carbsPerCan: 2,
+    sugarPerCan: 2.0, // US-sourced, not Canadian-label confirmed. 473mL can.
+    servingMl: 355,
+    knownAdditives: ["Natural flavours", "Citric acid"],
+    additiveCount: 2,
+    gorillaPour: 4,
+    availability: "LCBO & The Beer Store",
+    lcboNumber: "14488",
+    confidence: "verified",
+  },
+  {
+    id: "white-claw-mango-473ml",
+    category: "Hard Seltzer",
+    maltBasedBeerStore: true,
+    glutenStatus: "certified-gf",
+    brand: "Mark Anthony Brands",
+    name: "White Claw Mango",
+    abv: 5.0,
+    caloriesPerCan: 100,
+    carbsPerCan: 2.5,
+    sugarPerCan: 2.5, // US-sourced (source range 2-3g, midpoint used); not Canadian-label confirmed. 473mL can.
+    servingMl: 355,
+    knownAdditives: ["Natural flavours", "Citric acid"],
+    additiveCount: 2,
+    gorillaPour: 4,
+    availability: "LCBO & The Beer Store",
+    lcboNumber: "14487",
+    confidence: "verified",
+  },
+  {
+    id: "nutrl-vodka-soda-lemon-473ml",
+    category: "Hard Seltzer",
+    brand: "NÜTRL",
+    name: "NÜTRL Vodka Soda Lemon",
+    abv: 4.75, // source gave 4.5-5% range; midpoint used
+    caloriesPerCan: 100,
+    carbsPerCan: 0,
+    sugarPerCan: 0, // US-sourced, not Canadian-label confirmed. 473mL can.
+    servingMl: 355,
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 5,
+    availability: "LCBO & The Beer Store",
+    lcboNumber: "553164",
+    confidence: "verified",
+  },
+  {
+    id: "cutwater-tequila-margarita-355ml",
+    category: "Hard Seltzer",
+    brand: "Cutwater",
+    name: "Cutwater Tequila Margarita",
+    abv: 12.5,
+    caloriesPerCan: 360,
+    carbsPerCan: 27,
+    sugarPerCan: 27, // US-sourced, not Canadian-label confirmed.
+    servingMl: 355,
+    knownAdditives: ["Natural flavours", "Citric acid"],
+    additiveCount: 2,
+    gorillaPour: 1,
+    availability: "LCBO",
+    lcboNumber: "38543",
+    confidence: "verified",
+  },
+  {
+    id: "ole-margarita-355ml",
+    category: "Hard Seltzer",
+    brand: "Olé",
+    name: "Olé Margarita",
+    // abv omitted — unknown for the Canadian listing; not invented.
+    caloriesPerCan: 140,
+    carbsPerCan: 8,
+    sugarPerCan: 8, // US-sourced, not Canadian-label confirmed.
+    servingMl: 355,
+    knownAdditives: ["Natural flavours", "Citric acid"],
+    additiveCount: 2,
+    gorillaPour: 2,
+    availability: "LCBO",
+    lcboNumber: "37157",
+    confidence: "partial",
+  },
   {
     id: "nutrl-vodka-soda",
     category: "Hard Seltzer",
