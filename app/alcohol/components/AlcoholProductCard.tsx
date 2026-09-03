@@ -280,6 +280,18 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
       )}
 
       <p className="mt-3 border-t border-slate-800 pt-3 text-xs text-slate-400">{product.availability}</p>
+
+      {/* Buy link — only when a real verified Beer Store URL is on file; hidden otherwise. */}
+      {product.buyUrl && (
+        <a
+          href={product.buyUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-flex items-center gap-1.5 rounded-sm border border-gold/50 bg-gold/10 px-3 py-2 font-display text-xs uppercase tracking-[0.15em] text-gold transition-colors hover:bg-gold hover:text-background"
+        >
+          Buy at The Beer Store →
+        </a>
+      )}
     </div>
   );
 }
