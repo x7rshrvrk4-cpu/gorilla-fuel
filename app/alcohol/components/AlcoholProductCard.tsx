@@ -1,5 +1,9 @@
 import { isGorillaSweetSpot, wineGorillaScore, type AlcoholRankingProduct } from "../lib/products";
 
+// Feature flag: only render "Buy at..." links when explicitly enabled. NEXT_PUBLIC_
+// vars are inlined at build time; absent/anything-but-"true" keeps buttons hidden.
+const SHOW_ALCOHOL_BUY_LINKS = process.env.NEXT_PUBLIC_SHOW_ALCOHOL_BUY_LINKS === "true";
+
 function GorillaPour({ rating }: { rating: number }) {
   return (
     <span aria-label={`Gorilla Pour rating: ${rating} out of 5`} className="inline-flex gap-0.5 text-base leading-none">
@@ -281,8 +285,9 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
 
       <p className="mt-3 border-t border-slate-800 pt-3 text-xs text-slate-400">{product.availability}</p>
 
-      {/* Buy link — only when a real verified Beer Store URL is on file; hidden otherwise. */}
-      {product.buyUrl && (
+      {/* Buy link — gated on the NEXT_PUBLIC_SHOW_ALCOHOL_BUY_LINKS flag AND a real
+          verified Beer Store URL on file; hidden otherwise (default). */}
+      {SHOW_ALCOHOL_BUY_LINKS && product.buyUrl && (
         <a
           href={product.buyUrl}
           target="_blank"
