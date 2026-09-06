@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import BackToTop from "../components/BackToTop";
+import AlcoholProductCard from "../alcohol/components/AlcoholProductCard";
+import type { AlcoholRankingProduct } from "../alcohol/lib/products";
 import {
   BC_KINDS,
   WINE_STYLES,
@@ -21,6 +23,8 @@ type Props = {
   filters: BcFilters;
   filteredTotal: number;
   limit: number;
+  /** bc_liquor product_name -> matched curated beer (the 88 confirmed static matches). */
+  matches: Record<string, AlcoholRankingProduct>;
 };
 
 const KIND_LABEL: Record<string, string> = {
@@ -58,7 +62,7 @@ function hrefWith(base: BcFilters, patch: Partial<BcFilters>): string {
   return qs ? `/bc-liquor?${qs}` : "/bc-liquor";
 }
 
-export default function BcLiquorClient({ counts, countries, rows, filters, filteredTotal, limit }: Props) {
+export default function BcLiquorClient({ counts, countries, rows, filters, filteredTotal, limit, matches }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState("");
 
@@ -242,6 +246,39 @@ export default function BcLiquorClient({ counts, countries, rows, filters, filte
             <tbody>
               {filtered.map((r, i) => {
                 const sweet = r.kind === "wine" ? sweetnessLabel(r.sweetness_code) : null;
+                const matched = r.product_name ? matches[r.product_name] : undefined;
+                // Confirmed BC-Liquor -> curated beer match: swap the bare price row for
+                // the rich Gorilla-scored card (real ingredients/score). BC price/size/origin
+                // is kept in a compact provenance strip above the card.
+                if (matched) {
+                  return (
+                    <tr key={`${r.barcode ?? "nobc"}-${i}`} className="border-b border-line/60 last:border-0">
+                      <td colSpan={6} className="bg-surface/30 p-3 sm:p-4">
+                        <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+                          <span className="rounded-sm border border-emerald-500/30 bg-emerald-500/[0.08] px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-emerald-300">
+                            Gorilla-scored match
+                          </span>
+                          <span className="text-foreground/80">{r.product_name ?? "—"}</span>
+                          <span className="text-muted/70">BCLDB:</span>
+                          <span className="tabular-nums">{fmtPrice(r.price)}</span>
+                          <span className="text-muted/50">·</span>
+                          <span className="tabular-nums">{fmtLitres(r.litres_per_container)}</span>
+                          <span className="text-muted/50">·</span>
+                          <span className="tabular-nums">{fmtAbv(r.abv)}</span>
+                          {r.country_origin && (
+                            <>
+                              <span className="text-muted/50">·</span>
+                              <span>{r.country_origin}</span>
+                            </>
+                          )}
+                        </div>
+                        <div className="max-w-md">
+                          <AlcoholProductCard product={matched} />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                }
                 return (
                   <tr key={`${r.barcode ?? "nobc"}-${i}`} className="border-b border-line/60 last:border-0">
                     <td className="px-4 py-3">

@@ -80,9 +80,11 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
     : "border-amber-400/40 bg-amber-400/8 text-amber-300";
 
   const score = isWine ? wineGorillaScore(product) : null;
-  // A wine with no computable score is PENDING (partial data) — show an honest
-  // "Score pending" state, never the Gorilla Pour stars or a fabricated number.
-  const winePending = isWine && score === null;
+  // Identity-only entries (confidence:"partial") have no verified macros — their
+  // gorillaPour is a placeholder, not a real rating. Show an honest "Score pending"
+  // state for these instead of a fabricated number or Gorilla Pour stars. Wines use
+  // the computed-score-null signal (unchanged); beers use the partial-confidence flag.
+  const scorePending = isWine ? score === null : product.confidence === "partial";
   const style = isWine
     ? product.sugarPerCan !== undefined
       ? wineStyle(product.sugarPerCan)
@@ -161,14 +163,14 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
         </div>
       </div>
 
-      {winePending ? (
-        // PARTIAL wine — ABV/sugar pending. Honest "Score pending" state; never a
-        // fabricated number, 0, or Gorilla Pour rating we don't actually have.
+      {scorePending ? (
+        // PARTIAL / identity-only entry — ABV/sugar not verified. Honest "Score pending"
+        // state; never a fabricated number, 0, or a Gorilla Pour rating we don't have.
         <div className="mt-4 rounded-sm border border-slate-700/50 bg-slate-800/40 px-4 py-3">
           <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">🦍 Gorilla Score</p>
           <p className="mt-0.5 font-display text-lg text-slate-300">Score pending</p>
           <p className="mt-1 text-xs leading-relaxed text-slate-500">
-            ABV &amp; sugar not yet verified for this wine — we don&apos;t show a score until they are.
+            ABV &amp; sugar not yet verified for this {isWine ? "wine" : "beer"} — we don&apos;t show a score until they are.
           </p>
         </div>
       ) : (
@@ -260,7 +262,14 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
             ))}
           </div>
         </div>
+      ) : product.confidence === "partial" ? (
+        // Identity-only entry: no ingredient data was captured — do NOT imply "clean".
+        <div className="mt-3 border-t border-slate-800 pt-3">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Known Additives</p>
+          <p className="mt-0.5 text-[11px] text-slate-400">No ingredient data available</p>
+        </div>
       ) : (
+        // Ingredients were actually checked and came back with zero flagged items.
         <div className="mt-3 border-t border-slate-800 pt-3">
           <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Known Additives</p>
           <p className="mt-0.5 text-[11px] text-emerald-400">None found in public ingredient disclosures</p>

@@ -11,6 +11,8 @@ import {
   type BcFilters,
 } from "../lib/bcLiquor";
 import BcLiquorClient from "./BcLiquorClient";
+import { matchedCuratedBeer } from "./bcBeerMatches";
+import type { AlcoholRankingProduct } from "../alcohol/lib/products";
 
 export const metadata: Metadata = {
   title: "BC Liquor Catalogue — Gorilla Fuel",
@@ -53,6 +55,16 @@ export default async function BcLiquorPage({ searchParams }: { searchParams: Pro
     getBcLiquorFilteredCount(filters),
   ]);
 
+  // Resolve the confirmed static beer matches for the visible rows (server-side, so
+  // the full ALCOHOL_PRODUCTS catalogue stays out of the client bundle). Only the
+  // matched curated products — keyed by the bc_liquor product_name — are serialized.
+  const matches: Record<string, AlcoholRankingProduct> = {};
+  for (const r of rows) {
+    if (!r.product_name || matches[r.product_name]) continue;
+    const m = matchedCuratedBeer(r.product_name);
+    if (m) matches[r.product_name] = m;
+  }
+
   return (
     <BcLiquorClient
       counts={counts}
@@ -61,6 +73,7 @@ export default async function BcLiquorPage({ searchParams }: { searchParams: Pro
       filters={filters}
       filteredTotal={filteredTotal}
       limit={LIMIT}
+      matches={matches}
     />
   );
 }
