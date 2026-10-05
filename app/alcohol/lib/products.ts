@@ -3635,6 +3635,38 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     availability: "LCBO",
     confidence: "partial",
   },
+  // Gluten-free / gluten-removed specialty beers (no barcode/LCBO# on file — identity/partial tier).
+  {
+    id: "bards-gold",
+    category: "IPA & Craft Ale",
+    glutenStatus: "certified-gf",
+    beerStyle: "Sorghum Golden Ale",
+    brand: "Bard's Tale Beer Company",
+    name: "Bard's Gold",
+    abv: 4.7,
+    servingMl: 473,
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 3,
+    availability: "LCBO",
+    confidence: "partial",
+    gorillaAnalysis: "Sorghum-based beer brewed in a dedicated gluten-free facility (Minnesota) and third-party tested below 10ppm gluten — genuinely celiac-safe. Calories and sugar not yet confirmed, so no score is shown.",
+  },
+  {
+    id: "celia-organic",
+    category: "Lager",
+    glutenStatus: "gluten-removed",
+    beerStyle: "Czech Lager",
+    brand: "CELIA",
+    name: "CELIA Organic",
+    abv: 4.5,
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 3,
+    availability: "LCBO (special order)",
+    confidence: "partial",
+    gorillaAnalysis: "Organic Czech barley lager de-glutenized with an enzyme process. Marketed as gluten-reduced but brewed from barley — NOT safe for celiac disease. Calories and sugar not confirmed, so no score is shown.",
+  },
   // â"€â"€â"€â"€â"€â"€â"€â"€â"€ WINES (per 148mL standard pour) â"€â"€â"€â"€â"€â"€â"€â"€â"€
   // caloriesPerCan / carbsPerCan / sugarPerCan = values per 148mL pour.
   // servingMl: 148 is mandatory for all wine entries.
