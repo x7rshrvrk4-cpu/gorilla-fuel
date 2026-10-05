@@ -53,5 +53,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.vercel
-.env*
+# local diagnostics / one-off script outputs (never commit) + large OCR data
+/exports/
+*.traineddata
+recompute-*.tsv
+recompute-*.txt
+*-write-log.txt
+*-dryrun.txt
+*-dryrun.tsv
