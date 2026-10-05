@@ -13,6 +13,7 @@ const EXPLORE = [
   { href: "/approved",  label: "Food and Snacks" },
   { href: "/rankings",  label: "Supplements" },
   { href: "/scan",      label: "Scanner" },
+  { href: "/fitness/recipes", label: "Meal Finder" },
   { href: "/rankings/alcohol", label: "Ontario Top 10" },
 ];
 
