@@ -3,8 +3,10 @@ import { loadFont as loadArchivo } from "@remotion/google-fonts/ArchivoBlack";
 import { loadFont as loadBarlow } from "@remotion/google-fonts/Barlow";
 import type { ReelProps } from "./schema";
 
-const { fontFamily: DISPLAY } = loadArchivo();
-const { fontFamily: BODY } = loadBarlow();
+// Limit to the weights/subset actually used so each render makes a handful of
+// font requests, not 50+ (matters for the recurring unattended cadence).
+const { fontFamily: DISPLAY } = loadArchivo("normal", { weights: ["400"], subsets: ["latin"] });
+const { fontFamily: BODY } = loadBarlow("normal", { weights: ["400", "600", "700"], subsets: ["latin"] });
 
 const INK = "#0b0b0c";
 const PANEL = "#17171a";
