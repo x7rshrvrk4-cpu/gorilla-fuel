@@ -17,35 +17,64 @@ export const metadata: Metadata = {
 // from in-memory data arrays, so the page is effectively static between builds.
 export const revalidate = 3600;
 
-// ── Auto picks — computed server-side from live data arrays ──────────────────
+// ── Weekly Gorilla Picks — deterministic week-seeded rotation ────────────────
+// Each category rotates one pick per week through a quality-gated pool, so the
+// homepage trio changes weekly with zero manual upkeep. Computed server-side;
+// ISR (hourly) rolls the week over within ~1h of the boundary. Pools are sorted
+// deterministically (by metric, then name — never array insertion order) so the
+// rotation stays stable as the underlying data is edited.
 
-/** Alcohol pick: highest gorillaPour, non-alcoholic excluded, lowest cal as tiebreaker. */
-function getAlcoholPick() {
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const WEEK_EPOCH = Date.UTC(2026, 0, 5); // Monday 2026-01-05, 00:00 UTC
+
+/** Whole weeks since the epoch. */
+function currentWeek(): number {
+  return Math.floor((Date.now() - WEEK_EPOCH) / WEEK_MS);
+}
+
+/** pool[week] with wrap-around; undefined only when the pool is empty. */
+function rotate<T>(pool: T[], week: number): T | undefined {
+  if (pool.length === 0) return undefined;
+  return pool[((week % pool.length) + pool.length) % pool.length];
+}
+
+/**
+ * Alcohol pool: real drink, strong pour (>=4), with a written analysis AND
+ * verified data (non-partial + real calories). The data gate means the homepage
+ * never headlines an unscored / "Score pending" entry — and it structurally
+ * retires the old `caloriesPerCan ?? 0` tiebreaker, which sorted missing-calorie
+ * items as if they were 0-calorie (i.e. best). Selection is by week rotation.
+ */
+function alcoholPool() {
   return [...ALCOHOL_PRODUCTS]
     .filter(
       (p) =>
         p.category !== "Non-Alcoholic" &&
         p.gorillaPour >= 4 &&
-        !!p.gorillaAnalysis
+        !!p.gorillaAnalysis &&
+        p.confidence !== "partial" &&
+        p.caloriesPerCan != null
     )
+    .sort((a, b) => b.gorillaPour - a.gorillaPour || a.name.localeCompare(b.name));
+}
+
+/** Food pool: Gorilla Approved (score >= 70) with a written blurb. */
+function foodPool() {
+  return [...INTEL_APPROVED]
+    .filter((p) => p.score >= 70 && !!p.blurb)
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+}
+
+/** Supplement pool: top-grade (A and above) with a written analysis. */
+function suppPool() {
+  return [...PRODUCTS]
+    .filter((p) => GRADE_RANK[p.grade] >= GRADE_RANK["A"] && !!p.analysis)
     .sort(
       (a, b) =>
-        b.gorillaPour - a.gorillaPour || (a.caloriesPerCan ?? 0) - (b.caloriesPerCan ?? 0)
-    )[0];
-}
-
-/** Food pick: highest score in Gorilla Approved. */
-function getFoodPick() {
-  return [...INTEL_APPROVED].sort((a, b) => b.score - a.score)[0];
-}
-
-/** Supplement pick: best grade first, then highest purity score. */
-function getSuppPick() {
-  return [...PRODUCTS].sort(
-    (a, b) =>
-      GRADE_RANK[b.grade] - GRADE_RANK[a.grade] ||
-      b.purityScore - a.purityScore
-  )[0];
+        GRADE_RANK[b.grade] - GRADE_RANK[a.grade] ||
+        b.purityScore - a.purityScore ||
+        a.name.localeCompare(b.name)
+    );
 }
 
 // ── Category doors data ───────────────────────────────────────────────────────
@@ -93,9 +122,10 @@ const PILLARS = [
 ];
 
 export default function Home() {
-  const alcoholPick = getAlcoholPick();
-  const foodPick = getFoodPick();
-  const suppPick = getSuppPick();
+  const week = currentWeek();
+  const alcoholPick = rotate(alcoholPool(), week);
+  const foodPick = rotate(foodPool(), week);
+  const suppPick = rotate(suppPool(), week);
 
   return (
     <>
@@ -180,7 +210,7 @@ export default function Home() {
             This Week&apos;s Gorilla Picks
           </h2>
           <p className="mt-3 text-sm text-muted">
-            Our top editorial pick in each category.
+            A rotating weekly pick in each category.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
