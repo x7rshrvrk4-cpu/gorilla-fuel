@@ -1,0 +1,22 @@
+{
+  "name": "gorilla-reels",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Isolated Remotion project that renders Gorilla Fuel Instagram Reels. NOT part of the deployed Next app.",
+  "scripts": {
+    "studio": "node node_modules/@remotion/cli/remotion-cli.js studio src/index.ts",
+    "render": "node node_modules/@remotion/cli/remotion-cli.js render src/index.ts GorillaReel"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.533",
+    "@remotion/google-fonts": "4.0.533",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "remotion": "4.0.533",
+    "zod": "3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.17",
+    "typescript": "5.9.3"
+  }
+}

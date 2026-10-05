@@ -61,3 +61,7 @@ recompute-*.txt
 *-write-log.txt
 *-dryrun.txt
 *-dryrun.tsv
+
+# reels (isolated Remotion video project — source tracked, deps/output not)
+reels/node_modules/
+reels/out/
