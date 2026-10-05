@@ -40,13 +40,17 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Gorilla Fuel — Scan It. Score It. Know It.",
     description,
-    images: [{ url: "/gorilla-fuel-icon.png", width: 1024, height: 1024, alt: "Gorilla Fuel" }],
+    type: "website",
+    url: "/",
+    siteName: "Gorilla Fuel",
+    // Dynamic weekly-picks share card (1200×630). Regenerates hourly.
+    images: [{ url: "/api/og/picks", width: 1200, height: 630, alt: "Gorilla Fuel — This Week's Gorilla Picks" }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Gorilla Fuel — Scan It. Score It. Know It.",
     description,
-    images: ["/gorilla-fuel-icon.png"],
+    images: ["/api/og/picks"],
   },
 };
 
