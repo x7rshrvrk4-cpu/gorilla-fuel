@@ -133,6 +133,46 @@ export default function Home() {
               </Link>
             ))}
           </div>
+
+          {/* FITNESS door + Meal Finder banner */}
+          <div className="mt-4 grid gap-4 lg:grid-cols-3">
+            <Link
+              href="/fitness"
+              className="group flex min-h-[220px] flex-col justify-between rounded-sm border border-gold/40 bg-surface p-8 transition-all hover:border-gold hover:shadow-[0_0_24px_rgba(255,215,0,0.12)]"
+            >
+              <div>
+                <h2 className="font-display text-3xl tracking-widest text-gold sm:text-4xl">FITNESS</h2>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  Macro calculator · BMR → TDEE → your daily calorie &amp; protein targets
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-[0.2em] text-muted/70">Free tool</span>
+                <span className="font-display text-gold opacity-0 transition-opacity group-hover:opacity-100">→</span>
+              </div>
+            </Link>
+
+            <Link
+              href="/fitness/recipes"
+              className="group relative flex min-h-[220px] flex-col justify-between overflow-hidden rounded-sm border border-gold bg-gradient-to-br from-gold/15 to-gold/[0.03] p-8 transition-all hover:shadow-[0_0_28px_rgba(255,215,0,0.18)] lg:col-span-2"
+            >
+              <span className="absolute right-6 top-6 rounded-sm bg-gold px-2 py-0.5 font-display text-[10px] tracking-[0.2em] text-background">
+                NEW
+              </span>
+              <div>
+                <p className="font-display text-xs tracking-[0.3em] text-gold">🍳 GORILLA FITNESS</p>
+                <h2 className="mt-2 font-display text-3xl text-foreground sm:text-4xl">Meal Finder</h2>
+                <p className="mt-3 max-w-md text-sm leading-relaxed text-muted">
+                  Tell us what&apos;s in your fridge — we rank the healthy, high-protein meals you can make right now.
+                  Every ingredient Gorilla-scored. Free, no account.
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-[0.2em] text-muted/70">30 recipes · scored</span>
+                <span className="font-display text-gold transition-transform group-hover:translate-x-1">Find your meal →</span>
+              </div>
+            </Link>
+          </div>
         </div>
       </section>
 
