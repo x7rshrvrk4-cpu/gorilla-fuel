@@ -5,7 +5,7 @@ import RankingsClient from "./RankingsClient";
 export const metadata: Metadata = {
   title: "Supplement Rankings — Gorilla Fuel",
   description:
-    "Independent supplement rankings for Canada. Creatine, whey protein, pre workout, fish oil and more. No brand pays for placement.",
+    "Independent supplement rankings for Canada. Creatine, whey protein, pre workout, fish oil and more. Scores can't be bought.",
   alternates: { canonical: "/rankings" },
 };
 

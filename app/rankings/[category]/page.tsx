@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
   if (!cat) return {};
   return {
     title: `${cat} Rankings — Gorilla Fuel`,
-    description: `Independent ${cat.toLowerCase()} rankings for Canada — purity, third-party testing, and value. No brand pays for placement.`,
+    description: `Independent ${cat.toLowerCase()} rankings for Canada — purity, third-party testing, and value. Scores can't be bought.`,
     alternates: { canonical: `/rankings/${category}` },
   };
 }

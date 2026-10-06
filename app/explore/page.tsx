@@ -6,7 +6,7 @@ import { ENERGY_PRODUCTS } from "../energy/lib/products";
 export const metadata: Metadata = {
   title: "Browse All Rankings — Gorilla Fuel",
   description:
-    "Every Gorilla Fuel ranking in one place — food & snacks, energy drinks, sports & hydration, alcohol, wine and supplements. No brand pays for placement.",
+    "Every Gorilla Fuel ranking in one place — food & snacks, energy drinks, sports & hydration, alcohol, wine and supplements. Scores can't be bought.",
   alternates: { canonical: "/explore" },
 };
 
@@ -67,7 +67,7 @@ export default function ExplorePage() {
         </h1>
         <p className="mt-4 text-muted">
           Every Gorilla Fuel ranking in one place — pick a section. Food, drinks, alcohol, wine and
-          supplements, each scored the same no-BS way. No brand pays for placement.
+          supplements, each scored the same no-BS way. The score can't be bought.
         </p>
       </div>
 

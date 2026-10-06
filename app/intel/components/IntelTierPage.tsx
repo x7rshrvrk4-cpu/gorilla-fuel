@@ -26,7 +26,7 @@ const TIER_META: Record<
     accentText: "text-gold",
     accentBorder: "border-gold",
     intro:
-      "These products passed the Gorilla standard. Short ingredient lists. Clean sourcing. Real nutrition. No brand pays for placement on this page. We update this list when formulations change. Scan any product below and you will get the same score shown here — our curated scores are locked in.",
+      "These products passed the Gorilla standard. Short ingredient lists. Clean sourcing. Real nutrition. A brand can't pay to appear here, or to change its score. We update this list when formulations change. Scan any product below and you will get the same score shown here — our curated scores are locked in.",
   },
   cheat: {
     eyebrow: "GORILLA CHEAT LIST",
@@ -275,7 +275,7 @@ function Disclaimer() {
         <Link href="/methodology" className="underline underline-offset-2 hover:text-foreground">
           gorillafuel.ca/methodology
         </Link>
-        . No brand pays for placement on any Gorilla Intel page. Individual dietary needs vary.
+        . No brand can buy its way onto a Gorilla Intel page, or change its score. Individual dietary needs vary.
         Consult a qualified healthcare professional for personalized nutrition advice. Product
         formulations change — always verify current ingredients on the product label before
         purchasing. As an Amazon Associate, Gorilla Fuel earns from qualifying purchases.

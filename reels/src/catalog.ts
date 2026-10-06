@@ -84,16 +84,15 @@ export const CATALOG: ReelSpec[] = [
     id: "no-sponsors",
     topic: "cheat",
     caption:
-      "Nobody pays us to like their product. 🦍\n\nZero sponsors. Zero paid placements. Every Gorilla score is just the data — which is exactly why some big brands score badly.\n\nSee for yourself → gorillafuel.ca 🇨🇦\n\n#gorillafuel #honestreview #nosponsors #canadian #nutrition #nobs #foodtransparency",
+      "You can't buy a better score. 🦍\n\nA brand can pay to put a product in front of you — but it can never pay to change its Gorilla Score. Ads get labelled; the score is always just the data.\n\nSee for yourself → gorillafuel.ca 🇨🇦\n\n#gorillafuel #honestreview #nutrition #canadian #nobs #foodtransparency",
     props: {
       ...base,
       topicTag: "Why you can trust it",
-      headline: ["NOBODY", "PAYS US."],
+      headline: ["SCORES CAN'T", "BE BOUGHT."],
       goldLines: [1],
-      sub: "No sponsors. No paid placement. The score is just the data — which is why some big names score badly.",
+      sub: "A brand can pay to get a product in front of you — but it can never pay to change its Gorilla Score.",
       ctaLabel: "See the scores",
       ctaUrl: URL.home,
-      bigStat: { value: 0, label: "Sponsors" },
     },
   },
   {
@@ -180,13 +179,13 @@ export const CATALOG: ReelSpec[] = [
     id: "weekly-picks",
     topic: "weekly-picks",
     caption:
-      "This week's Gorilla Picks are up. 🦍\n\nOne pick each in alcohol, food and supplements — scored, no sponsors, rotated fresh every week.\n\nSee this week's → gorillafuel.ca 🇨🇦\n\n#gorillafuel #gorillapicks #weeklypicks #canadian #nutrition #honestreview #nobs",
+      "This week's Gorilla Picks are up. 🦍\n\nOne pick each in alcohol, food and supplements — independently scored, rotated fresh every week.\n\nSee this week's → gorillafuel.ca 🇨🇦\n\n#gorillafuel #gorillapicks #weeklypicks #canadian #nutrition #honestreview #nobs",
     props: {
       ...base,
       topicTag: "Fresh every week",
       headline: ["THIS WEEK'S", "GORILLA PICKS."],
       goldLines: [1],
-      sub: "One pick each in alcohol, food and supplements. Scored, no sponsors, rotated fresh every week.",
+      sub: "One pick each in alcohol, food and supplements. Independently scored, rotated fresh every week.",
       ctaLabel: "See this week's",
       ctaUrl: URL.home,
     },

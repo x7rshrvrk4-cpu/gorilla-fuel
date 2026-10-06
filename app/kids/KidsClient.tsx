@@ -197,7 +197,7 @@ export default function KidsClient() {
           data-driven Gorilla standard applied to the snacks in their lunchbox.
           No cartoon character on the packaging changes what is in the
           ingredients list. All products on this page are manually curated and
-          verified. No brand pays for placement.
+          verified. Scores can't be bought.
         </p>
       </div>
 
@@ -347,7 +347,7 @@ export default function KidsClient() {
       <div className="mt-10 rounded-sm border border-line bg-surface p-5">
         <p className="text-xs leading-relaxed text-muted">
           All products are editorially curated based on ingredient quality and
-          nutritional analysis. No brand pays for placement. Individual children
+          nutritional analysis. Scores can't be bought. Individual children
           have different nutritional needs — consult a registered dietitian for
           personalized guidance. Product formulations change — always verify
           current ingredients on the product label before purchasing. As an Amazon

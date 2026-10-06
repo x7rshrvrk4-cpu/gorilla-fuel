@@ -4,7 +4,7 @@ import CrossLinkBanner from "../components/CrossLinkBanner";
 export const metadata: Metadata = {
   title: "About — Gorilla Fuel",
   description:
-    "Gorilla Fuel is a Canadian product intelligence platform. Independent scores for food, supplements and alcohol — no brand pays for placement. Free forever.",
+    "Gorilla Fuel is a Canadian product intelligence platform. Independent scores for food, supplements and alcohol — scores can't be bought. Free forever.",
   alternates: { canonical: "/about" },
 };
 

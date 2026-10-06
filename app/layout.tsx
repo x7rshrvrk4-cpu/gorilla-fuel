@@ -29,7 +29,7 @@ const dmSans = DM_Sans({
 });
 
 const description =
-  "Canada's free barcode scanner for food, beer, wine and supplements. Scan any product and get an instant no-BS score out of 100. No ads. No sponsors. Just data.";
+  "Canada's free barcode scanner for food, beer, wine and supplements. Scan any product and get an instant no-BS score out of 100. Scores you can't buy — just the data.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.gorillafuel.ca"),

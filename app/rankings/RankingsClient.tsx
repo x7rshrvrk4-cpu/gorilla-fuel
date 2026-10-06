@@ -102,7 +102,7 @@ export default function RankingsClient({ initialCategory = "Creatine" }: { initi
         <p className="mt-4 text-muted">
           140+ products across 13 categories — whey, casein, plant protein, creatine, pre-workout, BCAAs/EAAs,
           sleep &amp; recovery, fish oil, greens, electrolytes, collagen, vitamins &amp; minerals, and protein bars.
-          Zero sponsorships. Every entry gets the full Gorilla Analysis treatment.
+          No brand can buy a better score. Every entry gets the full Gorilla Analysis treatment.
         </p>
         <button
           type="button"

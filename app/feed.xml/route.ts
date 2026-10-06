@@ -51,7 +51,7 @@ export async function GET() {
   <channel>
     <title>Gorilla Fuel — Weekly Gorilla Picks</title>
     <link>${BASE}</link>
-    <description>A rotating weekly pick in alcohol, food and supplements — scored, no sponsors. New drop every week.</description>
+    <description>A rotating weekly pick in alcohol, food and supplements — independently scored. New drop every week.</description>
     <language>en-CA</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
 ${items.join("\n")}

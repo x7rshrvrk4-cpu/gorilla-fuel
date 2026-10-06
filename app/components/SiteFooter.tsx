@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const LEGAL_DISCLAIMER =
-  "Gorilla Fuel scores are generated algorithmically from publicly available data sources including Open Food Facts, PubMed, WHO, and Health Canada databases. Scores represent our independent analytical assessment and constitute opinion, not medical or nutritional advice. Individual health circumstances vary. Consult a qualified healthcare professional before making dietary or supplement decisions. Gorilla Fuel is not affiliated with, endorsed by, or sponsored by any brand or manufacturer. Product formulations change — always verify current ingredient information on the product label.";
+  "Gorilla Fuel scores are generated algorithmically from publicly available data sources including Open Food Facts, PubMed, WHO, and Health Canada databases. Scores represent our independent analytical assessment and constitute opinion, not medical or nutritional advice. Individual health circumstances vary. Consult a qualified healthcare professional before making dietary or supplement decisions. Gorilla Fuel's scores are independent and cannot be purchased; any sponsored or partner placement is clearly labeled and never changes a product's score. Product formulations change — always verify current ingredient information on the product label.";
 
 // Split the disclaimer around the single "Open Food Facts" mention so the footer
 // can render that phrase as a link to /attribution (ODbL notice) without altering
@@ -177,7 +177,7 @@ export default function SiteFooter() {
             </div>
           </div>
           <p className="mt-6 text-center text-xs text-muted">
-            Gorilla Fuel &mdash; Canadian Product Intelligence &mdash; No brand pays for placement.
+            Gorilla Fuel &mdash; Canadian Product Intelligence &mdash; Ads are labeled. Scores are earned.
             &nbsp;·&nbsp; © {new Date().getFullYear()} gorillafuel.ca
           </p>
           <p className="mt-4 text-xs leading-relaxed text-muted/60">

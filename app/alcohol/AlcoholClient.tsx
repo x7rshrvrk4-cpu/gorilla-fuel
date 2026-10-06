@@ -479,8 +479,8 @@ export default function AlcoholClient() {
           <div className="rounded-sm border border-slate-800 bg-slate-900/40 px-5 py-4">
             <p className="text-xs leading-relaxed text-slate-400">
               Wine quality scores sourced from critic ratings on LCBO product pages including James Suckling, Wine
-              Spectator, Wine Enthusiast, WineAlign, Decanter, and National Wine Awards of Canada. No brand pays for
-              placement on this page.
+              Spectator, Wine Enthusiast, WineAlign, Decanter, and National Wine Awards of Canada. No brand can pay to
+              change a score.
             </p>
           </div>
         </div>

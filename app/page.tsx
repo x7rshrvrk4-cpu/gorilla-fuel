@@ -9,7 +9,7 @@ import { RECIPES } from "./fitness/lib/recipes";
 
 export const metadata: Metadata = {
   description:
-    "Canada's free barcode scanner for food, supplements and alcohol. Scan any product and get an instant no-BS health score. No ads. No sponsors. Just data.",
+    "Canada's free barcode scanner for food, supplements and alcohol. Scan any product and get an instant no-BS health score. Scores you can't buy — just the data.",
   alternates: { canonical: "/" },
 };
 
@@ -52,8 +52,8 @@ const PILLARS = [
     body: "Built specifically for Beer Store and LCBO shoppers. Every product you actually buy in Ontario is in here.",
   },
   {
-    title: "NO BRAND PAYS FOR PLACEMENT",
-    body: "Your Gorilla Score is based on ingredients, not marketing budgets. It has never been any other way and it never will be.",
+    title: "SCORES CAN'T BE BOUGHT",
+    body: "Your Gorilla Score comes from the ingredients and the data — not a marketing budget. A brand can pay to spotlight a product, but it can never pay to change its score.",
   },
   {
     title: "15 DATA SOURCES",
@@ -78,7 +78,7 @@ export default function Home() {
           </h1>
           <p className="max-w-lg text-lg leading-relaxed text-muted sm:text-xl">
             Free Canadian product intelligence for beer, wine, supplements and
-            food. No brand pays for placement. Ever.
+            food. Scores can't be bought. Ever.
           </p>
 
           {/* WHOLE-DATABASE LIVE SEARCH — curated catalogue + scanned cache.

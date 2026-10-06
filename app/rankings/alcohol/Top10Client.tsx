@@ -149,7 +149,7 @@ function SourceCitation() {
       June 22 to October 11, 2025. Total LCBO sales that period: $2.47 billion.
       Gorilla Scores calculated using our publicly documented methodology at{" "}
       <Link href="/methodology" className="text-gold underline">gorillafuel.ca/methodology</Link>.
-      No brand pays for placement on this page.
+      No brand can pay to change a score.
     </p>
   );
 }

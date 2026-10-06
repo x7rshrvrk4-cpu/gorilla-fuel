@@ -60,7 +60,7 @@ export default function MethodologyPage() {
           The <span className="text-gold">Methodology</span>.
         </h1>
         <p className="mt-4 text-muted">
-          No black boxes. No paid placements. Here is how every score, badge,
+          No black boxes. The score is never for sale. Here is how every score, badge,
           and warning on this site gets generated — start to finish.
         </p>
       </div>
@@ -72,9 +72,10 @@ export default function MethodologyPage() {
             GORILLA FUEL INDEPENDENCE STATEMENT
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-foreground/90">
-            Gorilla Fuel is an independent analytical platform. No brand,
-            manufacturer, or retailer pays for placement, influences scoring, or
-            has any input into our rankings or results. Our scoring methodology
+            Gorilla Fuel is an independent analytical platform. A brand can pay to
+            highlight a product — always clearly labelled — but no brand,
+            manufacturer, or retailer can pay to change a score, influence our
+            scoring, or have any input into our rankings or results. Our scoring methodology
             is applied identically to every product regardless of brand size,
             marketing budget, or popularity. A product from a small Canadian
             craft brewery is scored using the exact same framework as a
@@ -388,8 +389,8 @@ export default function MethodologyPage() {
         <div className="max-w-3xl rounded-sm border border-line bg-surface p-6">
           <p className="text-sm leading-relaxed text-muted">
             All scores constitute editorial opinion based on publicly disclosed methodology.
-            Gorilla Fuel is an independent analytical platform. No brand pays for placement or
-            influences scoring.
+            Gorilla Fuel is an independent analytical platform. No brand can buy or
+            influence a score.
           </p>
         </div>
       </section>
