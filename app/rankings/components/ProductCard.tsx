@@ -138,7 +138,7 @@ export default function ProductCard({ product }: Props) {
             <a
               href={amazonUrl(product.name, product.brand)}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer sponsored"
               className="inline-flex items-center gap-2 rounded-sm bg-gold px-5 py-2.5 font-display text-sm tracking-widest text-background transition-colors hover:bg-gold/90"
             >
               Buy on Amazon

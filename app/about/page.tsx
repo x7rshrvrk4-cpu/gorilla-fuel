@@ -27,10 +27,11 @@ export default function AboutPage() {
             methodology.
           </p>
           <p>
-            <span className="text-foreground">We are not affiliated with any
-            brand. No company pays for a better score. No product is featured
-            because someone paid for placement.</span> The data determines
-            everything.
+            <span className="text-foreground">No company can pay for a better
+            score, change its ranking, or influence how we rate it.</span> We may
+            earn a commission when you buy through our links, and any sponsored
+            highlight is clearly labelled — but neither ever changes a score. The
+            data determines that.
           </p>
           <p>
             We cover food and snacks, supplements, alcohol — beer and wine —

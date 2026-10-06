@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const LEGAL_DISCLAIMER =
-  "Gorilla Fuel scores are generated algorithmically from publicly available data sources including Open Food Facts, PubMed, WHO, and Health Canada databases. Scores represent our independent analytical assessment and constitute opinion, not medical or nutritional advice. Individual health circumstances vary. Consult a qualified healthcare professional before making dietary or supplement decisions. Gorilla Fuel's scores are independent and cannot be purchased; any sponsored or partner placement is clearly labeled and never changes a product's score. Product formulations change — always verify current ingredient information on the product label.";
+  "Gorilla Fuel scores are generated algorithmically from publicly available data sources including Open Food Facts, PubMed, WHO, and Health Canada databases. Scores represent our independent analytical assessment and constitute opinion, not medical or nutritional advice. Individual health circumstances vary. Consult a qualified healthcare professional before making dietary or supplement decisions. Gorilla Fuel's scores are independent and cannot be purchased; any sponsored or partner placement is clearly labeled and never changes a product's score. As an Amazon Associate, Gorilla Fuel earns from qualifying purchases, and some outbound buy links are affiliate links. Product formulations change — always verify current ingredient information on the product label.";
 
 // Split the disclaimer around the single "Open Food Facts" mention so the footer
 // can render that phrase as a link to /attribution (ODbL notice) without altering
