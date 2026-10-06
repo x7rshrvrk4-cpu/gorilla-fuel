@@ -23,7 +23,12 @@ export default function RecipesPage() {
         nothing leaves your device.
       </p>
 
-      <p className="mt-3 text-xs text-muted/70">
+      <p className="mt-3 text-xs leading-relaxed text-muted/70">
+        Each meal gets a <span className="text-gold">Gorilla Meal Score</span> out of 100 — a blend of every
+        ingredient&apos;s Gorilla score (whole foods score high, refined/fried ones drag it down) and its protein
+        balance. It&apos;s why a turkey burger with potatoes and broccoli rates far above a burger, fries and a salad.
+      </p>
+      <p className="mt-2 text-xs text-muted/70">
         Chasing a target too? Run the{" "}
         <Link href="/fitness" className="text-gold underline hover:text-foreground">macro calculator</Link>{" "}
         first, then build your day from these.

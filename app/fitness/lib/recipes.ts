@@ -741,9 +741,155 @@ export const RECIPES: Recipe[] = [
     macros: { calories: 360, protein: 18, carbs: 54, fat: 9 },
     gorillaNote: "Kale scores 95 — this is a fibre and antioxidant powerhouse.",
   },
+
+  // ───────────────────── MORE BREAKFAST ─────────────────────
+  {
+    id: "avocado-egg-toast",
+    title: "Avocado & Egg Toast",
+    mealType: "breakfast",
+    goals: ["maintain", "build"],
+    diet: ["high-protein", "vegetarian", "quick"],
+    timeMin: 10,
+    servings: 1,
+    ingredients: [core("avocado", "1/2"), core("eggs", "2"), core("whole-grain-bread", "2 slices"), extra("Chili flakes + lemon", "to taste")],
+    steps: ["Toast bread.", "Mash avocado with lemon over toast.", "Top with fried or poached eggs and chili flakes."],
+    macros: { calories: 420, protein: 20, carbs: 32, fat: 24 },
+    gorillaNote: "Avocado (90) plus eggs — healthy fats and protein to start the day.",
+  },
+  {
+    id: "breakfast-burrito",
+    title: "Black Bean Breakfast Burrito",
+    mealType: "breakfast",
+    goals: ["build", "maintain"],
+    diet: ["high-protein", "gluten-free", "vegetarian"],
+    timeMin: 15,
+    servings: 1,
+    ingredients: [core("eggs", "3"), core("black-beans", "1/2 cup"), core("corn-tortillas", "2"), core("bell-peppers", "1/2"), have("avocado", "1/4"), extra("Salsa", "to taste")],
+    steps: ["Scramble eggs with diced peppers.", "Warm beans and tortillas.", "Fill tortillas with eggs, beans, avocado and salsa."],
+    macros: { calories: 480, protein: 28, carbs: 46, fat: 20 },
+    gorillaNote: "Corn tortillas keep it gluten-free; beans + eggs stack the protein.",
+  },
+  {
+    id: "chia-pudding",
+    title: "Berry Chia Pudding",
+    mealType: "breakfast",
+    goals: ["lean", "maintain"],
+    diet: ["gluten-free", "vegetarian", "vegan", "quick"],
+    timeMin: 5,
+    servings: 1,
+    ingredients: [core("chia-seeds", "3 tbsp"), core("berries", "80 g"), have("almonds", "small handful"), extra("Milk of choice", "200 ml")],
+    steps: ["Stir chia into milk, let sit 10 min, stir again.", "Refrigerate until set (or overnight).", "Top with berries and almonds."],
+    macros: { calories: 300, protein: 10, carbs: 28, fat: 18 },
+    gorillaNote: "Chia (90) gels into a fibre- and omega-3-rich make-ahead breakfast.",
+  },
+  {
+    id: "shakshuka",
+    title: "Simple Shakshuka",
+    mealType: "breakfast",
+    goals: ["lean", "maintain"],
+    diet: ["high-protein", "gluten-free", "vegetarian", "dairy-free"],
+    timeMin: 25,
+    servings: 2,
+    ingredients: [core("eggs", "4"), core("cherry-tomatoes", "3 cups"), core("bell-peppers", "1"), have("garlic", "2 cloves"), have("red-onion", "1/2"), have("olive-oil", "1 tbsp"), extra("Paprika + cumin", "to taste")],
+    steps: ["Sauté onion, pepper and garlic in oil.", "Add tomatoes and spices, simmer to a sauce.", "Crack in eggs, cover, cook until set."],
+    macros: { calories: 290, protein: 18, carbs: 18, fat: 16 },
+    gorillaNote: "A one-pan, veg-forward brunch — poach the eggs right in the sauce.",
+  },
+
+  // ───────────────────── MORE SNACKS ─────────────────────
+  {
+    id: "eggs-and-fruit",
+    title: "Hard-Boiled Eggs & Fruit",
+    mealType: "snack",
+    goals: ["lean", "build", "maintain"],
+    diet: ["high-protein", "gluten-free", "vegetarian", "dairy-free", "quick"],
+    timeMin: 2,
+    servings: 1,
+    ingredients: [core("eggs", "2 boiled"), core("apple", "1")],
+    steps: ["Peel pre-boiled eggs.", "Slice an apple alongside."],
+    macros: { calories: 220, protein: 13, carbs: 22, fat: 10 },
+    gorillaNote: "The ultimate no-prep snack — protein, fibre, zero packaging.",
+  },
+  {
+    id: "roasted-chickpeas",
+    title: "Crispy Roasted Chickpeas",
+    mealType: "snack",
+    goals: ["lean", "maintain"],
+    diet: ["high-protein", "gluten-free", "vegetarian", "vegan", "dairy-free"],
+    timeMin: 30,
+    servings: 2,
+    ingredients: [core("chickpeas", "1 can"), have("olive-oil", "1 tbsp"), extra("Paprika + salt", "to taste")],
+    steps: ["Pat chickpeas dry.", "Toss with oil and spices.", "Roast 25–30 min at 200°C until crunchy."],
+    macros: { calories: 190, protein: 9, carbs: 24, fat: 7 },
+    gorillaNote: "A crunchy, fibre-packed swap for chips (88 vs a bag of nothing).",
+  },
+  {
+    id: "tuna-cucumber-bites",
+    title: "Tuna Cucumber Bites",
+    mealType: "snack",
+    goals: ["lean"],
+    diet: ["high-protein", "gluten-free", "dairy-free", "quick"],
+    timeMin: 8,
+    servings: 1,
+    ingredients: [core("canned-tuna", "1 can"), core("cucumber", "1"), have("avocado", "1/4"), extra("Lemon + pepper", "to taste")],
+    steps: ["Slice cucumber into rounds.", "Mash tuna with avocado and lemon.", "Spoon onto cucumber slices."],
+    macros: { calories: 240, protein: 28, carbs: 8, fat: 10 },
+    gorillaNote: "28 g protein, barely any carbs — a cracker-free high-protein snack.",
+  },
+  {
+    id: "yogurt-seed-bowl",
+    title: "Greek Yogurt & Seed Bowl",
+    mealType: "snack",
+    goals: ["lean", "build"],
+    diet: ["high-protein", "gluten-free", "vegetarian", "quick"],
+    timeMin: 3,
+    servings: 1,
+    ingredients: [core("greek-yogurt", "200 g"), core("berries", "60 g"), core("pumpkin-seeds", "2 tbsp"), have("chia-seeds", "1 tsp")],
+    steps: ["Spoon yogurt into a bowl.", "Top with berries, pumpkin seeds and chia."],
+    macros: { calories: 280, protein: 26, carbs: 20, fat: 11 },
+    gorillaNote: "26 g protein from yogurt and seeds — keeps you full between meals.",
+  },
 ];
 
 export const RECIPE_BY_ID: Record<string, Recipe> = Object.fromEntries(RECIPES.map((r) => [r.id, r]));
+
+const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
+
+/**
+ * Gorilla Meal Score (0-100) — a transparent estimate of how healthy the whole
+ * meal is, in the same 0-100 language as a product's Gorilla score. It is NOT the
+ * scanner's scoring (that's product-level and lives in scan/lib/scoring.ts); this
+ * is a meal-level blend:
+ *
+ *   75% ingredient quality — the weighted average of each ingredient's Gorilla
+ *       score (from the pantry A-list), with the recipe's defining `core`
+ *       ingredients counting double. Whole, high-scoring foods pull it up; refined
+ *       or fried components (lower scores) pull it down.
+ *   25% protein balance — grams of protein per 100 kcal, mapped 2g→0 … 10g→100,
+ *       so lean, protein-dense meals rate higher than empty-calorie ones.
+ *
+ * This is why a turkey burger with potatoes and broccoli (lean + whole foods)
+ * scores far above a burger, fries and a side salad (refined bun + fried potato),
+ * even though both are "a burger and sides".
+ */
+export function mealScore(r: Recipe): number {
+  let weighted = 0;
+  let weight = 0;
+  for (const ing of r.ingredients) {
+    if (!ing.pantryId) continue; // skip seasonings / sauces with no scored staple
+    const s = PANTRY_BY_ID[ing.pantryId]?.scoreHint;
+    if (s == null) continue;
+    const w = ing.core ? 2 : 1;
+    weighted += s * w;
+    weight += w;
+  }
+  const quality = weight ? weighted / weight : 60;
+
+  const proteinPer100kcal = r.macros.calories > 0 ? (r.macros.protein / r.macros.calories) * 100 : 0;
+  const proteinBalance = clamp(((proteinPer100kcal - 2) / (10 - 2)) * 100, 0, 100);
+
+  return Math.round(clamp(0.75 * quality + 0.25 * proteinBalance, 0, 100));
+}
 
 export type RecipeFilters = {
   mealType?: RecipeMealType | null;
@@ -759,6 +905,8 @@ export type RecipeMatch = {
   missing: RecipeIngredient[];
   /** matched / total core ingredients, 0–1. */
   ratio: number;
+  /** Gorilla Meal Score (0-100). */
+  score: number;
 };
 
 /**
@@ -781,11 +929,12 @@ export function matchRecipes(haveIds: Set<string>, filters: RecipeFilters = {}):
       const matched = coreIngredients.filter((i) => haveIds.has(i.pantryId!));
       const missing = coreIngredients.filter((i) => !haveIds.has(i.pantryId!));
       const ratio = coreIngredients.length ? matched.length / coreIngredients.length : 0;
-      return { recipe, matched, missing, ratio };
+      return { recipe, matched, missing, ratio, score: mealScore(recipe) };
     })
     .sort(
       (a, b) =>
         b.ratio - a.ratio ||
+        b.score - a.score ||
         a.missing.length - b.missing.length ||
         a.recipe.timeMin - b.recipe.timeMin ||
         a.recipe.title.localeCompare(b.recipe.title)

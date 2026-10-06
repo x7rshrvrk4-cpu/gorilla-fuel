@@ -210,8 +210,9 @@ function FilterPill({ active, onClick, label }: { active: boolean; onClick: () =
 }
 
 function RecipeCard({ match, hasSelection }: { match: RecipeMatch; hasSelection: boolean }) {
-  const { recipe, matched, missing, ratio } = match;
+  const { recipe, matched, missing, ratio, score } = match;
   const canMake = ratio === 1 && matched.length > 0;
+  const scoreColor = GRADE_COLORS[gradeFromScore(score)];
 
   return (
     <div className="gorilla-card flex flex-col rounded-sm p-5">
@@ -222,17 +223,29 @@ function RecipeCard({ match, hasSelection }: { match: RecipeMatch; hasSelection:
             {recipe.mealType} · {recipe.timeMin} min · {recipe.servings} serving{recipe.servings === 1 ? "" : "s"}
           </p>
         </div>
-        {hasSelection && (
-          <span
-            className={`shrink-0 rounded-sm border px-2 py-0.5 text-[10px] font-display uppercase tracking-[0.15em] ${
-              canMake
-                ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-300"
-                : "border-amber-500/40 bg-amber-500/10 text-amber-300"
-            }`}
-          >
-            {canMake ? "✓ You can make this" : `${matched.length}/${matched.length + missing.length} ingredients`}
-          </span>
-        )}
+        <div className="flex shrink-0 flex-col items-end gap-2">
+          <div className="flex flex-col items-center">
+            <div
+              className="flex h-12 w-12 items-center justify-center rounded-sm border-2 font-display text-xl tabular-nums"
+              style={{ borderColor: scoreColor, color: scoreColor }}
+              title="Gorilla Meal Score (0–100)"
+            >
+              {score}
+            </div>
+            <span className="mt-0.5 text-[9px] uppercase tracking-[0.15em] text-muted/60">Meal Score</span>
+          </div>
+          {hasSelection && (
+            <span
+              className={`rounded-sm border px-2 py-0.5 text-[10px] font-display uppercase tracking-[0.15em] ${
+                canMake
+                  ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-300"
+                  : "border-amber-500/40 bg-amber-500/10 text-amber-300"
+              }`}
+            >
+              {canMake ? "✓ You can make this" : `${matched.length}/${matched.length + missing.length} ingredients`}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Macros */}
