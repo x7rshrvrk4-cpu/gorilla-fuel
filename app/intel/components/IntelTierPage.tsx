@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import CrossLinkBanner from "../../components/CrossLinkBanner";
-import BackToTop from "../../components/BackToTop";
 import DeepLinkHighlighter from "../../components/DeepLinkHighlighter";
 import {
   amazonUrl,
@@ -367,7 +366,6 @@ export default function IntelTierPage({
       <div className="mt-16 -mx-5 sm:-mx-8">
         <CrossLinkBanner />
       </div>
-      <BackToTop />
     </div>
   );
 }

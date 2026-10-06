@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { scrollToProduct } from "../lib/scrollHighlight";
 import CrossLinkBanner from "../components/CrossLinkBanner";
-import BackToTop from "../components/BackToTop";
 import KidsSnackCard from "./components/KidsSnackCard";
 import {
   KIDS_SNACKS,
@@ -231,7 +230,6 @@ export default function KidsSnacksClient() {
       <div className="mt-16 -mx-5 sm:-mx-8">
         <CrossLinkBanner />
       </div>
-      <BackToTop />
     </div>
   );
 }

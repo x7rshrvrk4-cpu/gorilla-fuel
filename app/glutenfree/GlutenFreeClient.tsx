@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import BackToTop from "../components/BackToTop";
 import { ALCOHOL_PRODUCTS } from "../alcohol/lib/products";
 import { GF_FOOD_TABS, amazonUrl, type GfFoodProduct, type GfFoodTab } from "./lib/products";
 
@@ -404,7 +403,6 @@ export default function GlutenFreeClient({ initialTab = "alcohol" }: { initialTa
       </div>
 
       {tab === "alcohol" ? <AlcoholTab /> : <FoodTab tab={tab} />}
-      <BackToTop />
     </div>
   );
 }

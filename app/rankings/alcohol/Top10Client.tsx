@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import BackToTop from "../../components/BackToTop";
 import { ALCOHOL_PRODUCTS, wineGorillaScore } from "../../alcohol/lib/products";
 
 const SOURCE_LINE = "LCBO Q2 FY2025-26 Official Data — June 22 to October 11, 2025";
@@ -472,7 +471,6 @@ export default function Top10Client() {
         <SourceCitation />
       </section>
 
-      <BackToTop />
     </div>
   );
 }

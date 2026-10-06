@@ -11,6 +11,8 @@ import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import Navigation from "./components/Navigation";
 import SiteFooter from "./components/SiteFooter";
+import BackButton from "./components/BackButton";
+import BackToTop from "./components/BackToTop";
 import "./globals.css";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
@@ -68,6 +70,9 @@ export default function RootLayout({
         <Navigation />
         <div className="flex-1 flex flex-col">{children}</div>
         <SiteFooter />
+        {/* Global floating nav — every page gets Back (bottom-left) + Back-to-top (bottom-right). */}
+        <BackButton />
+        <BackToTop />
         <Analytics />
         <Script strategy="afterInteractive" id="sw-register">
           {`if('serviceWorker' in navigator){

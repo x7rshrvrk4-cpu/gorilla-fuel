@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import BackToTop from "../components/BackToTop";
 import AlcoholProductCard from "../alcohol/components/AlcoholProductCard";
 import type { AlcoholRankingProduct } from "../alcohol/lib/products";
 import {
@@ -321,7 +320,6 @@ export default function BcLiquorClient({ counts, countries, rows, filters, filte
         only — not a purchase or availability guarantee.
       </p>
 
-      <BackToTop />
     </div>
   );
 }

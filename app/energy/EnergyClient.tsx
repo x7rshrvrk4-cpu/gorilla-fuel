@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { scrollToProduct } from "../lib/scrollHighlight";
 import CrossLinkBanner from "../components/CrossLinkBanner";
-import BackToTop from "../components/BackToTop";
 import UniversalSearch from "../components/UniversalSearch";
 import EnergyDisclaimer from "./components/EnergyDisclaimer";
 import EnergyProductCard from "./components/EnergyProductCard";
@@ -122,7 +121,6 @@ export default function EnergyClient() {
       <div className="mt-16 -mx-5 sm:-mx-8">
         <CrossLinkBanner />
       </div>
-      <BackToTop />
     </div>
   );
 }
