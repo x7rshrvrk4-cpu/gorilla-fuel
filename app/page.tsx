@@ -5,6 +5,7 @@ import CrossLinkBanner from "./components/CrossLinkBanner";
 import UniversalSearch from "./components/UniversalSearch";
 import { amazonUrl } from "./intel/lib/products";
 import { getWeeklyPicks } from "./lib/weeklyPicks";
+import { RECIPES } from "./fitness/lib/recipes";
 
 export const metadata: Metadata = {
   description:
@@ -168,7 +169,7 @@ export default function Home() {
                 </p>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-[0.2em] text-muted/70">30 recipes · scored</span>
+                <span className="text-xs uppercase tracking-[0.2em] text-muted/70">{RECIPES.length} recipes · scored</span>
                 <span className="font-display text-gold transition-transform group-hover:translate-x-1">Find your meal →</span>
               </div>
             </Link>

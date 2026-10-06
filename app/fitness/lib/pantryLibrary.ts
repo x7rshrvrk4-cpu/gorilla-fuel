@@ -73,6 +73,48 @@ export const PANTRY: PantryItem[] = [
 
   // ── Supplement anchor ──────────────────────────────────────────────────────
   { id: "whey-isolate",     name: "Whey Protein Isolate", barcode: null, scoreHint: 82, affiliate: "amazon",  category: "supplement" },
+
+  // ── More proteins ────────────────────────────────────────────────────────
+  { id: "ground-chicken",   name: "Lean Ground Chicken",  barcode: null, scoreHint: 84, affiliate: "grocery", category: "protein" },
+  { id: "pork-tenderloin",  name: "Pork Tenderloin",      barcode: null, scoreHint: 82, affiliate: "grocery", category: "protein" },
+  { id: "sirloin-steak",    name: "Sirloin Steak",        barcode: null, scoreHint: 80, affiliate: "grocery", category: "protein" },
+  { id: "canned-salmon",    name: "Canned Salmon",        barcode: null, scoreHint: 86, affiliate: "amazon",  category: "protein" },
+  { id: "sardines",         name: "Sardines",             barcode: null, scoreHint: 88, affiliate: "amazon",  category: "protein" },
+  { id: "edamame",          name: "Edamame",              barcode: null, scoreHint: 90, affiliate: "grocery", category: "protein" },
+  { id: "seitan",           name: "Seitan",               barcode: null, scoreHint: 76, affiliate: "grocery", category: "protein" },
+
+  // ── More carbs (incl. pasta) ─────────────────────────────────────────────
+  { id: "whole-wheat-pasta", name: "Whole-Wheat Pasta",   barcode: null, scoreHint: 74, affiliate: "amazon",  category: "carb" },
+  { id: "chickpea-pasta",    name: "Chickpea Pasta",      barcode: null, scoreHint: 82, affiliate: "amazon",  category: "carb" },
+  { id: "couscous",          name: "Whole-Wheat Couscous", barcode: null, scoreHint: 70, affiliate: "amazon", category: "carb" },
+  { id: "farro",             name: "Farro",               barcode: null, scoreHint: 82, affiliate: "amazon",  category: "carb" },
+  { id: "corn-tortillas",    name: "Corn Tortillas",      barcode: null, scoreHint: 74, affiliate: "grocery", category: "carb" },
+  { id: "rice-noodles",      name: "Rice Noodles",        barcode: null, scoreHint: 66, affiliate: "amazon",  category: "carb" },
+
+  // ── More fats (incl. salad dressing, cheese, seeds) ──────────────────────
+  { id: "vinaigrette",     name: "Olive-Oil Vinaigrette", barcode: null, scoreHint: 68, affiliate: "amazon",  category: "fat" },
+  { id: "feta",            name: "Feta",                  barcode: null, scoreHint: 72, affiliate: "grocery", category: "fat" },
+  { id: "parmesan",        name: "Parmesan",              barcode: null, scoreHint: 70, affiliate: "grocery", category: "fat" },
+  { id: "pumpkin-seeds",   name: "Pumpkin Seeds",         barcode: null, scoreHint: 90, affiliate: "amazon",  category: "fat" },
+  { id: "sunflower-seeds", name: "Sunflower Seeds",       barcode: null, scoreHint: 88, affiliate: "amazon",  category: "fat" },
+
+  // ── More produce (veg + salad) ───────────────────────────────────────────
+  { id: "asparagus",       name: "Asparagus",             barcode: null, scoreHint: 92, affiliate: "grocery", category: "produce" },
+  { id: "green-beans",     name: "Green Beans",           barcode: null, scoreHint: 90, affiliate: "grocery", category: "produce" },
+  { id: "carrots",         name: "Carrots",               barcode: null, scoreHint: 90, affiliate: "grocery", category: "produce" },
+  { id: "zucchini",        name: "Zucchini",              barcode: null, scoreHint: 90, affiliate: "grocery", category: "produce" },
+  { id: "cauliflower",     name: "Cauliflower",           barcode: null, scoreHint: 92, affiliate: "grocery", category: "produce" },
+  { id: "kale",            name: "Kale",                  barcode: null, scoreHint: 95, affiliate: "grocery", category: "produce" },
+  { id: "mixed-greens",    name: "Mixed Salad Greens",    barcode: null, scoreHint: 95, affiliate: "grocery", category: "produce" },
+  { id: "romaine",         name: "Romaine Lettuce",       barcode: null, scoreHint: 92, affiliate: "grocery", category: "produce" },
+  { id: "cherry-tomatoes", name: "Cherry Tomatoes",       barcode: null, scoreHint: 90, affiliate: "grocery", category: "produce" },
+  { id: "cucumber",        name: "Cucumber",              barcode: null, scoreHint: 88, affiliate: "grocery", category: "produce" },
+  { id: "mushrooms",       name: "Mushrooms",             barcode: null, scoreHint: 85, affiliate: "grocery", category: "produce" },
+  { id: "red-onion",       name: "Red Onion",             barcode: null, scoreHint: 82, affiliate: "grocery", category: "produce" },
+  { id: "garlic",          name: "Garlic",                barcode: null, scoreHint: 85, affiliate: "grocery", category: "produce" },
+  { id: "cabbage",         name: "Cabbage",               barcode: null, scoreHint: 90, affiliate: "grocery", category: "produce" },
+  { id: "peas",            name: "Green Peas",            barcode: null, scoreHint: 88, affiliate: "grocery", category: "produce" },
+  { id: "corn",            name: "Corn",                  barcode: null, scoreHint: 78, affiliate: "grocery", category: "produce" },
 ];
 
 /** Fast id → PantryItem lookup for the plan-composition layer and UI. */
