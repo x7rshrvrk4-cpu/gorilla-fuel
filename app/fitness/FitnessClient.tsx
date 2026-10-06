@@ -159,26 +159,44 @@ export default function FitnessClient() {
   return (
     <div className="mt-8 flex flex-col gap-4">
       {/* 1 · FIND A MEAL ───────────────────────────────────────────────────── */}
-      <StepBox n={1} title="Find a Meal" subtitle="What's in your fridge? Get healthy meals you can make right now." defaultOpen accent>
+      <StepBox
+        n={1}
+        title="Find a Meal"
+        subtitle="What's in your fridge? Get healthy meals you can make right now."
+        blurb="Healthy meals built from what you already have — each with a Gorilla Meal Score. Cheat meals are in too, scored honestly."
+        accent
+      >
         <MealPreview />
       </StepBox>
 
       {/* 2 · PICK YOUR PLAN ─────────────────────────────────────────────────── */}
-      <StepBox n={2} title="Pick Your Plan" subtitle="A simple, sustainable shape for how to eat and move.">
-        <p className="mb-4 text-sm leading-relaxed text-muted">
-          Not sure where to start? Pick a goal and get a plan — how to eat, how to move, what to reach for. Once you
-          fill in your stats below, each plan shows <span className="text-foreground">your</span> personal calorie and
-          protein target.
-        </p>
+      <StepBox
+        n={2}
+        title="Pick Your Plan"
+        subtitle="A simple, sustainable shape for how to eat and move."
+        blurb={
+          <>
+            Pick a goal and get a plan — how to eat, how to move, what to reach for. Once your stats are in, each plan
+            shows <span className="text-foreground">your</span> personal calorie and protein target.
+          </>
+        }
+      >
         <GoalPicker />
       </StepBox>
 
       {/* 3 · YOUR STATS ─────────────────────────────────────────────────────── */}
-      <StepBox n={3} title="Your Stats" subtitle="Your body's inputs — everything below is built from these." defaultOpen>
-        <p className="mb-4 text-sm leading-relaxed text-muted">
-          Sex, height, weight and age set your baseline burn. <span className="text-foreground">Change any value and
-          every number updates instantly</span> — that&apos;s how the plan adapts to you.
-        </p>
+      <StepBox
+        n={3}
+        title="Your Stats"
+        subtitle="Your body's inputs — everything below is built from these."
+        blurb={
+          <>
+            Sex, height, weight and age set your baseline burn.{" "}
+            <span className="text-foreground">Change any value and every number updates instantly</span> — that&apos;s
+            how the plan adapts to you.
+          </>
+        }
+      >
         <div className="flex items-center justify-between gap-3">
           <p className="text-[10px] uppercase tracking-[0.2em] text-muted">Units</p>
           <div className="flex gap-2">
@@ -218,13 +236,19 @@ export default function FitnessClient() {
       </StepBox>
 
       {/* 4 · YOUR ENGINE — BMR & TDEE ───────────────────────────────────────── */}
-      <StepBox n={4} title="Your Engine — BMR & TDEE" subtitle="The calories you burn at rest, plus your daily movement." defaultOpen>
-        <p className="mb-4 text-sm leading-relaxed text-muted">
-          Your <span className="text-foreground">BMR</span> (basal metabolic rate) is what your body burns just to keep
-          you alive — breathing, pumping blood, staying warm — even if you stayed in bed all day. Your activity level
-          adds the calories you burn moving around. Together, that&apos;s your <span className="text-foreground">TDEE</span>:
-          the calories you&apos;d eat to maintain your weight.
-        </p>
+      <StepBox
+        n={4}
+        title="Your Engine — BMR & TDEE"
+        subtitle="The calories you burn at rest, plus your daily movement."
+        blurb={
+          <>
+            Your <span className="text-foreground">BMR</span> (basal metabolic rate) is what your body burns just to keep
+            you alive — breathing, pumping blood, staying warm — even if you stayed in bed all day. Your activity level
+            adds the calories you burn moving around. Together, that&apos;s your{" "}
+            <span className="text-foreground">TDEE</span>: the calories you&apos;d eat to maintain your weight.
+          </>
+        }
+      >
         {!ready || !calc ? prompt : (
           <div className="flex flex-col gap-5">
             <div>
@@ -251,11 +275,12 @@ export default function FitnessClient() {
       </StepBox>
 
       {/* 5 · YOUR DAILY TARGET ──────────────────────────────────────────────── */}
-      <StepBox n={5} title="Your Daily Target" subtitle="Your goal sets your calories and your protein / fat / carbs." defaultOpen>
-        <p className="mb-4 text-sm leading-relaxed text-muted">
-          Pick a goal and we nudge your maintenance calories up or down, then split them into protein, fat and carbs.
-          This is the engine behind the plan you picked in Step 2.
-        </p>
+      <StepBox
+        n={5}
+        title="Your Daily Target"
+        subtitle="Your goal sets your calories and your protein / fat / carbs."
+        blurb="Pick a goal and we nudge your maintenance calories up or down, then split them into protein, fat and carbs. This is the engine behind the plan you picked in Step 2."
+      >
         {!ready || !calc ? prompt : (
           <div className="flex flex-col gap-5">
             <div>
@@ -297,11 +322,12 @@ export default function FitnessClient() {
       </StepBox>
 
       {/* 6 · FUEL & TRACK ───────────────────────────────────────────────────── */}
-      <StepBox n={6} title="Fuel & Track" subtitle="Hit your protein, then scan as you shop.">
-        <p className="mb-4 text-sm leading-relaxed text-muted">
-          Protein is the hardest macro to hit — a scoop of clean powder helps close the gap. Then scan products as you
-          shop to check them against your target.
-        </p>
+      <StepBox
+        n={6}
+        title="Fuel & Track"
+        subtitle="Hit your protein, then scan as you shop."
+        blurb="Protein is the hardest macro to hit — a scoop of clean powder helps close the gap. Then scan products as you shop to check them against your target."
+      >
         <div className="rounded-sm border border-gold/40 bg-gold/[0.05] p-5 text-center">
           <p className="font-display text-xl text-foreground">Scan products to hit your target.</p>
           {ready && calc && (

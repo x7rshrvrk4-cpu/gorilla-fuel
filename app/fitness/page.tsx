@@ -16,8 +16,9 @@ export default function FitnessPage() {
         Staying healthy, <span className="text-gold">as easy as 1 → 6</span>.
       </h1>
       <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted">
-        Six steps: find a meal, pick a plan, learn your numbers, then hit them. Tap any step to open it.
-        Every number is an estimate built from your own inputs — and nothing leaves your device.
+        Six steps: find a meal, pick a plan, learn your numbers, then hit them. Each one explains itself — tap the{" "}
+        <span className="text-gold">+</span> to open the actual tool. Every number is an estimate from your own inputs,
+        and nothing leaves your device.
       </p>
 
       <FitnessClient />
