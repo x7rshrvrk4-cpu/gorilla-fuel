@@ -115,6 +115,14 @@ export const PANTRY: PantryItem[] = [
   { id: "cabbage",         name: "Cabbage",               barcode: null, scoreHint: 90, affiliate: "grocery", category: "produce" },
   { id: "peas",            name: "Green Peas",            barcode: null, scoreHint: 88, affiliate: "grocery", category: "produce" },
   { id: "corn",            name: "Corn",                  barcode: null, scoreHint: 78, affiliate: "grocery", category: "produce" },
+
+  // ── Treats / less-clean staples (so cheat meals score honestly, not perfectly) ──
+  { id: "burger-bun",      name: "Burger Bun",            barcode: null, scoreHint: 55, affiliate: "grocery", category: "carb" },
+  { id: "fries",           name: "Fries",                 barcode: null, scoreHint: 40, affiliate: "grocery", category: "carb" },
+  { id: "tortilla-chips",  name: "Tortilla Chips",        barcode: null, scoreHint: 45, affiliate: "amazon",  category: "carb" },
+  { id: "cheddar",         name: "Cheddar Cheese",        barcode: null, scoreHint: 60, affiliate: "grocery", category: "fat" },
+  { id: "bacon",           name: "Bacon",                 barcode: null, scoreHint: 55, affiliate: "grocery", category: "protein" },
+  { id: "dark-chocolate",  name: "Dark Chocolate (70%)",  barcode: null, scoreHint: 62, affiliate: "amazon",  category: "fat" },
 ];
 
 /** Fast id → PantryItem lookup for the plan-composition layer and UI. */

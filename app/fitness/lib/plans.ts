@@ -69,7 +69,7 @@ export const PLANS: Plan[] = [
       snack: "Cottage cheese, or an apple.",
     },
     cheatAllowance:
-      "One sensible treat — a square or two of 70%+ dark chocolate, or air-popped popcorn. A plan you can keep beats a perfect plan you quit.",
+      "Build in a real cheat meal once a week — pizza night, a proper burger, nachos with the game. One planned indulgence keeps the other six days on track; it's deprivation that makes people quit.",
     exercises: [
       "Cross-Body_Crunch", "Star_Jump", "Pushups_Close_and_Wide_Hand_Positions", "Incline_Push-Up_Medium",
       "Rear_Leg_Raises", "Bodyweight_Squat", "Butt_Lift_Bridge", "Russian_Twist",
@@ -118,7 +118,7 @@ export const PLANS: Plan[] = [
       snack: "Post-workout whey and a banana; later, Greek yogurt with peanut butter.",
     },
     cheatAllowance:
-      "A bigger post-workout treat fits here — the surplus has room for it.",
+      "You've got the most room here. A full cheat meal — burger and fries, a big bowl of pasta, dessert after dinner — actually helps you hit the surplus. Enjoy it post-workout when you'll put the carbs to use.",
     exercises: [
       "Bodyweight_Squat", "Freehand_Jump_Squat", "Bodyweight_Walking_Lunge", "Scissors_Jump", "Incline_Push-Up_Medium",
       "Pushups", "Incline_Push-Up", "Butt_Lift_Bridge", "Plank", "Side_Bridge", "Superman",
@@ -168,7 +168,7 @@ export const PLANS: Plan[] = [
       snack: "Greek yogurt.",
     },
     cheatAllowance:
-      "Dark chocolate, or a rice cake with peanut butter — small, regular, sustainable.",
+      "A weekly cheat meal is fine and even useful — order the pizza, have the tacos. Day to day, keep snacks like dark chocolate or chips & guac reasonable, not banned.",
     exercises: [
       "Bodyweight_Squat", "Bodyweight_Walking_Lunge", "Scissors_Jump", "Pushups", "Incline_Push-Up_Medium",
       "Butt_Lift_Bridge", "Plank", "Side_Bridge", "Air_Bike", "Dead_Bug",
@@ -219,7 +219,7 @@ export const PLANS: Plan[] = [
       snack: "Fruit and nuts, or yogurt.",
     },
     cheatAllowance:
-      "The most relaxed of the plans — a healthy relationship with food, treats in moderation.",
+      "The most relaxed plan: eat the cake at the party, have the fries, enjoy the weekend pints. Aim for balance across the week, not perfection at every meal.",
     exercises: [
       "Bodyweight_Squat", "Pushups", "Incline_Push-Up_Medium", "Plank", "Butt_Lift_Bridge", "Bodyweight_Walking_Lunge",
       "Scissors_Jump", "Superman", "Star_Jump", "Mountain_Climbers", "Knee_Circles", "Kneeling_Arm_Drill",
@@ -266,7 +266,7 @@ export const PLANS: Plan[] = [
       snack: "Apple with peanut butter to beat the 3pm dip.",
     },
     cheatAllowance:
-      "Fine — just framed around energy. Sugary treats spike then crash; enjoy them, but notice how you feel after.",
+      "Treats are in — just mind the timing. A sugary snack before a slump spikes then crashes; the same treat after a meal or a workout sits better. Pizza Friday is still Pizza Friday.",
     exercises: [
       "Star_Jump", "Mountain_Climbers", "Kneeling_Arm_Drill", "Bodyweight_Squat", "Butt_Lift_Bridge",
       "Cross-Body_Crunch", "Oblique_Crunches", "Plank",

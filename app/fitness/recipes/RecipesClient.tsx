@@ -39,6 +39,7 @@ const DIETS: { key: RecipeDiet; label: string }[] = [
   { key: "vegan", label: "Vegan" },
   { key: "dairy-free", label: "Dairy-Free" },
   { key: "quick", label: "Quick (≤15m)" },
+  { key: "treat", label: "Treats" },
 ];
 
 const STORAGE_KEY = "gf-recipe-pantry";

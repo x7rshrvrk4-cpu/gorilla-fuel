@@ -2,6 +2,7 @@ import Link from "next/link";
 import { GUARDRAILS, type Plan } from "../lib/plans";
 import MealSection from "./MealSection";
 import MovementSection from "./MovementSection";
+import PlanPersonalizer from "./PlanPersonalizer";
 
 /**
  * Renders a single plan's TEXT skeleton — header, daily-shape copy, empty
@@ -31,6 +32,9 @@ export default function PlanView({ plan }: { plan: Plan }) {
       </header>
 
       <div className="mt-8 flex flex-col gap-6">
+        {/* ── Your personalized target (reads the calculator's saved stats) ──── */}
+        <PlanPersonalizer slug={plan.slug} />
+
         {/* ── Daily shape ──────────────────────────────────────────────────── */}
         <section className="gorilla-card rounded-sm p-5">
           <p className="font-display text-sm tracking-[0.2em] text-gold">DAILY SHAPE</p>
