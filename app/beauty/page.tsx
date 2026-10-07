@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CrossLinkBanner from "../components/CrossLinkBanner";
+import { amazonUrl } from "../intel/lib/products";
 
 export const metadata: Metadata = {
   title: "Beauty & Personal Care Scanner — Gorilla Fuel",
@@ -39,9 +40,9 @@ const FLAGGED = [
 // Open Beauty Facts ingredient lists (same engine as /scan). Keep honest: these
 // are real scored products, not hand-picked numbers.
 const SUNSCREENS_CLEAN = [
-  { score: 100, color: "#64cf86", name: "Badger Mineral 40 Sport", why: "Zinc oxide, sunflower oil, beeswax. Nothing flagged." },
-  { score: 92, color: "#64cf86", name: "Blue Lizard Sensitive", why: "Mineral formula. Only minor: a PEG compound." },
-  { score: 82, color: "#e8b23a", name: "CeraVe Mineral SPF 50", why: "Mineral. Minor: PEG & phenoxyethanol." },
+  { score: 100, color: "#64cf86", name: "Badger Mineral 40 Sport", why: "Zinc oxide, sunflower oil, beeswax. Nothing flagged.", buy: "Badger Mineral Sunscreen SPF 40 Sport" },
+  { score: 92, color: "#64cf86", name: "Blue Lizard Sensitive", why: "Mineral formula. Only minor: a PEG compound.", buy: "Blue Lizard Sensitive Mineral Sunscreen" },
+  { score: 82, color: "#e8b23a", name: "CeraVe Mineral SPF 50", why: "Mineral. Minor: PEG & phenoxyethanol.", buy: "CeraVe Hydrating Mineral Sunscreen SPF 50" },
 ];
 const SUNSCREENS_FLAGGED = [
   { score: 56, name: "Banana Boat Sport Ultra SPF 30", why: "Fragrance, PEG compounds, triethanolamine." },
@@ -121,17 +122,27 @@ export default function BeautyPage() {
             </div>
             <div className="mt-3 space-y-3">
               {SUNSCREENS_CLEAN.map((p) => (
-                <div key={p.name} className="flex items-center gap-3 rounded-sm border border-line bg-surface p-4">
-                  <span
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border-2 font-display text-lg tabular-nums"
-                    style={{ borderColor: p.color, color: p.color }}
-                  >
-                    {p.score}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="font-display text-base leading-tight text-foreground">{p.name}</p>
-                    <p className="mt-0.5 text-xs leading-snug text-muted">{p.why}</p>
+                <div key={p.name} className="rounded-sm border border-line bg-surface p-4">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border-2 font-display text-lg tabular-nums"
+                      style={{ borderColor: p.color, color: p.color }}
+                    >
+                      {p.score}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="font-display text-base leading-tight text-foreground">{p.name}</p>
+                      <p className="mt-0.5 text-xs leading-snug text-muted">{p.why}</p>
+                    </div>
                   </div>
+                  <a
+                    href={amazonUrl(p.buy)}
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                    className="mt-3 flex items-center justify-center rounded-sm border border-emerald-500/40 bg-emerald-500/10 py-2 font-display text-xs tracking-widest text-emerald-300 transition-colors hover:bg-emerald-500/20"
+                  >
+                    Buy on Amazon →
+                  </a>
                 </div>
               ))}
             </div>
@@ -165,6 +176,10 @@ export default function BeautyPage() {
           parabens, PEGs and the like). Plenty of people use these products without issue. We show the reasoning so
           you can decide for yourself. Want your own sunscreen checked?{" "}
           <Link href="/scan" className="text-purple-300 underline hover:text-purple-200">Scan it →</Link>
+        </p>
+        <p className="mt-2 text-[11px] leading-relaxed text-muted/60">
+          Buy links are Amazon affiliate links — if you buy through one we may earn a small commission at no
+          extra cost to you. We only ever link the products that scored well; it never changes a score.
         </p>
       </div>
 
