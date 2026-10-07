@@ -138,7 +138,8 @@ export default function BeautyResultCard({ product, result }: Props) {
         <p className="mt-1 text-xs text-muted">
           Cosmetics aren&apos;t scored on nutrition — this score reflects only the ingredients we
           flag for irritancy, allergy/sensitization potential, possible endocrine disruption, and
-          paraben preservatives, weighed by real risk level.
+          paraben preservatives, weighed by real risk level. A clean score means none of those were
+          found — not a guarantee the whole formula is concern-free.
         </p>
       </div>
 
@@ -162,7 +163,7 @@ export default function BeautyResultCard({ product, result }: Props) {
           ) : noIngredients ? (
             <p className="mt-3 text-sm text-muted">No ingredient list on file — nothing could be verified.</p>
           ) : (
-            <p className="mt-3 text-sm text-muted">Nothing flagged. Clean sheet.</p>
+            <p className="mt-3 text-sm text-muted">None of the ingredients we flag were found — a clean result, not a guarantee the full formula is concern-free.</p>
           )}
         </div>
 
