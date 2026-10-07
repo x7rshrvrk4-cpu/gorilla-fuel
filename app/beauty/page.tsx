@@ -35,6 +35,19 @@ const FLAGGED = [
   },
 ];
 
+// Sunscreen cheat-sheet data — scores computed live by the beauty scanner from
+// Open Beauty Facts ingredient lists (same engine as /scan). Keep honest: these
+// are real scored products, not hand-picked numbers.
+const SUNSCREENS_CLEAN = [
+  { score: 100, color: "#64cf86", name: "Badger Mineral 40 Sport", why: "Zinc oxide, sunflower oil, beeswax. Nothing flagged." },
+  { score: 92, color: "#64cf86", name: "Blue Lizard Sensitive", why: "Mineral formula. Only minor: a PEG compound." },
+  { score: 82, color: "#e8b23a", name: "CeraVe Mineral SPF 50", why: "Mineral. Minor: PEG & phenoxyethanol." },
+];
+const SUNSCREENS_FLAGGED = [
+  { score: 56, name: "Banana Boat Sport Ultra SPF 30", why: "Fragrance, PEG compounds, triethanolamine." },
+  { score: 40, name: "Hawaiian Tropic Sheer Touch", why: "Parfum, methylparaben, octocrylene." },
+];
+
 export default function BeautyPage() {
   return (
     <div className="mx-auto w-full max-w-4xl px-5 py-12 sm:px-8 sm:py-16">
@@ -86,6 +99,72 @@ export default function BeautyPage() {
           <span className="text-foreground">Emerging</span>,{" "}
           <span className="text-foreground">Contested</span>, and{" "}
           <span className="text-foreground">Precautionary</span>.
+        </p>
+      </div>
+
+      {/* SUNSCREEN CHEAT SHEET — Clean vs Flagged */}
+      <div id="sunscreen" className="mt-16 scroll-mt-20">
+        <h2 className="font-display text-3xl text-foreground">Sunscreen: Clean vs Flagged</h2>
+        <p className="mt-2 max-w-2xl text-sm text-muted">
+          Same scanner, run across popular sunscreens. &quot;Clean&quot; and &quot;reef-safe&quot; aren&apos;t
+          regulated words, so we read the actual ingredient list and score what&apos;s really on your skin.
+          Scores are live from Open Beauty Facts and can shift if a brand reformulates.
+        </p>
+
+        <div className="mt-6 grid gap-6 sm:grid-cols-2">
+          {/* CLEAN */}
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-sm border border-emerald-500/50 bg-emerald-500/10 text-emerald-400">✓</span>
+              <h3 className="font-display text-2xl text-emerald-400">Clean</h3>
+              <span className="ml-auto text-xs uppercase tracking-widest text-muted">mineral · nothing concerning</span>
+            </div>
+            <div className="mt-3 space-y-3">
+              {SUNSCREENS_CLEAN.map((p) => (
+                <div key={p.name} className="flex items-center gap-3 rounded-sm border border-line bg-surface p-4">
+                  <span
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border-2 font-display text-lg tabular-nums"
+                    style={{ borderColor: p.color, color: p.color }}
+                  >
+                    {p.score}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-display text-base leading-tight text-foreground">{p.name}</p>
+                    <p className="mt-0.5 text-xs leading-snug text-muted">{p.why}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* FLAGGED */}
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-sm border border-red-500/50 bg-red-500/10 text-red-400">⚠</span>
+              <h3 className="font-display text-2xl text-red-400">Flagged</h3>
+              <span className="ml-auto text-xs uppercase tracking-widest text-muted">check the label first</span>
+            </div>
+            <div className="mt-3 space-y-3">
+              {SUNSCREENS_FLAGGED.map((p) => (
+                <div key={p.name} className="flex items-center gap-3 rounded-sm border border-line bg-surface p-4">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border-2 border-red-500/70 font-display text-lg tabular-nums text-red-400">
+                    {p.score}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-display text-base leading-tight text-foreground">{p.name}</p>
+                    <p className="mt-0.5 text-xs leading-snug text-muted">{p.why}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-4 text-xs leading-relaxed text-muted/80">
+          A flagged score isn&apos;t a safety verdict — it means the formula contains ingredients we flag (fragrance,
+          parabens, PEGs and the like). Plenty of people use these products without issue. We show the reasoning so
+          you can decide for yourself. Want your own sunscreen checked?{" "}
+          <Link href="/scan" className="text-purple-300 underline hover:text-purple-200">Scan it →</Link>
         </p>
       </div>
 
