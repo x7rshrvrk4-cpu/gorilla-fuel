@@ -6,6 +6,7 @@ import UniversalSearch from "./components/UniversalSearch";
 import { amazonUrl } from "./intel/lib/products";
 import { getWeeklyPicks } from "./lib/weeklyPicks";
 import { RECIPES } from "./fitness/lib/recipes";
+import GorillaSpotlight from "./components/GorillaSpotlight";
 
 export const metadata: Metadata = {
   description:
@@ -176,6 +177,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ── GORILLA SPOTLIGHT (paid, labeled; renders only when a sponsor is active) ── */}
+      <GorillaSpotlight />
 
       {/* ── THIS WEEK'S GORILLA PICKS ─────────────────────────────────────── */}
       <section className="border-b border-line bg-surface">
