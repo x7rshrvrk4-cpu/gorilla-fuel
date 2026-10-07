@@ -176,6 +176,27 @@ export const CATALOG: ReelSpec[] = [
     },
   },
   {
+    id: "sunscreen-scored",
+    topic: "beauty",
+    months: [4, 5, 6, 7, 8],
+    caption:
+      "Your sunscreen deserves a second look. 🦍☀️\n\n\"Reef-safe,\" \"natural,\" \"clean\" — none of those words are regulated. So we read the actual ingredient list (oxybenzone, octinoxate, fragrance, the works) and score what's really going on your skin.\n\nThese mineral picks came back clean.\n\nScore yours → gorillafuel.ca/beauty 🇨🇦\n\n#gorillafuel #sunscreen #spf #cleanbeauty #mineralsunscreen #skincare #reefsafe #canadian #nobs #ingredients",
+    props: {
+      ...base,
+      topicTag: "Sunscreen · scored",
+      headline: ["NOT ALL SPF", "IS EQUAL."],
+      goldLines: [1],
+      sub: "\"Reef-safe\" and \"clean\" aren't regulated words. We read the actual ingredient list and score what's really on your skin. These mineral picks came back clean.",
+      ctaLabel: "Score your sunscreen",
+      ctaUrl: URL.beauty,
+      pills: [
+        { score: 100, name: "Badger Mineral" },
+        { score: 92, name: "Blue Lizard Sensitive" },
+        { score: 82, name: "CeraVe Mineral" },
+      ],
+    },
+  },
+  {
     id: "weekly-picks",
     topic: "weekly-picks",
     caption:

@@ -1,0 +1,14 @@
+{
+  "accent": "#e8b23a",
+  "topicTag": "Sunscreen · scored",
+  "headline": ["NOT ALL SPF", "IS EQUAL."],
+  "goldLines": [1],
+  "sub": "\"Reef-safe\" and \"clean\" aren't regulated words. We read the actual ingredient list and score what's really on your skin. These mineral picks came back clean.",
+  "ctaLabel": "Score your sunscreen",
+  "ctaUrl": "gorillafuel.ca/beauty",
+  "pills": [
+    { "score": 100, "name": "Badger Mineral" },
+    { "score": 92, "name": "Blue Lizard Sensitive" },
+    { "score": 82, "name": "CeraVe Mineral" }
+  ]
+}
