@@ -1,4 +1,5 @@
 import type { KidsSnackProduct, MacroField, SnackTier } from "../lib/products";
+import AmazonBuyButton from "../../components/AmazonBuyButton";
 
 const TIER_BADGE: Record<SnackTier, { text: string; cls: string }> = {
   A: { text: "A · Cleaner", cls: "border-emerald-500/60 bg-emerald-500/10 text-emerald-300" },
@@ -135,6 +136,13 @@ export default function KidsSnackCard({ product }: { product: KidsSnackProduct }
           <span className="font-display uppercase tracking-[0.14em] text-slate-400">Note — </span>
           {product.caveat}
         </p>
+      )}
+
+      {/* Buy on Amazon — only Tier A (cleaner) snacks. Never the Cheat Zone / Skip tiers. */}
+      {product.tier === "A" && (
+        <div className="mt-4 border-t border-slate-800 pt-3">
+          <AmazonBuyButton query={`${product.brand} ${product.name}`} />
+        </div>
       )}
     </div>
   );

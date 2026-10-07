@@ -6,6 +6,7 @@ import {
 } from "../lib/products";
 import { buildNuanceNotes } from "../../scan/lib/nuanceNotes";
 import NuanceNotes from "../../components/NuanceNotes";
+import AmazonBuyButton from "../../components/AmazonBuyButton";
 
 function scoreColor(score: number): string {
   if (score >= 75) return "text-emerald-400";
@@ -179,6 +180,13 @@ export default function EnergyProductCard({ product }: { product: EnergyDrinkPro
       )}
 
       <p className="mt-3 border-t border-slate-800 pt-3 text-xs text-slate-400">{product.availability}</p>
+
+      {/* Buy on Amazon — only for the healthier picks (zero/low-sugar, clean). */}
+      {result.finalScore >= 65 && (
+        <div className="mt-3">
+          <AmazonBuyButton query={`${product.brand} ${product.name}`} />
+        </div>
+      )}
     </div>
   );
 }

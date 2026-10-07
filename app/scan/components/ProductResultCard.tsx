@@ -3,6 +3,7 @@ import { GRADE_COLORS, novaGroupDescription, novaGroupLabel, type NovaGroup, typ
 import { buildGorillaTake } from "../lib/gorillaAnalysis";
 import { buildNuanceNotes, INCOMPLETE_DATA_FLAG_PREFIX } from "../lib/nuanceNotes";
 import NuanceNotes from "../../components/NuanceNotes";
+import AmazonBuyButton from "../../components/AmazonBuyButton";
 import type { OffProduct } from "../lib/openFoodFacts";
 import { productImage } from "../lib/openFoodFacts";
 import type { Alternative } from "../lib/gorillaGuidance";
@@ -157,6 +158,14 @@ export default function ProductResultCard({ product, result, alternatives, alter
           <div className="mt-3 max-w-md">
             <LabdoorCrossCheck productName={product.product_name} brand={product.brands} categoryTags={product.categories_tags} />
           </div>
+
+          {/* Buy on Amazon — only for products that scored well (healthy). Tagged
+              affiliate link; never shown for low-scoring items. */}
+          {result.finalScore >= 65 && (product.brands || product.product_name) && (
+            <div className="mt-4">
+              <AmazonBuyButton query={`${product.brands ?? ""} ${product.product_name ?? ""}`.trim()} />
+            </div>
+          )}
         </div>
 
         <ScoreRing score={result.finalScore} grade={result.grade} />
