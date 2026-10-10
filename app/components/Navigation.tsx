@@ -13,6 +13,7 @@ const PRIMARY_LINKS = [
   { href: "/energy",     label: "BEVERAGES",  gold: false, dropdown: false },
   { href: "/rankings", label: "SUPPLEMENTS", gold: false, dropdown: false },
   { href: "/fitness",  label: "FITNESS",     gold: false, dropdown: false },
+  { href: "/glutenfree", label: "GLUTEN FREE", gold: false, dropdown: false },
   { href: "/caffeine", label: "CAFFEINE",    gold: false, dropdown: false },
 ];
 
@@ -27,7 +28,6 @@ const INTEL_LINKS = [
 const SECONDARY_LINKS = [
   { href: "/kids",       label: "Kids" },
   { href: "/kids-snacks", label: "Kids' Snacks" },
-  { href: "/glutenfree", label: "Gluten Free" },
   { href: "/beauty",     label: "Beauty Scanner" },
   { href: "/methodology",label: "Methodology" },
   { href: "/about",      label: "About" },

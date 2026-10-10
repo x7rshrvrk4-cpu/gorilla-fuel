@@ -158,6 +158,7 @@ export const CATALOG: ReelSpec[] = [
       sub: "\"Gluten-removed\" beer is barley, enzyme-treated — not safe for celiac disease. We flag which is which.",
       ctaLabel: "Know the difference",
       ctaUrl: URL.glutenfree,
+      bigStat: { value: 230, label: "Gluten-free drinks scored" },
     },
   },
   {

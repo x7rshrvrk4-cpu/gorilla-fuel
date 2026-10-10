@@ -175,6 +175,24 @@ export default function Home() {
               </div>
             </Link>
           </div>
+
+          {/* GLUTEN-FREE feature banner — surfaces the whole GF section (food + alcohol) */}
+          <Link
+            href="/glutenfree"
+            className="group mt-4 flex flex-col justify-between gap-4 overflow-hidden rounded-sm border border-green-500/50 bg-gradient-to-br from-green-500/15 to-green-500/[0.03] p-8 transition-all hover:shadow-[0_0_28px_rgba(34,197,94,0.18)] sm:flex-row sm:items-center"
+          >
+            <div>
+              <p className="font-display text-xs tracking-[0.3em] text-green-400">🌾 GLUTEN-FREE, FOR REAL</p>
+              <h2 className="mt-2 font-display text-3xl text-foreground sm:text-4xl">The whole gluten-free guide</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
+                Celiac-safe beer, cider &amp; 230 gluten-free drinks — plus GF breads, pastas, snacks &amp; flours,
+                each scored with buy links. Gluten-free ≠ healthy; we show you which is which.
+              </p>
+            </div>
+            <span className="shrink-0 font-display text-green-400 transition-transform group-hover:translate-x-1">
+              Explore →
+            </span>
+          </Link>
         </div>
       </section>
 
