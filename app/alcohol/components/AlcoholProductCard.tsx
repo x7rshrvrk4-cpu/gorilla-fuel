@@ -4,6 +4,11 @@ import { isGorillaSweetSpot, wineGorillaScore, type AlcoholRankingProduct } from
 // vars are inlined at build time; absent/anything-but-"true" keeps buttons hidden.
 const SHOW_ALCOHOL_BUY_LINKS = process.env.NEXT_PUBLIC_SHOW_ALCOHOL_BUY_LINKS === "true";
 
+// Temporary per-product allowlist: show the "Buy at The Beer Store" link for these
+// specific products even while the global flag is off — used to live-test one brand
+// (TBS demo) before enabling site-wide. Clear this set to turn the test off.
+const BUY_LINK_TEST_IDS = new Set<string>(["michelob-ultra"]);
+
 function GorillaPour({ rating }: { rating: number }) {
   return (
     <span aria-label={`Gorilla Pour rating: ${rating} out of 5`} className="inline-flex gap-0.5 text-base leading-none">
@@ -296,7 +301,7 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
 
       {/* Buy link — gated on the NEXT_PUBLIC_SHOW_ALCOHOL_BUY_LINKS flag AND a real
           verified Beer Store URL on file; hidden otherwise (default). */}
-      {SHOW_ALCOHOL_BUY_LINKS && product.buyUrl && (
+      {(SHOW_ALCOHOL_BUY_LINKS || BUY_LINK_TEST_IDS.has(product.id)) && product.buyUrl && (
         <a
           href={product.buyUrl}
           target="_blank"
