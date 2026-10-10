@@ -1,4 +1,4 @@
-import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { loadFont as loadArchivo } from "@remotion/google-fonts/ArchivoBlack";
 import { loadFont as loadBarlow } from "@remotion/google-fonts/Barlow";
 import type { ReelProps } from "./schema";
@@ -49,9 +49,7 @@ export const GorillaReel: React.FC<ReelProps> = (p) => {
       <AbsoluteFill style={{ padding: "120px 96px", display: "flex", flexDirection: "column" }}>
         {/* brand bar */}
         <div style={{ display: "flex", alignItems: "center", gap: 20, ...rise(0) }}>
-          <div style={{ width: 72, height: 72, borderRadius: 16, background: gold, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 42 }}>
-            🦍
-          </div>
+          <Img src={staticFile("gorilla-logo.jpg")} style={{ width: 72, height: 72, borderRadius: 16, objectFit: "cover" }} />
           <div style={{ fontFamily: BODY, fontWeight: 700, letterSpacing: 10, fontSize: 36, color: gold }}>GORILLA FUEL</div>
           <div style={{ marginLeft: "auto", display: "flex", gap: 5, alignItems: "flex-end", height: 48, opacity: 0.5 }}>
             {[60, 100, 42, 85, 55, 100, 38, 72, 90, 50].map((h, i) => (
