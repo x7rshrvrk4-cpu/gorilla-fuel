@@ -6,8 +6,9 @@ const SHOW_ALCOHOL_BUY_LINKS = process.env.NEXT_PUBLIC_SHOW_ALCOHOL_BUY_LINKS ==
 
 // Temporary per-product allowlist: show the "Buy at The Beer Store" link for these
 // specific products even while the global flag is off — used to live-test one brand
-// (TBS demo) before enabling site-wide. Clear this set to turn the test off.
-const BUY_LINK_TEST_IDS = new Set<string>(["michelob-ultra"]);
+// (TBS demo) before enabling site-wide. OFF by default; add ids (e.g. "michelob-ultra")
+// to re-enable for a demo.
+const BUY_LINK_TEST_IDS = new Set<string>([]);
 
 function GorillaPour({ rating }: { rating: number }) {
   return (
