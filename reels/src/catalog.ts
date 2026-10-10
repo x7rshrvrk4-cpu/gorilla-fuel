@@ -177,6 +177,27 @@ export const CATALOG: ReelSpec[] = [
     },
   },
   {
+    id: "gluten-free-whole",
+    topic: "gluten-free",
+    caption:
+      "Gluten-free doesn't mean healthy. 🦍\n\nTake out gluten, add fifteen industrial fillers — that's most \"GF\" bread, pasta and snacks. We score every gluten-free food AND drink on what's actually inside, flag the health-halo traps, and show you the ones that actually earn it.\n\nThe whole guide → gorillafuel.ca/glutenfree 🇨🇦\n\n#gorillafuel #glutenfree #celiac #glutenfreefood #healthyeating #canadian #nobs #glutenfreeliving",
+    props: {
+      ...base,
+      topicTag: "Gluten-free · scored",
+      headline: ["GLUTEN-FREE", "≠ HEALTHY."],
+      goldLines: [1],
+      sub: "Most \"gluten-free\" is refined starch and fillers. We score every GF food and drink on what's really inside — here are the ones that actually earn it.",
+      ctaLabel: "See the whole guide",
+      ctaUrl: URL.glutenfree,
+      pills: [
+        { score: 88, name: "Almond Flour" },
+        { score: 82, name: "Banza Chickpea Pasta" },
+        { score: 80, name: "Mary's Crackers" },
+      ],
+      bigStat: { value: 272, label: "Gluten-free products scored" },
+    },
+  },
+  {
     id: "sunscreen-scored",
     topic: "beauty",
     months: [4, 5, 6, 7, 8],
