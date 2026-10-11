@@ -214,6 +214,25 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
     gorillaPour: 4,
     availability: "LCBO -- wide availability",
   },
+  // Boxer Gluten Free (Minhas) — naturally GF sorghum lager, carried at The Beer Store.
+  // Ingredients fully disclosed (water, sorghum, brown rice, hops, yeast); Canadian
+  // alcohol labels don't require nutrition, so calories/carbs are omitted, not guessed.
+  {
+    id: "boxer-gluten-free",
+    category: "Lager",
+    glutenStatus: "certified-gf",
+    canadianCertifiedGf: false,
+    beerStyle: "Lager",
+    brand: "Boxer",
+    name: "Boxer Gluten Free",
+    abv: 5.0,
+    servingMl: 355,
+    knownAdditives: [],
+    additiveCount: 0,
+    gorillaPour: 3,
+    availability: "Beer Store & LCBO -- wide availability",
+    gorillaAnalysis: "A naturally gluten-free lager brewed from sorghum and brown rice — no barley or wheat, so it's safe for celiac disease (unlike gluten-removed beers). Full ingredients: water, sorghum, brown rice, hops, yeast. A budget-friendly GF option you can find at The Beer Store. Canadian alcohol labels aren't required to show nutrition, so calories and carbs are left off here rather than estimated.",
+  },
   // â"€â"€â"€â"€â"€â"€â"€â"€â"€ LIGHT BEERS â"€â"€â"€â"€â"€â"€â"€â"€â"€
   {
     id: "coors-light",
