@@ -14340,6 +14340,9 @@ const CARB_RESEARCH: Record<string, Partial<AlcoholRankingProduct>> = {
   "nickel-brook-core-easy-going-lager-473ml": { servingMl: 473, caloriesPerCan: 124, carbsPerCan: 2.5, abv: 4.1 },
   "bards-gold": { servingMl: 355, caloriesPerCan: 155, carbsPerCan: 14 },
   "labatt-max-ice-473ml": { servingMl: 473, caloriesPerCan: 284, carbsPerCan: 20 },
+  "ace-hill-ace-hill-mexican-lager": { servingMl: 355, caloriesPerCan: 100, carbsPerCan: 5 },
+  "ace-hill-ace-hill-mexican-style-lager": { servingMl: 355, caloriesPerCan: 100, carbsPerCan: 5 },
+  "ace-hill-ace-hill-vienna-lager": { servingMl: 473, caloriesPerCan: 242 },
   // RESEARCH-APPEND-MARKER
 };
 
