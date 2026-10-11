@@ -236,22 +236,21 @@ function AlcoholTab() {
         </div>
       </section>
 
-      {/* THE BEER STORE RULE */}
+      {/* SELTZERS — MALT-BASED VS SPIRIT-BASED */}
       <section className="mt-14">
-        <h2 className="font-display text-3xl text-foreground">The Beer Store Rule</h2>
+        <h2 className="font-display text-3xl text-foreground">Seltzers: Malt-Based vs Spirit-Based</h2>
         <div className="mt-3 max-w-3xl rounded-sm border border-amber-500/40 bg-amber-900/15 p-6">
           <p className="text-sm leading-relaxed text-muted">
-            By law, The Beer Store can only sell malt based alcoholic beverages.
-            This means every hard seltzer you buy at Beer Store — White Claw,
-            Truly, Cottage Springs, Coors Seltzer, Arizona Hard — is a malt based
-            version. The LCBO version of the same brand may be vodka based or
-            spirit based, with different ingredients, different nutrition, and
-            different gluten status.{" "}
-            <span className="text-amber-300">Same can. Same label. Different
-            product.</span> If you have celiac disease or gluten sensitivity, buy
-            your seltzers at the LCBO — not at Beer Store. Gorilla Fuel flags
-            every Beer Store seltzer with a MALT BASED warning so you always know
-            what you are actually drinking.
+            One label subtlety worth knowing for hard seltzers: the same brand can
+            be made two different ways — a <span className="text-foreground">malt-based</span> version
+            (brewed from grain, like beer) or a <span className="text-foreground">spirit-based</span> version
+            (distilled). They can have different ingredients, different nutrition, and a different
+            gluten profile.{" "}
+            <span className="text-amber-300">Same can, same label, different product.</span>{" "}
+            If you have celiac disease or gluten sensitivity, check the ingredient list on the exact
+            can — we label which version we&apos;ve scored so you can tell them apart. The good news:
+            plenty of genuinely gluten-free seltzers and ciders are easy to find — see the certified
+            picks below.
           </p>
         </div>
       </section>

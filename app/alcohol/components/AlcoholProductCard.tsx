@@ -113,7 +113,7 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
         <div className="flex flex-wrap items-center gap-2">
           {product.maltBasedBeerStore && (
             <span className="inline-flex shrink-0 items-center gap-1 rounded-sm border border-amber-500/70 bg-amber-500/15 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-amber-300">
-              ⚠ Malt Based — Beer Store Version
+              Malt-Based — Check Label
             </span>
           )}
           {product.glutenStatus === "certified-gf" && (
@@ -284,10 +284,10 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
 
       {product.maltBasedBeerStore && (
         <p className="mt-3 rounded-sm border border-amber-500/30 bg-amber-900/15 px-3 py-2 text-[11px] leading-relaxed text-amber-300/90">
-          This is the Beer Store malt based version of this product. The LCBO may
-          carry a spirit based version with different ingredients and gluten
-          status. If you have celiac disease or gluten sensitivity, buy seltzers
-          at the LCBO — not at Beer Store.
+          This is the malt-based version of this seltzer, brewed from grain. The
+          same brand can also come in a spirit-based (distilled) version with
+          different ingredients and gluten status. If you have celiac disease or
+          gluten sensitivity, check the ingredient list on the exact can.
         </p>
       )}
 
