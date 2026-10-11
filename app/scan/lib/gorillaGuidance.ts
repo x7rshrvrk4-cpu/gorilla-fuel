@@ -1,8 +1,10 @@
 import type { OffProduct } from "./openFoodFacts";
 
+export type RecoBuy = { label: string; query: string };
+
 export type Alternative =
   | { type: "off-match"; product: OffProduct; score: number }
-  | { type: "gorilla-suggestion"; headline: string; brands?: string };
+  | { type: "gorilla-suggestion"; headline: string; brands?: string; buys?: RecoBuy[] };
 
 type Suggestion = { headline: string; brands?: string };
 
@@ -216,6 +218,129 @@ const CATEGORY_MAP: Record<string, Suggestion> = {
   },
 };
 
+// Amazon.ca buy links for the recommended alternatives, keyed to the same category
+// slugs as CATEGORY_MAP. ONLY includes shelf-stable products that are actually sold
+// on Amazon.ca — frozen (ice cream, frozen meals/pizza), refrigerated (yogurt) and
+// fresh (bakery bread) categories are intentionally omitted (no reliable buy link).
+// Each entry mirrors the specific brands named in that category's `brands` copy.
+const CATEGORY_BUYS: Record<string, RecoBuy[]> = {
+  "barbecue-sauces": [
+    { label: "Primal Kitchen BBQ Sauce", query: "Primal Kitchen BBQ Sauce" },
+    { label: "Tessemae's BBQ Sauce", query: "Tessemae's BBQ Sauce" },
+  ],
+  "ketchup": [
+    { label: "Primal Kitchen Ketchup", query: "Primal Kitchen Unsweetened Ketchup" },
+    { label: "Sir Kensington's Ketchup", query: "Sir Kensington's Ketchup" },
+    { label: "Muir Glen Organic Ketchup", query: "Muir Glen Organic Ketchup" },
+  ],
+  "mayonnaises": [
+    { label: "Primal Kitchen Avocado Oil Mayo", query: "Primal Kitchen Avocado Oil Mayo" },
+    { label: "Sir Kensington's Avocado Oil Mayo", query: "Sir Kensington's Avocado Oil Mayo" },
+  ],
+  "hot-sauces": [
+    { label: "Cholula Hot Sauce", query: "Cholula Hot Sauce" },
+    { label: "Tabasco Sauce", query: "Tabasco Original Hot Sauce" },
+  ],
+  "sauces": [
+    { label: "Rao's Homemade Marinara", query: "Rao's Homemade Marinara Sauce" },
+    { label: "Primal Kitchen Marinara", query: "Primal Kitchen Marinara Sauce" },
+  ],
+  "condiments": [
+    { label: "Primal Kitchen", query: "Primal Kitchen condiments" },
+    { label: "Sir Kensington's", query: "Sir Kensington's condiments" },
+  ],
+  "salad-dressings": [
+    { label: "Primal Kitchen Dressing", query: "Primal Kitchen Salad Dressing" },
+    { label: "Tessemae's Dressing", query: "Tessemae's Salad Dressing" },
+    { label: "Chosen Foods Dressing", query: "Chosen Foods Avocado Oil Dressing" },
+  ],
+  "breakfast-cereals": [
+    { label: "Nature's Path Organic", query: "Nature's Path Organic Cereal" },
+    { label: "Kashi Cereal", query: "Kashi Cereal" },
+  ],
+  "cereals": [
+    { label: "Nature's Path Organic", query: "Nature's Path Organic Cereal" },
+    { label: "Kashi Cereal", query: "Kashi Cereal" },
+  ],
+  "oatmeals": [
+    { label: "Bob's Red Mill Rolled Oats", query: "Bob's Red Mill Rolled Oats" },
+    { label: "Quaker Old Fashioned Oats", query: "Quaker Old Fashioned Rolled Oats" },
+  ],
+  "chips-and-crisps": [
+    { label: "Kettle Brand Chips", query: "Kettle Brand Potato Chips" },
+    { label: "Boulder Canyon Chips", query: "Boulder Canyon Potato Chips" },
+  ],
+  "crisps": [
+    { label: "Kettle Brand Chips", query: "Kettle Brand Potato Chips" },
+    { label: "Boulder Canyon Chips", query: "Boulder Canyon Potato Chips" },
+  ],
+  "snacks": [
+    { label: "KIND Bars", query: "KIND Bars" },
+    { label: "RXBAR", query: "RXBAR protein bar" },
+    { label: "Larabar", query: "Larabar" },
+  ],
+  "popcorn": [
+    { label: "SkinnyPop", query: "SkinnyPop Popcorn" },
+    { label: "Angie's Boomchickapop", query: "Angie's Boomchickapop Popcorn" },
+  ],
+  "crackers": [
+    { label: "Simple Mills Crackers", query: "Simple Mills Almond Flour Crackers" },
+    { label: "Mary's Gone Crackers", query: "Mary's Gone Crackers" },
+    { label: "Wasa Crispbread", query: "Wasa Crispbread" },
+  ],
+  "granola-bars": [
+    { label: "RXBAR", query: "RXBAR" },
+    { label: "KIND Bars", query: "KIND Bars" },
+    { label: "Larabar", query: "Larabar" },
+  ],
+  "protein-bars": [
+    { label: "RXBAR Protein", query: "RXBAR protein bar" },
+    { label: "KIND Protein", query: "KIND Protein Bar" },
+    { label: "ALOHA Protein Bar", query: "ALOHA Protein Bar" },
+  ],
+  "sodas": [
+    { label: "Spindrift Sparkling Water", query: "Spindrift Sparkling Water" },
+    { label: "Waterloo Sparkling Water", query: "Waterloo Sparkling Water" },
+  ],
+  "colas": [
+    { label: "Spindrift Sparkling Water", query: "Spindrift Sparkling Water" },
+    { label: "Waterloo Sparkling Water", query: "Waterloo Sparkling Water" },
+  ],
+  "soft-drinks": [
+    { label: "Spindrift Sparkling Water", query: "Spindrift Sparkling Water" },
+    { label: "Waterloo Sparkling Water", query: "Waterloo Sparkling Water" },
+  ],
+  "energy-drinks": [
+    { label: "Celsius", query: "Celsius Energy Drink" },
+    { label: "Guru Organic Energy", query: "Guru Organic Energy Drink" },
+  ],
+  "chocolates": [
+    { label: "Lindt Excellence 85%", query: "Lindt Excellence 85% Dark Chocolate" },
+    { label: "Alter Eco Dark", query: "Alter Eco Dark Chocolate" },
+    { label: "Green & Black's Organic", query: "Green & Black's Organic Dark Chocolate" },
+  ],
+  "cookies": [
+    { label: "Simple Mills Cookies", query: "Simple Mills Soft Baked Cookies" },
+    { label: "Enjoy Life Cookies", query: "Enjoy Life Soft Baked Cookies" },
+  ],
+  "candies": [
+    { label: "YumEarth Organic", query: "YumEarth Organic Candy" },
+    { label: "UNREAL Candy", query: "UNREAL Candy" },
+  ],
+  "nut-butters": [
+    { label: "Once Again Almond Butter", query: "Once Again Almond Butter" },
+    { label: "Crazy Richard's", query: "Crazy Richard's Nut Butter" },
+  ],
+  "peanut-butters": [
+    { label: "Crazy Richard's PB", query: "Crazy Richard's Peanut Butter" },
+    { label: "Once Again PB", query: "Once Again Peanut Butter" },
+  ],
+  "dietary-supplements": [
+    { label: "Thorne", query: "Thorne supplements" },
+    { label: "Pure Encapsulations", query: "Pure Encapsulations supplements" },
+  ],
+};
+
 // ── Name-keyword → category inference ────────────────────────────────────────
 // The universal fallback for the ~84.5% of products that arrive with NO category
 // tags: infer a category from the product NAME so a tag-less "granola bar" still
@@ -287,6 +412,11 @@ export function inferCategorySlugFromName(productName: string | null | undefined
 /** Returns a Gorilla Suggestion card for a product's category tags, falling back
  *  to NAME-based inference (for the tag-less majority) before the generic card.
  *  Always returns at least the generic fallback. */
+/** Build a suggestion Alternative, attaching the category's Amazon buy links (if any). */
+function suggestion(key: string, s: Suggestion): Alternative[] {
+  return [{ type: "gorilla-suggestion", headline: s.headline, brands: s.brands, buys: CATEGORY_BUYS[key] }];
+}
+
 export function gorillaSuggestionsFor(categoriesTags: string[], productName?: string | null): Alternative[] {
   // Most specific category first (OFF stores tags general → specific)
   const slugs = (categoriesTags ?? [])
@@ -296,7 +426,7 @@ export function gorillaSuggestionsFor(categoriesTags: string[], productName?: st
   // Exact match — most specific wins
   for (const slug of slugs) {
     const s = CATEGORY_MAP[slug];
-    if (s) return [{ type: "gorilla-suggestion", headline: s.headline, brands: s.brands }];
+    if (s) return suggestion(slug, s);
   }
 
   // Partial match — e.g. "organic-barbecue-sauces" matches "barbecue-sauces"
@@ -304,7 +434,7 @@ export function gorillaSuggestionsFor(categoriesTags: string[], productName?: st
     for (const [key, s] of Object.entries(CATEGORY_MAP)) {
       if (key === "generic") continue;
       if (slug.includes(key) || key.includes(slug)) {
-        return [{ type: "gorilla-suggestion", headline: s.headline, brands: s.brands }];
+        return suggestion(key, s);
       }
     }
   }
@@ -313,9 +443,9 @@ export function gorillaSuggestionsFor(categoriesTags: string[], productName?: st
   const nameSlug = inferCategorySlugFromName(productName);
   if (nameSlug) {
     const s = CATEGORY_MAP[nameSlug];
-    if (s) return [{ type: "gorilla-suggestion", headline: s.headline, brands: s.brands }];
+    if (s) return suggestion(nameSlug, s);
   }
 
   const generic = CATEGORY_MAP["generic"]!;
-  return [{ type: "gorilla-suggestion", headline: generic.headline, brands: generic.brands }];
+  return suggestion("generic", generic);
 }

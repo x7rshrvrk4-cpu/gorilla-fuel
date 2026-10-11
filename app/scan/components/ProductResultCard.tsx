@@ -419,6 +419,13 @@ export default function ProductResultCard({ product, result, alternatives, alter
                           {alt.brands}
                         </p>
                       )}
+                      {alt.buys && alt.buys.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {alt.buys.map((b) => (
+                            <AmazonBuyButton key={b.query} query={b.query} label={`${b.label} →`} className="text-[11px]" />
+                          ))}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
