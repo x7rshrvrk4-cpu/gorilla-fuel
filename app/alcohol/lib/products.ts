@@ -138,7 +138,7 @@ export function isGorillaSweetSpot(p: AlcoholRankingProduct): boolean {
 // normalized to a standard 355mL can (473mL for Caesar/RTD products noted inline).
 // Additive data researched from publicly available brewery ingredient statements,
 // LCBO product listings, and Open Food Facts contributor data.
-export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
+const ALCOHOL_PRODUCTS_RAW: AlcoholRankingProduct[] = [
   // ───────── GLUTENBERG — CANADIAN CERTIFIED GLUTEN FREE ─────────
   // Montreal brewery; brewed from millet, buckwheat and corn — never barley/wheat.
   {
@@ -14323,6 +14323,29 @@ export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = [
   },
   ...WINES,
 ];
+
+// ── Carb/nutrition research overrides ────────────────────────────────────────
+// Beers that shipped without carb data, filled in from a verified brewer/retailer/
+// nutrition source — NEVER estimated. Values are per the servingMl set here.
+// Applied by id below. Append new rows above the marker as research continues.
+const CARB_RESEARCH: Record<string, Partial<AlcoholRankingProduct>> = {
+  "birra-moretti-birra-moretti": { servingMl: 330, caloriesPerCan: 123, carbsPerCan: 9.2 },
+  "benediktiner-benediktiner-helles": { servingMl: 500, caloriesPerCan: 210, carbsPerCan: 15.5 },
+  "paulaner-hefe-weissbier-dunkel-500ml": { servingMl: 500, caloriesPerCan: 205, carbsPerCan: 14.5 },
+  "celia-organic": { servingMl: 330, caloriesPerCan: 139, carbsPerCan: 14.9, sugarPerCan: 9.9, glutenStatus: "gluten-removed" },
+  "tennent-s-lager-500ml": { servingMl: 500, caloriesPerCan: 152 },
+  "busch-740ml": { servingMl: 740, caloriesPerCan: 277, carbsPerCan: 21.3, abv: 4.3 },
+  "andechs-andechser-weissbier-hell": { servingMl: 500, caloriesPerCan: 230 },
+  "aecht-schlenkerla-aecht-schlenkerla-rauchbier": { servingMl: 500, caloriesPerCan: 225 },
+  "nickel-brook-core-easy-going-lager-473ml": { servingMl: 473, caloriesPerCan: 124, carbsPerCan: 2.5, abv: 4.1 },
+  "bards-gold": { servingMl: 355, caloriesPerCan: 155, carbsPerCan: 14 },
+  "labatt-max-ice-473ml": { servingMl: 473, caloriesPerCan: 284, carbsPerCan: 20 },
+  // RESEARCH-APPEND-MARKER
+};
+
+export const ALCOHOL_PRODUCTS: AlcoholRankingProduct[] = ALCOHOL_PRODUCTS_RAW.map((p) =>
+  CARB_RESEARCH[p.id] ? { ...p, ...CARB_RESEARCH[p.id] } : p,
+);
 
 /** Normalize a barcode string to a leading-zero-stripped digit string for comparison. */
 function normBarcode(b: string): string {
