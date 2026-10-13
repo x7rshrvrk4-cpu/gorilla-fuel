@@ -1282,6 +1282,35 @@ export function mealScore(r: Recipe): number {
   return Math.round(clamp(0.75 * quality + 0.25 * proteinBalance, 0, 100));
 }
 
+/**
+ * Score an arbitrary ingredient selection with the same Gorilla Meal Score logic
+ * as mealScore() — used by the Recipe Scorer tool. Pure, no AI, no I/O.
+ * `macros` is optional: without calories+protein we score on ingredient quality
+ * alone (the 75% term) rather than unfairly tanking the protein-balance term.
+ */
+export function scoreSelection(
+  items: { pantryId: string; core: boolean }[],
+  macros?: { calories: number; protein: number },
+): { score: number; quality: number; proteinBalance: number | null } {
+  const cl = (n: number) => Math.max(0, Math.min(100, n));
+  let weighted = 0;
+  let weight = 0;
+  for (const it of items) {
+    const s = PANTRY_BY_ID[it.pantryId]?.scoreHint;
+    if (s == null) continue;
+    const w = it.core ? 2 : 1;
+    weighted += s * w;
+    weight += w;
+  }
+  const quality = weight ? weighted / weight : 60;
+  if (!macros || macros.calories <= 0) {
+    return { score: Math.round(cl(quality)), quality, proteinBalance: null };
+  }
+  const proteinPer100kcal = (macros.protein / macros.calories) * 100;
+  const proteinBalance = cl(((proteinPer100kcal - 2) / (10 - 2)) * 100);
+  return { score: Math.round(cl(0.75 * quality + 0.25 * proteinBalance)), quality, proteinBalance };
+}
+
 export type RecipeFilters = {
   mealType?: RecipeMealType | null;
   goal?: RecipeGoal | null;

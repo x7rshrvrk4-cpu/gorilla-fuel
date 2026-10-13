@@ -34,6 +34,18 @@ export default function RecipesPage() {
         first, then build your day from these.
       </p>
 
+      {/* Recipe Scorer cross-link */}
+      <Link
+        href="/fitness/recipe-scorer"
+        className="group mt-6 flex items-center justify-between gap-3 rounded-sm border border-gold/40 bg-gold/[0.06] px-5 py-4 transition-colors hover:border-gold hover:bg-gold/10"
+      >
+        <span className="text-sm leading-snug text-muted">
+          <span className="font-display text-gold">Have your own recipe?</span> Build it ingredient-by-ingredient and get
+          its Gorilla Meal Score — plus a grocery list. Save it to your collection.
+        </span>
+        <span className="shrink-0 font-display text-gold transition-transform group-hover:translate-x-1">Score it →</span>
+      </Link>
+
       <RecipesClient />
     </div>
   );
