@@ -357,7 +357,8 @@ const ALCOHOL_PRODUCTS_RAW: AlcoholRankingProduct[] = [
     knownAdditives: [],
     additiveCount: 0,
     gorillaPour: 5,
-    availability: "Beer Store -- select locations",
+    availability: "United States only (not available in Canada)",
+    gorillaAnalysis: "A US product — not sold in Canada. Listed for reference; Busch Light is the Canada-available AB InBev light option.",
   },
   {
     id: "carling",
