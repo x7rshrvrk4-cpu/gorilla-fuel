@@ -60,8 +60,10 @@ export default function MethodologyPage() {
           The <span className="text-gold">Methodology</span>.
         </h1>
         <p className="mt-4 text-muted">
-          No black boxes. The score is never for sale. Here is how every score, badge,
-          and warning on this site gets generated — start to finish.
+          No black boxes. The score is never for sale. Here&apos;s every factor that goes into a
+          score, the evidence standard behind it, and all 15 data sources it&apos;s built on — so
+          you can check our work. (The exact weightings and thresholds are our own; the factors
+          and sources are fully open.)
         </p>
       </div>
 
@@ -107,7 +109,7 @@ export default function MethodologyPage() {
 
         <div className="mt-6 grid gap-px overflow-hidden rounded-sm border border-line bg-line sm:grid-cols-3">
           <div className="bg-surface p-6">
-            <p className="font-display text-sm uppercase tracking-[0.2em] text-gold">Nutrition Score · 60%</p>
+            <p className="font-display text-sm uppercase tracking-[0.2em] text-gold">Nutrition · The Primary Factor</p>
             <p className="mt-2 text-sm leading-relaxed text-muted">
               Calculated from sugar, saturated fat, salt, calorie density, fiber, protein, and NOVA
               processing group per 100g. Each nutrient is measured against graduated thresholds
@@ -122,12 +124,13 @@ export default function MethodologyPage() {
               serving-size data is available, so the number maps to what you&apos;ll actually eat.
             </p>
             <p className="mt-3 text-xs text-muted">
-              <span className="text-foreground">Why 60%:</span> what you eat in bulk is the
-              primary purpose of food — macros and processing dominate health outcomes.
+              <span className="text-foreground">Why it leads:</span> what you eat in bulk is the
+              primary purpose of food — macros and processing dominate health outcomes, so it
+              carries the most weight.
             </p>
           </div>
           <div className="bg-surface p-6">
-            <p className="font-display text-sm uppercase tracking-[0.2em] text-gold">Additive Score · 30%</p>
+            <p className="font-display text-sm uppercase tracking-[0.2em] text-gold">Additives · A Major Factor</p>
             <p className="mt-2 text-sm leading-relaxed text-muted">
               Every detected additive is matched against our intel database — over 50 entries
               covering common names, aliases, and E-codes. Each match deducts a penalty sized to
@@ -135,28 +138,29 @@ export default function MethodologyPage() {
               Additive Score.
             </p>
             <p className="mt-3 text-xs text-muted">
-              <span className="text-foreground">Why 30%:</span> a product can have good
+              <span className="text-foreground">Why it matters:</span> a product can have good
               macros and a terrible additive list — exposure to flagged compounds deserves
               real weight of its own.
             </p>
           </div>
           <div className="bg-surface p-6">
-            <p className="font-display text-sm uppercase tracking-[0.2em] text-gold">Organic Bonus · 10%</p>
+            <p className="font-display text-sm uppercase tracking-[0.2em] text-gold">Organic · A Bonus On Top</p>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              Up to <span className="text-foreground">+10 points</span> are added on top whenever
+              A small bonus is added on top whenever
               Open Food Facts&apos; labels or categories carry a verified organic certification
               (e.g. &ldquo;organic,&rdquo; &ldquo;bio,&rdquo; &ldquo;biologique&rdquo;). No
               certification, no bonus — we don&apos;t guess from marketing copy.
             </p>
             <p className="mt-3 text-xs text-muted">
-              <span className="text-foreground">Why 10%:</span> organic certification matters —
+              <span className="text-foreground">Why only a bonus:</span> organic certification matters —
               but it is not the whole picture. Organic sugar is still sugar.
             </p>
             <p className="mt-3 text-xs text-muted">
-              The three combine as <span className="text-foreground">60% nutrition + 30% additives
-              + the organic bonus</span>. The final number maps to a letter grade:{" "}
-              <span className="text-foreground">Excellent (75+) · Good (50–74) · Poor (25–49) ·
-              Bad (below 25)</span>.
+              Together they produce a single score out of 100 that maps to a simple grade band —
+              from <span className="text-foreground">Excellent</span> down to{" "}
+              <span className="text-foreground">Poor</span>. The exact weightings and thresholds are
+              Gorilla Fuel&apos;s own work, tuned and audited over time — we show you every factor
+              that goes in and why, which is what independence actually requires.
             </p>
           </div>
         </div>
@@ -267,12 +271,13 @@ export default function MethodologyPage() {
             main scoring system.
           </p>
           <p>
-            Wines use a published weighted score —{" "}
-            <span className="text-foreground">sugar 40% · calorie density 30% · additives 30%</span>{" "}
-            — measured per standard 148mL pour (60mL for icewine, which is served as a
-            dessert wine). Dry wines naturally score highest. Ontario VQA wines are
-            identified with a dedicated badge but are scored with the identical framework
-            as every other wine.
+            Wines use a weighted score measured per standard 148mL pour (60mL for icewine,
+            which is served as a dessert wine), weighted most heavily toward{" "}
+            <span className="text-foreground">sugar</span>, with{" "}
+            <span className="text-foreground">calorie density</span> and{" "}
+            <span className="text-foreground">additives</span> also factored in. Dry wines
+            naturally score highest. Ontario VQA wines are identified with a dedicated badge
+            but are scored with the identical framework as every other wine.
           </p>
         </div>
       </section>
