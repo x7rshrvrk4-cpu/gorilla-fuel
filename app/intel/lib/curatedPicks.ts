@@ -23,7 +23,7 @@ export type CuratedPick = {
 export const CURATED_REVALIDATE = 3600;
 
 function sbUrl() { return process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""; }
-function sbKey() { return process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? ""; }
+function sbKey() { return process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? ""; }
 
 const normBarcode = (b: string) => b.replace(/\D/g, "").replace(/^0+/, "") || "0";
 

@@ -47,7 +47,9 @@ export const macro = (n: CacheRow["nutrition_data"], k: string): number | null =
  */
 export async function getTopOverall(limit: number): Promise<CacheRow[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  // Server-only reader — prefer the service-role key so /top keeps working after
+  // anon SELECT on the cache is revoked (falls back to the public key for dev).
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) return [];
   try {
     const build = (withEn: boolean, withCountry: boolean) => {

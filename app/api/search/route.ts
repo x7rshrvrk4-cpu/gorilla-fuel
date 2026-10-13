@@ -32,7 +32,10 @@ export async function GET(request: NextRequest) {
   const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 500) : 10;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  // Server-side: prefer the service-role key so this keeps working after anon
+  // SELECT on gorilla_product_cache is revoked. Falls back to the public key for
+  // local dev where only the publishable key may be set.
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!supabaseUrl || !supabaseKey) return NextResponse.json([]);
 
   try {
