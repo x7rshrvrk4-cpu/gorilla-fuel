@@ -172,8 +172,21 @@ export function tryParseCategories(categories: string | null): string[] {
 
 // ── Read ─────────────────────────────────────────────────────────────────────
 
-/** Look up a barcode in the product cache. Returns null if unconfigured/missing/error. */
+/** Look up a barcode in the product cache. Returns null if unconfigured/missing/error.
+ *  In the BROWSER this goes through the same-origin, rate-limited /api/cache proxy
+ *  (server uses the service-role key) so the public key can't bulk-read the table.
+ *  On the server/scripts it hits Supabase directly. Cache miss degrades to OFF. */
 export async function lookupProductCache(barcode: string): Promise<CachedProduct | null> {
+  if (typeof window !== "undefined") {
+    try {
+      const res = await fetch(`/api/cache?b=${encodeURIComponent(barcode)}`, { cache: "no-store" });
+      if (!res.ok) return null;
+      const data = (await res.json()) as { product: CachedProduct | null };
+      return data.product ?? null;
+    } catch {
+      return null;
+    }
+  }
   const url = sbUrl();
   const t0 = performance.now();
   if (!url || !sbKey()) {
@@ -276,6 +289,18 @@ export type UpsertPayload = {
  * Fire-and-forget safe — swallows all errors, never throws.
  */
 export async function upsertProductCache(payload: UpsertPayload): Promise<void> {
+  if (typeof window !== "undefined") {
+    try {
+      await fetch("/api/cache", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ op: "upsert", payload }),
+      });
+    } catch {
+      // Non-critical — never propagate
+    }
+    return;
+  }
   const url = sbUrl();
   if (!url || !sbKey()) return;
   try {
@@ -320,6 +345,18 @@ export async function batchUpsertProductCache(rows: UpsertPayload[]): Promise<nu
 
 /** Atomically increment scan_count and update last_scanned_at via Postgres RPC. */
 export async function incrementScanCount(barcode: string): Promise<void> {
+  if (typeof window !== "undefined") {
+    try {
+      await fetch("/api/cache", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ op: "increment", barcode }),
+      });
+    } catch {
+      // Non-critical
+    }
+    return;
+  }
   const url = sbUrl();
   if (!url || !sbKey()) return;
   try {

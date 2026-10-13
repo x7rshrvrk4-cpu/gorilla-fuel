@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { gradeFromScore } from "../../scan/lib/scoring";
+import { rateLimit, clientIp } from "../../lib/rateLimit";
 
 export type SearchProduct = {
   barcode: string;
@@ -19,6 +20,9 @@ export type SearchProduct = {
  * full results page passes a larger limit). Minimum 2 characters required.
  */
 export async function GET(request: NextRequest) {
+  if (!rateLimit(clientIp(request), "search", 60, 60_000)) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
   const q = request.nextUrl.searchParams.get("q")?.trim() ?? "";
   if (q.length < 2) return NextResponse.json([]);
 

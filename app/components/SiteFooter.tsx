@@ -31,6 +31,7 @@ const INFO = [
   { href: "/about",        label: "About" },
   { href: "/attribution",  label: "Attribution" },
   { href: "/about#privacy", label: "Privacy Policy" },
+  { href: "/terms",         label: "Terms of Use" },
 ];
 
 // Gorilla Sports channels — cross-promo for the ecosystem (these are the Sports
