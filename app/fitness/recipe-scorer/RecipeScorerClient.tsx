@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { PANTRY, PANTRY_BY_ID, type PantryCategory } from "../lib/pantryLibrary";
 import { scoreSelection } from "../lib/recipes";
+import { submitCommunityRecipe } from "../lib/communityRecipes";
 import AmazonBuyButton from "../../components/AmazonBuyButton";
 
 type Picked = { pantryId: string; core: boolean };
@@ -36,6 +37,9 @@ export default function RecipeScorerClient() {
   const [name, setName] = useState("");
   const [search, setSearch] = useState("");
   const [saved, setSaved] = useState<Saved[]>([]);
+  const [notes, setNotes] = useState("");
+  const [submitState, setSubmitState] = useState<"idle" | "submitting" | "ok" | "error">("idle");
+  const [submitMsg, setSubmitMsg] = useState("");
 
   // Load saved recipes (per-browser). Wrapped — storage can throw/be empty.
   useEffect(() => {
@@ -97,6 +101,30 @@ export default function RecipeScorerClient() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   function del(id: string) { persist(saved.filter((r) => r.id !== id)); }
+
+  async function submitToGorilla() {
+    if (!picked.length) return;
+    setSubmitState("submitting");
+    setSubmitMsg("");
+    const ingredients = [
+      ...picked.map((p) => ({ pantryId: p.pantryId, name: PANTRY_BY_ID[p.pantryId]?.name ?? p.pantryId, core: p.core })),
+      ...extras.map((e) => ({ pantryId: null, name: e.name, core: false })),
+    ];
+    const res = await submitCommunityRecipe({
+      title: name.trim() || "Untitled recipe",
+      ingredients,
+      calories: cals ? Number(cals) : null,
+      protein: prot ? Number(prot) : null,
+      gorilla_score: result.score,
+      notes: notes.trim() || undefined,
+    });
+    if (res.ok) {
+      setSubmitState("ok");
+    } else {
+      setSubmitState("error");
+      setSubmitMsg(typeof res.message === "string" ? res.message : "Submission failed");
+    }
+  }
 
   const color = scoreColor(result.score);
   const amazonItems = picked.map((p) => PANTRY_BY_ID[p.pantryId]).filter((i) => i && i.affiliate === "amazon");
@@ -290,6 +318,43 @@ export default function RecipeScorerClient() {
             <div className="gorilla-card rounded-sm p-5">
               <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name this recipe…" className="w-full rounded-sm border border-line bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-gold/60" />
               <button type="button" onClick={save} className="mt-3 w-full rounded-sm bg-gold px-4 py-2.5 font-display text-sm tracking-widest text-background transition-opacity hover:opacity-90">Save to My Recipes</button>
+            </div>
+          )}
+
+          {/* submit to the shared library (staging → review) */}
+          {picked.length > 0 && (
+            <div className="gorilla-card rounded-sm p-5">
+              <p className="font-display text-sm text-foreground">Share it with Gorilla Fuel</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted">
+                Submit your recipe for review — approved ones join the public library for everyone. Nothing goes live until
+                we check it.
+              </p>
+              {submitState === "ok" ? (
+                <p className="mt-3 rounded-sm border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs leading-relaxed text-emerald-300">
+                  Thanks — your recipe is in the review queue. 🦍
+                </p>
+              ) : (
+                <>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Optional note — why it's good, any tips…"
+                    rows={2}
+                    className="mt-3 w-full resize-none rounded-sm border border-line bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-gold/60"
+                  />
+                  <button
+                    type="button"
+                    onClick={submitToGorilla}
+                    disabled={submitState === "submitting"}
+                    className="mt-2 w-full rounded-sm border border-gold px-4 py-2.5 font-display text-sm tracking-widest text-gold transition-colors hover:bg-gold hover:text-background disabled:opacity-50"
+                  >
+                    {submitState === "submitting" ? "Submitting…" : "Submit to Gorilla Fuel →"}
+                  </button>
+                  {submitState === "error" && (
+                    <p className="mt-2 text-xs leading-relaxed text-red-400">Couldn&apos;t submit: {submitMsg}</p>
+                  )}
+                </>
+              )}
             </div>
           )}
         </div>
