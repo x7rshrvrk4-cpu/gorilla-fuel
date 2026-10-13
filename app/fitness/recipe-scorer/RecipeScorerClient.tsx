@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { PANTRY, PANTRY_BY_ID, type PantryCategory } from "../lib/pantryLibrary";
 import { scoreSelection } from "../lib/recipes";
-import { submitCommunityRecipe } from "../lib/communityRecipes";
+import { submitCommunityRecipe, uploadRecipeScreenshot } from "../lib/communityRecipes";
 import AmazonBuyButton from "../../components/AmazonBuyButton";
 
 type Picked = { pantryId: string; core: boolean };
@@ -40,6 +40,13 @@ export default function RecipeScorerClient() {
   const [notes, setNotes] = useState("");
   const [submitState, setSubmitState] = useState<"idle" | "submitting" | "ok" | "error">("idle");
   const [submitMsg, setSubmitMsg] = useState("");
+  // Screenshot submission (recipe built elsewhere → share a photo for review)
+  const [shotFile, setShotFile] = useState<File | null>(null);
+  const [shotPreview, setShotPreview] = useState<string>("");
+  const [shotTitle, setShotTitle] = useState("");
+  const [shotNote, setShotNote] = useState("");
+  const [shotState, setShotState] = useState<"idle" | "working" | "ok" | "error">("idle");
+  const [shotMsg, setShotMsg] = useState("");
 
   // Load saved recipes (per-browser). Wrapped — storage can throw/be empty.
   useEffect(() => {
@@ -101,6 +108,37 @@ export default function RecipeScorerClient() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   function del(id: string) { persist(saved.filter((r) => r.id !== id)); }
+
+  function pickScreenshot(file: File | null) {
+    setShotMsg("");
+    setShotState("idle");
+    if (shotPreview) { try { URL.revokeObjectURL(shotPreview); } catch {} }
+    setShotFile(file);
+    setShotPreview(file ? URL.createObjectURL(file) : "");
+  }
+
+  async function submitScreenshot() {
+    if (!shotFile) { setShotState("error"); setShotMsg("Add a screenshot first."); return; }
+    setShotState("working"); setShotMsg("");
+    const up = await uploadRecipeScreenshot(shotFile);
+    if (!up.ok || !up.url) { setShotState("error"); setShotMsg(up.message || "Upload failed"); return; }
+    const res = await submitCommunityRecipe({
+      title: shotTitle.trim() || "Screenshot recipe",
+      ingredients: [],
+      calories: null,
+      protein: null,
+      gorilla_score: null,
+      notes: shotNote.trim() || undefined,
+      image_url: up.url,
+    });
+    if (res.ok) {
+      setShotState("ok");
+      pickScreenshot(null); setShotTitle(""); setShotNote("");
+    } else {
+      setShotState("error");
+      setShotMsg(typeof res.message === "string" ? res.message : "Submission failed");
+    }
+  }
 
   async function submitToGorilla() {
     if (!picked.length) return;
@@ -358,6 +396,66 @@ export default function RecipeScorerClient() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* SHARE A SCREENSHOT — recipe built elsewhere, submitted for review */}
+      <div className="mt-12 gorilla-card rounded-sm p-6">
+        <p className="font-display text-sm tracking-[0.3em] text-gold">GOT A RECIPE ALREADY?</p>
+        <h2 className="mt-2 font-display text-2xl text-foreground">Share a screenshot</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
+          Built your recipe somewhere else? Snap or upload a screenshot and send it in. We review every one by hand —
+          the good ones get scored and added to the public library. (A real person reads it; nothing auto-posts.)
+        </p>
+
+        {shotState === "ok" ? (
+          <p className="mt-4 rounded-sm border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300">
+            Got it — your recipe screenshot is in the review queue. Thanks! 🦍
+          </p>
+        ) : (
+          <div className="mt-4 grid gap-4 sm:grid-cols-[200px_1fr]">
+            {/* uploader / preview */}
+            <div>
+              <label className="flex aspect-[3/4] cursor-pointer flex-col items-center justify-center rounded-sm border border-dashed border-line bg-background text-center transition-colors hover:border-gold/50">
+                {shotPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={shotPreview} alt="preview" className="h-full w-full rounded-sm object-cover" />
+                ) : (
+                  <span className="px-3 text-xs text-muted">📷 Tap to add a photo<br />or screenshot</span>
+                )}
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => pickScreenshot(e.target.files?.[0] ?? null)} />
+              </label>
+              {shotFile && (
+                <button type="button" onClick={() => pickScreenshot(null)} className="mt-2 text-xs text-muted underline hover:text-foreground">Remove</button>
+              )}
+            </div>
+
+            {/* fields */}
+            <div>
+              <input
+                value={shotTitle}
+                onChange={(e) => setShotTitle(e.target.value)}
+                placeholder="Recipe name (optional)"
+                className="w-full rounded-sm border border-line bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-gold/60"
+              />
+              <textarea
+                value={shotNote}
+                onChange={(e) => setShotNote(e.target.value)}
+                rows={3}
+                placeholder="Anything we should know — servings, why it's good, where it's from…"
+                className="mt-2 w-full resize-none rounded-sm border border-line bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-gold/60"
+              />
+              <button
+                type="button"
+                onClick={submitScreenshot}
+                disabled={shotState === "working" || !shotFile}
+                className="mt-2 rounded-sm bg-gold px-5 py-2.5 font-display text-sm tracking-widest text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                {shotState === "working" ? "Sending…" : "Submit screenshot →"}
+              </button>
+              {shotState === "error" && <p className="mt-2 text-xs leading-relaxed text-red-400">{shotMsg}</p>}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* MY RECIPES */}

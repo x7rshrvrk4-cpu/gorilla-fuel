@@ -11,6 +11,7 @@ type Row = {
   protein: number | null;
   gorilla_score: number | null;
   notes: string | null;
+  image_url: string | null;
   submitted_at: string;
 };
 
@@ -135,6 +136,13 @@ export default function CommunityRecipesAdmin() {
                   </div>
                   <span className="shrink-0 font-display text-3xl" style={{ color: scoreColor(r.gorilla_score) }}>{r.gorilla_score ?? "—"}</span>
                 </div>
+
+                {r.image_url && (
+                  <a href={r.image_url} target="_blank" rel="noopener noreferrer" className="mt-3 block">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={r.image_url} alt="recipe screenshot" className="max-h-80 rounded-sm border border-line object-contain" />
+                  </a>
+                )}
 
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {(r.ingredients ?? []).map((ing, i) => (
