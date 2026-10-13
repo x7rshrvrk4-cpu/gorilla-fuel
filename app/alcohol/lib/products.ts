@@ -494,7 +494,8 @@ const ALCOHOL_PRODUCTS_RAW: AlcoholRankingProduct[] = [
     knownAdditives: [],
     additiveCount: 0,
     gorillaPour: 5,
-    availability: "Beer Store & LCBO -- wide availability",
+    availability: "United States only (not available in Canada)",
+    gorillaAnalysis: "A zero-carb US product — not carried at The Beer Store or LCBO. Listed for reference; for a Canada-available low-carb option, see Michelob Ultra or Molson Ultra.",
   },
   {
     id: "budweiser-zero",
