@@ -123,6 +123,41 @@ export const PANTRY: PantryItem[] = [
   { id: "cheddar",         name: "Cheddar Cheese",        barcode: null, scoreHint: 60, affiliate: "grocery", category: "fat" },
   { id: "bacon",           name: "Bacon",                 barcode: null, scoreHint: 55, affiliate: "grocery", category: "protein" },
   { id: "dark-chocolate",  name: "Dark Chocolate (70%)",  barcode: null, scoreHint: 62, affiliate: "amazon",  category: "fat" },
+
+  // ── Everyday "not-so-clean" staples — so a realistic fridge (some good, some meh) scores medium ──
+  { id: "white-rice",         name: "White Rice",               barcode: null, scoreHint: 62, affiliate: "grocery", category: "carb" },
+  { id: "white-bread",        name: "White Bread",              barcode: null, scoreHint: 42, affiliate: "grocery", category: "carb" },
+  { id: "white-pasta",        name: "White Pasta",              barcode: null, scoreHint: 58, affiliate: "grocery", category: "carb" },
+  { id: "flour-tortilla",     name: "Flour Tortilla",           barcode: null, scoreHint: 52, affiliate: "grocery", category: "carb" },
+  { id: "instant-ramen",      name: "Instant Ramen",            barcode: null, scoreHint: 28, affiliate: "grocery", category: "carb" },
+  { id: "sugary-cereal",      name: "Sugary Cereal",            barcode: null, scoreHint: 25, affiliate: "grocery", category: "carb" },
+  { id: "granola",            name: "Store-Bought Granola",     barcode: null, scoreHint: 50, affiliate: "grocery", category: "carb" },
+  { id: "crackers",           name: "Crackers",                 barcode: null, scoreHint: 45, affiliate: "grocery", category: "carb" },
+  { id: "frozen-pizza",       name: "Frozen Pizza",             barcode: null, scoreHint: 33, affiliate: "grocery", category: "carb" },
+  { id: "potato-chips",       name: "Potato Chips",             barcode: null, scoreHint: 35, affiliate: "grocery", category: "carb" },
+  { id: "muffin",             name: "Bakery Muffin",            barcode: null, scoreHint: 30, affiliate: "grocery", category: "carb" },
+  { id: "cookies",            name: "Cookies",                  barcode: null, scoreHint: 28, affiliate: "grocery", category: "carb" },
+
+  { id: "hot-dogs",           name: "Hot Dogs",                 barcode: null, scoreHint: 25, affiliate: "grocery", category: "protein" },
+  { id: "sausage",            name: "Pork Sausage",             barcode: null, scoreHint: 38, affiliate: "grocery", category: "protein" },
+  { id: "deli-ham",           name: "Deli Ham",                 barcode: null, scoreHint: 48, affiliate: "grocery", category: "protein" },
+  { id: "chicken-nuggets",    name: "Breaded Chicken Nuggets",  barcode: null, scoreHint: 38, affiliate: "grocery", category: "protein" },
+  { id: "fish-sticks",        name: "Breaded Fish Sticks",      barcode: null, scoreHint: 42, affiliate: "grocery", category: "protein" },
+  { id: "regular-ground-beef", name: "Regular Ground Beef",     barcode: null, scoreHint: 62, affiliate: "grocery", category: "protein" },
+  { id: "flavored-yogurt",    name: "Flavored / Sweetened Yogurt", barcode: null, scoreHint: 48, affiliate: "grocery", category: "protein" },
+
+  { id: "butter",             name: "Butter",                   barcode: null, scoreHint: 50, affiliate: "grocery", category: "fat" },
+  { id: "margarine",          name: "Margarine",                barcode: null, scoreHint: 35, affiliate: "grocery", category: "fat" },
+  { id: "mayonnaise",         name: "Mayonnaise",               barcode: null, scoreHint: 40, affiliate: "grocery", category: "fat" },
+  { id: "ranch-dressing",     name: "Ranch Dressing",           barcode: null, scoreHint: 32, affiliate: "grocery", category: "fat" },
+  { id: "ketchup",            name: "Ketchup",                  barcode: null, scoreHint: 38, affiliate: "grocery", category: "fat" },
+  { id: "bbq-sauce",          name: "BBQ Sauce",                barcode: null, scoreHint: 36, affiliate: "grocery", category: "fat" },
+  { id: "jarred-pasta-sauce", name: "Jarred Pasta Sauce",       barcode: null, scoreHint: 58, affiliate: "grocery", category: "fat" },
+  { id: "processed-cheese",   name: "Processed Cheese Slices",  barcode: null, scoreHint: 35, affiliate: "grocery", category: "fat" },
+  { id: "sweet-peanut-butter", name: "Sweetened Peanut Butter", barcode: null, scoreHint: 45, affiliate: "grocery", category: "fat" },
+  { id: "jam",                name: "Jam / Jelly",              barcode: null, scoreHint: 32, affiliate: "grocery", category: "fat" },
+  { id: "maple-syrup",        name: "Pancake Syrup",            barcode: null, scoreHint: 28, affiliate: "grocery", category: "fat" },
+  { id: "canned-soup",        name: "Canned Soup",              barcode: null, scoreHint: 42, affiliate: "grocery", category: "fat" },
 ];
 
 /** Fast id → PantryItem lookup for the plan-composition layer and UI. */

@@ -69,6 +69,15 @@ export async function lookupBarcodeAlias(barcode: string): Promise<BarcodeAlias 
     return null;
   }
   try {
+    if (typeof window !== "undefined") {
+      const r = await fetch(`/api/aliases/lookup?b=${encodeURIComponent(barcode)}`, {
+        signal: AbortSignal.timeout(2000),
+      });
+      if (!r.ok) return null;
+      const j: { alias: BarcodeAlias | null } = await r.json();
+      scanLog(`Barcode Alias ${j.alias ? "✓" : "✗"} via proxy in ${sinceMs(t0)}ms`);
+      return j.alias;
+    }
     const endpoint = new URL(`${url}/rest/v1/${TABLE}`);
     endpoint.searchParams.set("alias_barcode", `eq.${barcode}`);
     endpoint.searchParams.set("status", "eq.approved");
