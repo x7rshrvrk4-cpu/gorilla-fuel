@@ -19,32 +19,31 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 // ── Category doors data ───────────────────────────────────────────────────────
-const DOORS = [
-  {
-    href: "/alcohol",
-    label: "ALCOHOL",
-    sub: "Beer · Wine · Seltzer · Non-Alcoholic",
-    tagline: "500+ products scored",
-  },
-  {
-    href: "/approved",
-    label: "FOOD & SNACKS",
-    sub: "Approved · Cheat List · Stay Away · Kids · Gluten Free",
-    tagline: "Scan anything instantly",
-  },
-  {
-    href: "/rankings",
-    label: "SUPPLEMENTS",
-    sub: "Protein · Performance · Recovery · Vitamins",
-    tagline: "150+ products ranked",
-  },
-  {
-    href: "/top",
-    label: "TOP RATED",
-    sub: "Highest-scoring foods in the database, ranked live",
-    tagline: "250+ foods ranked",
-  },
-];
+const DOOR = {
+  alcohol: { href: "/alcohol", label: "ALCOHOL", sub: "Beer · Wine · Seltzer · Non-Alcoholic", tagline: "500+ products scored" },
+  food: { href: "/approved", label: "FOOD & SNACKS", sub: "Approved · Cheat List · Stay Away · Kids · Beauty", tagline: "Scan anything instantly" },
+  top: { href: "/top", label: "TOP RATED", sub: "Highest-scoring foods in the database, ranked live", tagline: "250+ foods ranked" },
+  fitness: { href: "/fitness", label: "FITNESS", sub: "Macro calculator · BMR → TDEE → your daily calorie & protein targets", tagline: "Free tool" },
+  supp: { href: "/rankings", label: "SUPPLEMENTS", sub: "Protein · Performance · Recovery · Vitamins", tagline: "150+ products ranked" },
+};
+
+function DoorCard({ door }: { door: { href: string; label: string; sub: string; tagline: string } }) {
+  return (
+    <Link
+      href={door.href}
+      className="group flex min-h-[220px] flex-col justify-between rounded-sm border border-gold/40 bg-surface p-8 transition-all hover:border-gold hover:shadow-[0_0_24px_rgba(255,215,0,0.12)]"
+    >
+      <div>
+        <h2 className="font-display text-3xl tracking-widest text-gold sm:text-4xl">{door.label}</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted">{door.sub}</p>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-xs uppercase tracking-[0.2em] text-muted/70">{door.tagline}</span>
+        <span className="font-display text-gold opacity-0 transition-opacity group-hover:opacity-100">→</span>
+      </div>
+    </Link>
+  );
+}
 
 // ── Pillars data ──────────────────────────────────────────────────────────────
 const PILLARS = [
@@ -106,54 +105,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── CATEGORY DOORS ───────────────────────────────────────────────── */}
+      {/* ── CATEGORY DOORS (order: Alcohol, Meal Finder, Food, Top Rated, Gluten Free, Fitness, Supplements) ── */}
       <section className="border-b border-line bg-background">
         <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {DOORS.map((door) => (
-              <Link
-                key={door.href}
-                href={door.href}
-                className="group flex min-h-[220px] flex-col justify-between rounded-sm border border-gold/40 bg-surface p-8 transition-all hover:border-gold hover:shadow-[0_0_24px_rgba(255,215,0,0.12)]"
-              >
-                <div>
-                  <h2 className="font-display text-3xl tracking-widest text-gold sm:text-4xl">
-                    {door.label}
-                  </h2>
-                  <p className="mt-3 text-sm leading-relaxed text-muted">
-                    {door.sub}
-                  </p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-[0.2em] text-muted/70">
-                    {door.tagline}
-                  </span>
-                  <span className="font-display text-gold opacity-0 transition-opacity group-hover:opacity-100">
-                    →
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          {/* FITNESS door + Meal Finder banner */}
-          <div className="mt-4 grid gap-4 lg:grid-cols-3">
-            <Link
-              href="/fitness"
-              className="group flex min-h-[220px] flex-col justify-between rounded-sm border border-gold/40 bg-surface p-8 transition-all hover:border-gold hover:shadow-[0_0_24px_rgba(255,215,0,0.12)]"
-            >
-              <div>
-                <h2 className="font-display text-3xl tracking-widest text-gold sm:text-4xl">FITNESS</h2>
-                <p className="mt-3 text-sm leading-relaxed text-muted">
-                  Macro calculator · BMR → TDEE → your daily calorie &amp; protein targets
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-[0.2em] text-muted/70">Free tool</span>
-                <span className="font-display text-gold opacity-0 transition-opacity group-hover:opacity-100">→</span>
-              </div>
-            </Link>
-
+          <div className="grid gap-4 lg:grid-cols-3">
+            <DoorCard door={DOOR.alcohol} />
             <Link
               href="/fitness/recipes"
               className="group relative flex min-h-[220px] flex-col justify-between overflow-hidden rounded-sm border border-gold bg-gradient-to-br from-gold/15 to-gold/[0.03] p-8 transition-all hover:shadow-[0_0_28px_rgba(255,215,0,0.18)] lg:col-span-2"
@@ -176,6 +132,11 @@ export default function Home() {
             </Link>
           </div>
 
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <DoorCard door={DOOR.food} />
+            <DoorCard door={DOOR.top} />
+          </div>
+
           {/* GLUTEN-FREE feature banner — surfaces the whole GF section (food + alcohol) */}
           <Link
             href="/glutenfree"
@@ -193,6 +154,11 @@ export default function Home() {
               Explore →
             </span>
           </Link>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <DoorCard door={DOOR.fitness} />
+            <DoorCard door={DOOR.supp} />
+          </div>
         </div>
       </section>
 
