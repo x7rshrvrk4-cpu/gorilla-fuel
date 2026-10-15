@@ -66,6 +66,27 @@ export const CATALOG: ReelSpec[] = [
     },
   },
   {
+    id: "meal-screenshot",
+    topic: "recipes",
+    caption:
+      "Found a recipe on TikTok or Instagram? Screenshot it. 🦍\n\nSend it to Gorilla Fuel — we review every one, and the best go into the Meal Finder with a real Gorilla Meal Score.\n\nNo perfect pantry? No problem. Mix clean ingredients with not-so-clean ones and see where your meal lands. Free, no account.\n\nTry it → gorillafuel.ca/fitness/recipe-scorer 🇨🇦\n\n#gorillafuel #mealprep #highprotein #healthyrecipes #canadianfood #recipeideas #nobs",
+    props: {
+      ...base,
+      topicTag: "Meal Finder · free",
+      headline: ["SCREENSHOT IT.", "SEND IT.", "SCORE IT."],
+      goldLines: [2],
+      sub: "Saw a recipe online? Send us the screenshot. Real kitchens aren't perfect — mix good and not-so-good ingredients and see your score.",
+      ctaLabel: "Score your meal",
+      ctaUrl: "gorillafuel.ca/fitness/recipe-scorer",
+      pills: [
+        { score: 88, name: "Chicken Breast" },
+        { score: 95, name: "Broccoli" },
+        { score: 62, name: "White Rice" },
+        { score: 38, name: "Ketchup" },
+      ],
+    },
+  },
+  {
     id: "scanner-core",
     topic: "scanner",
     caption:
