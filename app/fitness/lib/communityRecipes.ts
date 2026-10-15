@@ -76,7 +76,7 @@ export async function uploadRecipeScreenshot(file: File): Promise<UploadResult> 
   try {
     const res = await fetch(`${url}/storage/v1/object/${BUCKET}/${path}`, {
       method: "POST",
-      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": file.type || "image/jpeg", "x-upsert": "true" },
+      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": file.type || "image/jpeg" },
       body: file,
     });
     if (!res.ok) {
