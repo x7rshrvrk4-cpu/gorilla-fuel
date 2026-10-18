@@ -12,7 +12,7 @@
 //
 // Data only. No UI, no React.
 
-export type PantryCategory = "protein" | "carb" | "fat" | "produce" | "supplement";
+export type PantryCategory = "protein" | "dairy" | "carb" | "fat" | "produce" | "supplement";
 export type PantryAffiliate = "amazon" | "grocery";
 
 export type PantryItem = {
@@ -176,7 +176,18 @@ export const PANTRY: PantryItem[] = [
   { id: "dates", name: "Medjool Dates", barcode: null, scoreHint: 75, affiliate: "grocery", category: "produce" },
   { id: "honey", name: "Honey", barcode: null, scoreHint: 63, affiliate: "grocery", category: "carb" },
   { id: "pure-maple-syrup", name: "Pure Maple Syrup", barcode: null, scoreHint: 63, affiliate: "grocery", category: "carb" },
-  { id: "milk", name: "Milk (2%)", barcode: null, scoreHint: 85, affiliate: "grocery", category: "protein" },
+  { id: "milk", name: "Milk (2%)", barcode: null, scoreHint: 78, affiliate: "grocery", category: "dairy" },
+
+  // ── Milks & alternatives (hints from the median of real scanned products in our cache) ──
+  { id: "whole-milk", name: "Whole Milk (3.25%)", barcode: null, scoreHint: 62, affiliate: "grocery", category: "dairy" },
+  { id: "skim-milk", name: "Skim / 1% Milk", barcode: null, scoreHint: 70, affiliate: "grocery", category: "dairy" },
+  { id: "lactose-free-milk", name: "Lactose-Free Milk", barcode: null, scoreHint: 74, affiliate: "grocery", category: "dairy" },
+  { id: "almond-milk", name: "Unsweetened Almond Milk", barcode: null, scoreHint: 72, affiliate: "grocery", category: "dairy" },
+  { id: "soy-milk", name: "Unsweetened Soy Milk", barcode: null, scoreHint: 75, affiliate: "grocery", category: "dairy" },
+  { id: "oat-milk", name: "Unsweetened Oat Milk", barcode: null, scoreHint: 52, affiliate: "grocery", category: "dairy" },
+  { id: "cashew-milk", name: "Unsweetened Cashew Milk", barcode: null, scoreHint: 70, affiliate: "grocery", category: "dairy" },
+  { id: "coconut-beverage", name: "Coconut Milk Beverage (carton)", barcode: null, scoreHint: 50, affiliate: "grocery", category: "dairy" },
+  { id: "chocolate-milk", name: "Chocolate Milk", barcode: null, scoreHint: 52, affiliate: "grocery", category: "dairy" },
   { id: "pumpkin-puree", name: "Pumpkin Puree (plain)", barcode: null, scoreHint: 90, affiliate: "grocery", category: "produce" },
   { id: "almond-butter", name: "Natural Almond Butter", barcode: null, scoreHint: 84, affiliate: "grocery", category: "fat" },
   { id: "coconut-milk", name: "Canned Coconut Milk", barcode: null, scoreHint: 69, affiliate: "grocery", category: "fat" },

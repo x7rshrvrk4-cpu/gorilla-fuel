@@ -2690,7 +2690,7 @@ export const RECIPES: Recipe[] = [
     diet: ["high-protein", "vegan", "dairy-free", "gluten-free", "quick"],
     timeMin: 5,
     servings: 1,
-    ingredients: [core("pea-protein", "1 scoop"), core("berries", "1 1/2 cups frozen"), core("banana", "1"), extra("Unsweetened almond milk", "1 cup")],
+    ingredients: [core("pea-protein", "1 scoop"), core("berries", "1 1/2 cups frozen"), core("banana", "1"), have("almond-milk", "1 cup")],
     steps: [
       "Blend the almond milk, berries, banana and pea protein until smooth.",
       "Add a little water if it is too thick.",

@@ -16,9 +16,10 @@ import type { Plan } from "../lib/plans";
  * a fabricated /scan link); grocery → a "grocery item" tag, no buy link.
  */
 
-const CATEGORY_ORDER: PantryCategory[] = ["protein", "carb", "fat", "produce", "supplement"];
+const CATEGORY_ORDER: PantryCategory[] = ["protein", "dairy", "carb", "fat", "produce", "supplement"];
 const CATEGORY_LABEL: Record<PantryCategory, string> = {
   protein: "Protein",
+  dairy: "Milk & Alternatives",
   carb: "Carbs",
   fat: "Fats",
   produce: "Produce",
