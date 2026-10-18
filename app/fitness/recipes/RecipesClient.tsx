@@ -26,6 +26,7 @@ const MEAL_TYPES: { key: RecipeMealType; label: string }[] = [
   { key: "lunch", label: "Lunch" },
   { key: "dinner", label: "Dinner" },
   { key: "snack", label: "Snack" },
+  { key: "dessert", label: "Dessert" },
 ];
 const GOALS: { key: RecipeGoal; label: string }[] = [
   { key: "lean", label: "Lean" },

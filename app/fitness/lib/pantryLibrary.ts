@@ -158,6 +158,17 @@ export const PANTRY: PantryItem[] = [
   { id: "jam",                name: "Jam / Jelly",              barcode: null, scoreHint: 32, affiliate: "grocery", category: "fat" },
   { id: "maple-syrup",        name: "Pancake Syrup",            barcode: null, scoreHint: 28, affiliate: "grocery", category: "fat" },
   { id: "canned-soup",        name: "Canned Soup",              barcode: null, scoreHint: 42, affiliate: "grocery", category: "fat" },
+
+  // Dessert / sweet-treat building blocks (honest scores: sweeteners score low)
+  { id: "cocoa-powder", name: "Unsweetened Cocoa Powder", barcode: null, scoreHint: 80, affiliate: "grocery", category: "fat" },
+  { id: "mango", name: "Mango (fresh or frozen)", barcode: null, scoreHint: 84, affiliate: "grocery", category: "produce" },
+  { id: "dates", name: "Medjool Dates", barcode: null, scoreHint: 62, affiliate: "grocery", category: "produce" },
+  { id: "honey", name: "Honey", barcode: null, scoreHint: 45, affiliate: "grocery", category: "carb" },
+  { id: "pure-maple-syrup", name: "Pure Maple Syrup", barcode: null, scoreHint: 48, affiliate: "grocery", category: "carb" },
+  { id: "milk", name: "Milk (2%)", barcode: null, scoreHint: 72, affiliate: "grocery", category: "protein" },
+  { id: "pumpkin-puree", name: "Pumpkin Puree (plain)", barcode: null, scoreHint: 90, affiliate: "grocery", category: "produce" },
+  { id: "almond-butter", name: "Natural Almond Butter", barcode: null, scoreHint: 84, affiliate: "grocery", category: "fat" },
+  { id: "coconut-milk", name: "Canned Coconut Milk", barcode: null, scoreHint: 55, affiliate: "grocery", category: "fat" },
 ];
 
 /** Fast id → PantryItem lookup for the plan-composition layer and UI. */
