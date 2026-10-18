@@ -1269,7 +1269,7 @@ export default function ScanClient() {
             </div>
             <div className="px-6 py-5">
               <p className="font-display text-sm tracking-[0.2em] text-gold">SEARCHING 15 SOURCES…</p>
-              <p className="mt-1 font-mono text-xs text-muted/60">{lookup.barcode}</p>
+              <p className="mt-1 font-mono text-xs text-muted/80">{lookup.barcode}</p>
               <p className="mt-3 text-sm leading-relaxed text-muted">
                 Checking every database. If this takes more than 3 seconds the product is not in our system yet.
               </p>
@@ -1459,7 +1459,7 @@ export default function ScanClient() {
               value={manualBarcode}
               onChange={(e) => setManualBarcode(e.target.value)}
               placeholder="Type barcode, e.g. 5000159484695"
-              className="flex-1 rounded-sm border border-line bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted/60 focus:border-gold focus:outline-none"
+              className="flex-1 rounded-sm border border-line bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted/80 focus:border-gold focus:outline-none"
             />
             <button
               type="submit"

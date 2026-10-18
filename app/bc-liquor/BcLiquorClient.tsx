@@ -176,7 +176,7 @@ export default function BcLiquorClient({ counts, countries, rows, filters, filte
               />
             ))}
           </FacetRow>
-          <p className="mt-2 text-xs text-muted/70">BC-made beer only — tiers are BCLDB&apos;s own class labels.</p>
+          <p className="mt-2 text-xs text-muted/85">BC-made beer only — tiers are BCLDB&apos;s own class labels.</p>
         </div>
       )}
 
@@ -199,7 +199,7 @@ export default function BcLiquorClient({ counts, countries, rows, filters, filte
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search this list by name, category, origin or UPC…"
-          className="flex-1 rounded-sm border border-line bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-muted/60 focus:border-sky-400/50 focus:outline-none"
+          className="flex-1 rounded-sm border border-line bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-muted/80 focus:border-sky-400/50 focus:outline-none"
         />
       </div>
 
@@ -258,15 +258,15 @@ export default function BcLiquorClient({ counts, countries, rows, filters, filte
                             Gorilla-scored match
                           </span>
                           <span className="text-foreground/80">{r.product_name ?? "—"}</span>
-                          <span className="text-muted/70">BCLDB:</span>
+                          <span className="text-muted/85">BCLDB:</span>
                           <span className="tabular-nums">{fmtPrice(r.price)}</span>
-                          <span className="text-muted/50">·</span>
+                          <span className="text-muted/75">·</span>
                           <span className="tabular-nums">{fmtLitres(r.litres_per_container)}</span>
-                          <span className="text-muted/50">·</span>
+                          <span className="text-muted/75">·</span>
                           <span className="tabular-nums">{fmtAbv(r.abv)}</span>
                           {r.country_origin && (
                             <>
-                              <span className="text-muted/50">·</span>
+                              <span className="text-muted/75">·</span>
                               <span>{r.country_origin}</span>
                             </>
                           )}
@@ -284,9 +284,9 @@ export default function BcLiquorClient({ counts, countries, rows, filters, filte
                       <div className="text-foreground">{r.product_name ?? "—"}</div>
                       <div className="mt-0.5 flex items-center gap-2">
                         {r.barcode ? (
-                          <span className="font-mono text-[11px] text-muted/70">{r.barcode}</span>
+                          <span className="font-mono text-[11px] text-muted/85">{r.barcode}</span>
                         ) : (
-                          <span className="rounded-sm border border-line px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted/70">
+                          <span className="rounded-sm border border-line px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted/85">
                             No UPC · not scannable
                           </span>
                         )}
@@ -298,7 +298,7 @@ export default function BcLiquorClient({ counts, countries, rows, filters, filte
                       </span>
                       {sweet && <span className="ml-2 text-[11px] text-rose-300/80">{sweet}</span>}
                       {r.category && r.category !== r.kind && (
-                        <span className="ml-2 text-xs text-muted/70">{r.category}</span>
+                        <span className="ml-2 text-xs text-muted/85">{r.category}</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums text-muted">{fmtAbv(r.abv)}</td>
@@ -313,7 +313,7 @@ export default function BcLiquorClient({ counts, countries, rows, filters, filte
         </div>
       )}
 
-      <p className="mt-6 text-xs text-muted/70">
+      <p className="mt-6 text-xs text-muted/85">
         Source: BC Liquor Distribution Branch (BCLDB) product price list, via the BC Open Government portal.
         Filters (BC-made, wine style, craft-beer tier, sweetness, country) are derived from BCLDB&apos;s own
         structured fields. Sweetness bands approximate the BCLDB 0–10 sweetness scale. Catalogue data for browsing
@@ -334,7 +334,7 @@ function FilterTab({ href, label, count, active }: { href: string; label: string
       }`}
     >
       {label}
-      <span className="ml-2 text-xs text-muted/60">{count.toLocaleString("en-CA")}</span>
+      <span className="ml-2 text-xs text-muted/80">{count.toLocaleString("en-CA")}</span>
     </Link>
   );
 }
@@ -342,7 +342,7 @@ function FilterTab({ href, label, count, active }: { href: string; label: string
 function FacetRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="w-24 shrink-0 font-display text-[11px] uppercase tracking-[0.15em] text-muted/70">{label}</span>
+      <span className="w-24 shrink-0 font-display text-[11px] uppercase tracking-[0.15em] text-muted/85">{label}</span>
       {children}
     </div>
   );
@@ -358,7 +358,7 @@ function Pill({ href, label, count, active }: { href: string; label: string; cou
       }`}
     >
       {label}
-      {count != null && <span className="ml-1.5 text-[10px] text-muted/60">{count.toLocaleString("en-CA")}</span>}
+      {count != null && <span className="ml-1.5 text-[10px] text-muted/80">{count.toLocaleString("en-CA")}</span>}
     </Link>
   );
 }

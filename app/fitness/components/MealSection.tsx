@@ -62,13 +62,13 @@ export default function MealSection({ plan }: { plan: Plan }) {
       {/* ── Pantry anchors ─────────────────────────────────────────────────── */}
       <div>
         <p className="font-display text-sm tracking-[0.2em] text-gold">FOODS THIS PLAN IS BUILT AROUND</p>
-        <p className="mt-1 text-xs leading-relaxed text-muted/70">
+        <p className="mt-1 text-xs leading-relaxed text-muted/85">
           Whole-food staples, with their Gorilla score. Scan one in-store to check the exact product you&apos;re holding.
         </p>
         <div className="mt-4 flex flex-col gap-5">
           {groups.map(({ cat, items }) => (
             <div key={cat}>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-muted/70">{CATEGORY_LABEL[cat]}</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-muted/85">{CATEGORY_LABEL[cat]}</p>
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 {items.map((item) => (
                   <PantryCard key={item.id} item={item} />
@@ -112,7 +112,7 @@ function PantryCard({ item }: { item: PantryItem }) {
       )}
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm leading-tight text-foreground">{item.name}</p>
-        <p className="mt-0.5 text-[10px] uppercase tracking-[0.15em] text-muted/60">
+        <p className="mt-0.5 text-[10px] uppercase tracking-[0.15em] text-muted/80">
           {scoreLink ? "Scan for live score →" : "Scan in-store to score"}
         </p>
       </div>
@@ -139,7 +139,7 @@ function PantryCard({ item }: { item: PantryItem }) {
           Buy on Amazon ↗
         </a>
       ) : (
-        <span className="inline-block self-start rounded-sm border border-line px-2 py-0.5 text-[10px] uppercase tracking-[0.15em] text-muted/60">
+        <span className="inline-block self-start rounded-sm border border-line px-2 py-0.5 text-[10px] uppercase tracking-[0.15em] text-muted/80">
           Grocery item
         </span>
       )}

@@ -11,7 +11,7 @@ import { submitCommunity, type SubmitResult } from "../lib/communityProducts";
  */
 
 export const inputCls =
-  "w-full rounded-sm border border-line bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted/50 focus:border-gold focus:outline-none";
+  "w-full rounded-sm border border-line bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted/75 focus:border-gold focus:outline-none";
 export const labelCls =
   "block text-[10px] uppercase tracking-[0.2em] text-muted mb-1";
 

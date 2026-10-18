@@ -73,7 +73,7 @@ export default function PlanPersonalizer({ slug }: { slug: string }) {
       <p className="mt-1.5 text-foreground">
         <span className="font-display text-3xl text-gold">{res.target.toLocaleString()}</span>
         <span className="text-sm text-muted"> kcal/day</span>
-        <span className="mx-2 text-muted/50">·</span>
+        <span className="mx-2 text-muted/75">·</span>
         <span className="font-display text-3xl text-gold">{res.protein}g</span>
         <span className="text-sm text-muted"> protein</span>
       </p>

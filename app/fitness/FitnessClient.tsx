@@ -152,7 +152,7 @@ export default function FitnessClient() {
       active ? "border-gold bg-gold text-background" : "border-line text-muted hover:border-gold/60 hover:text-gold"
     }`;
   const inputCls =
-    "w-full rounded-sm border border-line bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted/50 focus:border-gold focus:outline-none";
+    "w-full rounded-sm border border-line bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted/75 focus:border-gold focus:outline-none";
   const labelCls = "block text-[10px] uppercase tracking-[0.2em] text-muted mb-1";
   const prompt = <p className="text-sm text-muted/80">Fill in <span className="text-gold">Step 3 · Your Stats</span> above and your numbers appear here instantly.</p>;
 
@@ -232,7 +232,7 @@ export default function FitnessClient() {
             </div>
           )}
         </div>
-        {!ready && <p className="mt-3 text-xs text-muted/70">Enter age, weight, and height to see your numbers.</p>}
+        {!ready && <p className="mt-3 text-xs text-muted/85">Enter age, weight, and height to see your numbers.</p>}
       </StepBox>
 
       {/* 4 · YOUR ENGINE — BMR & TDEE ───────────────────────────────────────── */}
@@ -264,7 +264,7 @@ export default function FitnessClient() {
                   </button>
                 ))}
               </div>
-              <p className="mt-1 text-xs text-muted/70">{ACTIVITY.find((a) => a.key === activity)!.note}</p>
+              <p className="mt-1 text-xs text-muted/85">{ACTIVITY.find((a) => a.key === activity)!.note}</p>
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-[0.2em] text-muted">TDEE · maintenance</p>
@@ -292,7 +292,7 @@ export default function FitnessClient() {
                   </button>
                 ))}
               </div>
-              <p className="mt-1 text-xs text-muted/70">{GOALS.find((g) => g.key === goal)!.note}</p>
+              <p className="mt-1 text-xs text-muted/85">{GOALS.find((g) => g.key === goal)!.note}</p>
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-[0.2em] text-muted">Daily target</p>
@@ -368,7 +368,7 @@ export default function FitnessClient() {
         )}
       </StepBox>
 
-      <p className="mt-2 text-center text-[10px] leading-relaxed text-muted/50">
+      <p className="mt-2 text-center text-[10px] leading-relaxed text-muted/75">
         Estimates only (Mifflin-St Jeor + standard activity multipliers). Individual needs vary —
         consult a qualified professional. Not medical advice.
       </p>

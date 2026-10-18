@@ -227,7 +227,7 @@ export default function SearchResults() {
             .map((s) => (
               <section key={s.label}>
                 <h2 className={`mb-3 font-display text-sm uppercase tracking-[0.2em] ${s.accent ?? "text-gold/70"}`}>
-                  {s.label} <span className="text-muted/60">({s.items.length})</span>
+                  {s.label} <span className="text-muted/80">({s.items.length})</span>
                 </h2>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {s.items.map((item, i) => (

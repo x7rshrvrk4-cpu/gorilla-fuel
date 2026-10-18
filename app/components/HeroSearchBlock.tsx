@@ -46,7 +46,7 @@ export default function HeroSearchBlock() {
           >
             SUPPLEMENTS →
           </Link>
-          <span className="text-muted/30">|</span>
+          <span className="text-muted/45">|</span>
           <Link
             href="/alcohol"
             className="font-display text-sm tracking-[0.3em] text-muted transition-colors hover:text-gold"

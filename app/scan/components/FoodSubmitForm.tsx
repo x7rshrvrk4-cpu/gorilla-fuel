@@ -138,7 +138,7 @@ export default function FoodSubmitForm({
           rows={4}
           className={`${inputCls} resize-y`}
         />
-        <p className="mt-1 text-[10px] text-muted/60">
+        <p className="mt-1 text-[10px] text-muted/80">
           The single most useful field — additive detection runs on this text.
         </p>
       </div>

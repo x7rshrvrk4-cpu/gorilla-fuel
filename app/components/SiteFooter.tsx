@@ -157,7 +157,7 @@ export default function SiteFooter() {
                 Gorilla Sports
               </a>
               <p className="mt-1 text-sm text-muted">gorillasports.ca</p>
-              <p className="mt-1 text-xs text-muted/60">Train hard. Fuel harder. Bet sharper.</p>
+              <p className="mt-1 text-xs text-muted/80">Train hard. Fuel harder. Bet sharper.</p>
               <div className="mt-3 flex items-center gap-4">
                 {SOCIALS.map((s) => (
                   <SocialIconLink key={s.label} {...s} />
@@ -181,7 +181,7 @@ export default function SiteFooter() {
             Gorilla Fuel &mdash; Canadian Product Intelligence &mdash; Ads are labeled. Scores are earned.
             &nbsp;·&nbsp; © {new Date().getFullYear()} gorillafuel.ca
           </p>
-          <p className="mt-4 text-xs leading-relaxed text-muted/60">
+          <p className="mt-4 text-xs leading-relaxed text-muted/80">
             {/* Link "Open Food Facts" through to the ODbL attribution page. The
                 disclaimer text itself is unchanged (LEGAL_DISCLAIMER stays the
                 canonical string); only the OFF mention becomes a link. */}

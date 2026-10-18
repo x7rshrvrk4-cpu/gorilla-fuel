@@ -38,7 +38,7 @@ function DoorCard({ door }: { door: { href: string; label: string; sub: string; 
         <p className="mt-3 text-sm leading-relaxed text-muted">{door.sub}</p>
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-xs uppercase tracking-[0.2em] text-muted/70">{door.tagline}</span>
+        <span className="text-xs uppercase tracking-[0.2em] text-muted/85">{door.tagline}</span>
         <span className="font-display text-gold opacity-0 transition-opacity group-hover:opacity-100">→</span>
       </div>
     </Link>
@@ -126,7 +126,7 @@ export default function Home() {
                 </p>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-[0.2em] text-muted/70">{RECIPES.length} recipes · scored</span>
+                <span className="text-xs uppercase tracking-[0.2em] text-muted/85">{RECIPES.length} recipes · scored</span>
                 <span className="font-display text-gold transition-transform group-hover:translate-x-1">Find your meal →</span>
               </div>
             </Link>

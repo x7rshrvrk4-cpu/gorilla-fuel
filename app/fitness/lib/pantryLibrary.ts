@@ -74,6 +74,17 @@ export const PANTRY: PantryItem[] = [
   // ── Supplement anchor ──────────────────────────────────────────────────────
   { id: "whey-isolate",     name: "Whey Protein Isolate", barcode: null, scoreHint: 82, affiliate: "amazon",  category: "supplement" },
 
+  // ── More supplements (generic; scores calibrated to the /rankings category averages) ──
+  { id: "whey-concentrate", name: "Whey Protein Concentrate", barcode: null, scoreHint: 78, affiliate: "grocery", category: "supplement" },
+  { id: "casein-protein", name: "Casein Protein", barcode: null, scoreHint: 86, affiliate: "grocery", category: "supplement" },
+  { id: "pea-protein", name: "Pea Protein (plant)", barcode: null, scoreHint: 84, affiliate: "grocery", category: "supplement" },
+  { id: "soy-protein", name: "Soy Protein Isolate", barcode: null, scoreHint: 78, affiliate: "grocery", category: "supplement" },
+  { id: "egg-white-protein", name: "Egg White Protein", barcode: null, scoreHint: 80, affiliate: "grocery", category: "supplement" },
+  { id: "collagen-peptides", name: "Collagen Peptides", barcode: null, scoreHint: 78, affiliate: "grocery", category: "supplement" },
+  { id: "creatine", name: "Creatine Monohydrate", barcode: null, scoreHint: 88, affiliate: "grocery", category: "supplement" },
+  { id: "greens-powder", name: "Greens Powder", barcode: null, scoreHint: 70, affiliate: "grocery", category: "supplement" },
+  { id: "protein-bar", name: "Protein Bar (typical)", barcode: null, scoreHint: 60, affiliate: "grocery", category: "supplement" },
+
   // ── More proteins ────────────────────────────────────────────────────────
   { id: "ground-chicken",   name: "Lean Ground Chicken",  barcode: null, scoreHint: 84, affiliate: "grocery", category: "protein" },
   { id: "pork-tenderloin",  name: "Pork Tenderloin",      barcode: null, scoreHint: 86, affiliate: "grocery", category: "protein" },

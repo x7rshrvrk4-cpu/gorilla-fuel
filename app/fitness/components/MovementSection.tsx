@@ -32,7 +32,7 @@ export default function MovementSection({ plan }: { plan: Plan }) {
       {/* ── The week (day-by-day split) ────────────────────────────────────── */}
       <div>
         <p className="font-display text-sm tracking-[0.2em] text-gold">THE WEEK</p>
-        <p className="mt-1 text-xs leading-relaxed text-muted/70">
+        <p className="mt-1 text-xs leading-relaxed text-muted/85">
           Your Monday-through-Sunday split. Rest and walk days are part of the plan — they&apos;re
           when the work pays off.
         </p>
@@ -52,7 +52,7 @@ export default function MovementSection({ plan }: { plan: Plan }) {
       {/* ── Exercise cards ─────────────────────────────────────────────────── */}
       <div>
         <p className="font-display text-sm tracking-[0.2em] text-gold">ALL THE MOVES</p>
-        <p className="mt-1 text-xs leading-relaxed text-muted/70">
+        <p className="mt-1 text-xs leading-relaxed text-muted/85">
           Beginner-friendly, no equipment. Start with the gentle version and only progress when it feels good.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -88,7 +88,7 @@ function WeekDay({ day }: { day: WeeklySplitDay }) {
         <p className="font-display text-lg leading-none tracking-wide text-foreground">{day.day}</p>
         <p
           className={`font-display text-[10px] uppercase tracking-[0.15em] ${
-            isRest ? "text-muted/60" : "text-gold"
+            isRest ? "text-muted/80" : "text-gold"
           }`}
         >
           {day.focus}
@@ -96,7 +96,7 @@ function WeekDay({ day }: { day: WeeklySplitDay }) {
       </div>
 
       {isRest ? (
-        <p className="mt-2 text-xs leading-relaxed text-muted/70">
+        <p className="mt-2 text-xs leading-relaxed text-muted/85">
           No session today — {day.focus.toLowerCase()}.
         </p>
       ) : (
@@ -155,7 +155,7 @@ function ExercisePlaceholder() {
       <span className="font-display text-4xl leading-none" aria-hidden>
         G
       </span>
-      <span className="font-display text-[9px] uppercase tracking-[0.25em] text-muted/40">
+      <span className="font-display text-[9px] uppercase tracking-[0.25em] text-muted/60">
         Form guide
       </span>
     </div>

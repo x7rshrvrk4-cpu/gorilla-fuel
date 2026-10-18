@@ -60,11 +60,11 @@ export default function CuratedPicksSection({
     <div className="mt-16">
       <div className="flex items-center gap-4">
         <h2 className="font-display text-sm tracking-[0.3em] text-muted">
-          {heading} <span className="text-muted/60">({picks.length})</span>
+          {heading} <span className="text-muted/80">({picks.length})</span>
         </h2>
         <div className="h-px flex-1 bg-line" />
       </div>
-      <p className="mt-2 max-w-2xl text-sm italic leading-relaxed text-muted/70">{blurb}</p>
+      <p className="mt-2 max-w-2xl text-sm italic leading-relaxed text-muted/85">{blurb}</p>
 
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {picks.map((p) => {
@@ -112,7 +112,7 @@ export default function CuratedPicksSection({
                 >
                   {p.gorilla_score ?? "—"}
                 </div>
-                <p className="mt-0.5 text-[9px] tracking-wide text-muted/70">/100</p>
+                <p className="mt-0.5 text-[9px] tracking-wide text-muted/85">/100</p>
               </div>
             </div>
           );

@@ -207,7 +207,7 @@ function CategorySection({
         <div className="h-px flex-1 bg-line" />
       </div>
       {category.note && (
-        <p className="mt-2 max-w-2xl text-sm italic leading-relaxed text-muted/70">
+        <p className="mt-2 max-w-2xl text-sm italic leading-relaxed text-muted/85">
           {category.note}
         </p>
       )}

@@ -312,7 +312,7 @@ export default function CaffeineClient() {
       active ? "border-gold bg-gold text-background" : "border-line text-muted hover:border-gold/60 hover:text-gold"
     }`;
   const inputCls =
-    "w-full rounded-sm border border-line bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted/50 focus:border-gold focus:outline-none";
+    "w-full rounded-sm border border-line bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted/75 focus:border-gold focus:outline-none";
   const labelCls = "block text-[10px] uppercase tracking-[0.2em] text-muted mb-1";
 
   const draftIsCustom = draftPreset === CUSTOM_ID;
@@ -379,14 +379,14 @@ export default function CaffeineClient() {
                   </span>
                   <span className="flex items-center gap-3">
                     <span className="text-xs text-muted">{valid ? fmtTime(parseTime(d.time)!) : "—"}</span>
-                    <button type="button" onClick={() => removeDose(d.key)} className="text-muted/60 transition-colors hover:text-red-400" aria-label="Remove dose">✕</button>
+                    <button type="button" onClick={() => removeDose(d.key)} className="text-muted/80 transition-colors hover:text-red-400" aria-label="Remove dose">✕</button>
                   </span>
                 </li>
               );
             })}
           </ul>
         ) : (
-          <p className="mt-4 text-xs text-muted/70">Add at least one dose to see your decay curve.</p>
+          <p className="mt-4 text-xs text-muted/85">Add at least one dose to see your decay curve.</p>
         )}
       </section>
 
@@ -538,7 +538,7 @@ export default function CaffeineClient() {
         </>
       )}
 
-      <p className="mt-2 text-center text-[10px] leading-relaxed text-muted/50">
+      <p className="mt-2 text-center text-[10px] leading-relaxed text-muted/75">
         Estimates only. Caffeine pharmacokinetics vary widely between individuals (genetics, liver
         enzymes, smoking, pregnancy, medications). The model assumes instant absorption and
         first-order (exponential) elimination. Not medical advice.

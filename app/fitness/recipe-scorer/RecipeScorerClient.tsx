@@ -285,7 +285,7 @@ export default function RecipeScorerClient() {
                   <label className="text-[10px] uppercase tracking-[0.2em] text-muted">Protein g (optional)</label>
                   <input value={prot} onChange={(e) => setProt(e.target.value.replace(/[^0-9]/g, ""))} inputMode="numeric" placeholder="e.g. 45" className="mt-1 w-28 rounded-sm border border-line bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-gold/60" />
                 </div>
-                <p className="flex-1 text-[11px] leading-snug text-muted/70">Add calories + protein to factor in protein density (25% of the score). Leave blank to score on ingredient quality alone.</p>
+                <p className="flex-1 text-[11px] leading-snug text-muted/85">Add calories + protein to factor in protein density (25% of the score). Leave blank to score on ingredient quality alone.</p>
               </div>
             </div>
           )}
@@ -299,7 +299,7 @@ export default function RecipeScorerClient() {
             <p className="mt-1 font-display text-6xl leading-none" style={{ color }}>{picked.length ? result.score : "—"}</p>
             <p className="mt-1 font-display text-sm tracking-widest" style={{ color }}>{picked.length ? gradeLabel(result.score).toUpperCase() : ""}</p>
             {picked.length > 0 && result.proteinBalance == null && (
-              <p className="mt-2 text-[11px] text-muted/70">Ingredient quality only — add macros for the full score.</p>
+              <p className="mt-2 text-[11px] text-muted/85">Ingredient quality only — add macros for the full score.</p>
             )}
           </div>
 
@@ -346,7 +346,7 @@ export default function RecipeScorerClient() {
                 </div>
               )}
               {extras.length > 0 && (
-                <p className="mt-3 text-xs text-muted/70">Plus: {extras.map((e) => e.name).join(", ")}</p>
+                <p className="mt-3 text-xs text-muted/85">Plus: {extras.map((e) => e.name).join(", ")}</p>
               )}
             </div>
           )}
@@ -480,7 +480,7 @@ export default function RecipeScorerClient() {
         </div>
       )}
 
-      <p className="mt-10 max-w-2xl text-xs leading-relaxed text-muted/70">
+      <p className="mt-10 max-w-2xl text-xs leading-relaxed text-muted/85">
         Scores use the same Gorilla Meal Score as the Meal Finder — a weighted blend of each ingredient's Gorilla score (core
         ingredients count double) and protein density. It's guidance, not medical advice.{" "}
         <Link href="/fitness/recipes" className="text-gold underline hover:text-foreground">Browse the full recipe library →</Link>

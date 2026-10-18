@@ -415,7 +415,7 @@ export default function ProductResultCard({ product, result, alternatives, alter
                       </div>
                       <p className="text-sm leading-relaxed text-muted">{alt.headline}</p>
                       {alt.brands && (
-                        <p className="mt-3 border-t border-gold/15 pt-3 text-xs leading-relaxed text-muted/70">
+                        <p className="mt-3 border-t border-gold/15 pt-3 text-xs leading-relaxed text-muted/85">
                           {alt.brands}
                         </p>
                       )}

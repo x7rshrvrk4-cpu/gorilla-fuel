@@ -84,7 +84,7 @@ export default function ExplorePage() {
               <p className="mt-3 text-sm leading-relaxed text-muted">{tile.sub}</p>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-[0.2em] text-muted/70">{tile.tagline}</span>
+              <span className="text-xs uppercase tracking-[0.2em] text-muted/85">{tile.tagline}</span>
               <span className="font-display text-gold opacity-0 transition-opacity group-hover:opacity-100">→</span>
             </div>
           </Link>
@@ -101,7 +101,7 @@ export default function ExplorePage() {
             <p className="mt-3 text-sm leading-relaxed text-muted">Meals + movement, by goal</p>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase tracking-[0.2em] text-muted/70">5 plans · pick your goal</span>
+            <span className="text-xs uppercase tracking-[0.2em] text-muted/85">5 plans · pick your goal</span>
             <span className="font-display text-gold opacity-0 transition-opacity group-hover:opacity-100">→</span>
           </div>
         </Link>

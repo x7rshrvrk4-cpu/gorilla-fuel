@@ -165,7 +165,7 @@ export default function AlcoholSubmitForm({
       </div>
 
       {/* Serving note */}
-      <p className="text-[10px] text-muted/60">
+      <p className="text-[10px] text-muted/80">
         Use 355mL (standard can) as your serving size for beers, lagers, ales, IPAs, stouts, hard seltzers, and ciders.
         Use 148mL for wine, 44mL for spirits.
       </p>

@@ -22,7 +22,7 @@ export default function NotifyMeExpandable({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-xs text-muted/70 underline-offset-4 transition-colors hover:text-gold hover:underline"
+        className="text-xs text-muted/85 underline-offset-4 transition-colors hover:text-gold hover:underline"
       >
         or get notified when we add it →
       </button>

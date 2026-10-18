@@ -67,7 +67,7 @@ export default async function CommunityScansBanner() {
                     </span>
                   </span>
                 )}
-                <span className="text-[10px] uppercase tracking-widest text-muted/60">
+                <span className="text-[10px] uppercase tracking-widest text-muted/80">
                   {p.scan_count} scan{p.scan_count !== 1 ? "s" : ""}
                 </span>
               </div>

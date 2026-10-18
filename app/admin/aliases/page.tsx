@@ -110,7 +110,7 @@ export default function AdminAliasesPage() {
             onChange={(e) => setKeyInput(e.target.value)}
             placeholder="Admin key"
             autoFocus
-            className="rounded-sm border border-line bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted/50 focus:border-gold focus:outline-none"
+            className="rounded-sm border border-line bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted/75 focus:border-gold focus:outline-none"
           />
           {authError && <p className="text-xs text-red-400">{authError}</p>}
           <button

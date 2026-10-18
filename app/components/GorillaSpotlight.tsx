@@ -91,7 +91,7 @@ export default function GorillaSpotlight() {
           })}
         </div>
 
-        <p className="mt-6 text-xs leading-relaxed text-muted/70">
+        <p className="mt-6 text-xs leading-relaxed text-muted/85">
           Spotlight placements are clearly labeled and paid. Scores are independent and can never be
           purchased — we only spotlight products that already score well.
         </p>

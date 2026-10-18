@@ -30,7 +30,7 @@ export default function MealPreview() {
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm text-foreground">{r.title}</span>
-                <span className="text-[11px] uppercase tracking-[0.15em] text-muted/70">
+                <span className="text-[11px] uppercase tracking-[0.15em] text-muted/85">
                   {r.mealType} · {r.macros.protein}g protein{isTreat ? " · treat" : ""}
                 </span>
               </span>

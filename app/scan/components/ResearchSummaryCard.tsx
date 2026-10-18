@@ -60,7 +60,7 @@ export default function ResearchSummaryCard({ ingredient }: { ingredient: Examin
             <span className="font-display tracking-wide text-foreground/90">Safety considerations: </span>
             {ingredient.safetyNotes}
           </p>
-          <p className="border-t border-line pt-2 text-[11px] text-muted/70">Source: {ingredient.source}</p>
+          <p className="border-t border-line pt-2 text-[11px] text-muted/85">Source: {ingredient.source}</p>
         </div>
       )}
     </div>

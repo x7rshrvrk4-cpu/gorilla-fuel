@@ -177,7 +177,7 @@ export default function BeautyPage() {
           you can decide for yourself. Want your own sunscreen checked?{" "}
           <Link href="/scan" className="text-purple-300 underline hover:text-purple-200">Scan it →</Link>
         </p>
-        <p className="mt-2 text-[11px] leading-relaxed text-muted/60">
+        <p className="mt-2 text-[11px] leading-relaxed text-muted/80">
           Buy links are Amazon affiliate links — if you buy through one we may earn a small commission at no
           extra cost to you. We only ever link the products that scored well; it never changes a score.
         </p>

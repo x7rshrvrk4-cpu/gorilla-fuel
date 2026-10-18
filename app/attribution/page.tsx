@@ -98,7 +98,7 @@ export default function AttributionPage() {
               <li key={s.name} className="rounded-sm border border-line bg-surface p-4">
                 <p className="font-display text-base tracking-wide text-foreground">{s.name}</p>
                 <p className="mt-1 text-xs leading-relaxed text-muted">{s.note}</p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-muted/60">
+                <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-muted/80">
                   License: not independently verified
                 </p>
               </li>
@@ -106,7 +106,7 @@ export default function AttributionPage() {
           </ul>
         </section>
 
-        <p className="mt-10 text-xs leading-relaxed text-muted/60">
+        <p className="mt-10 text-xs leading-relaxed text-muted/80">
           Scores and analysis are Gorilla Fuel&apos;s own independent, algorithmically
           generated assessment and are not part of, or endorsed by, any source
           listed above. See our{" "}

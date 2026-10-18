@@ -69,7 +69,7 @@ export default function NotifyMeForm({ barcode, productName }: { barcode: string
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Enter your email to be notified when this product is added"
-        className="w-full rounded-sm border border-line bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted/60 focus:border-gold/60 focus:outline-none"
+        className="w-full rounded-sm border border-line bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted/80 focus:border-gold/60 focus:outline-none"
       />
       <button
         type="submit"

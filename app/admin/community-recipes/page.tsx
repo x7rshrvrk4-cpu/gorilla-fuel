@@ -164,7 +164,7 @@ export default function CommunityRecipesAdmin() {
             ))}
           </div>
 
-          <p className="mt-8 text-xs leading-relaxed text-muted/70">
+          <p className="mt-8 text-xs leading-relaxed text-muted/85">
             <span className="text-gold">Approve</span> keeps a submission (marks it verified) so you can promote it into the
             curated library — ingredients tagged <span className="text-gold">gold</span> are core; a <span className="text-muted">*</span> means
             a free-text extra with no pantry score. <span className="text-red-400">Reject</span> deletes it. Approving does not

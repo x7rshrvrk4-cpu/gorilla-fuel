@@ -143,7 +143,7 @@ export default function MultiPackPrompt({ barcode, primary = false }: Props) {
       ) : (
         <p className="font-display text-sm tracking-[0.25em] text-gold">IDENTIFY THIS PRODUCT</p>
       )}
-      <p className="mt-2 font-mono text-xs text-muted/60">{barcode}</p>
+      <p className="mt-2 font-mono text-xs text-muted/80">{barcode}</p>
 
       {/* Product search */}
       <div className="relative mt-4">
@@ -166,7 +166,7 @@ export default function MultiPackPrompt({ barcode, primary = false }: Props) {
           onFocus={() => setShowDropdown(true)}
           onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
           placeholder="Michelob Ultra, Bud Light, Coors Light…"
-          className="mt-1 w-full rounded-sm border border-line bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted/50 focus:border-gold focus:outline-none"
+          className="mt-1 w-full rounded-sm border border-line bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted/75 focus:border-gold focus:outline-none"
         />
         {showDropdown && matches.length > 0 && !selected && (
           <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-64 overflow-auto rounded-sm border border-line bg-background shadow-xl">

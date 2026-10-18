@@ -158,7 +158,7 @@ export default function SupplementResultCard({ product }: Props) {
         )}
 
         {/* DISCLAIMER */}
-        <p className="mt-5 text-[10px] leading-relaxed text-muted/60">
+        <p className="mt-5 text-[10px] leading-relaxed text-muted/80">
           Data sourced from the NIH Dietary Supplement Label Database (DSLD), a public government registry.
           This is not medical advice. Consult a healthcare professional before use.
         </p>
