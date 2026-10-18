@@ -2319,7 +2319,7 @@ export const RECIPES: Recipe[] = [
       "Blend the frozen bananas with the cocoa, peanut butter and a splash of milk until smooth and creamy.",
       "Eat it soft right away, or freeze 30 minutes for a scoopable texture.",
     ],
-    macros: { calories: 180, protein: 5, carbs: 32, fat: 5 },
+    macros: { calories: 172, protein: 5, carbs: 33, fat: 5 },
     gorillaNote: "Frozen banana does the heavy lifting, so there is no added sugar. Real ice-cream texture from whole food.",
   },
   {
@@ -2335,7 +2335,7 @@ export const RECIPES: Recipe[] = [
       "Blend frozen mango with the Greek yogurt and a squeeze of lime until thick and smooth.",
       "Scoop and serve right away, or freeze 20 minutes to firm up.",
     ],
-    macros: { calories: 135, protein: 8, carbs: 27, fat: 1 },
+    macros: { calories: 134, protein: 8, carbs: 27, fat: 1 },
     gorillaNote: "Tropical and creamy, and the yogurt adds protein. Fruit sugar only, no syrups.",
   },
   {
@@ -2352,7 +2352,7 @@ export const RECIPES: Recipe[] = [
       "Scatter the berries on top and drizzle with melted dark chocolate.",
       "Freeze 2 hours, break into pieces and keep in the freezer.",
     ],
-    macros: { calories: 130, protein: 9, carbs: 17, fat: 3 },
+    macros: { calories: 119, protein: 13, carbs: 14, fat: 1 },
     gorillaNote: "A frozen treat with real protein. Most of the sweetness comes from the berries, so the honey stays small.",
   },
   {
@@ -2368,7 +2368,7 @@ export const RECIPES: Recipe[] = [
       "Whisk the Greek yogurt with the cocoa and honey until completely smooth.",
       "Chill 10 minutes for a thicker, mousse-like texture.",
     ],
-    macros: { calories: 165, protein: 24, carbs: 17, fat: 1 },
+    macros: { calories: 176, protein: 27, carbs: 17, fat: 1 },
     gorillaNote: "24 g of protein for a chocolate dessert. The best score-to-satisfaction ratio on the list.",
   },
   {
@@ -2385,7 +2385,7 @@ export const RECIPES: Recipe[] = [
       "Cover and refrigerate at least 2 hours, or overnight.",
       "Top with berries before eating.",
     ],
-    macros: { calories: 320, protein: 13, carbs: 37, fat: 14 },
+    macros: { calories: 349, protein: 15, carbs: 40, fat: 16 },
     gorillaNote: "Chia is high in fibre and omega-3. Set it up the night before.",
   },
   {
@@ -2402,7 +2402,7 @@ export const RECIPES: Recipe[] = [
       "Mix the oats, walnuts, honey and cinnamon and pack into the apple.",
       "Bake 20 to 25 minutes until soft.",
     ],
-    macros: { calories: 195, protein: 3, carbs: 36, fat: 5 },
+    macros: { calories: 225, protein: 3, carbs: 44, fat: 6 },
     gorillaNote: "Tastes like apple pie filling, with a score close to whole fruit. A good swap for a bakery dessert.",
   },
   {
@@ -2419,7 +2419,7 @@ export const RECIPES: Recipe[] = [
       "Spread thin on parchment, then sprinkle with chopped almonds, berries and salt.",
       "Chill 30 minutes and break into shards.",
     ],
-    macros: { calories: 190, protein: 3, carbs: 14, fat: 14 },
+    macros: { calories: 236, protein: 4, carbs: 17, fat: 17 },
     gorillaNote: "A small portion of dark chocolate with nuts handles a craving. It scores lower because of the chocolate, which is why it is a treat.",
   },
   {
@@ -2436,7 +2436,7 @@ export const RECIPES: Recipe[] = [
       "Blend the beans, eggs, cocoa, maple syrup and oil until completely smooth, then stir in the chocolate.",
       "Pour into the pan and bake 25 to 30 minutes. Cool fully before cutting into 8.",
     ],
-    macros: { calories: 150, protein: 5, carbs: 21, fat: 7 },
+    macros: { calories: 145, protein: 4, carbs: 18, fat: 7 },
     gorillaNote: "Beans add fibre and protein in place of flour. Still a brownie, but a better-built one.",
   },
   {
@@ -2453,7 +2453,7 @@ export const RECIPES: Recipe[] = [
       "Roll into 12 small balls and chill 30 minutes.",
       "Serve 3 per portion.",
     ],
-    macros: { calories: 310, protein: 11, carbs: 33, fat: 17 },
+    macros: { calories: 328, protein: 10, carbs: 34, fat: 18 },
     gorillaNote: "Easy pre-workout fuel. Calorie-dense, so portion matters.",
   },
   {
@@ -2469,7 +2469,7 @@ export const RECIPES: Recipe[] = [
       "Mash the banana in a large mug and stir in the egg, whey, cocoa, oats and baking powder.",
       "Microwave 60 to 90 seconds until it just sets.",
     ],
-    macros: { calories: 270, protein: 33, carbs: 22, fat: 7 },
+    macros: { calories: 267, protein: 33, carbs: 21, fat: 7 },
     gorillaNote: "A real cake craving for 33 g of protein in about 5 minutes.",
   },
   {
@@ -2485,7 +2485,7 @@ export const RECIPES: Recipe[] = [
       "Blend or whisk the cottage cheese with the honey and vanilla until smooth for a cheesecake texture.",
       "Top with berries and crushed walnuts.",
     ],
-    macros: { calories: 285, protein: 26, carbs: 24, fat: 10 },
+    macros: { calories: 287, protein: 25, carbs: 26, fat: 10 },
     gorillaNote: "Blending cottage cheese gives a creamy, tangy filling with 26 g of protein.",
   },
   {
@@ -2501,7 +2501,7 @@ export const RECIPES: Recipe[] = [
       "Dip each berry in the Greek yogurt and place on parchment.",
       "Freeze 1 to 2 hours until firm.",
     ],
-    macros: { calories: 65, protein: 5, carbs: 10, fat: 1 },
+    macros: { calories: 69, protein: 7, carbs: 10, fat: 0 },
     gorillaNote: "Two ingredients and very few calories. A good candy swap.",
   },
   {
@@ -2517,7 +2517,7 @@ export const RECIPES: Recipe[] = [
       "Blend everything until completely smooth, scraping down the sides.",
       "Chill 30 minutes before serving.",
     ],
-    macros: { calories: 197, protein: 4, carbs: 24, fat: 12 },
+    macros: { calories: 199, protein: 4, carbs: 24, fat: 12 },
     gorillaNote: "Avocado makes it creamy with good fats, and you cannot taste it.",
   },
   {
@@ -2533,7 +2533,7 @@ export const RECIPES: Recipe[] = [
       "Stir the pumpkin, maple syrup and spices into the Greek yogurt.",
       "Layer into a glass and top with walnuts.",
     ],
-    macros: { calories: 217, protein: 25, carbs: 19, fat: 5 },
+    macros: { calories: 230, protein: 28, carbs: 19, fat: 5 },
     gorillaNote: "Fall flavour with 25 g of protein, and pumpkin is a high-scoring base.",
   },
   {
@@ -2550,7 +2550,7 @@ export const RECIPES: Recipe[] = [
       "Scoop 12 cookies onto a lined tray and flatten slightly.",
       "Bake 12 to 15 minutes until golden.",
     ],
-    macros: { calories: 232, protein: 5, carbs: 44, fat: 6 },
+    macros: { calories: 240, protein: 6, carbs: 44, fat: 6 },
     gorillaNote: "No flour and no added sugar. The banana does the sweetening.",
   },
   {
@@ -2583,7 +2583,7 @@ export const RECIPES: Recipe[] = [
       "Slice each date lengthwise and remove the pit.",
       "Fill with almond butter and finish with a pinch of salt.",
     ],
-    macros: { calories: 231, protein: 5, carbs: 39, fat: 9 },
+    macros: { calories: 231, protein: 4, carbs: 39, fat: 9 },
     gorillaNote: "Tastes like candy. Dates are sugar-dense, so keep it to two per serving.",
   },
   {
@@ -2600,7 +2600,7 @@ export const RECIPES: Recipe[] = [
       "Rub the oats, butter and maple syrup together and scatter on top.",
       "Bake 25 to 30 minutes until the topping is golden.",
     ],
-    macros: { calories: 246, protein: 3, carbs: 45, fat: 7 },
+    macros: { calories: 248, protein: 3, carbs: 45, fat: 7 },
     gorillaNote: "A warm dessert with a fraction of the sugar and butter of the classic.",
   },
   {
@@ -2616,7 +2616,7 @@ export const RECIPES: Recipe[] = [
       "Dip each banana chunk in the melted dark chocolate and place on parchment.",
       "Freeze 30 minutes.",
     ],
-    macros: { calories: 215, protein: 3, carbs: 36, fat: 7 },
+    macros: { calories: 225, protein: 3, carbs: 36, fat: 9 },
     gorillaNote: "A frozen candy with two ingredients. The chocolate is what holds the score down.",
   },
   {
@@ -2632,7 +2632,7 @@ export const RECIPES: Recipe[] = [
       "Whisk the chia with the milk and coconut milk, wait 5 minutes and whisk again.",
       "Refrigerate 2 hours, then top with the mango.",
     ],
-    macros: { calories: 185, protein: 5, carbs: 18, fat: 11 },
+    macros: { calories: 202, protein: 6, carbs: 18, fat: 13 },
     gorillaNote: "Dessert-style chia. Coconut milk is rich, so it is kept small.",
   },
   {
@@ -2647,7 +2647,7 @@ export const RECIPES: Recipe[] = [
     steps: [
       "Warm the milk gently, then whisk in the cocoa and honey until smooth.",
     ],
-    macros: { calories: 150, protein: 9, carbs: 19, fat: 5 },
+    macros: { calories: 156, protein: 9, carbs: 21, fat: 6 },
     gorillaNote: "A cozy dessert drink that is mostly milk and cocoa.",
   },
   {
@@ -2663,7 +2663,7 @@ export const RECIPES: Recipe[] = [
       "Blend everything until smooth and pour into popsicle moulds.",
       "Freeze at least 4 hours.",
     ],
-    macros: { calories: 55, protein: 3, carbs: 11, fat: 0 },
+    macros: { calories: 56, protein: 4, carbs: 11, fat: 0 },
     gorillaNote: "Popsicles that are mostly fruit, with a little yogurt protein.",
   },
 ];
