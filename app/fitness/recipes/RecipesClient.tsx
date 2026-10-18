@@ -141,7 +141,7 @@ export default function RecipesClient() {
       {/* ── Filters ─────────────────────────────────────────────────────── */}
       <section className="flex flex-col gap-3 rounded-sm border border-line bg-surface/50 p-4">
         <FilterRow label="Meal">
-          <FilterPill active={mealType === null} onClick={() => setMealType(null)} label="Any" />
+          <FilterPill active={mealType === null} onClick={() => setMealType(null)} label="All meals" />
           {MEAL_TYPES.map((m) => (
             <FilterPill key={m.key} active={mealType === m.key} onClick={() => setMealType(mealType === m.key ? null : m.key)} label={m.label} />
           ))}

@@ -2764,6 +2764,7 @@ export type RecipeMatch = {
 export function matchRecipes(haveIds: Set<string>, filters: RecipeFilters = {}): RecipeMatch[] {
   const pool = RECIPES.filter((r) => {
     if (filters.mealType && r.mealType !== filters.mealType) return false;
+    if (!filters.mealType && r.mealType === "dessert") return false; // desserts only show when the Dessert filter is chosen
     if (filters.goal && !r.goals.includes(filters.goal)) return false;
     if (filters.diet && !r.diet.includes(filters.diet)) return false;
     return true;
