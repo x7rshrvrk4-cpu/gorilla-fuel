@@ -7,6 +7,9 @@ import {
 } from "./lib/holisticData";
 import type { Strength } from "./lib/holisticData";
 import { SOURCES } from "../smoothies/lib/drinkData";
+import { PRODUCE } from "../smoothies/lib/produceData";
+import { REFERENCES, RANKINGS, MATRIX_UNVERIFIED } from "./lib/matrixData";
+import type { NutrientKey } from "./lib/matrixData";
 
 const ALL_SOURCES: Record<string, { title: string; publisher: string; url: string }> = { ...SOURCES, ...N_SOURCES };
 const TABS = [
@@ -14,6 +17,7 @@ const TABS = [
   { key: "foods", label: "Foods" },
   { key: "herbs", label: "Herbs" },
   { key: "pairings", label: "Pairings" },
+  { key: "top", label: "Top sources" },
   { key: "evidence", label: "Evidence check" },
   { key: "about", label: "About & sources" },
 ] as const;
@@ -67,6 +71,8 @@ function Row({ k, children }: { k: string; children: React.ReactNode }) {
 export default function HolisticClient() {
   const [tab, setTab] = useState<Tab>("nutrients");
   const [q, setQ] = useState("");
+  const [topKey, setTopKey] = useState<NutrientKey>("vitamin_c");
+  const [withHerbs, setWithHerbs] = useState(false);
   const term = q.trim().toLowerCase();
 
   const nutrients = useMemo(
@@ -272,6 +278,79 @@ export default function HolisticClient() {
               </div>
             </details>
           ))}
+        </div>
+      )}
+
+      {tab === "top" && (
+        <div className="flex flex-col gap-4">
+          <p className="text-xs leading-relaxed text-foreground/80">
+            Which fruits and vegetables carry the most of each nutrient, <strong>per 100 g</strong> (not per serving). The bar shows
+            the share of the higher adult RDA or AI. <strong>Good source</strong> is 10–19.9% and <strong>excellent source</strong> is
+            20% or more — a common food-label convention, our choice here and not an NIH rule.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {REFERENCES.map((r) => (
+              <button
+                key={r.key}
+                onClick={() => setTopKey(r.key)}
+                aria-pressed={topKey === r.key}
+                className={`rounded-full border px-3 py-1 text-xs ${topKey === r.key ? "border-gold bg-gold/15 text-gold" : "border-line text-foreground/85 hover:border-gold/40"}`}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+          <label className="flex items-center gap-2 text-xs text-foreground/80">
+            <input type="checkbox" checked={withHerbs} onChange={(e) => setWithHerbs(e.target.checked)} id="top-herbs" />
+            Include herbs and ginger (eaten in tiny amounts, so per-100 g overstates a real serving)
+          </label>
+          {(() => {
+            const ref = REFERENCES.find((r) => r.key === topKey)!;
+            const list = withHerbs ? RANKINGS[topKey].all : RANKINGS[topKey].noHerbs;
+            const maxPct = Math.max(...list.map((x) => (x.value / ref.reference) * 100));
+            const nameOf = (id: string) => PRODUCE.find((p) => p.id === id)?.name ?? id;
+            return (
+              <div className="flex flex-col gap-2">
+                <p className="text-xs text-foreground/70">
+                  Reference: {ref.reference} {ref.unit}/day ·{" "}
+                  <a className="underline hover:text-gold" target="_blank" rel="noopener noreferrer" href={ALL_SOURCES[ref.source]?.url}>
+                    {ALL_SOURCES[ref.source]?.publisher}
+                  </a>
+                </p>
+                <ol className="flex flex-col gap-2">
+                  {list.map((x, i) => {
+                    const p = (x.value / ref.reference) * 100;
+                    const tone = p >= 20 ? "bg-emerald-500/70" : p >= 10 ? "bg-lime-500/60" : "bg-foreground/30";
+                    const oxalate = topKey === "calcium" && ["spinach", "collards", "rhubarb", "sweet_potato"].includes(x.id);
+                    return (
+                      <li key={x.id} className="rounded-sm border border-line bg-surface/40 px-3 py-2">
+                        <div className="flex items-baseline justify-between gap-3 text-sm">
+                          <span className="text-foreground">{i + 1}. {nameOf(x.id)}</span>
+                          <span className="shrink-0 text-xs text-foreground/80">
+                            {x.value} {ref.unit} · <span className="text-foreground">{Math.round(p)}%</span> of reference
+                          </span>
+                        </div>
+                        <div className="mt-1.5 h-1.5 w-full rounded-full bg-line">
+                          <div className={`h-1.5 rounded-full ${tone}`} style={{ width: `${Math.min(100, (p / maxPct) * 100)}%` }} />
+                        </div>
+                        {oxalate && <p className="mt-1 text-xs text-amber-200/90">⚠ Calcium is poorly absorbed because of oxalate; do not count it as a full calcium source.</p>}
+                        {topKey === "vitamin_k" && p >= 100 && <p className="mt-1 text-xs text-amber-200/90">⚠ Very high vitamin K: keep intake consistent if you take warfarin.</p>}
+                        {topKey === "potassium" && x.value >= 400 && <p className="mt-1 text-xs text-amber-200/90">⚠ Potassium-rich: check with a clinician if you have kidney disease or take ACE inhibitors, ARBs or potassium-sparing diuretics.</p>}
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
+            );
+          })()}
+          <details className="rounded-sm border border-line bg-surface/40 px-4 py-3">
+            <summary className="cursor-pointer list-none text-xs font-display uppercase tracking-[0.2em] text-gold">Method &amp; what we could not verify ▾</summary>
+            <ul className="mt-3 flex flex-col gap-2 text-xs leading-relaxed text-foreground/80">
+              {MATRIX_UNVERIFIED.map((u) => (
+                <li key={u} className="flex gap-2"><span className="text-gold">·</span> {u}</li>
+              ))}
+            </ul>
+          </details>
         </div>
       )}
 

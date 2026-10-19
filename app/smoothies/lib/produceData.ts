@@ -652,7 +652,7 @@ export const PRODUCE: Produce[] = [
    "sugar": 0.4,
    "fibre": 2.2
   },
-  "nutrients": "Vitamin K about 483 ug, folate about 113 ug, potassium about 460 mg, iron about 1.1 mg, magnesium about 93 mg per 100 g.",
+  "nutrients": "Vitamin K about 483 ug, folate 194 ug, potassium 558 mg, iron 2.7 mg, magnesium 79 mg per 100 g (Canadian Nutrient File).",
   "research": "Folate is found in dark leafy greens such as spinach (NIH ODS). Spinach is also high in oxalate, which matters for people prone to calcium-oxalate kidney stones.",
   "evidence": "established nutrient role; oxalate caution documented",
   "notes": "Very low sugar.",
@@ -682,7 +682,7 @@ export const PRODUCE: Produce[] = [
    "sugar": 2.3,
    "fibre": 2.4
   },
-  "nutrients": "Vitamin K about 390 ug, vitamin C 93.4 mg, calcium 254 mg, potassium 348 mg, folate 62 ug, vitamin A 241 ug RAE per 100 g.",
+  "nutrients": "Vitamin K about 705 ug, vitamin C 120 mg, calcium 150 mg, potassium 491 mg, folate 141 ug, vitamin A 500 ug RAE per 100 g (Canadian Nutrient File). Other databases list a different kale sample with lower vitamin C and K and higher calcium, so treat these as approximate.",
   "research": "A dense source of vitamin C, vitamin K and calcium; no food-specific outcome trials reviewed.",
   "evidence": "general fruit/veg evidence only",
   "notes": "Very low sugar.",
@@ -786,7 +786,7 @@ export const PRODUCE: Produce[] = [
    "sugar": 1.4,
    "fibre": 1.2
   },
-  "nutrients": "Folate 170 ug, vitamin K 42.9 ug, vitamin C 20 mg, potassium 250 mg per 100 g. This is napa (pe-tsai), not bok choy; no bok choy data could be verified.",
+  "nutrients": "Folate 79 ug, vitamin K 42.9 ug, vitamin C 27 mg, calcium 77 mg, potassium 250 mg per 100 g (Canadian Nutrient File). This is napa (pe-tsai), not bok choy; no bok choy data could be verified.",
   "research": "No outcome evidence reviewed.",
   "evidence": "general fruit/veg evidence only",
   "notes": "Very low sugar.",
@@ -1210,7 +1210,7 @@ export const PRODUCE: Produce[] = [
    "sugar": 5,
    "fibre": 1.2
   },
-  "nutrients": "Beta-carotene 4,226 ug, vitamin A 532 ug RAE, vitamin C 21 mg, potassium 352 mg per 100 g (raw).",
+  "nutrients": "Vitamin A 220 ug RAE, vitamin C 3 mg, magnesium 16 mg, potassium 352 mg per 100 g, raw (Canadian Nutrient File). Another database lists higher vitamin A (532 ug RAE) and vitamin C (21 mg) for a different sample, so treat these as approximate.",
   "research": "A carotenoid source; normally eaten cooked.",
   "evidence": "general fruit/veg evidence only",
   "notes": "Low sugar (raw).",

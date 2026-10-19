@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { PRODUCE } from "../lib/produceData";
 import type { Produce } from "../lib/produceData";
 import { SOURCES } from "../lib/drinkData";
+import { MATRIX, REFERENCES } from "../../holistic/lib/matrixData";
 
 const CATEGORIES = Array.from(new Set(PRODUCE.map((p) => p.category)));
 
@@ -89,8 +90,38 @@ function ProduceCard({ p }: { p: Produce }) {
         </div>
       </summary>
       <p className="mt-1 text-[10px] text-foreground/55">per 100 g</p>
+      {MATRIX[p.id] && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {MATRIX[p.id].excellent.map((n) => (
+            <span key={"e" + n} className="rounded-sm border border-emerald-500/50 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-emerald-300">Excellent: {n}</span>
+          ))}
+          {MATRIX[p.id].good.map((n) => (
+            <span key={"g" + n} className="rounded-sm border border-lime-500/40 bg-lime-500/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-lime-300">Good: {n}</span>
+          ))}
+        </div>
+      )}
       <div className="mt-3 flex flex-col gap-2 text-sm leading-relaxed text-foreground/85">
         <p><span className="text-foreground">Key nutrients.</span> {p.nutrients}</p>
+        {MATRIX[p.id] && (
+          <details className="rounded-sm border border-line/70 bg-background/40 px-3 py-2">
+            <summary className="cursor-pointer list-none text-xs font-display uppercase tracking-[0.15em] text-gold">Vitamins &amp; minerals per 100 g (% of daily reference) ▾</summary>
+            <ul className="mt-2 grid gap-1 text-xs sm:grid-cols-2">
+              {REFERENCES.map((r) => {
+                const v = MATRIX[p.id].values[r.key];
+                const pc = MATRIX[p.id].percent[r.key];
+                return (
+                  <li key={r.key} className="flex justify-between gap-2">
+                    <span>{r.label}</span>
+                    <span className="text-foreground/80">{v == null ? "n/a" : `${v} ${r.unit} · ${pc}%`}</span>
+                  </li>
+                );
+              })}
+            </ul>
+            {MATRIX[p.id].notes.map((n, i) => (
+              <p key={i} className="mt-2 text-xs leading-relaxed text-amber-200/90">⚠ {n}</p>
+            ))}
+          </details>
+        )}
         <p>
           <span className="text-foreground">What the research supports.</span> {p.research}{" "}
           <span className="rounded-sm border border-line px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-foreground/75">
