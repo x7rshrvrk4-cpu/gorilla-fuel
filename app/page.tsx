@@ -160,6 +160,22 @@ export default function Home() {
             <DoorCard door={DOOR.supp} />
           </div>
 
+          {/* BUDGET PLANNER feature banner */}
+          <Link
+            href="/planner"
+            className="group mt-4 flex flex-col justify-between gap-4 overflow-hidden rounded-sm border border-gold/60 bg-gradient-to-br from-gold/15 to-gold/[0.03] p-8 transition-all hover:shadow-[0_0_28px_rgba(255,215,0,0.18)] sm:flex-row sm:items-center"
+          >
+            <div>
+              <p className="font-display text-xs tracking-[0.3em] text-gold">🛒 BUDGET MEAL PLANNER · NEW</p>
+              <h2 className="mt-2 font-display text-3xl text-foreground sm:text-4xl">Your budget in, a week of meals out</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
+                Enter what you can spend, how many days and how many people. We pick the highest-scoring recipes that fit,
+                and build one grocery list with estimated costs from Ontario prices.
+              </p>
+            </div>
+            <span className="shrink-0 font-display text-gold transition-transform group-hover:translate-x-1">Plan my week →</span>
+          </Link>
+
           {/* HOLISTIC NUTRITION feature banner */}
           <Link
             href="/holistic"
