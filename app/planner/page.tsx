@@ -30,9 +30,18 @@ export default function PlannerPage() {
       </p>
       <PlannerClient />
       <p className="mt-10 border-t border-line pt-4 text-xs leading-relaxed text-foreground/70">
-        Price data: Statistics Canada, table 18-10-0245-01, average retail prices for selected products (Ontario). Estimates are
-        approximations for planning, not store prices. Pantry staples that are not listed (salt, spices, soy sauce) are not
-        counted. Recipes follow general healthy-eating principles and are not medical or dietary advice.
+        Adapted from Statistics Canada,{" "}
+        <a href="https://doi.org/10.25318/1810024501-eng" target="_blank" rel="noopener noreferrer" className="underline hover:text-gold">
+          Table 18-10-0245-01 Monthly average retail prices for selected products
+        </a>
+        , Ontario, August 2026, used under the{" "}
+        <a href="https://www.statcan.gc.ca/en/reference/licence" target="_blank" rel="noopener noreferrer" className="underline hover:text-gold">
+          Statistics Canada Open Licence
+        </a>
+        . This does not constitute an endorsement by Statistics Canada of this product. Items Statistics Canada does not publish
+        use our own rough estimates, marked &ldquo;est.&rdquo;. Estimates are for planning, not store prices. Pantry staples that are not
+        listed (salt, spices, soy sauce) are not counted. Recipes follow general healthy-eating principles and are not medical or
+        dietary advice.
       </p>
     </div>
   );
