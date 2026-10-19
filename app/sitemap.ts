@@ -8,7 +8,7 @@ const STATIC_PATHS = [
   "", "about", "methodology", "attribution",
   "alcohol", "bc-liquor", "rankings", "rankings/alcohol",
   "approved", "approved/list", "avoid", "cheat", "top", "explore", "search", "scan",
-  "beauty", "caffeine", "energy", "kids", "kids-snacks", "fitness", "fitness/recipes", "glutenfree",
+  "beauty", "caffeine", "energy", "kids", "kids-snacks", "fitness", "fitness/recipes", "smoothies", "smoothies/produce", "glutenfree",
 ];
 
 // Dynamic params mirrored from their route files:

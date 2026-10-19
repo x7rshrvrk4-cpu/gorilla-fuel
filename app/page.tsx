@@ -159,6 +159,22 @@ export default function Home() {
             <DoorCard door={DOOR.fitness} />
             <DoorCard door={DOOR.supp} />
           </div>
+
+          {/* SMOOTHIES & JUICES feature banner */}
+          <Link
+            href="/smoothies"
+            className="group mt-4 flex flex-col justify-between gap-4 overflow-hidden rounded-sm border border-emerald-500/50 bg-gradient-to-br from-emerald-500/15 to-emerald-500/[0.03] p-8 transition-all hover:shadow-[0_0_28px_rgba(16,185,129,0.18)] sm:flex-row sm:items-center"
+          >
+            <div>
+              <p className="font-display text-xs tracking-[0.3em] text-emerald-400">🥤 SMOOTHIES &amp; JUICES</p>
+              <h2 className="mt-2 font-display text-3xl text-foreground sm:text-4xl">Honest numbers on every drink</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
+                37 recipes with calories, protein, sugar and fibre per serving, a sugar flag, and what the research
+                actually supports — plus a guide to 58 fruits, vegetables and herbs.
+              </p>
+            </div>
+            <span className="shrink-0 font-display text-emerald-400 transition-transform group-hover:translate-x-1">Explore →</span>
+          </Link>
         </div>
       </section>
 

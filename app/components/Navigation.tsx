@@ -10,6 +10,7 @@ const PRIMARY_LINKS = [
   { href: "/scan",              label: "SCAN",         gold: true  },
   { href: "/alcohol",           label: "ALCOHOL",      gold: false },
   { href: "/fitness/recipes",   label: "MEAL FINDER",  gold: false },
+  { href: "/smoothies",          label: "SMOOTHIES & JUICES", gold: false },
   { href: "/approved",          label: "FOOD & SNACKS", gold: false },
   { href: "/top",               label: "TOP RATED",    gold: false },
   { href: "/glutenfree",        label: "GLUTEN FREE",  gold: false },
