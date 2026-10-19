@@ -160,6 +160,22 @@ export default function Home() {
             <DoorCard door={DOOR.supp} />
           </div>
 
+          {/* HOLISTIC NUTRITION feature banner */}
+          <Link
+            href="/holistic"
+            className="group mt-4 flex flex-col justify-between gap-4 overflow-hidden rounded-sm border border-sky-500/50 bg-gradient-to-br from-sky-500/15 to-sky-500/[0.03] p-8 transition-all hover:shadow-[0_0_28px_rgba(14,165,233,0.18)] sm:flex-row sm:items-center"
+          >
+            <div>
+              <p className="font-display text-xs tracking-[0.3em] text-sky-400">🌿 HOLISTIC NUTRITION</p>
+              <h2 className="mt-2 font-display text-3xl text-foreground sm:text-4xl">What the research actually supports</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
+                18 vitamins and minerals, 24 foods and 4 herbs — every claim labelled by strength of evidence, with food
+                sources, who is at risk, and medication cautions.
+              </p>
+            </div>
+            <span className="shrink-0 font-display text-sky-400 transition-transform group-hover:translate-x-1">Explore →</span>
+          </Link>
+
           {/* SMOOTHIES & JUICES feature banner */}
           <Link
             href="/smoothies"
