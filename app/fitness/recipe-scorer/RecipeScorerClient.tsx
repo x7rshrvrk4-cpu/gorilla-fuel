@@ -13,7 +13,7 @@ type Saved = { id: string; name: string; picked: Picked[]; extras: Extra[]; cals
 
 const LS_KEY = "gf_recipe_scorer_v1";
 const CAT_ORDER: PantryCategory[] = ["protein", "dairy", "carb", "produce", "fat", "supplement"];
-const CAT_LABEL: Record<PantryCategory, string> = { protein: "Protein", dairy: "Milk & Alternatives", carb: "Carbs", produce: "Produce", fat: "Fats", supplement: "Supplements" };
+const CAT_LABEL: Record<PantryCategory, string> = { protein: "Protein", dairy: "Dairy & Alternatives", carb: "Carbs", produce: "Produce", fat: "Fats", supplement: "Supplements" };
 
 function scoreColor(s: number): string {
   if (s >= 85) return "#64cf86";

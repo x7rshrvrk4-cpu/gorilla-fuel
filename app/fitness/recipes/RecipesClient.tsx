@@ -16,7 +16,7 @@ import { gradeFromScore, GRADE_COLORS } from "../../scan/lib/scoring";
 const CATEGORY_ORDER: PantryCategory[] = ["protein", "dairy", "carb", "fat", "produce", "supplement"];
 const CATEGORY_LABEL: Record<PantryCategory, string> = {
   protein: "Protein",
-  dairy: "Milk & Alternatives",
+  dairy: "Dairy & Alternatives",
   carb: "Carbs",
   fat: "Fats",
   produce: "Produce",
