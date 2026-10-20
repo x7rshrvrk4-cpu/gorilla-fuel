@@ -27,6 +27,12 @@ function GorillaPourMini({ rating }: { rating: number }) {
   );
 }
 
+function WineScoreMini({ score }: { score: number | null | undefined }) {
+  if (score === null || score === undefined) return <span className="text-xs text-slate-400">Pending</span>;
+  const c = score >= 85 ? "text-emerald-400" : score >= 65 ? "text-amber-400" : "text-red-400";
+  return <span className={`font-display text-base ${c}`}>{score}</span>;
+}
+
 type Props = {
   placeholder?: string;
   className?: string;
@@ -290,7 +296,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
                       href={getProductLink(r)}
                       name={r.name}
                       sub={r.abv !== undefined ? `${r.brand} · ${r.abv}% ABV` : r.brand}
-                      right={<GorillaPourMini rating={r.gorillaPour} />}
+                      right={<WineScoreMini score={r.wineScore} />}
                       onClick={() => setOpen(false)}
                     />
                   ))}

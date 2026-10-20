@@ -2,7 +2,7 @@
 // dropdown (UniversalSearch, small per-group caps) and the full results page
 // (/search, uncapped). Pure functions + types only, no JSX.
 
-import { ALCOHOL_PRODUCTS } from "../alcohol/lib/products";
+import { ALCOHOL_PRODUCTS, wineGorillaScore } from "../alcohol/lib/products";
 import { PRODUCTS as RANKED_SUPPLEMENTS } from "../rankings/lib/products";
 import { INTEL_APPROVED, INTEL_CHEAT, INTEL_AVOID, type IntelProduct } from "../intel/lib/products";
 import { KIDS_APPROVED, KIDS_CHEAT, KIDS_STAY_AWAY, type KidsProduct } from "../kids/lib/products";
@@ -25,6 +25,8 @@ export type AlcoholResult = {
   brand: string;
   abv?: number;
   gorillaPour: number;
+  /** Wines only: the 0-100 Wine Gorilla Score, or null while ABV/sugar is pending. Beer keeps gorillaPour. */
+  wineScore?: number | null;
   category: string;
   barcode?: string;
 };
@@ -177,6 +179,7 @@ export function searchCurated(q: string, caps: CuratedCaps = {}): GroupedResults
     brand: p.brand,
     abv: p.abv,
     gorillaPour: p.gorillaPour,
+    wineScore: p.category === "Wines" ? wineGorillaScore(p) : undefined,
     category: p.category,
     barcode: p.barcodes?.[0],
   });

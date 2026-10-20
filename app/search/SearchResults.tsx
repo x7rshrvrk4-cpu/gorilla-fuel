@@ -37,6 +37,13 @@ function colorScore(score: number) {
 function rightFor(item: SearchResult): React.ReactNode {
   switch (item.type) {
     case "alcohol":
+      if (item.category === "Wines") {
+        return item.wineScore === null || item.wineScore === undefined ? (
+          <span className="text-xs text-slate-400">Pending</span>
+        ) : (
+          <span className={`font-display text-base ${item.wineScore >= 85 ? "text-emerald-400" : item.wineScore >= 65 ? "text-amber-400" : "text-red-400"}`}>{item.wineScore}</span>
+        );
+      }
       return <GorillaPourMini rating={item.gorillaPour} />;
     case "ranked-supplement":
       return <span className="font-display text-base text-gold">{item.grade}</span>;
