@@ -3,6 +3,7 @@ import { GorillaReel } from "./GorillaReel";
 import { BeautyCompare } from "./BeautyCompare";
 import { StillReel } from "./StillReel";
 import { DessertReel } from "./DessertReel";
+import { PlannerReel } from "./PlannerReel";
 import { reelSchema } from "./schema";
 import { pickReel, CATALOG_BY_ID } from "./catalog";
 
@@ -57,6 +58,14 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="DessertReel"
         component={DessertReel}
+        durationInFrames={360}
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="PlannerReel"
+        component={PlannerReel}
         durationInFrames={360}
         fps={FPS}
         width={1080}
