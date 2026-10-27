@@ -61,7 +61,7 @@ let skippedSub = 0, skippedPack = 0, noAbv = 0, noSugar = 0;
 for (const r of byNum.values()) {
   const sub = SUB[r.cats![1] ?? ""];
   if (!sub) { skippedSub++; continue; }
-  if (/\b(gift|pack|set|box of|case|collection|sampler|mixed)\b/i.test(r.name!)) { skippedPack++; continue; }
+  if (/\b(gift|packs?|box of|sampler|mixed)\b|\(case\)|\bcase of\b|\bset of\b/i.test(r.name!)) { skippedPack++; continue; }
   const ml = sizeMl(r.size);
   if (ml > 0 && ml < 187) { skippedPack++; continue; }
   const vqa = /VQA/i.test(`${r.appellation ?? ""} ${r.name}`);

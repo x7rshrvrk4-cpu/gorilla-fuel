@@ -279,7 +279,7 @@ export default function AlcoholClient() {
             </p>
             <p className="mt-3 inline-flex items-center gap-2 rounded-sm border border-rose-700/30 bg-rose-700/8 px-3 py-1.5 text-xs text-rose-300/80">
               <span className="text-rose-400">🍷</span>
-              All values per standard 148mL pour · sourced from winery disclosures and lab analysis
+              All values per standard 148mL pour · sourced from winery disclosures, lab analysis and LCBO product listings
             </p>
           </>
         ) : (

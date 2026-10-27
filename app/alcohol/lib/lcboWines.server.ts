@@ -52,7 +52,7 @@ function expand(row: (typeof LCBO_WINES)[number]): AlcoholRankingProduct {
   return base;
 }
 
-type Indexed = { p: AlcoholRankingProduct; hay: string; score: number | null };
+type Indexed = { p: AlcoholRankingProduct; hay: string; compact: string; score: number | null };
 let cache: Indexed[] | null = null;
 let byId: Map<string, Indexed> | null = null;
 
@@ -70,7 +70,8 @@ function load(): Indexed[] {
     if (haveNums.has(row[0])) continue;
     const p = expand(row);
     if (haveNames.has(`${norm(p.name)}|${p.bottleSizeMl ?? 0}`) || haveNames.has(`${norm(p.name)}|0`)) continue;
-    out.push({ p, hay: fold(`${p.brand} ${p.name} ${p.varietal ?? ""} ${p.region ?? ""}`), score: wineGorillaScore(p) });
+    const hay = fold(`${p.brand} ${p.name} ${p.varietal ?? ""} ${p.region ?? ""}`);
+    out.push({ p, hay, compact: hay.replace(/[^a-z0-9]/g, ""), score: wineGorillaScore(p) });
   }
   cache = out;
   byId = new Map(out.map((x) => [x.p.id, x]));
@@ -95,7 +96,9 @@ export type WineHit = {
 export function searchLcboWines(q: string, limit: number): { hits: WineHit[]; total: number } {
   const tokens = fold(q).split(/\s+/).filter(Boolean);
   if (tokens.length === 0) return { hits: [], total: 0 };
-  const matched = load().filter((x) => tokens.every((t) => x.hay.includes(t)));
+  // Also match with spaces/punctuation removed so "yellowtail" finds "Yellow Tail" and "mateus" finds "Mateus".
+  const compactQ = tokens.join("").replace(/[^a-z0-9]/g, "");
+  const matched = load().filter((x) => tokens.every((t) => x.hay.includes(t)) || (compactQ.length >= 4 && x.compact.includes(compactQ)));
   matched.sort((a, b) => (b.score !== null ? 1 : 0) - (a.score !== null ? 1 : 0) || (b.score ?? -1) - (a.score ?? -1) || a.p.name.localeCompare(b.p.name));
   const hits = matched.slice(0, limit).map(({ p, score }) => ({
     id: p.id, name: p.name, brand: p.brand, abv: p.abv, category: "Wines" as const, gorillaPour: p.gorillaPour, wineScore: score,
