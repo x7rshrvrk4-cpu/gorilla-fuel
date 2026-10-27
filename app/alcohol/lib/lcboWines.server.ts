@@ -96,9 +96,11 @@ export type WineHit = {
 export function searchLcboWines(q: string, limit: number): { hits: WineHit[]; total: number } {
   const tokens = fold(q).split(/\s+/).filter(Boolean);
   if (tokens.length === 0) return { hits: [], total: 0 };
-  // Also match with spaces/punctuation removed so "yellowtail" finds "Yellow Tail" and "mateus" finds "Mateus".
+  let matched = load().filter((x) => tokens.every((t) => x.hay.includes(t)));
+  // Fallback only when nothing matched: ignore spaces/punctuation so "yellowtail" finds "Yellow Tail".
+  // (Not applied up front: it would let "cavit" match across words like "Bianca Vitese".)
   const compactQ = tokens.join("").replace(/[^a-z0-9]/g, "");
-  const matched = load().filter((x) => tokens.every((t) => x.hay.includes(t)) || (compactQ.length >= 4 && x.compact.includes(compactQ)));
+  if (matched.length === 0 && compactQ.length >= 4) matched = load().filter((x) => x.compact.includes(compactQ));
   matched.sort((a, b) => (b.score !== null ? 1 : 0) - (a.score !== null ? 1 : 0) || (b.score ?? -1) - (a.score ?? -1) || a.p.name.localeCompare(b.p.name));
   const hits = matched.slice(0, limit).map(({ p, score }) => ({
     id: p.id, name: p.name, brand: p.brand, abv: p.abv, category: "Wines" as const, gorillaPour: p.gorillaPour, wineScore: score,
