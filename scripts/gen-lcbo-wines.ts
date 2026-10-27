@@ -22,10 +22,11 @@ const SUB: Record<string, string> = {
   "Sparkling Wine": "S", "Champagne": "S", "Icewine": "I", "Dessert Wine": "D",
 };
 
+/** Bottle size in mL, or 0 when the LCBO page did not give one (never guessed). */
 function sizeMl(s?: string): number {
-  if (!s) return 750;
-  const m = s.match(/^(\d[\d.,]*)\s*(mL|ml|L)\b/);
-  if (!m) return 750;
+  if (!s) return 0;
+  const m = s.match(/^(\d[\d.,]*)\s*(mL|ml|L)/);
+  if (!m) return 0;
   const n = parseFloat(m[1].replace(",", "."));
   return Math.round(m[2] === "L" ? n * 1000 : n);
 }
@@ -34,7 +35,9 @@ const PREFIX = /^(château|chateau|domaine|bodegas|bodega|casa|cantina|tenuta|vi
 const PROGRAM = /vintages|release|collection|selection|classics|essentials|private|reserve list/i;
 /** LCBO's "By" field is sometimes a program ("Vintages Front Line Release"), not a producer. */
 function brandFor(by: string | undefined, name: string): string {
-  if (by && !PROGRAM.test(by)) return by;
+  // "By" is sometimes a distributor/agency ("Magstar Directs (Non Cc)"); trust it only when the product name carries it.
+  const fold = (x: string) => x.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  if (by && !PROGRAM.test(by) && fold(name).includes(fold(by).split(/\s+/)[0])) return by;
   const w = name.split(/\s+/);
   return PREFIX.test(w[0] ?? "") && w[1] ? `${w[0]} ${w[1]}` : (w[0] ?? "");
 }
@@ -60,7 +63,7 @@ for (const r of byNum.values()) {
   if (!sub) { skippedSub++; continue; }
   if (/\b(gift|pack|set|box of|case|collection|sampler|mixed)\b/i.test(r.name!)) { skippedPack++; continue; }
   const ml = sizeMl(r.size);
-  if (ml < 187) { skippedPack++; continue; }
+  if (ml > 0 && ml < 187) { skippedPack++; continue; }
   const vqa = /VQA/i.test(`${r.appellation ?? ""} ${r.name}`);
   const name = r.name!.replace(/\s+(VQA|DOCG|DOC|AOC|AOP|IGT|IGP)\b/gi, "").replace(/\s+/g, " ").trim();
   const region = [r.appellation && !/^VQA$/i.test(r.appellation) ? r.appellation : undefined, r.madeIn, vqa ? "VQA" : undefined].filter(Boolean).join(", ");

@@ -20,7 +20,7 @@ function parse(u, h) {
   const cats = [...bc.matchAll(/<li class="item category"><a [^>]*>([^<]*)<\/a>/g)].map((m) => dec(m[1])).filter((c) => c !== "Products");
   const name = (h.match(/itemprop="name">([^<]*)<\/span><\/h1>/) || [])[1];
   const sku = (h.match(/itemprop="sku">(\d+)</) || [])[1];
-  const desc = [...h.matchAll(/property="og:description" content="([^"]*)"/g)].map((m) => dec(m[1])).find((d) => /^\d[\d.,]*\s*(mL|ml|L)/.test(d));
+  const desc = [...h.matchAll(/property="og:description" content="([^"]*)"/g)].map((m) => dec(m[1])).find((d) => /^\d[\d.,]*\s*(mL|ml|L)/.test(d));
   const abvT = field(h, "Alcohol/Vol");
   const sugT = field(h, "Sugar Content");
   const rec = { u, num: sku, name: name && dec(name), cats, size: desc && desc.slice(0, 40), abv: abvT && parseFloat(abvT), sugarGL: sugT && parseFloat(sugT.replace(",", ".")), madeIn: field(h, "Made In"), appellation: field(h, "Appellation"), by: field(h, "By"), style: field(h, "Style"), varietal: field(h, "Varietal"), sweetCode: (h.match(/Sweetness Descriptor<\/div><div class="value"[^>]*>([^<]*)</) || [])[1] };

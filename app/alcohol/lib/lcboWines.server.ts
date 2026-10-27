@@ -19,7 +19,7 @@ function sizeLabel(ml: number) {
 
 function expand(row: (typeof LCBO_WINES)[number]): AlcoholRankingProduct {
   const [num, brand, rawName, sub, abv, sugarGL, ml, region, varietal, vqa] = row;
-  const name = ml !== 750 ? `${rawName} (${sizeLabel(ml)})` : rawName;
+  const name = ml > 0 && ml !== 750 ? `${rawName} (${sizeLabel(ml)})` : rawName;
   const verified = abv > 0 && sugarGL >= 0;
   const base: AlcoholRankingProduct = {
     id: `wine-lcbo-${num}`,
@@ -29,7 +29,7 @@ function expand(row: (typeof LCBO_WINES)[number]): AlcoholRankingProduct {
     wineSubcategory: SUB[sub] ?? "Red",
     region: region || undefined,
     varietal: varietal || undefined,
-    bottleSizeMl: ml,
+    bottleSizeMl: ml > 0 ? ml : undefined,
     lcboNumber: num,
     market: "CA",
     availability: "LCBO",
@@ -41,11 +41,13 @@ function expand(row: (typeof LCBO_WINES)[number]): AlcoholRankingProduct {
   };
   if (abv > 0) base.abv = abv;
   if (verified) {
-    const sugarPerPour = Math.round(sugarGL * 0.148 * 10) / 10;
+    // Icewine is served and scored per 60 mL (see AlcoholProductCard); everything else per 148 mL.
+    const pourMl = sub === "I" ? 60 : 148;
+    const sugarPerPour = Math.round(sugarGL * (pourMl / 1000) * 10) / 10;
     base.sugarGPerL = sugarGL;
     base.sugarPerCan = sugarPerPour;
     base.carbsPerCan = sugarPerPour;
-    base.caloriesPerCan = Math.round(148 * (abv / 100) * 0.789 * 7 + sugarPerPour * 4);
+    base.caloriesPerCan = Math.round(pourMl * (abv / 100) * 0.789 * 7 + sugarPerPour * 4);
   }
   return base;
 }
@@ -61,13 +63,13 @@ function load(): Indexed[] {
   for (const p of ALCOHOL_PRODUCTS) {
     if (p.category !== "Wines") continue;
     if (p.lcboNumber) haveNums.add(p.lcboNumber);
-    haveNames.add(`${norm(p.name)}|${p.bottleSizeMl ?? 750}`);
+    haveNames.add(`${norm(p.name)}|${p.bottleSizeMl ?? 0}`);
   }
   const out: Indexed[] = [];
   for (const row of LCBO_WINES) {
     if (haveNums.has(row[0])) continue;
     const p = expand(row);
-    if (haveNames.has(`${norm(p.name)}|${p.bottleSizeMl ?? 750}`)) continue;
+    if (haveNames.has(`${norm(p.name)}|${p.bottleSizeMl ?? 0}`) || haveNames.has(`${norm(p.name)}|0`)) continue;
     out.push({ p, hay: fold(`${p.brand} ${p.name} ${p.varietal ?? ""} ${p.region ?? ""}`), score: wineGorillaScore(p) });
   }
   cache = out;
