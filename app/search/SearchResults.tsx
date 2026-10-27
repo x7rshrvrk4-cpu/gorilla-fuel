@@ -7,6 +7,8 @@ import UniversalSearch from "../components/UniversalSearch";
 import type { SearchProduct } from "../api/search/route";
 import {
   searchCurated,
+  fetchLcboWines,
+  mergeWineResults,
   gradeColor,
   getProductLink,
   emptyGrouped,
@@ -128,6 +130,11 @@ export default function SearchResults() {
 
     // Curated/client matches — uncapped (no per-group slice).
     const curated = searchCurated(q);
+    // LCBO wines beyond the curated list (server-side catalogue); merged in when they arrive.
+    void fetchLcboWines(q, 300).then((extra) => {
+      if (cancelled || extra.length === 0) return;
+      setResults((prev) => ({ ...prev, wine: mergeWineResults(prev.wine, extra) }));
+    });
     // Render curated immediately, then merge the cache when it returns.
     setResults(curated);
 
@@ -168,7 +175,7 @@ export default function SearchResults() {
           ...cacheAlcohol.filter((c) => !alcoholBarcodes.has(c.barcode)),
         ];
 
-        setResults({ ...curated, food: mergedFood, supplement: mergedSuppl, alcohol: mergedAlcohol });
+        setResults((prev) => ({ ...curated, wine: prev.wine, food: mergedFood, supplement: mergedSuppl, alcohol: mergedAlcohol }));
       } catch {
         // Cache unavailable — keep curated results.
       } finally {

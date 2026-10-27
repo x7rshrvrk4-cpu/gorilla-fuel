@@ -7,7 +7,7 @@ import { scrollToProduct } from "../lib/scrollHighlight";
 import CrossLinkBanner from "../components/CrossLinkBanner";
 import AlcoholDisclaimer from "../scan/components/AlcoholDisclaimer";
 import AlcoholProductCard from "./components/AlcoholProductCard";
-import { ALCOHOL_PRODUCTS, wineGorillaScore, type AlcoholCategory } from "./lib/products";
+import { ALCOHOL_PRODUCTS, wineGorillaScore, type AlcoholCategory, type AlcoholRankingProduct } from "./lib/products";
 import { trackAlcoholRankingViewed } from "../lib/gtag";
 import UniversalSearch from "../components/UniversalSearch";
 
@@ -116,6 +116,9 @@ export default function AlcoholClient() {
   const [rtdFilter, setRtdFilter] = useState<RtdFilter>("all");
   const [wineFilter, setWineFilter] = useState<WineFilter>("all");
   const [wineSort, setWineSort] = useState<WineSort>("gorilla");
+  // LCBO wines that live server-side (/api/wines): the total count, and a wine opened by deep link.
+  const [moreWineCount, setMoreWineCount] = useState(0);
+  const [linkedWine, setLinkedWine] = useState<AlcoholRankingProduct | null>(null);
 
   const isWine = tab === "WINE";
   const isRtd = tab === "SELTZER & RTD";
@@ -123,6 +126,10 @@ export default function AlcoholClient() {
   const isNonAlc = tab === "NON-ALCOHOLIC";
 
   useEffect(() => { trackAlcoholRankingViewed(); }, []);
+
+  useEffect(() => {
+    fetch("/api/wines?count=1").then((r) => (r.ok ? r.json() : null)).then((j) => { if (j && typeof j.count === "number") setMoreWineCount(j.count); }).catch(() => {});
+  }, []);
 
   // Deep link: /alcohol?p=<id> → switch to correct tab and scroll.
   // Depends on the ?p= value (via useSearchParams) so it re-fires even when the
@@ -133,7 +140,23 @@ export default function AlcoholClient() {
   useEffect(() => {
     if (!deepLinkId) return;
     const product = ALCOHOL_PRODUCTS.find((x) => x.id === deepLinkId);
-    if (!product) return;
+    if (!product) {
+      // Not in the curated catalogue: it may be an LCBO wine served from /api/wines.
+      if (!/^wine-lcbo-\d+$/.test(deepLinkId)) return;
+      let cancelled = false;
+      let cleanup: (() => void) | undefined;
+      fetch(`/api/wines?id=${encodeURIComponent(deepLinkId)}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((j) => {
+          if (cancelled || !j?.wine) return;
+          setLinkedWine(j.wine);
+          setTab("WINE");
+          cleanup = scrollToProduct(deepLinkId);
+        })
+        .catch(() => {});
+      return () => { cancelled = true; cleanup?.(); };
+    }
+    setLinkedWine(null);
     setTab(categoryToTab(product.category));
     return scrollToProduct(deepLinkId);
   }, [deepLinkId]);
@@ -251,7 +274,7 @@ export default function AlcoholClient() {
               The <span className="text-rose-400">Wine</span> Rankings.
             </h1>
             <p className="mt-4 text-muted">
-              {ALCOHOL_PRODUCTS.filter((p) => p.category === "Wines").length} wines ranked by sugar, calories per
+              {ALCOHOL_PRODUCTS.filter((p) => p.category === "Wines").length + moreWineCount} wines ranked by sugar, calories per
               148mL pour, and additive count — the fitness drinker's guide to wine without the guesswork.
             </p>
             <p className="mt-3 inline-flex items-center gap-2 rounded-sm border border-rose-700/30 bg-rose-700/8 px-3 py-1.5 text-xs text-rose-300/80">
@@ -488,6 +511,9 @@ export default function AlcoholClient() {
 
       {/* PRODUCT LIST */}
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        {isWine && linkedWine && !products.some((p) => p.id === linkedWine.id) && (
+          <AlcoholProductCard key={linkedWine.id} product={linkedWine} />
+        )}
         {products.length > 0 ? (
           products.map((product) => <AlcoholProductCard key={product.id} product={product} />)
         ) : (

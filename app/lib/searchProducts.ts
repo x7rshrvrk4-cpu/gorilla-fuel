@@ -224,3 +224,28 @@ export function searchCurated(q: string, caps: CuratedCaps = {}): GroupedResults
 
   return { food, alcohol, wine, supplement, ranked, intel, kids };
 }
+
+/**
+ * LCBO wines beyond the curated catalogue live server-side (/api/wines) so they never
+ * ship in client JS. Returns them as AlcoholResult rows (with the real 0-100 wineScore).
+ * Fails soft: on any error the curated results simply stand alone.
+ */
+export async function fetchLcboWines(q: string, limit: number): Promise<AlcoholResult[]> {
+  try {
+    const res = await fetch(`/api/wines?q=${encodeURIComponent(q)}&limit=${limit}`, { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return [];
+    const j: { hits?: { id: string; name: string; brand: string; abv?: number; gorillaPour: number; wineScore: number | null }[] } = await res.json();
+    return (j.hits ?? []).map((h) => ({
+      type: "alcohol" as const, id: h.id, name: h.name, brand: h.brand, abv: h.abv,
+      gorillaPour: h.gorillaPour, wineScore: h.wineScore, category: "Wines",
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/** Curated rows first, then LCBO rows not already listed, optionally capped. */
+export function mergeWineResults(curated: AlcoholResult[], extra: AlcoholResult[], cap = Infinity): AlcoholResult[] {
+  const seen = new Set(curated.map((w) => w.id));
+  return [...curated, ...extra.filter((w) => !seen.has(w.id))].slice(0, cap);
+}

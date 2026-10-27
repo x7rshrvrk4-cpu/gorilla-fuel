@@ -15,6 +15,8 @@ import {
   type CacheResult,
   type CuratedFoodResult,
   type AlcoholResult,
+  fetchLcboWines,
+  mergeWineResults,
 } from "../lib/searchProducts";
 
 function GorillaPourMini({ rating }: { rating: number }) {
@@ -46,6 +48,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const latestQ = useRef("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const blurCloseRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Mobile keyboard height (iOS Safari + Android Chrome) via visualViewport —
@@ -92,6 +95,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
 
     setLoading(true);
     setOpen(true);
+    latestQ.current = q;
 
     // Curated/client-side matches with the dropdown's exact per-group caps
     // (behavior-preserving — the live preview is unchanged).
@@ -99,6 +103,12 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
 
     // Optimistically render what we have before Supabase returns
     setResults(grouped);
+
+    // LCBO wines beyond the curated list (server-side catalogue), merged in when they arrive.
+    void fetchLcboWines(q, 8).then((extra) => {
+      if (latestQ.current !== q || extra.length === 0) return;
+      setResults((prev) => ({ ...prev, wine: mergeWineResults(prev.wine, extra, 8) }));
+    });
 
     // ── Async: Supabase cache search ─────────────────────────────────────────
     try {
@@ -131,15 +141,15 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
           ...cacheSuppRows.filter((c) => !curatedSupplBarcodes.has(c.barcode)),
         ].slice(0, 4);
 
-        setResults({
+        setResults((prev) => ({
           food: mergedFood,
           alcohol: grouped.alcohol,
-          wine: grouped.wine,
+          wine: prev.wine,
           supplement: mergedSuppl,
           ranked: grouped.ranked,
           intel: grouped.intel,
           kids: grouped.kids,
-        });
+        }));
       }
     } catch {
       // Supabase unavailable — keep client-side results
