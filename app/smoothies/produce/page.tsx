@@ -18,7 +18,7 @@ export default function ProducePage() {
         Produce <span className="text-gold">Guide</span>
       </h1>
       <p className="mt-4 max-w-xl text-sm leading-relaxed text-foreground/85">
-        {PRODUCE.length} fruits, vegetables and herbs with what the research actually supports. Most produce earns
+        {PRODUCE.length}{" "}fruits, vegetables and herbs with what the research actually supports. Most produce earns
         &ldquo;general fruit and vegetable evidence&rdquo; and nothing more — we only name a specific benefit where a
         study backs it, and we say how strong that study is. Where a food interacts with medicines or needs care, it says
         so.
