@@ -6,7 +6,7 @@ import { NUTRIENTS, FOODS, HERBS } from "./lib/holisticData";
 export const metadata: Metadata = {
   title: "Holistic Nutrition Guide — Gorilla Fuel",
   description:
-    "Vitamins, minerals, foods and herbs with evidence labels on every claim: what the research supports, where each nutrient comes from, who is at risk of low intake, and medication cautions. Sourced from NIH, Harvard, Health Canada and the European Medicines Agency.",
+    "Vitamins, minerals, foods and herbs with evidence labels on every claim: what the research supports, where each nutrient comes from, who is at risk of low intake, and medication cautions. Includes a fact-check of viral “foods that work like painkillers” claims. Sourced from NIH, NCCIH, Harvard, Health Canada, the European Medicines Agency and published trials.",
   alternates: { canonical: "/holistic" },
 };
 

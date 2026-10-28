@@ -6,16 +6,19 @@ import {
   STRENGTH_LABEL, STRENGTH_HELP, N_SOURCES,
 } from "./lib/holisticData";
 import type { Strength } from "./lib/holisticData";
+import { MYTHS, MYTH_RULE, MYTH_UNVERIFIED, MYTH_SOURCES, MYTH_VERDICT_LABEL, MYTH_VERDICT_HELP } from "./lib/mythsData";
+import type { MythVerdict } from "./lib/mythsData";
 import { SOURCES } from "../smoothies/lib/drinkData";
 import { PRODUCE } from "../smoothies/lib/produceData";
 import { REFERENCES, RANKINGS, MATRIX_UNVERIFIED } from "./lib/matrixData";
 import type { NutrientKey } from "./lib/matrixData";
 
-const ALL_SOURCES: Record<string, { title: string; publisher: string; url: string }> = { ...SOURCES, ...N_SOURCES };
+const ALL_SOURCES: Record<string, { title: string; publisher: string; url: string }> = { ...SOURCES, ...N_SOURCES, ...MYTH_SOURCES };
 const TABS = [
   { key: "nutrients", label: "Nutrients" },
   { key: "foods", label: "Foods" },
   { key: "herbs", label: "Herbs" },
+  { key: "myths", label: "Painkiller myths" },
   { key: "pairings", label: "Pairings" },
   { key: "top", label: "Top sources" },
   { key: "evidence", label: "Evidence check" },
@@ -30,6 +33,14 @@ const CHIP: Record<Strength, string> = {
   preliminary: "border-line bg-surface text-foreground/80",
   not_supported: "border-zinc-500/50 bg-zinc-500/10 text-zinc-300",
   harm_signal: "border-red-500/50 bg-red-500/10 text-red-300",
+};
+
+const VERDICT_CHIP: Record<MythVerdict, string> = {
+  supported_use: "border-emerald-500/50 bg-emerald-500/10 text-emerald-300",
+  partly: "border-lime-500/40 bg-lime-500/10 text-lime-300",
+  mixed: "border-amber-500/40 bg-amber-500/10 text-amber-300",
+  not_supported: "border-red-500/50 bg-red-500/10 text-red-300",
+  none_found: "border-zinc-500/50 bg-zinc-500/10 text-zinc-300",
 };
 
 function Chip({ s }: { s: Strength }) {
@@ -257,6 +268,75 @@ export default function HolisticClient() {
               </div>
             </details>
           ))}
+        </div>
+      )}
+
+      {tab === "myths" && (
+        <div className="flex flex-col gap-3">
+          <p className="text-sm leading-relaxed text-foreground/90">
+            A viral list says common foods and herbs &ldquo;work exactly like&rdquo; painkillers, from ibuprofen to morphine. We checked
+            each claim against official herbal monographs and published trials. <strong>No trial shows any of these foods works
+            exactly like the drug it is paired with.</strong> A few have real, narrower evidence; several have none.
+          </p>
+          <div className="rounded-sm border border-amber-500/30 bg-amber-500/5 px-4 py-3">
+            <Warn>Nothing here replaces a prescribed medicine, and it is not medical advice. Some herbs interact with medicines: if you take blood thinners, steroids, immune-suppressing drugs, sedatives or anything else prescribed, ask your pharmacist or doctor before adding a herb or supplement.</Warn>
+          </div>
+          <p className="text-xs leading-relaxed text-foreground/75">{MYTH_RULE}</p>
+          <div className="flex flex-wrap gap-2">
+            {(Object.keys(MYTH_VERDICT_LABEL) as MythVerdict[]).map((v) => (
+              <span key={v} title={MYTH_VERDICT_HELP[v]} className={`rounded-sm border px-1.5 py-0.5 text-[10px] font-display uppercase tracking-[0.12em] ${VERDICT_CHIP[v]}`}>{MYTH_VERDICT_LABEL[v]}</span>
+            ))}
+          </div>
+          {MYTHS.map((m) => (
+            <details key={m.id} className="gorilla-card group rounded-sm p-4">
+              <summary className="flex cursor-pointer list-none items-start justify-between gap-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-foreground/60">The claim: &ldquo;{m.viral}&rdquo;</p>
+                  <h2 className="mt-1 font-display text-lg leading-tight text-foreground">{m.name}</h2>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span title={MYTH_VERDICT_HELP[m.verdict]} className={`rounded-sm border px-1.5 py-0.5 text-[10px] font-display uppercase tracking-[0.12em] ${VERDICT_CHIP[m.verdict]}`}>{MYTH_VERDICT_LABEL[m.verdict]}</span>
+                  <span className="text-foreground/60 group-open:rotate-180">▾</span>
+                </div>
+              </summary>
+              <div className="mt-3 flex flex-col gap-3 text-sm leading-relaxed text-foreground/85">
+                <p className="text-foreground">{m.summary}</p>
+                <Row k="Head-to-head test">{m.headToHead}</Row>
+                {m.forPoints.length > 0 && (
+                  <div>
+                    <p className="font-display text-xs uppercase tracking-[0.15em] text-emerald-300">Evidence for</p>
+                    <ul className="mt-1 flex flex-col gap-1.5">
+                      {m.forPoints.map((t) => <li key={t} className="flex gap-2"><span className="text-emerald-300">+</span> {t}</li>)}
+                    </ul>
+                  </div>
+                )}
+                {m.againstPoints.length > 0 && (
+                  <div>
+                    <p className="font-display text-xs uppercase tracking-[0.15em] text-red-300">Evidence against, and limits</p>
+                    <ul className="mt-1 flex flex-col gap-1.5">
+                      {m.againstPoints.map((t) => <li key={t} className="flex gap-2"><span className="text-red-300">&minus;</span> {t}</li>)}
+                    </ul>
+                  </div>
+                )}
+                {m.official.length > 0 && (
+                  <div>
+                    <p className="font-display text-xs uppercase tracking-[0.15em] text-gold">What official bodies say</p>
+                    <ul className="mt-1 flex flex-col gap-1.5">
+                      {m.official.map((t) => <li key={t} className="flex gap-2"><span className="text-gold">·</span> {t}</li>)}
+                    </ul>
+                  </div>
+                )}
+                {m.caution && <Warn>{m.caution}</Warn>}
+                {m.sources.length > 0 && <Sources ids={m.sources} />}
+              </div>
+            </details>
+          ))}
+          <details className="rounded-sm border border-line bg-surface/40 px-4 py-3">
+            <summary className="cursor-pointer list-none text-xs font-display uppercase tracking-[0.2em] text-gold">What we could not verify ▾</summary>
+            <ul className="mt-3 flex flex-col gap-2 text-xs leading-relaxed text-foreground/80">
+              {MYTH_UNVERIFIED.map((u) => <li key={u} className="flex gap-2"><span className="text-gold">·</span> {u}</li>)}
+            </ul>
+          </details>
         </div>
       )}
 
