@@ -101,7 +101,7 @@ function ResultRow({ item }: { item: SearchResult }) {
   return (
     <Link
       href={getProductLink(item)}
-      className="flex items-center justify-between gap-3 rounded-sm border border-line bg-surface px-4 py-3 transition-colors hover:border-gold/50 hover:bg-surface-2"
+      className="flex min-w-0 items-center justify-between gap-3 rounded-sm border border-line bg-surface px-4 py-3 transition-colors hover:border-gold/50 hover:bg-surface-2"
     >
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm text-foreground">{item.name}</p>
@@ -243,7 +243,7 @@ export default function SearchResults() {
                 <h2 className={`mb-3 font-display text-sm uppercase tracking-[0.2em] ${s.accent ?? "text-gold/70"}`}>
                   {s.label} <span className="text-muted/80">({s.items.length})</span>
                 </h2>
-                <div className="grid gap-2 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {s.items.map((item, i) => (
                     <ResultRow key={keyFor(item, i)} item={item} />
                   ))}
