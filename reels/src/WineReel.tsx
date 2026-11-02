@@ -53,6 +53,30 @@ const Pill: React.FC<{ score: number | string; name: string; delay: number }> = 
 
 const headline: React.CSSProperties = { fontFamily: DISPLAY, color: TEXT, fontSize: 104, lineHeight: 1.0, letterSpacing: -2 };
 
+const PhoneScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const fade = interpolate(frame, [0, 8, SCENE - 8, SCENE], [0, 1, 1, 0]);
+  const lift = interpolate(frame, [0, 20], [60, 0], { extrapolateRight: "clamp" });
+  const zoom = interpolate(frame, [0, SCENE], [1.0, 1.04]);
+  return (
+    <AbsoluteFill style={{ opacity: fade, background: "#0b0b0c" }}>
+      <AbsoluteFill>
+        <Img src={staticFile("scene-wine-hook.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover", filter: "blur(40px) brightness(0.4)", transform: "scale(1.2)" }} />
+      </AbsoluteFill>
+      <Logo />
+      <div style={{ position: "absolute", left: 290, top: 190 + lift, width: 500, height: 1082, borderRadius: 58, border: "10px solid #1c1c1f", background: "#000", overflow: "hidden", boxShadow: "0 40px 90px rgba(0,0,0,0.7)" }}>
+        <Img src={staticFile("screen-wine-search.png")} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", transform: `scale(${zoom})`, transformOrigin: "top center" }} />
+      </div>
+      <div style={{ position: "absolute", left: 70, right: 70, top: 1330, display: "flex", flexDirection: "column", gap: 14, alignItems: "flex-start" }}>
+        <Rise delay={6}><div style={{ ...headline, fontSize: 80 }}>SEARCH</div></Rise>
+        <Rise delay={12}><div style={{ ...headline, fontSize: 80, color: GOLD, marginBottom: 4 }}>LCBO WINES.</div></Rise>
+        <Pill score="5 oz" name="pour: calories and sugar" delay={24} />
+        <Pill score="0-100" name="Gorilla Score" delay={30} />
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 export const WineReel: React.FC = () => (
   <Series>
     <Series.Sequence durationInFrames={SCENE}>
@@ -66,15 +90,7 @@ export const WineReel: React.FC = () => (
       </Shot>
     </Series.Sequence>
     <Series.Sequence durationInFrames={SCENE}>
-      <Shot src="scene-wine-payoff.jpg" dir={-1}>
-        <Logo />
-        <div style={{ position: "absolute", left: 70, right: 70, top: 1190, display: "flex", flexDirection: "column", gap: 14, alignItems: "flex-start" }}>
-          <Rise delay={4}><div style={{ ...headline, fontSize: 84 }}>SEARCH</div></Rise>
-          <Rise delay={10}><div style={{ ...headline, fontSize: 84, color: GOLD, marginBottom: 6 }}>ANY BOTTLE.</div></Rise>
-          <Pill score="5 oz" name="pour: calories and sugar" delay={24} />
-          <Pill score="0-100" name="Gorilla Score" delay={30} />
-        </div>
-      </Shot>
+      <PhoneScene />
     </Series.Sequence>
     <Series.Sequence durationInFrames={SCENE}>
       <AbsoluteFill style={{ background: "#0b0b0c", justifyContent: "center", padding: 80 }}>
@@ -83,7 +99,7 @@ export const WineReel: React.FC = () => (
         <Rise delay={12}><div style={{ ...headline, fontSize: 96, color: GOLD }}>WINE.</div></Rise>
         <Rise delay={26}>
           <p style={{ fontFamily: BODY, color: "#cfc9b8", fontSize: 42, lineHeight: 1.35, marginTop: 36, maxWidth: 880 }}>
-            Look up any wine sold at the LCBO. Free, no account. Wine data from LCBO product listings; wines sold elsewhere may be missing.
+            Look up wines sold at the LCBO. Free, no account.
           </p>
         </Rise>
         <Rise delay={44}>
