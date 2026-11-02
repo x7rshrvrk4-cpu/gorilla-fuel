@@ -6,6 +6,7 @@ import { DessertReel } from "./DessertReel";
 import { PlannerReel } from "./PlannerReel";
 import { SmoothieReel } from "./SmoothieReel";
 import { WineReel } from "./WineReel";
+import { WinePourReel } from "./WinePourReel";
 import { reelSchema } from "./schema";
 import { pickReel, CATALOG_BY_ID } from "./catalog";
 
@@ -85,6 +86,14 @@ export const RemotionRoot: React.FC = () => {
         id="WineReel"
         component={WineReel}
         durationInFrames={360}
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="WinePourReel"
+        component={WinePourReel}
+        durationInFrames={450}
         fps={FPS}
         width={1080}
         height={1920}
