@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
   const id = sp.get("id");
   if (id) {
-    if (!/^wine-(lcbo|wr)-\d{1,10}$/.test(id)) return NextResponse.json({ wine: null }, { status: 400 });
+    if (!/^wine-(lcbo|wr|mg)-\d{1,10}$/.test(id)) return NextResponse.json({ wine: null }, { status: 400 });
     return NextResponse.json({ wine: getLcboWine(id) }, { headers: cacheHeaders });
   }
 

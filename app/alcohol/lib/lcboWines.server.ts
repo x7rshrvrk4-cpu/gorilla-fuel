@@ -2,6 +2,7 @@ import "server-only";
 import { ALCOHOL_PRODUCTS, wineGorillaScore, type AlcoholRankingProduct, type WineSubcategory } from "./products";
 import { LCBO_WINES } from "./lcboWinesData";
 import { WINE_RACK } from "./wineRackData";
+import { MAGNOTTA } from "./magnottaData";
 
 /**
  * Server-only LCBO wine catalogue. Expanded lazily from the compact tuples in
@@ -20,7 +21,10 @@ function sizeLabel(ml: number) {
 
 type Row = readonly [string, string, string, string, number, number, number, string, string, number];
 
-function expand(row: Row, source: "lcbo" | "wr" = "lcbo"): AlcoholRankingProduct {
+type Source = "lcbo" | "wr" | "mg";
+const SOURCE_LABEL: Record<Source, string> = { lcbo: "LCBO", wr: "The Wine Rack (Ontario grocery wine boutique)", mg: "Magnotta Winery (winery stores and online)" };
+
+function expand(row: Row, source: Source = "lcbo"): AlcoholRankingProduct {
   const [num, brand, rawName, sub, abv, sugarGL, ml, region, varietal, vqa] = row;
   const name = ml > 0 && ml !== 750 ? `${rawName} (${sizeLabel(ml)})` : rawName;
   const verified = abv > 0 && sugarGL >= 0;
@@ -35,7 +39,7 @@ function expand(row: Row, source: "lcbo" | "wr" = "lcbo"): AlcoholRankingProduct
     bottleSizeMl: ml > 0 ? ml : undefined,
     lcboNumber: source === "lcbo" ? num : undefined,
     market: "CA",
-    availability: source === "lcbo" ? "LCBO" : "The Wine Rack (Ontario grocery wine boutique)",
+    availability: SOURCE_LABEL[source],
     knownAdditives: verified ? ["Sulphites (E220)"] : [],
     additiveCount: verified ? 1 : 0,
     gorillaPour: 3,
@@ -80,13 +84,15 @@ function load(): Indexed[] {
   }
   // Wine Rack rows are skipped when the same wine (name + size) is already in the curated or LCBO data.
   for (const n of lcboNames) haveNames.add(n);
-  for (const row of WINE_RACK) {
-    const p = expand(row, "wr");
-    const key = `${norm(p.name)}|${p.bottleSizeMl ?? 0}`;
-    if (haveNames.has(key) || haveNames.has(`${norm(p.name)}|0`)) continue;
-    haveNames.add(key);
-    const hay = fold(`${p.brand} ${p.name} ${p.varietal ?? ""} ${p.region ?? ""} wine rack grocery`);
-    out.push({ p, hay, compact: hay.replace(/[^a-z0-9]/g, ""), score: wineGorillaScore(p) });
+  for (const [rows, source] of [[WINE_RACK, "wr"], [MAGNOTTA, "mg"]] as const) {
+    for (const row of rows) {
+      const p = expand(row, source);
+      const key = `${norm(p.name)}|${p.bottleSizeMl ?? 0}`;
+      if (haveNames.has(key) || haveNames.has(`${norm(p.name)}|0`)) continue;
+      haveNames.add(key);
+      const hay = fold(`${p.brand} ${p.name} ${p.varietal ?? ""} ${p.region ?? ""}${source === "wr" ? " wine rack grocery" : ""}`);
+      out.push({ p, hay, compact: hay.replace(/[^a-z0-9]/g, ""), score: wineGorillaScore(p) });
+    }
   }
   cache = out;
   byId = new Map(out.map((x) => [x.p.id, x]));
