@@ -8,17 +8,19 @@ import {
 import type { Strength } from "./lib/holisticData";
 import { MYTHS, MYTH_RULE, MYTH_UNVERIFIED, MYTH_SOURCES, MYTH_VERDICT_LABEL, MYTH_VERDICT_HELP } from "./lib/mythsData";
 import type { MythVerdict } from "./lib/mythsData";
+import { FREQ_INTRO, FREQ_VERDICT, FREQ_CLAIMS, FREQ_FEELING, FREQ_REAL, FREQ_JAPAN, FREQ_CAUTION, FREQ_UNVERIFIED, FREQ_SOURCES } from "./lib/frequencyData";
 import { SOURCES } from "../smoothies/lib/drinkData";
 import { PRODUCE } from "../smoothies/lib/produceData";
 import { REFERENCES, RANKINGS, MATRIX_UNVERIFIED } from "./lib/matrixData";
 import type { NutrientKey } from "./lib/matrixData";
 
-const ALL_SOURCES: Record<string, { title: string; publisher: string; url: string }> = { ...SOURCES, ...N_SOURCES, ...MYTH_SOURCES };
+const ALL_SOURCES: Record<string, { title: string; publisher: string; url: string }> = { ...SOURCES, ...N_SOURCES, ...MYTH_SOURCES, ...FREQ_SOURCES };
 const TABS = [
   { key: "nutrients", label: "Nutrients" },
   { key: "foods", label: "Foods" },
   { key: "herbs", label: "Herbs" },
   { key: "myths", label: "Painkiller myths" },
+  { key: "frequency", label: "Frequency & Rife" },
   { key: "pairings", label: "Pairings" },
   { key: "top", label: "Top sources" },
   { key: "evidence", label: "Evidence check" },
@@ -335,6 +337,43 @@ export default function HolisticClient() {
             <summary className="cursor-pointer list-none text-xs font-display uppercase tracking-[0.2em] text-gold">What we could not verify ▾</summary>
             <ul className="mt-3 flex flex-col gap-2 text-xs leading-relaxed text-foreground/80">
               {MYTH_UNVERIFIED.map((u) => <li key={u} className="flex gap-2"><span className="text-gold">·</span> {u}</li>)}
+            </ul>
+          </details>
+        </div>
+      )}
+
+      {tab === "frequency" && (
+        <div className="flex flex-col gap-3">
+          <p className="text-sm leading-relaxed text-foreground/90">{FREQ_INTRO}</p>
+          <div className="rounded-sm border border-amber-500/30 bg-amber-500/5 px-4 py-3">
+            <Warn>{FREQ_CAUTION}</Warn>
+          </div>
+          <div className="gorilla-card rounded-sm p-4">
+            <span className="rounded-sm border border-red-500/50 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-display uppercase tracking-[0.12em] text-red-300">{FREQ_VERDICT}</span>
+            <div className="mt-3 flex flex-col gap-3 text-sm leading-relaxed text-foreground/85">
+              {FREQ_CLAIMS.map((c) => (
+                <Row key={c.claim} k={c.claim}>{c.finding}</Row>
+              ))}
+              <Sources ids={["F1", "F2", "F3"]} />
+            </div>
+          </div>
+          <div className="gorilla-card rounded-sm p-4 text-sm leading-relaxed text-foreground/85">
+            <p className="font-display text-xs uppercase tracking-[0.15em] text-gold">If it felt good</p>
+            <p className="mt-1">{FREQ_FEELING}</p>
+          </div>
+          <div className="gorilla-card rounded-sm p-4 text-sm leading-relaxed text-foreground/85">
+            <p className="font-display text-xs uppercase tracking-[0.15em] text-emerald-300">Frequency in real, regulated medicine</p>
+            <ul className="mt-1 flex flex-col gap-1.5">
+              {FREQ_REAL.map((t) => <li key={t} className="flex gap-2"><span className="text-emerald-300">+</span> {t}</li>)}
+            </ul>
+            <p className="mt-3 font-display text-xs uppercase tracking-[0.15em] text-gold">&ldquo;Japan uses frequency in hospitals&rdquo;</p>
+            <p className="mt-1">{FREQ_JAPAN}</p>
+            <div className="mt-3"><Sources ids={["F3", "F4", "F5"]} /></div>
+          </div>
+          <details className="rounded-sm border border-line bg-surface/40 px-4 py-3">
+            <summary className="cursor-pointer list-none text-xs font-display uppercase tracking-[0.2em] text-gold">What we could not verify ▾</summary>
+            <ul className="mt-3 flex flex-col gap-2 text-xs leading-relaxed text-foreground/80">
+              {FREQ_UNVERIFIED.map((u) => <li key={u} className="flex gap-2"><span className="text-gold">·</span> {u}</li>)}
             </ul>
           </details>
         </div>
