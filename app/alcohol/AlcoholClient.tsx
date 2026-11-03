@@ -142,7 +142,7 @@ export default function AlcoholClient() {
     const product = ALCOHOL_PRODUCTS.find((x) => x.id === deepLinkId);
     if (!product) {
       // Not in the curated catalogue: it may be an LCBO wine served from /api/wines.
-      if (!/^wine-lcbo-\d+$/.test(deepLinkId)) return;
+      if (!/^wine-(lcbo|wr)-\d+$/.test(deepLinkId)) return;
       let cancelled = false;
       let cleanup: (() => void) | undefined;
       fetch(`/api/wines?id=${encodeURIComponent(deepLinkId)}`)

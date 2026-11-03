@@ -1,6 +1,7 @@
 import "server-only";
 import { ALCOHOL_PRODUCTS, wineGorillaScore, type AlcoholRankingProduct, type WineSubcategory } from "./products";
 import { LCBO_WINES } from "./lcboWinesData";
+import { WINE_RACK } from "./wineRackData";
 
 /**
  * Server-only LCBO wine catalogue. Expanded lazily from the compact tuples in
@@ -17,12 +18,14 @@ function sizeLabel(ml: number) {
   return ml >= 1000 ? `${+(ml / 1000).toFixed(2)}L` : `${ml}mL`;
 }
 
-function expand(row: (typeof LCBO_WINES)[number]): AlcoholRankingProduct {
+type Row = readonly [string, string, string, string, number, number, number, string, string, number];
+
+function expand(row: Row, source: "lcbo" | "wr" = "lcbo"): AlcoholRankingProduct {
   const [num, brand, rawName, sub, abv, sugarGL, ml, region, varietal, vqa] = row;
   const name = ml > 0 && ml !== 750 ? `${rawName} (${sizeLabel(ml)})` : rawName;
   const verified = abv > 0 && sugarGL >= 0;
   const base: AlcoholRankingProduct = {
-    id: `wine-lcbo-${num}`,
+    id: `wine-${source}-${num}`,
     category: "Wines",
     brand: brand || rawName.split(" ")[0],
     name,
@@ -30,9 +33,9 @@ function expand(row: (typeof LCBO_WINES)[number]): AlcoholRankingProduct {
     region: region || undefined,
     varietal: varietal || undefined,
     bottleSizeMl: ml > 0 ? ml : undefined,
-    lcboNumber: num,
+    lcboNumber: source === "lcbo" ? num : undefined,
     market: "CA",
-    availability: "LCBO",
+    availability: source === "lcbo" ? "LCBO" : "The Wine Rack (Ontario grocery wine boutique)",
     knownAdditives: verified ? ["Sulphites (E220)"] : [],
     additiveCount: verified ? 1 : 0,
     gorillaPour: 3,
@@ -66,11 +69,23 @@ function load(): Indexed[] {
     haveNames.add(`${norm(p.name)}|${p.bottleSizeMl ?? 0}`);
   }
   const out: Indexed[] = [];
+  const lcboNames = new Set<string>();
   for (const row of LCBO_WINES) {
     if (haveNums.has(row[0])) continue;
     const p = expand(row);
     if (haveNames.has(`${norm(p.name)}|${p.bottleSizeMl ?? 0}`) || haveNames.has(`${norm(p.name)}|0`)) continue;
     const hay = fold(`${p.brand} ${p.name} ${p.varietal ?? ""} ${p.region ?? ""}`);
+    out.push({ p, hay, compact: hay.replace(/[^a-z0-9]/g, ""), score: wineGorillaScore(p) });
+    lcboNames.add(`${norm(p.name)}|${p.bottleSizeMl ?? 0}`);
+  }
+  // Wine Rack rows are skipped when the same wine (name + size) is already in the curated or LCBO data.
+  for (const n of lcboNames) haveNames.add(n);
+  for (const row of WINE_RACK) {
+    const p = expand(row, "wr");
+    const key = `${norm(p.name)}|${p.bottleSizeMl ?? 0}`;
+    if (haveNames.has(key) || haveNames.has(`${norm(p.name)}|0`)) continue;
+    haveNames.add(key);
+    const hay = fold(`${p.brand} ${p.name} ${p.varietal ?? ""} ${p.region ?? ""} wine rack grocery`);
     out.push({ p, hay, compact: hay.replace(/[^a-z0-9]/g, ""), score: wineGorillaScore(p) });
   }
   cache = out;
