@@ -54,8 +54,8 @@ export const MYTHS: Myth[] = [
       "EMA: well-established use of a dry extract for short-term lower back pain in adults, not beyond 4 weeks; traditional use for minor joint pain, headache and cold-related fever. Not for children or adolescents, or in the third trimester of pregnancy.",
       "Health Canada monograph: uses include short-term relief of lower back pain and minor joint pain due to osteoarthritis. Ask a practitioner beyond 6 weeks, and before use with asthma, peptic ulcer disease, blood thinners or products containing salicylates. Do not use if pregnant, breastfeeding or allergic to salicylates.",
     ],
-    caution: "EMA lists these contraindications: salicylate or NSAID hypersensitivity, salicylate-sensitive asthma, active stomach ulcers, severe liver or kidney disease, clotting disorders.",
-    sources: ["X5", "X8", "P10936472", "P25536022"],
+    caution: "EMA lists these contraindications: salicylate or NSAID hypersensitivity, salicylate-sensitive asthma, active stomach ulcers, severe liver or kidney disease, clotting disorders. NCCIH notes the most common side effects are gastrointestinal and that using it with other salicylate-containing medicines increases the risks.",
+    sources: ["X5", "X8", "X11", "P10936472", "P25536022"],
   },
   {
     id: "peppermint", viral: "Peppermint works like tramadol", name: "Peppermint oil", verdict: "supported_use",
@@ -70,8 +70,8 @@ export const MYTHS: Myth[] = [
     official: [
       "EMA: well-established use of the oil taken by mouth for minor abdominal spasms, flatulence and pain, especially in IBS, and applied to the forehead and temples for mild headache.",
     ],
-    caution: "EMA: not for children under 8 (abdominal use) or under 18 (headache); do not use with low stomach acid, liver disease, gallstones or bile problems. The EMA-reviewed form is the oil, not fresh mint leaf.",
-    sources: ["N20", "P35942669"],
+    caution: "EMA: not for children under 8 (abdominal use) or under 18 (headache); do not use with low stomach acid, liver disease, gallstones or bile problems. NCCIH: avoid with GERD (reflux); heartburn is more likely if capsules are not enteric-coated. Memorial Sloan Kettering lists cyclosporine (levels rose in rats; one transplant patient's level fell) and felodipine (levels reported higher) as reasons to ask a doctor first. The EMA-reviewed form is the oil, not fresh mint leaf.",
+    sources: ["N20", "X12", "M6", "P35942669"],
   },
   {
     id: "cayenne", viral: "Cayenne pepper works like ketoprofen", name: "Cayenne (capsaicin)", verdict: "partly",
@@ -98,8 +98,9 @@ export const MYTHS: Myth[] = [
     againstPoints: [
       "Small trials; controls were placebo or “western medicine”, with no opioid among them. The abstract does not report adverse events.",
     ],
-    official: ["We did not read an EMA or NCCIH page for Boswellia."],
-    sources: ["P32680575"],
+    official: ["Memorial Sloan Kettering: generally well tolerated, but boswellia extracts can inhibit platelet aggregation and may raise bleeding risk with blood thinners such as warfarin. It describes the osteoarthritis data as conflicting and says larger trials are needed. We did not read an EMA or NCCIH page for Boswellia."],
+    caution: "Ask a doctor or pharmacist before using it with warfarin or other blood thinners.",
+    sources: ["M3", "P32680575"],
   },
   {
     id: "ginger", viral: "Ginger works like ibuprofen", name: "Ginger", verdict: "mixed",
@@ -117,7 +118,8 @@ export const MYTHS: Myth[] = [
       "EMA: well-established use for preventing motion-sickness nausea; traditional use only for minor joint pain (not beyond 4 weeks). Not for pregnancy or breastfeeding.",
       "NCCIH (Feb 2025) disagrees on motion sickness: it says most studies have not shown benefit.",
     ],
-    sources: ["X7", "X1", "P28348610", "P10607493"],
+    caution: "Memorial Sloan Kettering: ginger supplements may raise bleeding risk with warfarin or other blood thinners (it calls the evidence inconclusive), may lower blood sugar further with diabetes drugs, and should be stopped 2 weeks before surgery. EMA and Memorial Sloan Kettering advise avoiding it in pregnancy and breastfeeding.",
+    sources: ["X7", "X1", "M1", "P28348610", "P10607493"],
   },
   {
     id: "turmeric", viral: "Turmeric works like aspirin; curcumin works like hydrocodone", name: "Turmeric and curcumin", verdict: "mixed",
@@ -132,8 +134,8 @@ export const MYTHS: Myth[] = [
       "NCCIH: not enough is known to conclude turmeric helps any condition, and liver damage has been reported with highly bioavailable formulations.",
     ],
     official: ["EMA: traditional use only, for mild digestive problems."],
-    caution: "NCCIH: stop use and contact a provider for symptoms such as dark urine or jaundice. Turmeric supplements may be unsafe in pregnancy.",
-    sources: ["N21", "X2", "P34537344", "P41560742"],
+    caution: "NCCIH: stop use and contact a provider for symptoms such as dark urine or jaundice. Turmeric supplements may be unsafe in pregnancy. Memorial Sloan Kettering: turmeric may raise bleeding risk, so avoid combining it with warfarin or other blood thinners, and it may lessen the effect of some chemotherapy drugs (camptothecin, mechlorethamine, doxorubicin, cyclophosphamide).",
+    sources: ["N21", "X2", "M2", "P34537344", "P41560742"],
   },
   {
     id: "pineapple", viral: "Pineapple works like celecoxib", name: "Pineapple (bromelain)", verdict: "mixed",
@@ -161,12 +163,13 @@ export const MYTHS: Myth[] = [
     againstPoints: [
       "Valente 2024 umbrella review: “no evidence of efficacy” for insomnia; it may improve subjective sleep quality but this was not shown with objective measures.",
       "NCCIH (May 2025): the evidence is inconsistent, and the American Academy of Sleep Medicine recommended against valerian for chronic insomnia in adults.",
+      "Memorial Sloan Kettering: in several trials valerian's sleep effect was not better than placebo.",
     ],
     official: [
       "EMA and NCCIH disagree, so both are shown. Health Canada lists it as a sleep aid and a calmative (traditional use).",
     ],
-    caution: "Do not take with alcohol, sedatives or products that cause drowsiness (NCCIH, Health Canada). EMA: not for children under 12, pregnancy or breastfeeding. Stopping abruptly after chronic use may cause withdrawal symptoms such as insomnia (NCCIH).",
-    sources: ["X6", "X3", "X9", "P17145239", "P38359657"],
+    caution: "Do not take with alcohol, sedatives or products that cause drowsiness (NCCIH, Health Canada). Memorial Sloan Kettering: valerian lengthens the sedation from sedating drugs, an animal study and a case report suggest it may add to diazepam-type effects, and people with liver disease should avoid it (case reports of liver injury). EMA: not for children under 12, pregnancy or breastfeeding. Stopping abruptly after chronic use may cause withdrawal symptoms such as insomnia (NCCIH).",
+    sources: ["X6", "X3", "X9", "M4", "P17145239", "P38359657"],
   },
   {
     id: "ashwagandha", viral: "Ashwagandha works like prednisone", name: "Ashwagandha", verdict: "not_supported",
@@ -183,8 +186,8 @@ export const MYTHS: Myth[] = [
     official: [
       "NCCIH (March 2023) says it might interact with immunosuppressants, diabetes and blood-pressure drugs, sedatives, anticonvulsants and thyroid hormones. It does not name steroids specifically.",
     ],
-    caution: "Prednisone is an immune-suppressing medicine, so ask a pharmacist or doctor before combining it with ashwagandha.",
-    sources: ["X4", "X10", "P34559859"],
+    caution: "Prednisone is an immune-suppressing medicine, so ask a pharmacist or doctor before combining it with ashwagandha. Memorial Sloan Kettering adds: avoid with benzodiazepines, anticonvulsants or barbiturates; it may increase drowsiness; it may trigger or worsen autoimmune disease; thyrotoxicosis and higher thyroxine levels have been reported; and one case report describes adrenal (HPA axis) suppression after prolonged use that needed hydrocortisone.",
+    sources: ["X4", "X10", "M5", "P34559859"],
   },
   {
     id: "cloves", viral: "Cloves work like morphine", name: "Cloves", verdict: "not_supported",
@@ -198,7 +201,8 @@ export const MYTHS: Myth[] = [
       "The eugenol and clove-oil pain studies we found were in mice or rats; none of the abstracts we read compared clove with morphine in people.",
     ],
     official: ["EMA has a clove oil monograph (mouth and throat disorders), but its public summary page gave no usable indication or safety details."],
-    sources: ["P16530911"],
+    caution: "Do not swallow clove oil. MedlinePlus lists liver failure among the overdose effects of eugenol oil, especially in children, with serious effects from as little as 10 mL in adults and less in children.",
+    sources: ["M10", "P16530911"],
   },
   {
     id: "cherry", viral: "Tart cherries work like acetaminophen", name: "Tart cherries", verdict: "not_supported",
@@ -237,8 +241,8 @@ export const MYTHS: Myth[] = [
     againstPoints: [
       "2018 trial, 76 women with knee osteoarthritis, 12 weeks: no significant difference from placebo in WOMAC pain, function or total score; stiffness was lower with garlic (1.4 vs 2.5, p=0.023).",
     ],
-    official: ["EMA draft monograph (2016): use with caution with oral anticoagulants or antiplatelets, which may increase bleeding time."],
-    sources: ["N22", "P40602379", "P29790635"],
+    official: ["EMA draft monograph (2016): use with caution with oral anticoagulants or antiplatelets, which may increase bleeding time.", "Memorial Sloan Kettering: ask a doctor before garlic supplements if you take warfarin or other blood thinners; stop 1-2 weeks before surgery (patient guidance) or at least 7 days before (clinician guidance); garlic lowered saquinavir levels by about 54% at peak and 49% at trough."],
+    sources: ["N22", "M7", "P40602379", "P29790635"],
   },
   {
     id: "papaya", viral: "Papaya works like codeine", name: "Papaya", verdict: "none_found",
@@ -269,7 +273,7 @@ export const MYTH_UNVERIFIED: string[] = [
   "Evidence was read from official pages and PubMed abstract pages. Full papers were not read, so numbers are the ones printed in the abstracts.",
   "Health Canada monographs were read for willow bark, valerian and ashwagandha. We could not retrieve usable monograph text for ginger, peppermint, Boswellia or turmeric.",
   "Where EMA and NCCIH disagree (ginger and motion sickness; valerian), both positions are shown rather than choosing one.",
-  "A pharmacist or clinician has not reviewed the interaction wording on this tab. Treat it as general information.",
+  "Interaction wording was cross-checked against NCCIH, Memorial Sloan Kettering's About Herbs pages, Health Canada monographs, EMA and MedlinePlus, and where they differ we show the more cautious statement. It has not been reviewed by a pharmacist or clinician. Treat it as general information.",
   "Several searches had limited results (papaya, aloe vera, garlic). “No evidence found” means our searches found none, not that none exists.",
 ];
 
@@ -284,6 +288,16 @@ export const MYTH_SOURCES: Record<string, { title: string; publisher: string; ur
   X8: { title: "Health Canada NHP monograph: Willow bark", publisher: "Health Canada", url: "https://webprod.hc-sc.gc.ca/nhpid-bdipsn/atReq?atid=white.wil.saule.bla&lang=eng" },
   X9: { title: "Health Canada NHP monograph: Valerian", publisher: "Health Canada", url: "https://webprod.hc-sc.gc.ca/nhpid-bdipsn/atReq?atid=valerian2&lang=eng" },
   X10: { title: "Health Canada NHP monograph: Ashwagandha", publisher: "Health Canada", url: "https://webprod.hc-sc.gc.ca/nhpid-bdipsn/atReq?atid=ashwagandha2&lang=eng" },
+  X11: { title: "NCCIH: Nutritional Approaches for Musculoskeletal Pain and Inflammation: What the Science Says", publisher: "NCCIH (NIH)", url: "https://www.nccih.nih.gov/health/providers/digest/nutritional-approaches-for-musculoskeletal-pain-and-inflammation-science" },
+  X12: { title: "NCCIH: Peppermint Oil: Usefulness and Safety", publisher: "NCCIH (NIH)", url: "https://www.nccih.nih.gov/health/peppermint-oil" },
+  M1: { title: "Memorial Sloan Kettering About Herbs: Ginger", publisher: "Memorial Sloan Kettering", url: "https://www.mskcc.org/cancer-care/integrative-medicine/herbs/ginger" },
+  M2: { title: "Memorial Sloan Kettering About Herbs: Turmeric", publisher: "Memorial Sloan Kettering", url: "https://www.mskcc.org/cancer-care/integrative-medicine/herbs/turmeric" },
+  M3: { title: "Memorial Sloan Kettering About Herbs: Boswellia", publisher: "Memorial Sloan Kettering", url: "https://www.mskcc.org/cancer-care/integrative-medicine/herbs/boswellia" },
+  M4: { title: "Memorial Sloan Kettering About Herbs: Valerian", publisher: "Memorial Sloan Kettering", url: "https://www.mskcc.org/cancer-care/integrative-medicine/herbs/valerian" },
+  M5: { title: "Memorial Sloan Kettering About Herbs: Ashwagandha", publisher: "Memorial Sloan Kettering", url: "https://www.mskcc.org/cancer-care/integrative-medicine/herbs/ashwagandha" },
+  M6: { title: "Memorial Sloan Kettering About Herbs: Peppermint", publisher: "Memorial Sloan Kettering", url: "https://www.mskcc.org/cancer-care/integrative-medicine/herbs/peppermint" },
+  M7: { title: "Memorial Sloan Kettering About Herbs: Garlic", publisher: "Memorial Sloan Kettering", url: "https://www.mskcc.org/cancer-care/integrative-medicine/herbs/garlic" },
+  M10: { title: "MedlinePlus: Eugenol oil overdose", publisher: "MedlinePlus (NLM)", url: "https://www.medlineplus.gov/ency/article/002647.htm" },
   P10936472: { title: "Chrubasik S et al. Treatment of low back pain exacerbations with willow bark extract: a randomized double-blind study. Am J Med 2000", publisher: "PubMed: Chrubasik 2000", url: "https://pubmed.ncbi.nlm.nih.gov/10936472/" },
   P25536022: { title: "Oltean H et al. Herbal medicine for low-back pain. Cochrane Database Syst Rev 2014", publisher: "PubMed: Cochrane 2014", url: "https://pubmed.ncbi.nlm.nih.gov/25536022/" },
   P35942669: { title: "Systematic review and meta-analysis: efficacy of peppermint oil in irritable bowel syndrome. Aliment Pharmacol Ther 2022", publisher: "PubMed: peppermint meta-analysis 2022", url: "https://pubmed.ncbi.nlm.nih.gov/35942669/" },
