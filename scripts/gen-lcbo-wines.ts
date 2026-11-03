@@ -65,7 +65,9 @@ for (const r of byNum.values()) {
   const ml = sizeMl(r.size);
   if (ml > 0 && ml < 187) { skippedPack++; continue; }
   const vqa = /VQA/i.test(`${r.appellation ?? ""} ${r.name}`);
-  const name = r.name!.replace(/\s+(VQA|DOCG|DOC|AOC|AOP|IGT|IGP)\b/gi, "").replace(/\s+/g, " ").trim();
+  // Label name differs from the LCBO listing: 478727 is listed as "Catena Malbec" (13.5%, 750 mL); the bottle label reads "High Mountain Vines" at the same ABV.
+  const NAME_FIX: Record<string, string> = { "478727": "Catena High Mountain Vines Malbec" };
+  const name = NAME_FIX[r.num!] ?? r.name!.replace(/\s+(VQA|DOCG|DOC|AOC|AOP|IGT|IGP)\b/gi, "").replace(/\s+/g, " ").trim();
   const region = [r.appellation && !/^VQA$/i.test(r.appellation) ? r.appellation : undefined, r.madeIn, vqa ? "VQA" : undefined].filter(Boolean).join(", ");
   if (r.abv === undefined || Number.isNaN(r.abv)) noAbv++;
   if (r.sugarGL === undefined || Number.isNaN(r.sugarGL)) noSugar++;
