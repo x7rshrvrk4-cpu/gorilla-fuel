@@ -2060,7 +2060,7 @@ export const LCBO_WINES: readonly LcboWineRow[] = [["490888","***25","***25 DOMA
 ["10964","Catena","Catena Appellation Tupungato Chardonnay 2024","W",13.5,4,750,"Tupungato, Mendoza, Mendoza, Argentina","Chardonnay",0],
 ["985002","Catena","Catena Cabernet Sauvignon","R",13.5,3,750,"Mendoza, Argentina, Mendoza, Argentina","Cabernet Sauvignon",0],
 ["918805","Catena","Catena High Mountain Vines Chardonnay 2024","W",14,2,750,"Mendoza, Argentina","Chardonnay",0],
-["478727","Catena","Catena Malbec","R",13.5,4,750,"Mendoza, Argentina, Mendoza, Argentina","Malbec",0],
+["478727","Catena","Catena High Mountain Vines Malbec","R",13.5,4,750,"Mendoza, Argentina, Mendoza, Argentina","Malbec",0],
 ["492413","Catena","Catena Paraje Altamira Malbec 2023","R",13.2,4,750,"Mendoza, Argentina","Malbec",0],
 ["47500","Catena","Catena Zapata Adrianna Vineyard White Bones Chardonnay 2015","W",13,0,750,"Mendoza, Mendoza, Argentina","Chardonnay",0],
 ["514844","Catena","Catena Zapata Adrianna Vineyard White Bones Chardonnay 2023","W",13,2,750,"Gualtallary, Tupungato, Valle de Uco, Mendoza, Mendoza, Argentina","Chardonnay",0],
