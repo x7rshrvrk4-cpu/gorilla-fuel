@@ -425,6 +425,20 @@ const REMEDIES_RAW: Remedy[] = [
     sources: ["R28", "R29"],
   },
   {
+    id: "vicks-feet", group: "Cough and sore throat", claim: "Vicks on the soles of your feet stops a night cough", name: "Vapor rub on the feet", verdict: "tradition",
+    summary: "A popular reader remedy. We found no randomized trial of the foot method, and the label directs use on the throat and chest.",
+    forPoints: [
+      "A 2023 laboratory study in Drugs in Context found that menthol, camphor and eucalyptus oil activate receptors linked to cough, with a trend toward less ATP release in rhinovirus-infected airway cells. It did not test application to the feet (as described by People's Pharmacy).",
+    ],
+    againstPoints: [
+      "No randomized trial of Vicks on the feet exists, per People's Pharmacy. The proposed explanation (nerve signals from the feet interrupting the cough reflex) is described by its own proposer as speculation that may be nonsense.",
+      "The strong smell makes a placebo-controlled test difficult, so relief is hard to separate from expectation, sleep or natural recovery.",
+    ],
+    official: ["People's Pharmacy notes the product label directs topical use on the throat and chest for ages 2 and older, not on the feet."],
+    caution: "Follow the product label and keep it away from eyes and broken skin. We found no evidence for children under 2.",
+    sources: ["R38", "R26"],
+  },
+  {
     id: "hot-toddy", group: "Cough and sore throat", claim: "A hot toddy (whiskey, honey, lemon) knocks out a cold", name: "Hot toddy", verdict: "tradition",
     summary: "Nobody has tested the hot toddy. The honey part has some support, the lemon little, and there is no evidence that the alcohol helps.",
     forPoints: ["A warm drink with honey is comforting, and honey has some trial support for cough in children over 1 (see the honey entry)."],
@@ -433,7 +447,7 @@ const REMEDIES_RAW: Remedy[] = [
       "Mayo Clinic: alcohol can worsen dehydration. Health24 adds that cold and flu medicines may not mix with alcohol.",
     ],
     official: [],
-    anecdotal: ["Recipe blogs and their commenters describe it as soothing. We found no controlled data."],
+    anecdotal: ["Mumsnet: about 7 mentions of hot toddies, whisky in tea and similar, all positive; one commenter said it worked once before sleep. Recipe blogs also call it soothing. We found no controlled data."],
     caution: "Not for children. Do not combine alcohol with cold or flu medicines, or before driving. The warm honey and lemon drink on this tab gives you the comfort without the alcohol.",
     sources: ["R23", "R30"],
   },
@@ -446,7 +460,7 @@ const REMEDIES_RAW: Remedy[] = [
       "Healthline notes it has been associated with esophageal injury and dental erosion, so it should be diluted.",
     ],
     official: [],
-    anecdotal: ["Recipe-blog commenters say a warm lemon, honey and water drink with a splash of vinegar feels soothing. A health site's claim that it kills the cold bacteria is not supported (colds are viral)."],
+    anecdotal: ["Mumsnet: about 6 mentions across four threads, usually as a drink or gargle, mostly suggestions without a reported result. Recipe-blog commenters call a lemon, honey and water drink with a splash of vinegar soothing. A health site's claim that it kills the cold bacteria is not supported (colds are viral)."],
     howTo: {
       title: "If you still try it",
       ingredients: ["Apple cider vinegar", "A full mug of warm water", "Honey (not for children under 1)"],
@@ -489,8 +503,17 @@ const SEEN_IN: Record<string, number> = {
   "vitamin-c": 5, echinacea: 5, "chicken-soup": 3, "head-up": 3, garlic: 2, "menthol-rub": 2, elderberry: 1, "garlic-honey": 1,
 };
 const ANECDOTES: Record<string, string[]> = {
-  "onion-honey": ["People's Pharmacy, which collects readers' remedies, says it found no clinical trials of onion syrup, and that people who use it report it often works. Those are reader reports, not evidence."],
-  "hot-drink": ["Forum posters say lemon, honey and ginger tea eased a sore throat, one for about an hour and another simply saying it works for them. Single reports, not evidence."],
+  honey: ["Mumsnet commenters named honey, usually with lemon in hot water, more than any other sore-throat remedy (roughly a dozen mentions across four threads). None reported it failing."],
+  "onion-honey": ["People's Pharmacy reader letters (a 32-comment article) describe onion syrup made with honey or sugar, in accounts from Germany, Hungary, Alabama and India. Readers say it calmed coughs and loosened mucus, and none reported side effects or failure. The site itself says it found no clinical trials. Reader letters are not evidence."],
+  "hot-drink": ["Mumsnet commenters mention honey and lemon, and ginger with lemon and honey, as soothing; forum posters elsewhere say it eased a sore throat for a while. No controlled data."],
+  "salt-gargle": ["Mumsnet: 7 positive reports and 1 'didn't help' across three threads; one commenter found it hard to tolerate but said it works."],
+  "saline-rinse": ["Mumsnet: 3 positive mentions (a neti pot, a nasal rinse and a saline sinus spray)."],
+  "fluids-rest": ["Mumsnet: rest or extra sleep (6 mentions) and plenty of fluids (4) were the most consistent advice in the cold threads."],
+  "vitamin-c": ["Mumsnet: 4 positive mentions, and 2 commenters saying vitamin C taken at the first sign of a cold has no evidence behind it."],
+  zinc: ["Mumsnet: 5 positive mentions in two 'stop a cold' threads."],
+  echinacea: ["Mumsnet: 9 positive mentions across two 'stop a cold' threads whose commenters may overlap."],
+  garlic: ["Mumsnet: 3 positive mentions (raw clove, with curry, on bread)."],
+  "menthol-rub": ["Mumsnet: 3 mentions of Vicks on the neck or feet. People's Pharmacy: hundreds of reader testimonials for Vicks on the soles of the feet, mostly describing relief within minutes. Some readers said it never worked and one reported an ankle problem. All uncontrolled."],
 };
 
 export const REMEDIES: Remedy[] = REMEDIES_RAW.map((r) => ({
@@ -498,6 +521,31 @@ export const REMEDIES: Remedy[] = REMEDIES_RAW.map((r) => ({
   seenIn: SEEN_IN[r.id] ?? 0,
   anecdotal: r.anecdotal ?? ANECDOTES[r.id],
 }));
+
+// Anecdotal tally from public forums that allow crawlers (Reddit blocks our tools). Mentions are not unique people:
+// threads may share commenters. Self-reported, unverified, and not evidence.
+export const REMEDY_FORUM = {
+  method:
+    "We read four Mumsnet threads on sore throats and 'stopping a cold' (about 80 comments on their first pages), People's Pharmacy reader letters on onion syrup and Vicks on the feet, and Quora answers. We could not search Reddit because it blocks our tools. Counts are mentions, not unique people, and everything here is self-reported.",
+  rows: [
+    { name: "Honey and lemon drinks", count: "about 12", note: "positive; none reported failing" },
+    { name: "Rest or extra sleep", count: "6", note: "positive" },
+    { name: "Salt-water gargle", count: "8", note: "7 positive, 1 'didn't help'" },
+    { name: "Hot toddy or whisky in tea", count: "about 7", note: "positive" },
+    { name: "Apple cider vinegar (drink or gargle)", count: "about 6", note: "mostly suggestions, few results reported" },
+    { name: "Echinacea", count: "9", note: "positive" },
+    { name: "Zinc", count: "5", note: "positive" },
+    { name: "Plenty of fluids", count: "4", note: "positive" },
+    { name: "Vitamin C", count: "4 positive, 2 sceptical", note: "two said it does nothing at the first sign of a cold" },
+    { name: "Vicks on neck, chest or feet", count: "3 (plus hundreds of reader letters)", note: "mostly positive; some say it never worked" },
+    { name: "Garlic", count: "3", note: "positive" },
+    { name: "Nasal rinse (neti pot or saline)", count: "3", note: "positive" },
+  ] as { name: string; count: string; note: string }[],
+  notResearched: [
+    "Spicy food or hot curry (about 5 mentions), hot baths, hot-water bottles, wearing a hat in bed",
+    "Hydrogen peroxide in the ears for a cold (second-hand report). We did not research it and do not recommend it.",
+  ],
+};
 
 export const REMEDY_UNVERIFIED: string[] = [
   "Evidence comes from Cochrane abstracts and plain-language summaries, official pages, and news coverage of official pages. Full papers were not read, so numbers are the ones printed in those summaries.",
@@ -507,7 +555,7 @@ export const REMEDY_UNVERIFIED: string[] = [
   "We could not find a validated storage time for onion in honey. The 24-hour fridge rule and the 2 to 3 day rule for leftover ginger tea are our own cautious rules, and the entries say so.",
   "The folk claims here come from commonly repeated lists, not from a set of e-books or websites we reviewed. Many web pages making these claims cited studies we could not find, so we did not use them. If you have a specific book or page with claims you want checked, send it and we will test those claims the same way.",
   "Cross-check counts (how many of 7 major health sites mention each remedy) come from search summaries of each site's pages, not full-text reads. They show how commonly a remedy is repeated, not whether it works.",
-  "Anecdotal reports are labelled as such and are not evidence. We could not retrieve Reddit threads; the reports shown come from forums, recipe blogs and a readers' remedy column, and we found few of them.",
+  "Anecdotal reports are labelled as such and are not evidence. Reddit blocks our tools, so the reports shown come from Mumsnet threads, People's Pharmacy reader letters, Quora answers and recipe blogs. They are a small, UK-leaning sample, not a survey.",
   "Harvard Health and MedlinePlus points were read through search summaries of several of their pages; we did not verify which exact page each detail came from.",
   "These checks have not been reviewed by a doctor or pharmacist.",
 ];
@@ -550,5 +598,6 @@ export const REMEDY_SOURCES: Record<string, { title: string; publisher: string; 
   R34: { title: "How to treat the common cold at home", publisher: "MedlinePlus", url: "https://medlineplus.gov/ency/patientinstructions/000466.htm" },
   R35: { title: "15 natural home remedies for the cold and flu", publisher: "Healthline", url: "https://www.healthline.com/health/cold-flu/home-remedies" },
   R36: { title: "14 all-natural home remedies for fast cold and flu relief", publisher: "WebMD", url: "https://www.webmd.com/cold-and-flu/14-tips-prevent-colds-flu-1" },
+  R38: { title: "Can science explain why Vicks on the feet calms a cough?", publisher: "People's Pharmacy", url: "https://wp.peoplespharmacy.com/can-science-explain-why-vicks-on-the-feet-calms-a-cough" },
   R37: { title: "The do's and don'ts of easing cold symptoms", publisher: "Johns Hopkins Medicine", url: "https://www.hopkinsmedicine.org/health/wellness-and-prevention/the-dos-and-donts-of-easing-cold-symptoms" },
 };

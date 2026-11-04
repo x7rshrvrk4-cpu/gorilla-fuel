@@ -8,7 +8,7 @@ import {
 import type { Strength } from "./lib/holisticData";
 import { MYTHS, MYTH_RULE, MYTH_UNVERIFIED, MYTH_SOURCES, MYTH_VERDICT_LABEL, MYTH_VERDICT_HELP } from "./lib/mythsData";
 import type { MythVerdict } from "./lib/mythsData";
-import { REMEDIES, REMEDY_GROUPS, REMEDY_RULE, REMEDY_UNVERIFIED, REMEDY_SOURCES, REMEDY_SEEN_OF, REMEDY_SEEN_SITES, REMEDY_VERDICT_LABEL, REMEDY_VERDICT_HELP } from "./lib/remediesData";
+import { REMEDIES, REMEDY_GROUPS, REMEDY_RULE, REMEDY_UNVERIFIED, REMEDY_SOURCES, REMEDY_SEEN_OF, REMEDY_SEEN_SITES, REMEDY_FORUM, REMEDY_VERDICT_LABEL, REMEDY_VERDICT_HELP } from "./lib/remediesData";
 import type { RemedyVerdict } from "./lib/remediesData";
 import { FREQ_INTRO, FREQ_VERDICT, FREQ_CLAIMS, FREQ_FEELING, FREQ_REAL, FREQ_JAPAN, FREQ_CAUTION, FREQ_UNVERIFIED, FREQ_SOURCES } from "./lib/frequencyData";
 import { SOURCES } from "../smoothies/lib/drinkData";
@@ -384,6 +384,19 @@ export default function HolisticClient() {
               ))}
             </ul>
             <p className="mt-2 text-xs text-foreground/65">Not in any of those lists: onion-honey syrup, onions in socks, hot toddy, apple cider vinegar, pelargonium and thyme-ivy products, clove oil, cranberry and burn myths.</p>
+          </div>
+          <div className="gorilla-card rounded-sm p-4 text-sm leading-relaxed text-foreground/85">
+            <p className="font-display text-xs uppercase tracking-[0.15em] text-sky-300">What people report (anecdotal, not evidence)</p>
+            <p className="mt-1 text-xs text-foreground/75">{REMEDY_FORUM.method}</p>
+            <ul className="mt-2 flex flex-col gap-1">
+              {REMEDY_FORUM.rows.map((r) => (
+                <li key={r.name} className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
+                  <span>{r.name}</span>
+                  <span className="text-xs text-foreground/70">{r.count} · {r.note}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-xs text-foreground/65">Also named, not researched: {REMEDY_FORUM.notResearched.join(" ")}</p>
           </div>
           {REMEDY_GROUPS.map((g) => (
             <div key={g} className="flex flex-col gap-3">
