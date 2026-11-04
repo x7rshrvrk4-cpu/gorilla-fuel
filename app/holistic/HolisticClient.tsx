@@ -8,7 +8,7 @@ import {
 import type { Strength } from "./lib/holisticData";
 import { MYTHS, MYTH_RULE, MYTH_UNVERIFIED, MYTH_SOURCES, MYTH_VERDICT_LABEL, MYTH_VERDICT_HELP } from "./lib/mythsData";
 import type { MythVerdict } from "./lib/mythsData";
-import { REMEDIES, REMEDY_GROUPS, REMEDY_RULE, REMEDY_UNVERIFIED, REMEDY_SOURCES, REMEDY_VERDICT_LABEL, REMEDY_VERDICT_HELP } from "./lib/remediesData";
+import { REMEDIES, REMEDY_GROUPS, REMEDY_RULE, REMEDY_UNVERIFIED, REMEDY_SOURCES, REMEDY_SEEN_OF, REMEDY_SEEN_SITES, REMEDY_VERDICT_LABEL, REMEDY_VERDICT_HELP } from "./lib/remediesData";
 import type { RemedyVerdict } from "./lib/remediesData";
 import { FREQ_INTRO, FREQ_VERDICT, FREQ_CLAIMS, FREQ_FEELING, FREQ_REAL, FREQ_JAPAN, FREQ_CAUTION, FREQ_UNVERIFIED, FREQ_SOURCES } from "./lib/frequencyData";
 import { SOURCES } from "../smoothies/lib/drinkData";
@@ -33,6 +33,7 @@ type Tab = (typeof TABS)[number]["key"];
 
 const REMEDY_CHIP: Record<RemedyVerdict, string> = {
   some_support: "border-emerald-500/50 bg-emerald-500/10 text-emerald-300",
+  consensus: "border-teal-500/50 bg-teal-500/10 text-teal-300",
   mixed: "border-amber-500/50 bg-amber-500/10 text-amber-300",
   not_supported: "border-red-500/50 bg-red-500/10 text-red-300",
   tradition: "border-sky-500/50 bg-sky-500/10 text-sky-300",
@@ -369,6 +370,21 @@ export default function HolisticClient() {
               <span key={v} title={REMEDY_VERDICT_HELP[v]} className={`rounded-sm border px-1.5 py-0.5 text-[10px] font-display uppercase tracking-[0.12em] ${REMEDY_CHIP[v]}`}>{REMEDY_VERDICT_LABEL[v]}</span>
             ))}
           </div>
+          <div className="gorilla-card rounded-sm p-4 text-sm leading-relaxed text-foreground/85">
+            <p className="font-display text-xs uppercase tracking-[0.15em] text-gold">Cross-check: which remedies show up most</p>
+            <p className="mt-1 text-xs text-foreground/75">
+              We compared the cold, cough and sore-throat advice of {REMEDY_SEEN_OF} major health sources ({REMEDY_SEEN_SITES.join(", ")}). Showing up often means a remedy is widely repeated, not that it is proven.
+            </p>
+            <ul className="mt-2 flex flex-col gap-1">
+              {[...REMEDIES].filter((r) => (r.seenIn ?? 0) > 0).sort((a, b) => (b.seenIn ?? 0) - (a.seenIn ?? 0)).map((r) => (
+                <li key={r.id} className="flex items-center justify-between gap-3">
+                  <span>{r.name}</span>
+                  <span className="shrink-0 text-xs text-foreground/70">{r.seenIn} of {REMEDY_SEEN_OF} · {REMEDY_VERDICT_LABEL[r.verdict]}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-xs text-foreground/65">Not in any of those lists: onion-honey syrup, onions in socks, hot toddy, apple cider vinegar, pelargonium and thyme-ivy products, clove oil, cranberry and burn myths.</p>
+          </div>
           {REMEDY_GROUPS.map((g) => (
             <div key={g} className="flex flex-col gap-3">
               <h2 className="mt-2 font-display text-xs uppercase tracking-[0.2em] text-gold">{g}</h2>
@@ -386,6 +402,7 @@ export default function HolisticClient() {
                   </summary>
                   <div className="mt-3 flex flex-col gap-3 text-sm leading-relaxed text-foreground/85">
                     <p className="text-foreground">{r.summary}</p>
+                    <p className="text-xs text-foreground/65">{(r.seenIn ?? 0) > 0 ? `Mentioned by ${r.seenIn} of ${REMEDY_SEEN_OF} major health sites we checked.` : "Not in the cold, cough and sore-throat advice of the major health sites we compared."}</p>
                     {r.forPoints.length > 0 && (
                       <div>
                         <p className="font-display text-xs uppercase tracking-[0.15em] text-emerald-300">Evidence for</p>
@@ -407,6 +424,14 @@ export default function HolisticClient() {
                         <p className="font-display text-xs uppercase tracking-[0.15em] text-gold">What official bodies say</p>
                         <ul className="mt-1 flex flex-col gap-1.5">
                           {r.official.map((t) => <li key={t} className="flex gap-2"><span className="text-gold">·</span> {t}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    {r.anecdotal && r.anecdotal.length > 0 && (
+                      <div>
+                        <p className="font-display text-xs uppercase tracking-[0.15em] text-sky-300">Anecdotal reports (not evidence)</p>
+                        <ul className="mt-1 flex flex-col gap-1.5">
+                          {r.anecdotal.map((t) => <li key={t} className="flex gap-2"><span className="text-sky-300">·</span> {t}</li>)}
                         </ul>
                       </div>
                     )}
