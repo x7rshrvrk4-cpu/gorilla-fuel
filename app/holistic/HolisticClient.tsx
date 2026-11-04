@@ -8,18 +8,21 @@ import {
 import type { Strength } from "./lib/holisticData";
 import { MYTHS, MYTH_RULE, MYTH_UNVERIFIED, MYTH_SOURCES, MYTH_VERDICT_LABEL, MYTH_VERDICT_HELP } from "./lib/mythsData";
 import type { MythVerdict } from "./lib/mythsData";
+import { REMEDIES, REMEDY_GROUPS, REMEDY_RULE, REMEDY_UNVERIFIED, REMEDY_SOURCES, REMEDY_VERDICT_LABEL, REMEDY_VERDICT_HELP } from "./lib/remediesData";
+import type { RemedyVerdict } from "./lib/remediesData";
 import { FREQ_INTRO, FREQ_VERDICT, FREQ_CLAIMS, FREQ_FEELING, FREQ_REAL, FREQ_JAPAN, FREQ_CAUTION, FREQ_UNVERIFIED, FREQ_SOURCES } from "./lib/frequencyData";
 import { SOURCES } from "../smoothies/lib/drinkData";
 import { PRODUCE } from "../smoothies/lib/produceData";
 import { REFERENCES, RANKINGS, MATRIX_UNVERIFIED } from "./lib/matrixData";
 import type { NutrientKey } from "./lib/matrixData";
 
-const ALL_SOURCES: Record<string, { title: string; publisher: string; url: string }> = { ...SOURCES, ...N_SOURCES, ...MYTH_SOURCES, ...FREQ_SOURCES };
+const ALL_SOURCES: Record<string, { title: string; publisher: string; url: string }> = { ...SOURCES, ...N_SOURCES, ...MYTH_SOURCES, ...FREQ_SOURCES, ...REMEDY_SOURCES };
 const TABS = [
   { key: "nutrients", label: "Nutrients" },
   { key: "foods", label: "Foods" },
   { key: "herbs", label: "Herbs" },
   { key: "myths", label: "Painkiller myths" },
+  { key: "remedies", label: "Home remedies" },
   { key: "frequency", label: "Frequency & Rife" },
   { key: "pairings", label: "Pairings" },
   { key: "top", label: "Top sources" },
@@ -27,6 +30,14 @@ const TABS = [
   { key: "about", label: "About & sources" },
 ] as const;
 type Tab = (typeof TABS)[number]["key"];
+
+const REMEDY_CHIP: Record<RemedyVerdict, string> = {
+  some_support: "border-emerald-500/50 bg-emerald-500/10 text-emerald-300",
+  mixed: "border-amber-500/50 bg-amber-500/10 text-amber-300",
+  not_supported: "border-red-500/50 bg-red-500/10 text-red-300",
+  tradition: "border-sky-500/50 bg-sky-500/10 text-sky-300",
+  harmful: "border-red-500/60 bg-red-500/15 text-red-300",
+};
 
 const CHIP: Record<Strength, string> = {
   strong: "border-emerald-500/50 bg-emerald-500/10 text-emerald-300",
@@ -337,6 +348,104 @@ export default function HolisticClient() {
             <summary className="cursor-pointer list-none text-xs font-display uppercase tracking-[0.2em] text-gold">What we could not verify ▾</summary>
             <ul className="mt-3 flex flex-col gap-2 text-xs leading-relaxed text-foreground/80">
               {MYTH_UNVERIFIED.map((u) => <li key={u} className="flex gap-2"><span className="text-gold">·</span> {u}</li>)}
+            </ul>
+          </details>
+        </div>
+      )}
+
+      {tab === "remedies" && (
+        <div className="flex flex-col gap-3">
+          <p className="text-sm leading-relaxed text-foreground/90">
+            Home remedies and old wives&rsquo; tales for colds, coughs, sore throats and first aid, checked against Cochrane reviews, NCCIH, Health
+            Canada and food-safety guidance. Each card shows the evidence for and against, what official bodies say, and, where a safe method
+            exists, how to make it and store it. <strong>Many are comforting but untested; a few can cause harm.</strong>
+          </p>
+          <div className="rounded-sm border border-amber-500/30 bg-amber-500/5 px-4 py-3">
+            <Warn>Not medical advice. A remedy does not replace a doctor, especially for babies, pregnancy, long-lasting symptoms, fever or trouble breathing. Never give honey to a child under 1 year. Tell your pharmacist what you take before adding a herb or supplement.</Warn>
+          </div>
+          <p className="text-xs leading-relaxed text-foreground/75">{REMEDY_RULE}</p>
+          <div className="flex flex-wrap gap-2">
+            {(Object.keys(REMEDY_VERDICT_LABEL) as RemedyVerdict[]).map((v) => (
+              <span key={v} title={REMEDY_VERDICT_HELP[v]} className={`rounded-sm border px-1.5 py-0.5 text-[10px] font-display uppercase tracking-[0.12em] ${REMEDY_CHIP[v]}`}>{REMEDY_VERDICT_LABEL[v]}</span>
+            ))}
+          </div>
+          {REMEDY_GROUPS.map((g) => (
+            <div key={g} className="flex flex-col gap-3">
+              <h2 className="mt-2 font-display text-xs uppercase tracking-[0.2em] text-gold">{g}</h2>
+              {REMEDIES.filter((r) => r.group === g).map((r) => (
+                <details key={r.id} className="gorilla-card group rounded-sm p-4">
+                  <summary className="flex cursor-pointer list-none items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.14em] text-foreground/60">The claim: &ldquo;{r.claim}&rdquo;</p>
+                      <h3 className="mt-1 font-display text-lg leading-tight text-foreground">{r.name}</h3>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span title={REMEDY_VERDICT_HELP[r.verdict]} className={`rounded-sm border px-1.5 py-0.5 text-[10px] font-display uppercase tracking-[0.12em] ${REMEDY_CHIP[r.verdict]}`}>{REMEDY_VERDICT_LABEL[r.verdict]}</span>
+                      <span className="text-foreground/60 group-open:rotate-180">▾</span>
+                    </div>
+                  </summary>
+                  <div className="mt-3 flex flex-col gap-3 text-sm leading-relaxed text-foreground/85">
+                    <p className="text-foreground">{r.summary}</p>
+                    {r.forPoints.length > 0 && (
+                      <div>
+                        <p className="font-display text-xs uppercase tracking-[0.15em] text-emerald-300">Evidence for</p>
+                        <ul className="mt-1 flex flex-col gap-1.5">
+                          {r.forPoints.map((t) => <li key={t} className="flex gap-2"><span className="text-emerald-300">+</span> {t}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    {r.againstPoints.length > 0 && (
+                      <div>
+                        <p className="font-display text-xs uppercase tracking-[0.15em] text-red-300">Evidence against, and limits</p>
+                        <ul className="mt-1 flex flex-col gap-1.5">
+                          {r.againstPoints.map((t) => <li key={t} className="flex gap-2"><span className="text-red-300">&minus;</span> {t}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    {r.official.length > 0 && (
+                      <div>
+                        <p className="font-display text-xs uppercase tracking-[0.15em] text-gold">What official bodies say</p>
+                        <ul className="mt-1 flex flex-col gap-1.5">
+                          {r.official.map((t) => <li key={t} className="flex gap-2"><span className="text-gold">·</span> {t}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    {r.howTo && (
+                      <div className="rounded-sm border border-line bg-surface/40 p-3">
+                        <p className="font-display text-xs uppercase tracking-[0.15em] text-gold">{r.howTo.title}</p>
+                        {r.howTo.ingredients.length > 0 && (
+                          <>
+                            <p className="mt-2 text-xs uppercase tracking-[0.12em] text-foreground/60">You need</p>
+                            <ul className="mt-1 flex flex-col gap-1">
+                              {r.howTo.ingredients.map((t) => <li key={t} className="flex gap-2"><span className="text-gold">·</span> {t}</li>)}
+                            </ul>
+                          </>
+                        )}
+                        <p className="mt-2 text-xs uppercase tracking-[0.12em] text-foreground/60">Method</p>
+                        <ol className="mt-1 flex flex-col gap-1">
+                          {r.howTo.steps.map((t, i) => <li key={t} className="flex gap-2"><span className="text-gold">{i + 1}.</span> {t}</li>)}
+                        </ol>
+                        {r.howTo.store.length > 0 && (
+                          <>
+                            <p className="mt-2 text-xs uppercase tracking-[0.12em] text-foreground/60">Storage</p>
+                            <ul className="mt-1 flex flex-col gap-1">
+                              {r.howTo.store.map((t) => <li key={t} className="flex gap-2"><span className="text-gold">·</span> {t}</li>)}
+                            </ul>
+                          </>
+                        )}
+                      </div>
+                    )}
+                    {r.caution && <Warn>{r.caution}</Warn>}
+                    {r.sources.length > 0 && <Sources ids={r.sources} />}
+                  </div>
+                </details>
+              ))}
+            </div>
+          ))}
+          <details className="rounded-sm border border-line bg-surface/40 px-4 py-3">
+            <summary className="cursor-pointer list-none text-xs font-display uppercase tracking-[0.2em] text-gold">What we could not verify ▾</summary>
+            <ul className="mt-3 flex flex-col gap-2 text-xs leading-relaxed text-foreground/80">
+              {REMEDY_UNVERIFIED.map((u) => <li key={u} className="flex gap-2"><span className="text-gold">·</span> {u}</li>)}
             </ul>
           </details>
         </div>
