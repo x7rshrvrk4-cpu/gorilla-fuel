@@ -5,7 +5,8 @@ import CrossLinkBanner from "./components/CrossLinkBanner";
 import UniversalSearch from "./components/UniversalSearch";
 import { amazonUrl } from "./intel/lib/products";
 import { getWeeklyPicks } from "./lib/weeklyPicks";
-import { RECIPES } from "./fitness/lib/recipes";
+import { RECIPES, mealScore } from "./fitness/lib/recipes";
+import { wineGorillaScore } from "./alcohol/lib/products";
 import GorillaSpotlight from "./components/GorillaSpotlight";
 
 export const metadata: Metadata = {
@@ -62,7 +63,7 @@ const PILLARS = [
 ];
 
 export default function Home() {
-  const { alcohol: alcoholPick, food: foodPick, supp: suppPick } = getWeeklyPicks();
+  const { alcohol: alcoholPick, food: foodPick, supp: suppPick, meal: mealPick, smoothie: smoothiePick, wine: winePick } = getWeeklyPicks();
 
   return (
     <>
@@ -223,10 +224,10 @@ export default function Home() {
             This Week&apos;s Gorilla Picks
           </h2>
           <p className="mt-3 text-sm text-muted">
-            A rotating weekly pick in each category.
+            Six rotating picks: alcohol, wine, food, meal, smoothie and supplement. New picks every Monday.
           </p>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {/* Alcohol pick */}
             {alcoholPick && (
               <div className="gorilla-card flex flex-col rounded-sm p-6">
@@ -354,6 +355,98 @@ export default function Home() {
                   >
                     Buy on Amazon →
                   </a>
+                </div>
+              </div>
+            )}
+
+            {/* Wine pick */}
+            {winePick && (
+              <div className="gorilla-card flex flex-col rounded-sm p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <span className="inline-flex rounded-sm border border-rose-600/40 bg-rose-900/20 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-rose-400">
+                      Wine
+                    </span>
+                    <h3 className="mt-2 font-display text-2xl leading-tight text-foreground">{winePick.name}</h3>
+                    <p className="text-sm text-muted">{[winePick.varietal, winePick.region].filter(Boolean).join(" · ")}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="font-display text-4xl leading-none text-emerald-400">{wineGorillaScore(winePick)}</p>
+                    <p className="mt-0.5 text-[10px] uppercase tracking-widest text-muted">/ 100</p>
+                  </div>
+                </div>
+                <p className="mt-4 flex-1 text-sm leading-relaxed text-muted">
+                  {winePick.caloriesPerCan} kcal and {winePick.sugarPerCan} g sugar per 148 mL pour
+                  {winePick.wineQuality ? `, and a critic score of ${winePick.wineQuality}${winePick.wineQualitySource ? ` (${winePick.wineQualitySource})` : ""}` : ""}.
+                  Chosen because it scores well on both nutrition and quality.
+                </p>
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center rounded-sm border border-gold/40 bg-gold/10 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.15em] text-gold">
+                    🦍 Gorilla Sweet Spot
+                  </span>
+                  <Link href={`/alcohol?p=${winePick.id}`} className="ml-auto font-display text-xs tracking-widest text-gold hover:underline">
+                    See this wine →
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Meal pick */}
+            {mealPick && (
+              <div className="gorilla-card flex flex-col rounded-sm p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <span className="inline-flex rounded-sm border border-orange-600/40 bg-orange-900/20 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-orange-400">
+                      Meal
+                    </span>
+                    <h3 className="mt-2 font-display text-2xl leading-tight text-foreground">{mealPick.title}</h3>
+                    <p className="text-sm text-muted capitalize">
+                      {mealPick.mealType} · {mealPick.timeMin} min · {mealPick.macros.calories} kcal · {mealPick.macros.protein} g protein
+                    </p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="font-display text-4xl leading-none text-emerald-400">{mealScore(mealPick)}</p>
+                    <p className="mt-0.5 text-[10px] uppercase tracking-widest text-muted">/ 100</p>
+                  </div>
+                </div>
+                <p className="mt-4 flex-1 text-sm leading-relaxed text-muted">{mealPick.gorillaNote}</p>
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center rounded-sm border border-gold/40 bg-gold/10 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.15em] text-gold">
+                    🦍 Gorilla Verified
+                  </span>
+                  <Link href="/planner" className="ml-auto font-display text-xs tracking-widest text-gold hover:underline">
+                    Plan your week →
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Smoothie pick */}
+            {smoothiePick && (
+              <div className="gorilla-card flex flex-col rounded-sm p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <span className="inline-flex rounded-sm border border-fuchsia-600/40 bg-fuchsia-900/20 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-fuchsia-400">
+                      Smoothie
+                    </span>
+                    <h3 className="mt-2 font-display text-2xl leading-tight text-foreground">{smoothiePick.name}</h3>
+                    <p className="text-sm text-muted">
+                      {smoothiePick.perServing.kcal} kcal · {smoothiePick.perServing.protein} g protein · {smoothiePick.perServing.sugar} g sugar
+                    </p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="font-display text-2xl leading-none text-emerald-400 capitalize">{smoothiePick.sugarFlag}</p>
+                    <p className="mt-0.5 text-[10px] uppercase tracking-widest text-muted">Sugar</p>
+                  </div>
+                </div>
+                <p className="mt-4 flex-1 text-sm leading-relaxed text-muted">{smoothiePick.flavour}</p>
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center rounded-sm border border-gold/40 bg-gold/10 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.15em] text-gold">
+                    🦍 Gorilla Verified
+                  </span>
+                  <Link href="/smoothies" className="ml-auto font-display text-xs tracking-widest text-gold hover:underline">
+                    See all smoothies →
+                  </Link>
                 </div>
               </div>
             )}

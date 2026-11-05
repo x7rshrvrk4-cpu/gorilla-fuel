@@ -1,4 +1,6 @@
 import { currentWeek, picksForWeek } from "../lib/weeklyPicks";
+import { wineGorillaScore } from "../alcohol/lib/products";
+import { mealScore } from "../fitness/lib/recipes";
 
 // Weekly Gorilla Picks as an RSS 2.0 feed — the automation hook. Point a
 // scheduler (Make.com / Buffer / Zapier / n8n) at https://www.gorillafuel.ca/feed.xml
@@ -18,13 +20,16 @@ export async function GET() {
   const items: string[] = [];
 
   for (let w = now; w > now - 1 - WEEKS_BACK; w--) {
-    const { weekStart, alcohol, food, supp } = picksForWeek(w);
+    const { weekStart, alcohol, food, supp, meal, smoothie, wine } = picksForWeek(w);
     const dateLabel = weekStart.toLocaleDateString("en-CA", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
     const parts: string[] = [];
     // names already embed the brand in these datasets, so don't prefix it again
     if (alcohol) parts.push(`🍺 Alcohol: ${alcohol.name} (${alcohol.gorillaPour}/5)`);
     if (food) parts.push(`🥗 Food: ${food.name} (${food.score}/100)`);
+    if (wine) parts.push(`🍷 Wine: ${wine.name} (${wineGorillaScore(wine)}/100)`);
     if (supp) parts.push(`💊 Supplement: ${supp.brand} ${supp.name} (Grade ${supp.grade})`);
+    if (meal) parts.push(`🍽️ Meal: ${meal.title} (${mealScore(meal)}/100)`);
+    if (smoothie) parts.push(`🥤 Smoothie: ${smoothie.name} (${smoothie.perServing.kcal} kcal, ${smoothie.perServing.protein} g protein)`);
 
     const link = `${BASE}/?${UTM}&utm_content=week-${w}`;
     const img = `${BASE}/api/og/picks`;
@@ -51,7 +56,7 @@ export async function GET() {
   <channel>
     <title>Gorilla Fuel — Weekly Gorilla Picks</title>
     <link>${BASE}</link>
-    <description>A rotating weekly pick in alcohol, food and supplements — independently scored. New drop every week.</description>
+    <description>Six rotating picks (alcohol, wine, food, meal, smoothie and supplements), independently scored. New drop every week.</description>
     <language>en-CA</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
 ${items.join("\n")}
