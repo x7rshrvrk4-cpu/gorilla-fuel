@@ -21,7 +21,7 @@ export const revalidate = 3600;
 
 // ── Category doors data ───────────────────────────────────────────────────────
 const DOOR = {
-  alcohol: { href: "/alcohol", label: "ALCOHOL", sub: "Beer · Wine · Seltzer · Non-Alcoholic", tagline: "500+ products scored" },
+  alcohol: { href: "/alcohol", label: "ALCOHOL", sub: "Beer · Wine · Seltzer · Non-Alcoholic", tagline: "15,000+ drinks in the database" },
   food: { href: "/approved", label: "FOOD & SNACKS", sub: "Approved · Cheat List · Stay Away · Kids · Beauty", tagline: "Scan anything instantly" },
   top: { href: "/top", label: "TOP RATED", sub: "Highest-scoring foods in the database, ranked live", tagline: "250+ foods ranked" },
   fitness: { href: "/fitness", label: "FITNESS", sub: "Macro calculator · BMR → TDEE → your daily calorie & protein targets", tagline: "Free tool" },

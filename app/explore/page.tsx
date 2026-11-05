@@ -39,8 +39,8 @@ const TILES: Tile[] = [
   {
     href: "/alcohol",
     label: "ALCOHOL",
-    sub: "Beer · Seltzer · Cider · Non-Alc",
-    tagline: "500+ products scored",
+    sub: "Beer · Wine · Seltzer · Cider · Non-Alc",
+    tagline: "15,000+ drinks in the database",
   },
   {
     href: "/alcohol",

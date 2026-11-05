@@ -5,7 +5,7 @@ import AlcoholClient from "./AlcoholClient";
 export const metadata: Metadata = {
   title: "Ontario Beer, Wine & Seltzer Rankings — Gorilla Fuel",
   description:
-    "Rankings and nutrition data for 400+ beers, wines, ciders and seltzers available in Ontario at the LCBO & The Beer Store. Gorilla Score every drink before you buy.",
+    "Rankings and nutrition data for 500+ beers, ciders and seltzers and 14,000+ searchable wines available in Ontario at the LCBO, The Beer Store and grocery wine shops. Gorilla Score every drink before you buy.",
   alternates: { canonical: "/alcohol" },
 };
 

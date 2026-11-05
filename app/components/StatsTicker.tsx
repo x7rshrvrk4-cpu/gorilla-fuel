@@ -7,14 +7,19 @@
 import { ALCOHOL_PRODUCTS } from "../alcohol/lib/products";
 import { PRODUCTS } from "../rankings/lib/products";
 import { CURATED_TOTAL } from "../lib/catalogCounts";
+import { lcboWineCount } from "../alcohol/lib/lcboWines.server";
 
+// Beer, seltzer, cider and other alcohol, excluding wines (counted separately) and non-alcoholic drinks.
 const BEER_ALCOHOL_COUNT = ALCOHOL_PRODUCTS.filter(
-  (p) => p.category !== "Non-Alcoholic"
+  (p) => p.category !== "Non-Alcoholic" && p.category !== "Wines"
 ).length;
 
-const WINE_COUNT = ALCOHOL_PRODUCTS.filter(
-  (p) => p.category === "Wines"
-).length;
+// Every searchable wine: the curated wines plus the server-side LCBO / Wine Rack / Magnotta catalogue
+// (which already excludes wines that are curated). Computed, so it grows with the data. Shown rounded
+// down to the nearest hundred so the "+" is always true.
+const WINE_COUNT_EXACT =
+  ALCOHOL_PRODUCTS.filter((p) => p.category === "Wines").length + lcboWineCount();
+const WINE_COUNT = Math.floor(WINE_COUNT_EXACT / 100) * 100;
 
 const SUPPL_COUNT = PRODUCTS.length;
 
@@ -97,8 +102,8 @@ export default async function StatsTicker() {
     // fabricated estimate, never "0+". Omitted entirely until the DB has data.
     ...(cacheCount !== null ? [`📦 ${cacheCount.toLocaleString("en-CA")}+ Products in Database`] : []),
     `🦍 ${CURATED_TOTAL.toLocaleString("en-CA")}+ Products Curated`,
-    `🍺 ${BEER_ALCOHOL_COUNT}+ Beer and Alcohol Products`,
-    `🍷 ${WINE_COUNT}+ Wines`,
+    `🍺 ${BEER_ALCOHOL_COUNT.toLocaleString("en-CA")}+ Beer, Seltzer and Cider Products`,
+    `🍷 ${WINE_COUNT.toLocaleString("en-CA")}+ Wines Searchable`,
     `💊 ${SUPPL_COUNT}+ Supplements Ranked`,
     `🔍 ${DATA_SOURCE_COUNT} Live Data Sources`,
     // Only shown when traffic is meaningful — avoids displaying a number that looks low.
