@@ -553,7 +553,7 @@ const ALCOHOL_PRODUCTS_RAW: AlcoholRankingProduct[] = [
     knownAdditives: [],
     additiveCount: 0,
     gorillaPour: 5,
-    availability: "LCBO & specialty retailers — Ontario and BC",
+    availability: "Beer Store Ontario",
     ontarioCraft: true,
     beerStyle: "IPA",
   },
