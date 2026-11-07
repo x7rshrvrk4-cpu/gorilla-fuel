@@ -121,7 +121,7 @@ export default async function StatsTicker() {
         {doubled.map((item, i) => (
           <span
             key={i}
-            className="mx-6 flex shrink-0 items-center gap-5 whitespace-nowrap text-[14px] leading-tight text-gold"
+            className="mx-6 flex shrink-0 items-center gap-5 whitespace-nowrap text-[14px] font-medium leading-tight text-foreground"
           >
             {item}
             <span className="text-gold/40 select-none">◆</span>

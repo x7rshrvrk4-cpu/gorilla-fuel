@@ -101,7 +101,7 @@ export function gradeColor(grade: string | null): string {
     case "C": return "text-amber-400";
     case "D": return "text-orange-400";
     case "F": return "text-red-400";
-    default: return "text-slate-400";
+    default: return "text-muted";
   }
 }
 

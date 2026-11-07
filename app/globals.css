@@ -5,7 +5,7 @@
   --surface: #faf7ee;
   --surface-2: #f3eedd;
   --foreground: #1c1a14;
-  --gold: #b89200;
+  --gold: #a88600;
   --gold-dim: #8c6f00;
   --muted: #5e5a4c;
   --line: #e6dfc8;
@@ -331,3 +331,48 @@ h1 .text-amber-400:not(.keep-dark *), h1 .text-amber-300:not(.keep-dark *), h2 .
   padding: 0.18em 0.7em;
   border-radius: 2px;
 }
+
+/* ── Light theme v4: audit fixes ── */
+[class*="text-sky-100/"]:not(.keep-dark *), [class*="text-sky-200/"]:not(.keep-dark *), [class*="text-sky-300/"]:not(.keep-dark *), [class*="text-sky-400/"]:not(.keep-dark *) { color: #1e3a8a; }
+[class*="text-blue-100/"]:not(.keep-dark *), [class*="text-blue-200/"]:not(.keep-dark *), [class*="text-blue-300/"]:not(.keep-dark *), [class*="text-blue-400/"]:not(.keep-dark *) { color: #1e3a8a; }
+[class*="text-indigo-100/"]:not(.keep-dark *), [class*="text-indigo-200/"]:not(.keep-dark *), [class*="text-indigo-300/"]:not(.keep-dark *), [class*="text-indigo-400/"]:not(.keep-dark *) { color: #312e81; }
+[class*="text-purple-100/"]:not(.keep-dark *), [class*="text-purple-200/"]:not(.keep-dark *), [class*="text-purple-300/"]:not(.keep-dark *), [class*="text-purple-400/"]:not(.keep-dark *) { color: #581c87; }
+[class*="text-fuchsia-100/"]:not(.keep-dark *), [class*="text-fuchsia-200/"]:not(.keep-dark *), [class*="text-fuchsia-300/"]:not(.keep-dark *), [class*="text-fuchsia-400/"]:not(.keep-dark *) { color: #701a75; }
+[class*="text-violet-100/"]:not(.keep-dark *), [class*="text-violet-200/"]:not(.keep-dark *), [class*="text-violet-300/"]:not(.keep-dark *), [class*="text-violet-400/"]:not(.keep-dark *) { color: #4c1d95; }
+[class*="text-green-100/"]:not(.keep-dark *), [class*="text-green-200/"]:not(.keep-dark *), [class*="text-green-300/"]:not(.keep-dark *), [class*="text-green-400/"]:not(.keep-dark *) { color: #065f46; }
+[class*="text-emerald-100/"]:not(.keep-dark *), [class*="text-emerald-200/"]:not(.keep-dark *), [class*="text-emerald-300/"]:not(.keep-dark *), [class*="text-emerald-400/"]:not(.keep-dark *) { color: #065f46; }
+[class*="text-teal-100/"]:not(.keep-dark *), [class*="text-teal-200/"]:not(.keep-dark *), [class*="text-teal-300/"]:not(.keep-dark *), [class*="text-teal-400/"]:not(.keep-dark *) { color: #115e59; }
+[class*="text-cyan-100/"]:not(.keep-dark *), [class*="text-cyan-200/"]:not(.keep-dark *), [class*="text-cyan-300/"]:not(.keep-dark *), [class*="text-cyan-400/"]:not(.keep-dark *) { color: #155e75; }
+[class*="text-lime-100/"]:not(.keep-dark *), [class*="text-lime-200/"]:not(.keep-dark *), [class*="text-lime-300/"]:not(.keep-dark *), [class*="text-lime-400/"]:not(.keep-dark *) { color: #3f6212; }
+[class*="text-yellow-100/"]:not(.keep-dark *), [class*="text-yellow-200/"]:not(.keep-dark *), [class*="text-yellow-300/"]:not(.keep-dark *), [class*="text-yellow-400/"]:not(.keep-dark *) { color: #713f12; }
+[class*="text-amber-100/"]:not(.keep-dark *), [class*="text-amber-200/"]:not(.keep-dark *), [class*="text-amber-300/"]:not(.keep-dark *), [class*="text-amber-400/"]:not(.keep-dark *) { color: #78350f; }
+[class*="text-orange-100/"]:not(.keep-dark *), [class*="text-orange-200/"]:not(.keep-dark *), [class*="text-orange-300/"]:not(.keep-dark *), [class*="text-orange-400/"]:not(.keep-dark *) { color: #9a3412; }
+[class*="text-red-100/"]:not(.keep-dark *), [class*="text-red-200/"]:not(.keep-dark *), [class*="text-red-300/"]:not(.keep-dark *), [class*="text-red-400/"]:not(.keep-dark *) { color: #991b1b; }
+[class*="text-rose-100/"]:not(.keep-dark *), [class*="text-rose-200/"]:not(.keep-dark *), [class*="text-rose-300/"]:not(.keep-dark *), [class*="text-rose-400/"]:not(.keep-dark *) { color: #9f1239; }
+[class*="text-pink-100/"]:not(.keep-dark *), [class*="text-pink-200/"]:not(.keep-dark *), [class*="text-pink-300/"]:not(.keep-dark *), [class*="text-pink-400/"]:not(.keep-dark *) { color: #9d174d; }
+
+/* Small gold text (links, numbers, labels) is near-black; gold stays for fills, borders, boxes and the logo */
+.text-gold:not(.keep-dark *), [class*="text-gold/"]:not(.keep-dark *) { color: var(--ink); }
+header a[href="/"] .text-gold:not(.keep-dark *) { color: var(--gold); }
+[class*="text-foreground/3"]:not(.keep-dark *), [class*="text-foreground/4"]:not(.keep-dark *), [class*="text-foreground/5"]:not(.keep-dark *), [class*="text-foreground/6"]:not(.keep-dark *),
+[class*="text-muted/3"]:not(.keep-dark *), [class*="text-muted/4"]:not(.keep-dark *), [class*="text-muted/5"]:not(.keep-dark *) { color: #55524a; }
+
+/* Score and grade colours chosen for a dark page: darker equivalents on white (inline-styled colours) */
+[style*="#3ddc84" i], [style*="rgb(61, 220, 132)"] { color: #0a7a3d !important; }
+[style*="#64cf86" i], [style*="rgb(100, 207, 134)"] { color: #12803f !important; }
+[style*="#7be37b" i], [style*="rgb(123, 227, 123)"] { color: #0f7a2e !important; }
+[style*="#a3e635" i], [style*="rgb(163, 230, 53)"] { color: #4d7c0f !important; }
+[style*="#ffd700" i], [style*="rgb(255, 215, 0)"], [style*="#ffd23d" i], [style*="rgb(255, 210, 61)"] { color: #7a5c00 !important; }
+[style*="#ffc760" i], [style*="rgb(255, 199, 96)"], [style*="#e8b23a" i], [style*="rgb(232, 178, 58)"] { color: #8a5a00 !important; }
+[style*="#ffb84d" i], [style*="rgb(255, 184, 77)"] { color: #8f5300 !important; }
+[style*="#ff9d2e" i], [style*="rgb(255, 157, 46)"] { color: #b45309 !important; }
+[style*="#ff4d4d" i], [style*="rgb(255, 77, 77)"] { color: #c62828 !important; }
+[style*="#9fd6ff" i], [style*="rgb(159, 214, 255)"] { color: #0b5fa5 !important; }
+
+/* v4b: amber/yellow small text deep enough to read; coloured buttons with dark text */
+.text-amber-300:not(.keep-dark *), .text-amber-400:not(.keep-dark *), .text-yellow-300:not(.keep-dark *), .text-yellow-400:not(.keep-dark *) { color: #7a5c00; }
+[class*="bg-amber-"][class*="-500"].text-background, [class*="bg-yellow-"][class*="-500"].text-background, [class*="bg-lime-"][class*="-500"].text-background, [class*="bg-orange-"][class*="-500"].text-background { color: var(--ink); }
+[style*="#e0644f" i], [style*="rgb(224, 100, 79)"] { color: #b3361f !important; }
+
+/* v4c: remaining pale amber score colour */
+[style*="#e0a23a" i], [style*="rgb(224, 162, 58)"] { color: #8a5a00 !important; }
