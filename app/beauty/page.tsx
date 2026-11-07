@@ -86,7 +86,7 @@ export default function BeautyPage() {
           against Open Beauty Facts — a global database of cosmetic and
           personal care ingredients.
         </p>
-        <div className="mt-5 grid gap-px overflow-hidden rounded-sm border border-purple-900/50 bg-purple-900/30 sm:grid-cols-2">
+        <div className="mt-5 grid gap-px overflow-hidden rounded-sm border border-purple-900/50 bg-purple-50 sm:grid-cols-2">
           {FLAGGED.map((item) => (
             <div key={item.name} className="bg-surface p-5">
               <h3 className="font-display text-xl text-purple-300">{item.name}</h3>
@@ -184,7 +184,7 @@ export default function BeautyPage() {
       </div>
 
       {/* DATA COVERAGE NOTE */}
-      <div className="mt-10 rounded-sm border border-purple-500/40 bg-purple-950/30 px-5 py-4">
+      <div className="mt-10 rounded-sm border border-purple-500/40 bg-purple-50 px-5 py-4">
         <p className="text-sm leading-relaxed text-purple-200/90">
           <span className="font-display tracking-wide text-purple-300">⚠ DATA COVERAGE — </span>
           Beauty product data comes from Open Beauty Facts, a community

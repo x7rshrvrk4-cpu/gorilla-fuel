@@ -74,16 +74,16 @@ function SnackSearch() {
           blurRef.current = setTimeout(() => setOpen(false), 150);
         }}
         placeholder="Search kids' snacks by name or brand…"
-        className="w-full rounded-sm border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-foreground placeholder:text-slate-500 focus:border-gold/60 focus:outline-none focus:ring-1 focus:ring-gold/30"
+        className="w-full rounded-sm border border-line bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted focus:border-gold/60 focus:outline-none focus:ring-1 focus:ring-gold/30"
       />
       {open && query.length >= 2 && (
         <div
           onMouseDown={cancelBlur}
           onTouchStart={cancelBlur}
-          className="absolute left-0 right-0 top-full z-[9999] mt-1 max-h-[360px] overflow-y-auto rounded-sm border border-slate-700 bg-slate-900 shadow-2xl"
+          className="absolute left-0 right-0 top-full z-[9999] mt-1 max-h-[360px] overflow-y-auto rounded-sm border border-line bg-surface shadow-2xl"
         >
           {results.length === 0 ? (
-            <p className="px-5 py-4 text-sm text-slate-400">No kids&apos; snacks match &quot;{query}&quot;.</p>
+            <p className="px-5 py-4 text-sm text-muted">No kids&apos; snacks match &quot;{query}&quot;.</p>
           ) : (
             results.map((p) => (
               <Link
@@ -93,11 +93,11 @@ function SnackSearch() {
                 // blurring so the first tap reliably navigates (same fix as /alcohol).
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-slate-800"
+                className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-surface"
               >
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm text-foreground">{p.name}</p>
-                  <p className="truncate text-[11px] text-slate-400">
+                  <p className="truncate text-[11px] text-muted">
                     {p.brand} · {TIER_META[p.tier].label}
                   </p>
                 </div>
@@ -124,7 +124,7 @@ function TierSection({ tier, hero }: { tier: SnackTier; hero?: boolean }) {
           <span className={`font-display ${hero ? "text-2xl sm:text-3xl" : "text-xl"} text-foreground`}>
             {meta.label}
           </span>
-          <span className="text-xs uppercase tracking-[0.2em] text-slate-500">{products.length} items</span>
+          <span className="text-xs uppercase tracking-[0.2em] text-muted">{products.length} items</span>
         </div>
         <p className={`mt-2 max-w-2xl ${hero ? "text-base text-amber-100/80" : "text-sm text-muted"}`}>{meta.blurb}</p>
       </div>
@@ -187,7 +187,7 @@ export default function KidsSnacksClient() {
           type="button"
           onClick={() => setInfoOpen((v) => !v)}
           aria-expanded={infoOpen}
-          className="flex w-full items-center justify-between rounded-sm border border-slate-700 bg-slate-900/60 px-5 py-4 text-left transition-colors hover:border-gold/40"
+          className="flex w-full items-center justify-between rounded-sm border border-line bg-surface px-5 py-4 text-left transition-colors hover:border-gold/40"
         >
           <span className="font-display text-lg tracking-wide text-foreground">
             What actually makes a kids&apos; snack healthy?
@@ -195,7 +195,7 @@ export default function KidsSnacksClient() {
           <span className="font-display text-2xl text-gold">{infoOpen ? "–" : "+"}</span>
         </button>
         {infoOpen && (
-          <div className="mt-3 space-y-3 rounded-sm border border-slate-800 bg-slate-900/40 px-5 py-5 text-sm leading-relaxed text-slate-300">
+          <div className="mt-3 space-y-3 rounded-sm border border-line bg-surface px-5 py-5 text-sm leading-relaxed text-muted">
             <p>
               <span className="font-display tracking-wide text-foreground">Free sugars.</span> The WHO suggests
               keeping free sugars under 10% of daily energy — roughly 25 g (about 6 tsp) a day for a young child.
@@ -218,7 +218,7 @@ export default function KidsSnacksClient() {
               front-of-pack &quot;high in&quot; symbol will flag foods high in sugar, sodium, or saturated fat — making
               a lot of these &quot;cheat zone&quot; products easier to spot at a glance.
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted">
               Sources: Health Canada (sodium, front-of-pack labelling, food-colour review); World Health Organization
               (free sugars guideline); Canadian Paediatric Society (children&apos;s sodium intake). General guidance,
               not medical advice.

@@ -64,7 +64,7 @@ export default function GorillaSpotlight() {
 
                 <div className="mt-4 flex flex-wrap items-center gap-2">
                   {s.lcboNumber && (
-                    <span className="inline-flex items-center rounded-sm border border-amber-600/40 bg-amber-900/20 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.15em] text-amber-400">
+                    <span className="inline-flex items-center rounded-sm border border-amber-600/40 bg-amber-50 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.15em] text-amber-400">
                       LCBO #{s.lcboNumber}
                     </span>
                   )}

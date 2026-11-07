@@ -94,7 +94,7 @@ export default function MultiPackPrompt({ barcode, primary = false }: Props) {
 
   if (result === "ok" || result === "duplicate") {
     return (
-      <div className="mt-4 rounded-sm border border-emerald-600/40 bg-emerald-900/20 px-5 py-4">
+      <div className="mt-4 rounded-sm border border-emerald-600/40 bg-emerald-50 px-5 py-4">
         <p className="font-display text-base tracking-widest text-emerald-400">
           Added to the Gorilla database.
         </p>

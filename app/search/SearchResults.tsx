@@ -41,7 +41,7 @@ function rightFor(item: SearchResult): React.ReactNode {
     case "alcohol":
       if (item.category === "Wines") {
         return item.wineScore === null || item.wineScore === undefined ? (
-          <span className="text-xs text-slate-400">Pending</span>
+          <span className="text-xs text-muted">Pending</span>
         ) : (
           <span className={`font-display text-base ${item.wineScore >= 85 ? "text-emerald-400" : item.wineScore >= 65 ? "text-amber-400" : "text-red-400"}`}>{item.wineScore}</span>
         );

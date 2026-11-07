@@ -135,7 +135,7 @@ const TABS: { key: TabKey; label: string }[] = [
 ];
 
 function scoreColor(score: number | string): string {
-  if (typeof score !== "number") return "text-slate-400";
+  if (typeof score !== "number") return "text-muted";
   if (score >= 70) return "text-emerald-400";
   if (score >= 50) return "text-green-400";
   if (score >= 35) return "text-amber-400";
@@ -179,7 +179,7 @@ function RankedRow({ item, showQuality }: { item: RankedItem; showQuality?: bool
             </span>
           )}
           {item.badges?.map((b) => (
-            <span key={b} className="inline-flex items-center rounded-sm border border-emerald-600/60 bg-emerald-800/20 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.15em] text-emerald-400">
+            <span key={b} className="inline-flex items-center rounded-sm border border-emerald-600/60 bg-emerald-50 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.15em] text-emerald-400">
               {b === "CANADIAN" ? "🍁 " : ""}{b}
             </span>
           ))}
@@ -417,7 +417,7 @@ export default function Top10Client() {
                   <div className="flex flex-wrap items-center gap-2">
                     <h4 className="font-display text-xl text-foreground">{p.name}</h4>
                     {p.ontarioVQA && (
-                      <span className="inline-flex items-center rounded-sm border border-emerald-600/60 bg-emerald-800/20 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.15em] text-emerald-400">
+                      <span className="inline-flex items-center rounded-sm border border-emerald-600/60 bg-emerald-50 px-2 py-0.5 font-display text-[9px] uppercase tracking-[0.15em] text-emerald-400">
                         🍁 Ontario VQA
                       </span>
                     )}

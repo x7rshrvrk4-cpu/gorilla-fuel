@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #060500;
-  --surface: #0f0d08;
-  --surface-2: #17140c;
-  --foreground: #f5f1e6;
-  --gold: #ffd700;
-  --gold-dim: #b8980a;
-  --muted: #c4bfae;
-  --line: #2a2516;
+  --background: #ffffff;
+  --surface: #faf7ee;
+  --surface-2: #f3eedd;
+  --foreground: #1c1a14;
+  --gold: #a87906;
+  --gold-dim: #7d5a05;
+  --muted: #5e5a4c;
+  --line: #e6dfc8;
   --font-display: var(--font-bebas);
   --font-body: var(--font-dm-sans);
 }
@@ -52,7 +52,7 @@ h1, h2, h3, h4, .display {
 }
 
 .gold-gradient-text {
-  background: linear-gradient(120deg, #fff6c8, #ffd700 45%, #b8860b 100%);
+  background: linear-gradient(120deg, #c9970a, #a87906 45%, #7d5a05 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -232,3 +232,43 @@ h1, h2, h3, h4, .display {
   50%  { width: 70%;  margin-left: 15%; }
   100% { width: 0%;   margin-left: 100%; }
 }
+
+/* ── Light theme test: scanner overlays keep the original dark palette ── */
+.keep-dark {
+  --background: #060500;
+  --surface: #0f0d08;
+  --surface-2: #17140c;
+  --foreground: #f5f1e6;
+  --gold: #ffd700;
+  --gold-dim: #b8980a;
+  --muted: #c4bfae;
+  --line: #2a2516;
+  color: #f5f1e6;
+}
+
+/* Light theme: the pale accent shades used on dark cards need darker versions on white. */
+.text-amber-300:not(.keep-dark *), .text-amber-400:not(.keep-dark *), .text-yellow-300:not(.keep-dark *), .text-yellow-400:not(.keep-dark *) { color: #92400e; }
+.text-emerald-300:not(.keep-dark *), .text-emerald-400:not(.keep-dark *), .text-green-300:not(.keep-dark *), .text-green-400:not(.keep-dark *) { color: #047857; }
+.text-red-300:not(.keep-dark *), .text-red-400:not(.keep-dark *) { color: #b91c1c; }
+.text-sky-300:not(.keep-dark *), .text-sky-400:not(.keep-dark *), .text-blue-300:not(.keep-dark *), .text-blue-400:not(.keep-dark *) { color: #1d4ed8; }
+.text-rose-300:not(.keep-dark *), .text-rose-400:not(.keep-dark *), .text-pink-300:not(.keep-dark *), .text-pink-400:not(.keep-dark *) { color: #be123c; }
+.text-orange-300:not(.keep-dark *), .text-orange-400:not(.keep-dark *) { color: #c2410c; }
+.text-teal-300:not(.keep-dark *), .text-teal-400:not(.keep-dark *), .text-cyan-300:not(.keep-dark *), .text-cyan-400:not(.keep-dark *) { color: #0f766e; }
+.text-fuchsia-300:not(.keep-dark *), .text-fuchsia-400:not(.keep-dark *), .text-purple-300:not(.keep-dark *), .text-purple-400:not(.keep-dark *), .text-violet-300:not(.keep-dark *), .text-violet-400:not(.keep-dark *) { color: #7e22ce; }
+.gorilla-card { box-shadow: 0 1px 3px rgba(60, 50, 20, 0.08); }
+
+/* Light theme: pale -100/-200 text shades and lime */
+.text-amber-100:not(.keep-dark *), .text-amber-200:not(.keep-dark *), .text-yellow-200:not(.keep-dark *) { color: #78350f; }
+.text-red-200:not(.keep-dark *) { color: #991b1b; }
+.text-sky-100:not(.keep-dark *), .text-sky-200:not(.keep-dark *), .text-indigo-200:not(.keep-dark *) { color: #1e3a8a; }
+.text-rose-200:not(.keep-dark *) { color: #9f1239; }
+.text-purple-200:not(.keep-dark *) { color: #581c87; }
+.text-green-100:not(.keep-dark *), .text-green-200:not(.keep-dark *), .text-emerald-200:not(.keep-dark *) { color: #065f46; }
+.text-lime-300:not(.keep-dark *), .text-lime-400:not(.keep-dark *) { color: #3f6212; }
+
+/* Light theme: opacity variants of pale shades (e.g. text-rose-300/80) */
+[class*="text-rose-300/"]:not(.keep-dark *), [class*="text-pink-300/"]:not(.keep-dark *) { color: #9f1239; }
+[class*="text-emerald-300/"]:not(.keep-dark *), [class*="text-green-300/"]:not(.keep-dark *) { color: #065f46; }
+[class*="text-amber-300/"]:not(.keep-dark *), [class*="text-amber-200/"]:not(.keep-dark *) { color: #78350f; }
+[class*="text-red-300/"]:not(.keep-dark *) { color: #991b1b; }
+[class*="text-sky-300/"]:not(.keep-dark *), [class*="text-blue-300/"]:not(.keep-dark *) { color: #1e3a8a; }

@@ -119,7 +119,7 @@ export default function CommunityRecipesAdmin() {
             <button type="button" onClick={() => load(key, tab)} className="ml-auto text-xs text-muted underline hover:text-foreground">Refresh</button>
           </div>
 
-          {err && <p className="mt-4 rounded-sm border border-red-500/40 bg-red-950/20 px-3 py-2 text-sm text-red-300">{err}</p>}
+          {err && <p className="mt-4 rounded-sm border border-red-500/40 bg-red-50 px-3 py-2 text-sm text-red-300">{err}</p>}
           {loading && <p className="mt-4 text-sm text-muted">Loading…</p>}
           {!loading && rows.length === 0 && !err && <p className="mt-6 text-sm text-muted">Nothing {tab} right now.</p>}
 

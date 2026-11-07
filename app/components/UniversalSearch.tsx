@@ -30,7 +30,7 @@ function GorillaPourMini({ rating }: { rating: number }) {
 }
 
 function WineScoreMini({ score }: { score: number | null | undefined }) {
-  if (score === null || score === undefined) return <span className="text-xs text-slate-400">Pending</span>;
+  if (score === null || score === undefined) return <span className="text-xs text-muted">Pending</span>;
   const c = score >= 85 ? "text-emerald-400" : score >= 65 ? "text-amber-400" : "text-red-400";
   return <span className={`font-display text-base ${c}`}>{score}</span>;
 }
@@ -210,7 +210,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
         className="relative"
       >
         <svg
-          className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+          className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -232,7 +232,7 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
           }}
           onBlur={handleBlur}
           placeholder={placeholder}
-          className="w-full rounded-sm border border-slate-700 bg-slate-900 py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-slate-500 focus:border-gold/60 focus:outline-none focus:ring-1 focus:ring-gold/30 transition-colors"
+          className="w-full rounded-sm border border-line bg-surface py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-muted focus:border-gold/60 focus:outline-none focus:ring-1 focus:ring-gold/30 transition-colors"
         />
         {loading && (
           <svg
@@ -251,11 +251,11 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
         <div
           onMouseDown={cancelBlurClose}
           onTouchStart={cancelBlurClose}
-          className="absolute left-0 right-0 top-full z-[9999] mt-1 max-h-[420px] overflow-y-auto rounded-sm border border-slate-700 bg-slate-900 shadow-2xl pb-24 sm:pb-0"
+          className="absolute left-0 right-0 top-full z-[9999] mt-1 max-h-[420px] overflow-y-auto rounded-sm border border-line bg-surface shadow-2xl pb-24 sm:pb-0"
           style={keyboardPad > 0 ? { paddingBottom: keyboardPad } : undefined}
         >
           {totalResults === 0 && !loading ? (
-            <p className="px-5 py-4 text-sm text-slate-400">
+            <p className="px-5 py-4 text-sm text-muted">
               No results for &quot;{query}&quot; — try scanning the barcode directly.
             </p>
           ) : (
@@ -386,17 +386,17 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={submitSearch}
-                className="flex w-full items-center justify-between gap-3 border-t border-slate-800 px-5 py-3 text-left transition-colors hover:bg-slate-800"
+                className="flex w-full items-center justify-between gap-3 border-t border-line px-5 py-3 text-left transition-colors hover:bg-surface"
               >
                 <span className="text-sm text-gold">See all results for &ldquo;{query}&rdquo;</span>
                 <span className="shrink-0 text-gold/60">→</span>
               </button>
 
-              <div className="border-t border-slate-800 px-5 py-2.5">
+              <div className="border-t border-line px-5 py-2.5">
                 <Link
                   href="/scan"
                   onClick={() => setOpen(false)}
-                  className="text-[11px] uppercase tracking-[0.18em] text-slate-500 hover:text-gold transition-colors"
+                  className="text-[11px] uppercase tracking-[0.18em] text-muted hover:text-gold transition-colors"
                 >
                   Scan a barcode instead →
                 </Link>
@@ -420,7 +420,7 @@ function ResultGroup({
 }) {
   return (
     <div>
-      <p className={`border-b border-slate-800 px-5 py-2 text-[10px] uppercase tracking-[0.2em] ${accentClass}`}>
+      <p className={`border-b border-line px-5 py-2 text-[10px] uppercase tracking-[0.2em] ${accentClass}`}>
         {label}
       </p>
       {children}
@@ -455,11 +455,11 @@ function ResultRow({
       // for focus, but it does NOT cancel the resulting click/navigation.
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
-      className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-slate-800"
+      className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-surface"
     >
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm text-foreground">{name}</p>
-        {sub && <p className="truncate text-[11px] text-slate-400">{sub}</p>}
+        {sub && <p className="truncate text-[11px] text-muted">{sub}</p>}
       </div>
       {right && <div className="shrink-0">{right}</div>}
     </Link>

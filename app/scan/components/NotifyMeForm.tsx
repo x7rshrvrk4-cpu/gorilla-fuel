@@ -55,7 +55,7 @@ export default function NotifyMeForm({ barcode, productName }: { barcode: string
 
   if (status === "done") {
     return (
-      <p className="mt-4 rounded-sm border border-emerald-700/40 bg-emerald-900/15 px-4 py-3 text-sm text-emerald-300">
+      <p className="mt-4 rounded-sm border border-emerald-700/40 bg-emerald-50 px-4 py-3 text-sm text-emerald-300">
         ✓ Got it. We will notify you at that email when this product is scored.
       </p>
     );

@@ -118,7 +118,7 @@ function IntelCard({ product, tier }: { product: IntelProduct; tier: IntelTier }
           {!isAvoid && (product.canadian || product.ingredientCount) && (
             <div className="mt-1.5 flex flex-wrap items-center gap-2">
               {product.canadian && (
-                <span className="inline-flex items-center gap-1 rounded-sm border border-red-500/40 bg-red-900/20 px-2 py-0.5 font-display text-[10px] tracking-[0.15em] text-red-300">
+                <span className="inline-flex items-center gap-1 rounded-sm border border-red-500/40 bg-red-50 px-2 py-0.5 font-display text-[10px] tracking-[0.15em] text-red-300">
                   🍁 CANADIAN
                 </span>
               )}
@@ -139,7 +139,7 @@ function IntelCard({ product, tier }: { product: IntelProduct; tier: IntelTier }
 
       {/* Worst ingredient (avoid only) */}
       {isAvoid && product.worstIngredient && (
-        <div className="mt-3 rounded-sm border border-red-900/40 bg-red-900/15 px-3 py-2">
+        <div className="mt-3 rounded-sm border border-red-900/40 bg-red-50 px-3 py-2">
           <p className="text-[10px] uppercase tracking-[0.15em] text-red-400">Worst ingredient</p>
           <p className="mt-0.5 text-sm font-medium text-red-200">{product.worstIngredient}</p>
         </div>
@@ -168,7 +168,7 @@ function IntelCard({ product, tier }: { product: IntelProduct; tier: IntelTier }
               href={iherbUrl(product.iherbQuery)}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-block rounded-sm border border-emerald-600/50 px-4 py-2 font-display text-sm tracking-[0.2em] text-emerald-400 transition-colors hover:bg-emerald-900/30"
+              className="mt-4 inline-block rounded-sm border border-emerald-600/50 px-4 py-2 font-display text-sm tracking-[0.2em] text-emerald-400 transition-colors hover:bg-emerald-50"
             >
               Find on iHerb ↗
             </a>

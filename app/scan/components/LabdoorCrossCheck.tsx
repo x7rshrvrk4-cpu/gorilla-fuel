@@ -31,7 +31,7 @@ export default function LabdoorCrossCheck({ productName, brand, categoryTags }: 
   return (
     <div className="rounded-sm border border-line bg-surface p-4 text-sm">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-sm border border-zinc-400/50 bg-zinc-400/10 px-2.5 py-1 text-[10px] font-display uppercase tracking-[0.18em] text-zinc-300">
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-sm border border-line/50 bg-surface-2 px-2.5 py-1 text-[10px] font-display uppercase tracking-[0.18em] text-muted">
           <span aria-hidden>?</span>
           Labdoor Status — Cross-Check Required
         </span>

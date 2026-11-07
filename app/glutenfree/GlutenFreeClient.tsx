@@ -57,7 +57,7 @@ function GfFoodCard({ product }: { product: GfFoodProduct }) {
               </span>
             )}
             {product.canadian && (
-              <span className="inline-flex items-center gap-1 rounded-sm border border-red-600/60 bg-red-900/25 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-red-300">
+              <span className="inline-flex items-center gap-1 rounded-sm border border-red-600/60 bg-red-50 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-red-300">
                 🍁 Canadian
               </span>
             )}
@@ -137,7 +137,7 @@ function FoodTab({ tab }: { tab: GfFoodTab }) {
       </section>
 
       {/* LABEL VS SCORE NOTE */}
-      <div className="mt-8 rounded-sm border border-green-600/40 bg-green-900/15 px-5 py-4">
+      <div className="mt-8 rounded-sm border border-green-600/40 bg-green-50 px-5 py-4">
         <p className="text-xs leading-relaxed text-green-300/90">
           Gorilla Fuel scores products on ingredient quality — not on whether they
           carry a gluten free label. A product can be certified gluten free and still
@@ -167,7 +167,7 @@ function FoodTab({ tab }: { tab: GfFoodTab }) {
       </div>
 
       {/* DISCLAIMER */}
-      <div className="mt-6 max-w-3xl rounded-sm border border-red-500/40 bg-red-950/20 p-5">
+      <div className="mt-6 max-w-3xl rounded-sm border border-red-500/40 bg-red-50 p-5">
         <p className="text-xs leading-relaxed text-muted">
           This information is for educational purposes only. If you have celiac
           disease, consult your doctor or a registered dietitian before making
@@ -192,7 +192,7 @@ function AlcoholTab() {
       <section className="mt-8">
         <h2 className="font-display text-3xl text-foreground">The Three Tiers</h2>
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
-          <div className="rounded-sm border border-green-500/50 bg-green-900/15 p-5">
+          <div className="rounded-sm border border-green-500/50 bg-green-50 p-5">
             <span className="inline-flex items-center rounded-sm border border-green-500/70 bg-green-500/15 px-2.5 py-1 text-[10px] font-display uppercase tracking-[0.18em] text-green-300">
               ✓ Certified GF
             </span>
@@ -202,7 +202,7 @@ function AlcoholTab() {
               <span className="text-green-300">Safe for celiac disease.</span>
             </p>
           </div>
-          <div className="rounded-sm border border-amber-500/50 bg-amber-900/15 p-5">
+          <div className="rounded-sm border border-amber-500/50 bg-amber-50 p-5">
             <span className="inline-flex items-center rounded-sm border border-amber-500/60 bg-amber-500/12 px-2.5 py-1 text-[10px] font-display uppercase tracking-[0.18em] text-amber-300">
               ⚠ Gluten Removed
             </span>
@@ -213,8 +213,8 @@ function AlcoholTab() {
               tolerated by some with non-celiac gluten sensitivity only.
             </p>
           </div>
-          <div className="rounded-sm border border-slate-600/50 bg-slate-800/30 p-5">
-            <span className="inline-flex items-center rounded-sm border border-slate-600/50 bg-slate-700/25 px-2.5 py-1 text-[10px] font-display uppercase tracking-[0.18em] text-slate-400">
+          <div className="rounded-sm border border-line/50 bg-surface p-5">
+            <span className="inline-flex items-center rounded-sm border border-line/50 bg-surface-2 px-2.5 py-1 text-[10px] font-display uppercase tracking-[0.18em] text-muted">
               Contains Gluten
             </span>
             <p className="mt-3 text-sm leading-relaxed text-muted">
@@ -239,7 +239,7 @@ function AlcoholTab() {
       {/* SELTZERS — MALT-BASED VS SPIRIT-BASED */}
       <section className="mt-14">
         <h2 className="font-display text-3xl text-foreground">Seltzers: Malt-Based vs Spirit-Based</h2>
-        <div className="mt-3 max-w-3xl rounded-sm border border-amber-500/40 bg-amber-900/15 p-6">
+        <div className="mt-3 max-w-3xl rounded-sm border border-amber-500/40 bg-amber-50 p-6">
           <p className="text-sm leading-relaxed text-muted">
             One label subtlety worth knowing for hard seltzers: the same brand can
             be made two different ways — a <span className="text-foreground">malt-based</span> version
@@ -258,7 +258,7 @@ function AlcoholTab() {
       {/* SECTION 2 — THE CORONA MYTH */}
       <section className="mt-14">
         <h2 className="font-display text-3xl text-foreground">The Corona Myth</h2>
-        <div className="mt-3 max-w-3xl rounded-sm border border-amber-500/40 bg-amber-900/15 p-6">
+        <div className="mt-3 max-w-3xl rounded-sm border border-amber-500/40 bg-amber-50 p-6">
           <p className="text-sm leading-relaxed text-muted">
             Corona is one of the most misunderstood beers for gluten. It is{" "}
             <span className="text-amber-300">brewed from barley and is NOT gluten
@@ -350,7 +350,7 @@ function AlcoholTab() {
 
       {/* SECTION 6 — DISCLAIMER */}
       <section className="mt-14">
-        <div className="max-w-3xl rounded-sm border border-red-500/40 bg-red-950/20 p-6">
+        <div className="max-w-3xl rounded-sm border border-red-500/40 bg-red-50 p-6">
           <p className="font-display text-sm tracking-[0.2em] text-red-300">IMPORTANT DISCLAIMER</p>
           <p className="mt-2 text-sm leading-relaxed text-muted">
             This information is for educational purposes only. Gorilla Fuel is not a

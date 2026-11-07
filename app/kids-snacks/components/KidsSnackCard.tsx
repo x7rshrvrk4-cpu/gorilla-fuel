@@ -18,8 +18,8 @@ function Macro({ label, field, unit }: { label: string; field?: MacroField; unit
   if (!field || !field.verified) return null;
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{label}</p>
-      <p className="mt-0.5 font-display text-lg text-white">
+      <p className="text-[10px] uppercase tracking-[0.18em] text-muted">{label}</p>
+      <p className="mt-0.5 font-display text-lg text-foreground">
         {field.value}
         {unit}
       </p>
@@ -44,7 +44,7 @@ function DyeBadge({ product }: { product: KidsSnackProduct }) {
   }
   // unconfirmed — never imply US dyes
   return (
-    <span className="inline-flex items-center gap-1 rounded-sm border border-slate-500/50 bg-slate-600/15 px-2 py-0.5 text-[10px] font-display uppercase tracking-[0.14em] text-slate-300">
+    <span className="inline-flex items-center gap-1 rounded-sm border border-line/50 bg-surface-2 px-2 py-0.5 text-[10px] font-display uppercase tracking-[0.14em] text-muted">
       ⓘ CA dye status unconfirmed
     </span>
   );
@@ -58,13 +58,13 @@ export default function KidsSnackCard({ product }: { product: KidsSnackProduct }
   return (
     <div
       id={`product-${product.id}`}
-      className={`rounded-sm border bg-slate-900/60 p-5 transition-colors ${BORDER[product.tier]}`}
+      className={`rounded-sm border bg-surface p-5 transition-colors ${BORDER[product.tier]}`}
     >
       {/* HEADER */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs uppercase tracking-[0.25em] text-slate-400">{product.brand}</p>
-          <h3 className="font-display text-2xl leading-tight text-white">{product.name}</h3>
+          <p className="text-xs uppercase tracking-[0.25em] text-muted">{product.brand}</p>
+          <h3 className="font-display text-2xl leading-tight text-foreground">{product.name}</h3>
         </div>
         <span className={`inline-flex shrink-0 items-center rounded-sm border px-2.5 py-1 text-[10px] font-display uppercase tracking-[0.16em] ${badge.cls}`}>
           {badge.text}
@@ -72,7 +72,7 @@ export default function KidsSnackCard({ product }: { product: KidsSnackProduct }
       </div>
 
       {/* WHY */}
-      <p className="mt-3 text-sm leading-relaxed text-slate-300">{product.why}</p>
+      <p className="mt-3 text-sm leading-relaxed text-muted">{product.why}</p>
 
       {/* MARKETING vs REALITY — the signature Cheat Zone callout */}
       {product.marketingClaim && product.reality && (
@@ -81,9 +81,9 @@ export default function KidsSnackCard({ product }: { product: KidsSnackProduct }
             <span className="shrink-0 font-display text-[10px] uppercase tracking-[0.16em] text-amber-300/90">Front says</span>
             <span className="text-sm text-amber-100/90">“{product.marketingClaim}”</span>
           </div>
-          <div className="flex items-start gap-2 border-t border-amber-400/20 bg-slate-900/60 px-3 py-2">
+          <div className="flex items-start gap-2 border-t border-amber-400/20 bg-surface px-3 py-2">
             <span className="shrink-0 font-display text-[10px] uppercase tracking-[0.16em] text-red-300/90">Reality</span>
-            <span className="text-sm text-slate-200">{product.reality}</span>
+            <span className="text-sm text-muted">{product.reality}</span>
           </div>
         </div>
       )}
@@ -92,7 +92,7 @@ export default function KidsSnackCard({ product }: { product: KidsSnackProduct }
       {hasAnyMacro && (
         <div className="mt-4">
           {m?.servingLabel && (
-            <p className="mb-1.5 text-[10px] uppercase tracking-[0.18em] text-slate-500">{m.servingLabel}</p>
+            <p className="mb-1.5 text-[10px] uppercase tracking-[0.18em] text-muted">{m.servingLabel}</p>
           )}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
             <Macro label="Calories" field={m?.calories} unit="" />
@@ -106,7 +106,7 @@ export default function KidsSnackCard({ product }: { product: KidsSnackProduct }
 
       {/* PENDING-MACRO NOTE — never fabricate or blank-as-zero */}
       {product.macrosPending && (
-        <p className="mt-3 text-[11px] italic leading-relaxed text-slate-500">
+        <p className="mt-3 text-[11px] italic leading-relaxed text-muted">
           {hasAnyMacro
             ? "Remaining macros pending Canadian-label verification."
             : "Macros pending Canadian-label verification — not shown rather than guessed."}
@@ -114,33 +114,33 @@ export default function KidsSnackCard({ product }: { product: KidsSnackProduct }
       )}
 
       {/* DYE / ADDITIVE STATUS */}
-      <div className="mt-4 border-t border-slate-800 pt-3">
+      <div className="mt-4 border-t border-line pt-3">
         <div className="flex flex-wrap items-center gap-2">
           <DyeBadge product={product} />
           {product.ingredientsVerified ? (
-            <span className="inline-flex items-center gap-1 rounded-sm border border-slate-600/50 bg-slate-700/20 px-2 py-0.5 text-[10px] font-display uppercase tracking-[0.14em] text-slate-400">
+            <span className="inline-flex items-center gap-1 rounded-sm border border-line/50 bg-surface-2 px-2 py-0.5 text-[10px] font-display uppercase tracking-[0.14em] text-muted">
               🍁 Ingredients verified (CA)
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 rounded-sm border border-slate-600/50 bg-slate-700/20 px-2 py-0.5 text-[10px] font-display uppercase tracking-[0.14em] text-slate-400">
+            <span className="inline-flex items-center gap-1 rounded-sm border border-line/50 bg-surface-2 px-2 py-0.5 text-[10px] font-display uppercase tracking-[0.14em] text-muted">
               Ingredients pending
             </span>
           )}
         </div>
-        {product.dyeNote && <p className="mt-2 text-[11px] leading-relaxed text-slate-400">{product.dyeNote}</p>}
+        {product.dyeNote && <p className="mt-2 text-[11px] leading-relaxed text-muted">{product.dyeNote}</p>}
       </div>
 
       {/* CAVEAT */}
       {product.caveat && (
-        <p className="mt-3 rounded-sm border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-[11px] leading-relaxed text-slate-300">
-          <span className="font-display uppercase tracking-[0.14em] text-slate-400">Note — </span>
+        <p className="mt-3 rounded-sm border border-line/50 bg-surface px-3 py-2 text-[11px] leading-relaxed text-muted">
+          <span className="font-display uppercase tracking-[0.14em] text-muted">Note — </span>
           {product.caveat}
         </p>
       )}
 
       {/* Buy on Amazon — only Tier A (cleaner) snacks. Never the Cheat Zone / Skip tiers. */}
       {product.tier === "A" && (
-        <div className="mt-4 border-t border-slate-800 pt-3">
+        <div className="mt-4 border-t border-line pt-3">
           <AmazonBuyButton query={`${product.brand} ${product.name}`} />
         </div>
       )}

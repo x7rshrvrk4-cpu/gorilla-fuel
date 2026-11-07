@@ -11,7 +11,7 @@ const TIER_COLOR: Record<EvidenceTier, string> = {
   "strong-consensus": "border-emerald-400/50 text-emerald-300 bg-emerald-400/10",
   "emerging-evidence": "border-yellow-400/50 text-yellow-300 bg-yellow-400/10",
   contested: "border-orange-400/50 text-orange-300 bg-orange-400/10",
-  precautionary: "border-zinc-400/50 text-zinc-300 bg-zinc-400/10",
+  precautionary: "border-line/50 text-muted bg-surface-2",
 };
 
 const TIER_DESCRIPTION: Record<EvidenceTier, string> = {

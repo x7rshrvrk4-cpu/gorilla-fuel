@@ -256,7 +256,7 @@ export default function AlcoholClient() {
           ? f.key === "london-on"
             ? "border-emerald-500 text-emerald-400"
             : "border-amber-400 text-amber-400"
-          : "border-slate-700 text-slate-400 hover:border-amber-400/50 hover:text-foreground"
+          : "border-line text-muted hover:border-amber-400/50 hover:text-foreground"
       }`}
     >
       {f.label}
@@ -277,7 +277,7 @@ export default function AlcoholClient() {
               {ALCOHOL_PRODUCTS.filter((p) => p.category === "Wines").length + moreWineCount} wines ranked by sugar, calories per
               148mL pour, and additive count — the fitness drinker's guide to wine without the guesswork.
             </p>
-            <p className="mt-3 inline-flex items-center gap-2 rounded-sm border border-rose-700/30 bg-rose-700/8 px-3 py-1.5 text-xs text-rose-300/80">
+            <p className="mt-3 inline-flex items-center gap-2 rounded-sm border border-rose-700/30 bg-rose-50 px-3 py-1.5 text-xs text-rose-300/80">
               <span className="text-rose-400">🍷</span>
               All values per standard 148mL pour · sourced from winery disclosures, lab analysis and LCBO product listings
             </p>
@@ -334,7 +334,7 @@ export default function AlcoholClient() {
                   : "bg-amber-400 text-slate-950"
                 : t === "WINE"
                 ? "border border-rose-800/50 text-rose-400 hover:border-rose-700 hover:text-rose-300"
-                : "border border-slate-700 text-slate-400 hover:border-amber-400/50 hover:text-foreground"
+                : "border border-line text-muted hover:border-amber-400/50 hover:text-foreground"
             }`}
           >
             {t === "WINE" ? "🍷 " : ""}{t}
@@ -347,13 +347,13 @@ export default function AlcoholClient() {
         <div className="mt-4 space-y-3">
           {/* Dietary */}
           <div>
-            <p className="mb-1.5 text-[10px] uppercase tracking-[0.25em] text-slate-500">Dietary</p>
+            <p className="mb-1.5 text-[10px] uppercase tracking-[0.25em] text-muted">Dietary</p>
             <div className="flex flex-wrap gap-2">{BEER_DIETARY.map(renderBeerChip)}</div>
           </div>
 
           {/* Style */}
           <div>
-            <p className="mb-1.5 text-[10px] uppercase tracking-[0.25em] text-slate-500">Style</p>
+            <p className="mb-1.5 text-[10px] uppercase tracking-[0.25em] text-muted">Style</p>
             <div className="flex flex-wrap gap-2">{BEER_STYLE.map(renderBeerChip)}</div>
           </div>
 
@@ -363,7 +363,7 @@ export default function AlcoholClient() {
               type="button"
               onClick={() => setRegionOpen((v) => !v)}
               aria-expanded={regionEffectiveOpen}
-              className="mb-1.5 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.25em] text-slate-500 transition-colors hover:text-foreground"
+              className="mb-1.5 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.25em] text-muted transition-colors hover:text-foreground"
             >
               Region
               {regionActive && <span className="normal-case tracking-normal text-amber-400">· {activeRegionLabel}</span>}
@@ -387,7 +387,7 @@ export default function AlcoholClient() {
               className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-[0.2em] transition-colors ${
                 rtdFilter === f.key
                   ? "border-amber-400 text-amber-400"
-                  : "border-slate-700 text-slate-400 hover:border-amber-400/50 hover:text-foreground"
+                  : "border-line text-muted hover:border-amber-400/50 hover:text-foreground"
               }`}
             >
               {f.label}
@@ -407,7 +407,7 @@ export default function AlcoholClient() {
               className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-[0.2em] transition-colors ${
                 wineFilter === f.key
                   ? "border-rose-500 text-rose-400"
-                  : "border-slate-700 text-slate-400 hover:border-rose-500/60 hover:text-foreground"
+                  : "border-line text-muted hover:border-rose-500/60 hover:text-foreground"
               }`}
             >
               {f.label}
@@ -418,7 +418,7 @@ export default function AlcoholClient() {
 
       {/* Contextual notes */}
       {isBeer && beerFilter === "gluten-free" && (
-        <div className="mt-4 rounded-sm border border-green-600/40 bg-green-900/20 px-5 py-4">
+        <div className="mt-4 rounded-sm border border-green-600/40 bg-green-50 px-5 py-4">
           <p className="text-xs leading-relaxed text-green-300/90">
             <span className="font-display tracking-wide text-green-200">✓ CERTIFIED GLUTEN FREE — </span>
             Showing only products made entirely from gluten-free ingredients. &ldquo;Gluten removed&rdquo; beers are
@@ -430,7 +430,7 @@ export default function AlcoholClient() {
       )}
 
       {isBeer && beerFilter === "london-on" && (
-        <div className="mt-4 rounded-sm border border-emerald-700/30 bg-emerald-900/20 px-5 py-4">
+        <div className="mt-4 rounded-sm border border-emerald-700/30 bg-emerald-50 px-5 py-4">
           <p className="text-xs leading-relaxed text-emerald-300/80">
             <span className="font-display tracking-wide text-emerald-200">London Ontario craft — home turf.</span>{" "}
             Forked River, Toboggan, Anderson, London Brewing, Powerhouse, Storm Stayed, Dundas &amp; Sons, and Black Fly all
@@ -453,8 +453,8 @@ export default function AlcoholClient() {
                     ? "border-gold bg-gold text-background"
                     : "border-gold/60 text-gold hover:bg-gold/15"
                   : wineSort === s.key
-                  ? "border-rose-500 bg-rose-800/40 text-rose-200"
-                  : "border-slate-700 text-slate-400 hover:border-rose-500/60 hover:text-foreground"
+                  ? "border-rose-500 bg-rose-50 text-rose-200"
+                  : "border-line text-muted hover:border-rose-500/60 hover:text-foreground"
               }`}
             >
               {s.label}
@@ -475,7 +475,7 @@ export default function AlcoholClient() {
       )}
 
       {isWine && wineFilter === "icewine" && (
-        <div className="mt-4 rounded-sm border border-amber-500/40 bg-amber-900/20 px-5 py-4">
+        <div className="mt-4 rounded-sm border border-amber-500/40 bg-amber-50 px-5 py-4">
           <p className="text-xs leading-relaxed text-amber-300/90">
             <span className="font-display tracking-wide text-amber-200">🧊 ICEWINE — </span>
             Served in 60mL portions; nutrition is shown per 60mL pour. Naturally high in sugar from grapes freezing on
@@ -486,21 +486,21 @@ export default function AlcoholClient() {
 
       {isWine && (
         <div className="mt-6 space-y-3">
-          <div className="rounded-sm border border-rose-800/30 bg-rose-950/30 px-5 py-4">
+          <div className="rounded-sm border border-rose-800/30 bg-rose-50 px-5 py-4">
             <p className="text-xs leading-relaxed text-rose-300/80">
               <span className="font-display tracking-wide text-rose-200">🍷 Standard glass = 148mL.</span>{" "}
               Calories and carbs shown per glass. Dry wines score highest on Gorilla Fuel due to lower sugar content.
             </p>
           </div>
-          <div className="rounded-sm border border-slate-800 bg-slate-900/40 px-5 py-4">
-            <p className="text-xs leading-relaxed text-slate-400">
-              <span className="font-display tracking-wide text-slate-300">Wine Score methodology:</span>{" "}
+          <div className="rounded-sm border border-line bg-surface px-5 py-4">
+            <p className="text-xs leading-relaxed text-muted">
+              <span className="font-display tracking-wide text-muted">Wine Score methodology:</span>{" "}
               Sugar 40% · Calorie density 30% · Additives 30% — each measured per standard 148mL pour.
               Dry wines (&lt;4g sugar) score highest. Semi-dry 4–8g. Sweet over 8g.
             </p>
           </div>
-          <div className="rounded-sm border border-slate-800 bg-slate-900/40 px-5 py-4">
-            <p className="text-xs leading-relaxed text-slate-400">
+          <div className="rounded-sm border border-line bg-surface px-5 py-4">
+            <p className="text-xs leading-relaxed text-muted">
               Wine quality scores sourced from critic ratings on LCBO product pages including James Suckling, Wine
               Spectator, Wine Enthusiast, WineAlign, Decanter, and National Wine Awards of Canada. No brand can pay to
               change a score.
@@ -517,8 +517,8 @@ export default function AlcoholClient() {
         {products.length > 0 ? (
           products.map((product) => <AlcoholProductCard key={product.id} product={product} />)
         ) : (
-          <div className="col-span-full rounded-sm border border-slate-800 bg-slate-900/60 p-8 text-center">
-            <p className="text-slate-400">No drinks in {tab} match this filter. Try another combination.</p>
+          <div className="col-span-full rounded-sm border border-line bg-surface p-8 text-center">
+            <p className="text-muted">No drinks in {tab} match this filter. Try another combination.</p>
           </div>
         )}
       </div>

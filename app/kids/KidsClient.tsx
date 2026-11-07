@@ -42,25 +42,25 @@ function Badge({ kind }: { kind: "school-safe" | "canadian" | "nut-free" | "arti
   switch (kind) {
     case "school-safe":
       return (
-        <span className="inline-flex items-center rounded-sm border border-emerald-600/60 bg-emerald-800/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-emerald-300">
+        <span className="inline-flex items-center rounded-sm border border-emerald-600/60 bg-emerald-50 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-emerald-300">
           ✓ School Safe
         </span>
       );
     case "canadian":
       return (
-        <span className="inline-flex items-center gap-1 rounded-sm border border-red-600/60 bg-red-900/25 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-red-300">
+        <span className="inline-flex items-center gap-1 rounded-sm border border-red-600/60 bg-red-50 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-red-300">
           🍁 Canadian
         </span>
       );
     case "nut-free":
       return (
-        <span className="inline-flex items-center rounded-sm border border-sky-600/50 bg-sky-800/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-sky-300">
+        <span className="inline-flex items-center rounded-sm border border-sky-600/50 bg-sky-50 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-sky-300">
           Nut Free
         </span>
       );
     case "artificial":
       return (
-        <span className="inline-flex items-center rounded-sm border border-amber-500/60 bg-amber-900/30 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-amber-300">
+        <span className="inline-flex items-center rounded-sm border border-amber-500/60 bg-amber-50 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-amber-300">
           ⚠ Artificial Colours
         </span>
       );
@@ -216,7 +216,7 @@ export default function KidsClient() {
       </div>
 
       {/* Artificial colours context note */}
-      <div className="mt-6 rounded-sm border border-amber-500/30 bg-amber-900/15 px-5 py-4">
+      <div className="mt-6 rounded-sm border border-amber-500/30 bg-amber-50 px-5 py-4">
         <p className="text-xs leading-relaxed text-amber-300/90">
           <span className="font-display tracking-wide text-amber-200">⚠ ABOUT ARTIFICIAL COLOURS — </span>
           Synthetic dyes are still permitted in Canada, but Health Canada has begun
@@ -306,7 +306,7 @@ export default function KidsClient() {
                     <p className="text-xs leading-tight text-foreground">{pair.carb}</p>
                   </div>
                   <span className="shrink-0 font-display text-xl text-gold">+</span>
-                  <div className="min-w-0 flex-1 rounded-sm border border-emerald-700/40 bg-emerald-900/15 px-3 py-2 text-center">
+                  <div className="min-w-0 flex-1 rounded-sm border border-emerald-700/40 bg-emerald-50 px-3 py-2 text-center">
                     <p className="text-xs leading-tight text-emerald-300">{pair.pair}</p>
                   </div>
                 </div>

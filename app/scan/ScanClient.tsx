@@ -1391,7 +1391,7 @@ export default function ScanClient() {
         {lookup.phase === "found-alcohol" && (
           <>
             {packSizeBadge && (
-              <div className="mb-3 flex items-center gap-3 rounded-sm border border-sky-500/40 bg-sky-900/20 px-4 py-3">
+              <div className="mb-3 flex items-center gap-3 rounded-sm border border-sky-500/40 bg-sky-50 px-4 py-3">
                 <span className="font-display text-sm tracking-[0.2em] text-sky-300">
                   📦 {packSizeBadge}
                 </span>

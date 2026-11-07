@@ -45,7 +45,7 @@ const CHIP: Record<Strength, string> = {
   moderate: "border-lime-500/40 bg-lime-500/10 text-lime-300",
   mixed: "border-amber-500/40 bg-amber-500/10 text-amber-300",
   preliminary: "border-line bg-surface text-foreground/80",
-  not_supported: "border-zinc-500/50 bg-zinc-500/10 text-zinc-300",
+  not_supported: "border-line/50 bg-surface-2 text-muted",
   harm_signal: "border-red-500/50 bg-red-500/10 text-red-300",
 };
 
@@ -54,7 +54,7 @@ const VERDICT_CHIP: Record<MythVerdict, string> = {
   partly: "border-lime-500/40 bg-lime-500/10 text-lime-300",
   mixed: "border-amber-500/40 bg-amber-500/10 text-amber-300",
   not_supported: "border-red-500/50 bg-red-500/10 text-red-300",
-  none_found: "border-zinc-500/50 bg-zinc-500/10 text-zinc-300",
+  none_found: "border-line/50 bg-surface-2 text-muted",
 };
 
 function Chip({ s }: { s: Strength }) {

@@ -120,12 +120,12 @@ export default function ProductResultCard({ product, result, alternatives, alter
               </span>
             )}
             {result.scoreSource === "ingredient-flagged" && (
-              <span className="inline-flex items-center rounded-sm border border-red-500/60 bg-red-900/25 px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.18em] text-red-300" title={result.capReason}>
+              <span className="inline-flex items-center rounded-sm border border-red-500/60 bg-red-50 px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.18em] text-red-300" title={result.capReason}>
                 Ingredient Flagged
               </span>
             )}
             {result.scoreSource === "category-scored" && (
-              <span className="inline-flex items-center rounded-sm border border-slate-500/60 bg-slate-700/25 px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.18em] text-slate-300" title={result.capReason}>
+              <span className="inline-flex items-center rounded-sm border border-line/60 bg-surface-2 px-2.5 py-1 font-display text-[10px] uppercase tracking-[0.18em] text-muted" title={result.capReason}>
                 Category Scored
               </span>
             )}

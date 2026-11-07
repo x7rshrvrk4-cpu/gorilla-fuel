@@ -64,11 +64,11 @@ const WINE_STYLE_CLASS: Record<WineStyle, string> = {
 };
 
 const CITY_BADGE_CLASS: Record<string, string> = {
-  Toronto: "border-blue-500/60 bg-blue-800/25 text-blue-300",
-  Hamilton: "border-red-500/60 bg-red-900/25 text-red-300",
-  Niagara: "border-purple-500/60 bg-purple-900/25 text-purple-300",
-  Ottawa: "border-emerald-700/70 bg-emerald-950/40 text-emerald-400",
-  Guelph: "border-teal-500/60 bg-teal-900/25 text-teal-300",
+  Toronto: "border-blue-500/60 bg-blue-50 text-blue-300",
+  Hamilton: "border-red-500/60 bg-red-50 text-red-300",
+  Niagara: "border-purple-500/60 bg-purple-50 text-purple-300",
+  Ottawa: "border-emerald-700/70 bg-emerald-50 text-emerald-400",
+  Guelph: "border-teal-500/60 bg-teal-50 text-teal-300",
 };
 
 export default function AlcoholProductCard({ product }: { product: AlcoholRankingProduct }) {
@@ -99,13 +99,13 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
   const sweetSpot = isWine && isGorillaSweetSpot(product);
 
   return (
-    <div id={`product-${product.id}`} className={`rounded-sm border bg-slate-900/60 p-5 transition-colors ${borderClass}`}>
+    <div id={`product-${product.id}`} className={`rounded-sm border bg-surface p-5 transition-colors ${borderClass}`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-slate-400">{product.brand}</p>
-          <h3 className="font-display text-2xl leading-tight text-white">{product.name}</h3>
+          <p className="text-xs uppercase tracking-[0.25em] text-muted">{product.brand}</p>
+          <h3 className="font-display text-2xl leading-tight text-foreground">{product.name}</h3>
           {isWine && (product.varietal || product.region) && (
-            <p className="mt-0.5 text-xs text-slate-400">
+            <p className="mt-0.5 text-xs text-muted">
               {[product.varietal, product.region].filter(Boolean).join(" · ")}
             </p>
           )}
@@ -127,7 +127,7 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
             </span>
           )}
           {product.glutenStatus === "contains-gluten" && (
-            <span className="inline-flex shrink-0 items-center rounded-sm border border-slate-600/50 bg-slate-700/25 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-slate-400">
+            <span className="inline-flex shrink-0 items-center rounded-sm border border-line/50 bg-surface-2 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-muted">
               Contains Gluten
             </span>
           )}
@@ -137,17 +137,17 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
             </span>
           )}
           {product.organicCertified && (
-            <span className="inline-flex shrink-0 items-center rounded-sm border border-lime-600/60 bg-lime-800/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-lime-300">
+            <span className="inline-flex shrink-0 items-center rounded-sm border border-lime-600/60 bg-lime-50 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-lime-300">
               Organic
             </span>
           )}
           {product.londonOntario && (
-            <span className="inline-flex shrink-0 items-center rounded-sm border border-emerald-700/60 bg-emerald-800/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-emerald-400">
+            <span className="inline-flex shrink-0 items-center rounded-sm border border-emerald-700/60 bg-emerald-50 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-emerald-400">
               London ON
             </span>
           )}
           {product.cityRegion && (
-            <span className={`inline-flex shrink-0 items-center rounded-sm border px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] ${CITY_BADGE_CLASS[product.cityRegion] ?? "border-slate-500/60 bg-slate-700/25 text-slate-300"}`}>
+            <span className={`inline-flex shrink-0 items-center rounded-sm border px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] ${CITY_BADGE_CLASS[product.cityRegion] ?? "border-line/60 bg-surface-2 text-muted"}`}>
               {product.cityRegion}
             </span>
           )}
@@ -157,7 +157,7 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
             </span>
           )}
           {product.nutritionEstimated && (
-            <span className="inline-flex shrink-0 items-center rounded-sm border border-slate-600/50 bg-slate-700/20 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-slate-400">
+            <span className="inline-flex shrink-0 items-center rounded-sm border border-line/50 bg-surface-2 px-2 py-0.5 text-[9px] font-display uppercase tracking-[0.15em] text-muted">
               Est.
             </span>
           )}
@@ -172,36 +172,36 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
       {scorePending ? (
         // PARTIAL / identity-only entry — ABV/sugar not verified. Honest "Score pending"
         // state; never a fabricated number, 0, or a Gorilla Pour rating we don't have.
-        <div className="mt-4 rounded-sm border border-slate-700/50 bg-slate-800/40 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">🦍 Gorilla Score</p>
-          <p className="mt-0.5 font-display text-lg text-slate-300">Score pending</p>
-          <p className="mt-1 text-xs leading-relaxed text-slate-500">
+        <div className="mt-4 rounded-sm border border-line/50 bg-surface px-4 py-3">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted">🦍 Gorilla Score</p>
+          <p className="mt-0.5 font-display text-lg text-muted">Score pending</p>
+          <p className="mt-1 text-xs leading-relaxed text-muted">
             ABV &amp; sugar not yet verified for this {isWine ? "wine" : "beer"} — we don&apos;t show a score until they are.
           </p>
         </div>
       ) : (
         <div className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Calories · {servingLabel}</p>
-            <p className="mt-0.5 font-display text-lg text-white">{product.caloriesPerCan ?? "—"} kcal</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-muted">Calories · {servingLabel}</p>
+            <p className="mt-0.5 font-display text-lg text-foreground">{product.caloriesPerCan ?? "—"} kcal</p>
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Carbs · {servingLabel}</p>
-            <p className="mt-0.5 font-display text-lg text-white">{product.carbsPerCan ?? "—"}g</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-muted">Carbs · {servingLabel}</p>
+            <p className="mt-0.5 font-display text-lg text-foreground">{product.carbsPerCan ?? "—"}g</p>
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Sugar · {servingLabel}</p>
-            <p className="mt-0.5 font-display text-lg text-white">{product.sugarPerCan ?? "—"}g</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-muted">Sugar · {servingLabel}</p>
+            <p className="mt-0.5 font-display text-lg text-foreground">{product.sugarPerCan ?? "—"}g</p>
           </div>
           <div>
             {isWine && score !== null ? (
               <>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">🦍 Gorilla Score</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-muted">🦍 Gorilla Score</p>
                 <p className={`mt-0.5 font-display text-2xl ${wineScoreColor(score)}`}>{score}</p>
               </>
             ) : (
               <>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Gorilla Pour</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-muted">Gorilla Pour</p>
                 <div className="mt-1">
                   <GorillaPour rating={product.gorillaPour} />
                 </div>
@@ -226,9 +226,9 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
           product.wineVintage ? ` · ${product.wineVintage}` : ""
         }`;
         return (
-          <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-slate-800 pt-3">
+          <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-line pt-3">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-muted">
                 {isAward ? "🏅 Award" : "⭐ Wine Quality"}
               </p>
               <p className="mt-0.5 font-display text-2xl text-amber-300">{product.wineQuality}</p>
@@ -242,7 +242,7 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
                   {attribution} ↗
                 </a>
               ) : (
-                <p className="text-[10px] text-slate-500">{attribution}</p>
+                <p className="text-[10px] text-muted">{attribution}</p>
               )}
             </div>
             {sweetSpot && (
@@ -258,8 +258,8 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
       })()}
 
       {product.knownAdditives.length > 0 ? (
-        <div className="mt-3 border-t border-slate-800 pt-3">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Known Additives</p>
+        <div className="mt-3 border-t border-line pt-3">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted">Known Additives</p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {product.knownAdditives.map((additive) => (
               <span key={additive} className={`rounded-sm border px-2 py-0.5 text-[10px] uppercase tracking-[0.15em] ${additiveBadgeClass}`}>
@@ -270,20 +270,20 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
         </div>
       ) : product.confidence === "partial" ? (
         // Identity-only entry: no ingredient data was captured — do NOT imply "clean".
-        <div className="mt-3 border-t border-slate-800 pt-3">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Known Additives</p>
-          <p className="mt-0.5 text-[11px] text-slate-400">No ingredient data available</p>
+        <div className="mt-3 border-t border-line pt-3">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted">Known Additives</p>
+          <p className="mt-0.5 text-[11px] text-muted">No ingredient data available</p>
         </div>
       ) : (
         // Ingredients were actually checked and came back with zero flagged items.
-        <div className="mt-3 border-t border-slate-800 pt-3">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Known Additives</p>
+        <div className="mt-3 border-t border-line pt-3">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted">Known Additives</p>
           <p className="mt-0.5 text-[11px] text-emerald-400">None found in public ingredient disclosures</p>
         </div>
       )}
 
       {product.maltBasedBeerStore && (
-        <p className="mt-3 rounded-sm border border-amber-500/30 bg-amber-900/15 px-3 py-2 text-[11px] leading-relaxed text-amber-300/90">
+        <p className="mt-3 rounded-sm border border-amber-500/30 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-300/90">
           This is the malt-based version of this seltzer, brewed from grain. The
           same brand can also come in a spirit-based (distilled) version with
           different ingredients and gluten status. If you have celiac disease or
@@ -292,13 +292,13 @@ export default function AlcoholProductCard({ product }: { product: AlcoholRankin
       )}
 
       {product.gorillaAnalysis && (
-        <p className="mt-3 border-t border-slate-800 pt-3 text-xs leading-relaxed text-slate-300">
+        <p className="mt-3 border-t border-line pt-3 text-xs leading-relaxed text-muted">
           <span className="font-display uppercase tracking-[0.15em] text-gold/70">Gorilla Analysis — </span>
           {product.gorillaAnalysis}
         </p>
       )}
 
-      <p className="mt-3 border-t border-slate-800 pt-3 text-xs text-slate-400">{product.availability}</p>
+      <p className="mt-3 border-t border-line pt-3 text-xs text-muted">{product.availability}</p>
 
       {/* Buy link — gated on the NEXT_PUBLIC_SHOW_ALCOHOL_BUY_LINKS flag AND a real
           verified Beer Store URL on file; hidden otherwise (default). */}

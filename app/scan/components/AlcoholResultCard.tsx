@@ -35,7 +35,7 @@ const RISK_COLOR: Record<string, string> = {
 type NutritionMetric = "calories" | "carbs" | "sugar" | "abv";
 
 function nutritionTextColor(value: number | null, metric: NutritionMetric): string {
-  if (value === null) return "text-slate-500";
+  if (value === null) return "text-muted";
   switch (metric) {
     case "calories":
       return value < 100 ? "text-emerald-400" : value <= 150 ? "text-amber-400" : "text-red-400";
@@ -67,8 +67,8 @@ function ScoreDial({ score, color }: { score: number; color: string }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-display text-2xl leading-none text-white">{score}</span>
-        <span className="text-[9px] uppercase tracking-[0.15em] text-slate-400">/100</span>
+        <span className="font-display text-2xl leading-none text-foreground">{score}</span>
+        <span className="text-[9px] uppercase tracking-[0.15em] text-muted">/100</span>
       </div>
     </div>
   );
@@ -97,7 +97,7 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
   const isWine = kind === "wine";
 
   return (
-    <div className={`animate-rise overflow-hidden rounded-sm border bg-slate-950 ${
+    <div className={`animate-rise overflow-hidden rounded-sm border bg-surface ${
       isWine
         ? "border-rose-800/30 shadow-[0_0_40px_-12px_rgba(136,19,55,0.25)]"
         : "border-amber-400/20 shadow-[0_0_40px_-12px_rgba(251,191,36,0.15)]"
@@ -105,7 +105,7 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
 
       {/* ALCOHOL / WINE BANNER */}
       <div className={`flex flex-wrap items-center gap-2 border-b px-6 py-3 ${
-        isWine ? "border-rose-800/30 bg-rose-950/60" : "border-amber-400/25 bg-slate-900"
+        isWine ? "border-rose-800/30 bg-rose-50" : "border-amber-400/25 bg-surface"
       }`}>
         <span className={`h-2 w-2 shrink-0 animate-pulse rounded-full ${isWine ? "bg-rose-500" : "bg-amber-400"}`} />
         <p className={`font-display text-sm uppercase tracking-[0.3em] ${isWine ? "text-rose-300" : "text-amber-300"}`}>
@@ -138,7 +138,7 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
 
       {/* ALCOHOL NUTRITION GAP — shown when nutrition data is missing (common for Canadian alcohol) */}
       {(result.kcalPerServing === null || result.carbsPerServing === null) && (
-        <div className={`border-b px-6 py-3 ${isWine ? "border-rose-800/20 bg-rose-950/30" : "border-amber-400/20 bg-amber-400/5"}`}>
+        <div className={`border-b px-6 py-3 ${isWine ? "border-rose-800/20 bg-rose-50" : "border-amber-400/20 bg-amber-400/5"}`}>
           <p className={`text-[10px] leading-relaxed ${isWine ? "text-rose-300/70" : "text-amber-300/70"}`}>
             <span className={`font-display tracking-wide ${isWine ? "text-rose-300/90" : "text-amber-300/90"}`}>
               {isWine ? "Full wine nutrition may not be available in our database yet." : "Canadian alcohol labelling laws do not require breweries to disclose full nutrition information."}
@@ -152,9 +152,9 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
       )}
 
       {/* COMPACT PRODUCT IDENTITY */}
-      <div className="flex items-center gap-4 border-b border-slate-800 px-5 py-4 sm:px-6">
+      <div className="flex items-center gap-4 border-b border-line px-5 py-4 sm:px-6">
         {image && (
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-slate-800 bg-slate-900">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-line bg-surface">
             <Image
               src={image}
               alt={product.product_name ?? "Product"}
@@ -166,17 +166,17 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">{product.brands || "Unknown Brand"} · {product.code}</p>
-          <h2 className="font-display text-xl leading-tight text-white sm:text-2xl">{product.product_name || "Unnamed Product"}</h2>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted">{product.brands || "Unknown Brand"} · {product.code}</p>
+          <h2 className="font-display text-xl leading-tight text-foreground sm:text-2xl">{product.product_name || "Unnamed Product"}</h2>
         </div>
       </div>
 
       {/* ── NUTRITION GRID — the first substantive data the eye lands on ── */}
-      <div className="grid grid-cols-2 gap-px bg-slate-800">
+      <div className="grid grid-cols-2 gap-px bg-surface">
 
         {/* Calories */}
-        <div className="flex flex-col justify-between bg-slate-950 p-5 sm:p-6">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500">
+        <div className="flex flex-col justify-between bg-surface p-5 sm:p-6">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-muted">
             Calories · per {result.referenceServingMl}mL
           </p>
           <div className="mt-3">
@@ -184,14 +184,14 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
               {result.kcalPerServing ?? "—"}
             </span>
             {result.kcalPerServing !== null && (
-              <span className="ml-1.5 text-xs text-slate-500">kcal</span>
+              <span className="ml-1.5 text-xs text-muted">kcal</span>
             )}
           </div>
         </div>
 
         {/* Carbs */}
-        <div className="flex flex-col justify-between bg-slate-950 p-5 sm:p-6">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500">
+        <div className="flex flex-col justify-between bg-surface p-5 sm:p-6">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-muted">
             Carbs · per {result.referenceServingMl}mL
           </p>
           <div className="mt-3">
@@ -199,14 +199,14 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
               {result.carbsPerServing ?? "—"}
             </span>
             {result.carbsPerServing !== null && (
-              <span className="ml-1.5 text-xs text-slate-500">g</span>
+              <span className="ml-1.5 text-xs text-muted">g</span>
             )}
           </div>
         </div>
 
         {/* Sugar */}
-        <div className="flex flex-col justify-between bg-slate-950 p-5 sm:p-6">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500">
+        <div className="flex flex-col justify-between bg-surface p-5 sm:p-6">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-muted">
             Sugar · per {result.referenceServingMl}mL
           </p>
           <div className="mt-3">
@@ -214,9 +214,9 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
               {result.sugarPerServing ?? "—"}
             </span>
             {result.sugarPerServing !== null ? (
-              <span className="ml-1.5 text-xs text-slate-500">g</span>
+              <span className="ml-1.5 text-xs text-muted">g</span>
             ) : (
-              <p className="mt-1.5 text-[10px] leading-tight text-slate-600">
+              <p className="mt-1.5 text-[10px] leading-tight text-muted">
                 Sugar data not disclosed by manufacturer
               </p>
             )}
@@ -224,8 +224,8 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
         </div>
 
         {/* ABV */}
-        <div className="flex flex-col justify-between bg-slate-950 p-5 sm:p-6">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500">
+        <div className="flex flex-col justify-between bg-surface p-5 sm:p-6">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-muted">
             Alcohol by Volume
           </p>
           <div className="mt-3">
@@ -233,16 +233,16 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
               {result.abv ?? "—"}
             </span>
             {result.abv !== null && (
-              <span className="ml-1.5 text-xs text-slate-500">% ABV</span>
+              <span className="ml-1.5 text-xs text-muted">% ABV</span>
             )}
           </div>
         </div>
       </div>
 
       {/* GORILLA POUR */}
-      <div className="flex flex-col gap-1 border-b border-slate-800 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <div className="flex flex-col gap-1 border-b border-line px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.22em] text-slate-400">Gorilla Pour · Fitness Friendliness</p>
+          <p className="text-[10px] uppercase tracking-[0.22em] text-muted">Gorilla Pour · Fitness Friendliness</p>
           <div className="mt-2">
             <GorillaPour rating={result.gorillaPour} />
           </div>
@@ -250,7 +250,7 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
         <div className="mt-4 flex items-center gap-4 sm:mt-0">
           <ScoreDial score={result.score} color={gradeColor} />
           <div>
-            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Cleanliness Score</p>
+            <p className="text-[10px] uppercase tracking-[0.18em] text-muted">Cleanliness Score</p>
             <p className="mt-0.5 font-display text-xl" style={{ color: gradeColor }}>
               {result.grade}
             </p>
@@ -274,13 +274,13 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
 
       {/* FLAGS / POSITIVES */}
       {(result.flags.length > 0 || result.positives.length > 0) && (
-        <div className="grid gap-px bg-slate-800 sm:grid-cols-2">
+        <div className="grid gap-px bg-surface sm:grid-cols-2">
           {result.flags.length > 0 && (
-            <div className="bg-slate-950 p-5">
-              <h3 className="font-display text-lg tracking-wide text-white">
+            <div className="bg-surface p-5">
+              <h3 className="font-display text-lg tracking-wide text-foreground">
                 <span className="text-red-400">⚠</span> Flags
               </h3>
-              <ul className="mt-2 space-y-1.5 text-sm text-slate-400">
+              <ul className="mt-2 space-y-1.5 text-sm text-muted">
                 {result.flags.map((flag, i) => (
                   <li key={i} className="flex gap-2">
                     <span className="shrink-0 text-red-400">—</span>
@@ -291,11 +291,11 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
             </div>
           )}
           {result.positives.length > 0 && (
-            <div className="bg-slate-950 p-5">
-              <h3 className="font-display text-lg tracking-wide text-white">
+            <div className="bg-surface p-5">
+              <h3 className="font-display text-lg tracking-wide text-foreground">
                 <span className="text-emerald-400">✓</span> Positives
               </h3>
-              <ul className="mt-2 space-y-1.5 text-sm text-slate-400">
+              <ul className="mt-2 space-y-1.5 text-sm text-muted">
                 {result.positives.map((pos, i) => (
                   <li key={i} className="flex gap-2">
                     <span className="shrink-0 text-emerald-400">—</span>
@@ -309,14 +309,14 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
       )}
 
       {/* COLLAPSIBLE ADDITIVES SECTION */}
-      <div className="border-t border-slate-800">
+      <div className="border-t border-line">
         <button
           type="button"
           onClick={() => setAdditivesOpen((o) => !o)}
-          className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-slate-900/50 sm:px-6"
+          className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-surface sm:px-6"
           aria-expanded={additivesOpen}
         >
-          <span className="font-display text-lg tracking-wide text-white">Additional Ingredients Info</span>
+          <span className="font-display text-lg tracking-wide text-foreground">Additional Ingredients Info</span>
           <svg
             width="18"
             height="18"
@@ -325,15 +325,15 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
-            className={`shrink-0 text-slate-400 transition-transform duration-200 ${additivesOpen ? "rotate-180" : ""}`}
+            className={`shrink-0 text-muted transition-transform duration-200 ${additivesOpen ? "rotate-180" : ""}`}
           >
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
 
         {additivesOpen && (
-          <div className="border-t border-slate-800 px-5 pb-6 pt-4 sm:px-6">
-            <p className="mb-4 text-xs leading-relaxed text-slate-400">
+          <div className="border-t border-line px-5 pb-6 pt-4 sm:px-6">
+            <p className="mb-4 text-xs leading-relaxed text-muted">
               Screened for caramel colours, sulfite preservatives, foam/clarity stabilizers, DMDC, isinglass,
               carrageenan, high fructose corn syrup, artificial sweeteners (aspartame, acesulfame K, sucralose,
               saccharin), preservatives (sodium benzoate, potassium benzoate), artificial colours, citric acid,
@@ -370,7 +370,7 @@ export default function AlcoholResultCard({ product, result, fromCommunity, data
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-muted">
                 None of our flagged beer and alcohol additives were found in the ingredients list.
               </p>
             )}

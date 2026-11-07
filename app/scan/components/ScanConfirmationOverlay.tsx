@@ -18,7 +18,7 @@ type Props = {
 export default function ScanConfirmationOverlay({ phase, barcode, exiting, onTryAgain, onSubmit, onClose }: Props) {
   return (
     <div
-      className={`fixed inset-0 z-[65] flex flex-col items-center justify-center bg-black/95 transition-opacity duration-300 ${
+      className={`keep-dark fixed inset-0 z-[65] flex flex-col items-center justify-center bg-black/95 transition-opacity duration-300 ${
         exiting ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
     >

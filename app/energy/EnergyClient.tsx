@@ -87,7 +87,7 @@ export default function EnergyClient() {
             className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-[0.2em] transition-colors ${
               filter === f.key
                 ? "border-cyan-400 text-cyan-400"
-                : "border-slate-700 text-slate-400 hover:border-cyan-400/50 hover:text-foreground"
+                : "border-line text-muted hover:border-cyan-400/50 hover:text-foreground"
             }`}
           >
             {f.label}
@@ -95,9 +95,9 @@ export default function EnergyClient() {
         ))}
       </div>
 
-      <div className="mt-4 rounded-sm border border-slate-800 bg-slate-900/40 px-5 py-4">
-        <p className="text-xs leading-relaxed text-slate-400">
-          <span className="font-display tracking-wide text-slate-300">Caffeine band:</span>{" "}
+      <div className="mt-4 rounded-sm border border-line bg-surface px-5 py-4">
+        <p className="text-xs leading-relaxed text-muted">
+          <span className="font-display tracking-wide text-muted">Caffeine band:</span>{" "}
           <span className="text-emerald-300">green &lt;100 mg</span> ·{" "}
           <span className="text-yellow-300">yellow 100–200 mg</span> ·{" "}
           <span className="text-red-300">red &gt;200 mg</span> (caffeine-free drinks show no band). Scores use
@@ -112,8 +112,8 @@ export default function EnergyClient() {
         {products.length > 0 ? (
           products.map((product) => <EnergyProductCard key={product.id} product={product} />)
         ) : (
-          <div className="col-span-full rounded-sm border border-slate-800 bg-slate-900/60 p-8 text-center">
-            <p className="text-slate-400">No drinks match this filter. Try another combination.</p>
+          <div className="col-span-full rounded-sm border border-line bg-surface p-8 text-center">
+            <p className="text-muted">No drinks match this filter. Try another combination.</p>
           </div>
         )}
       </div>

@@ -186,7 +186,7 @@ export default function BarcodeScanner({ active, onDetected, onClose }: Props) {
   if (!active) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] overflow-hidden bg-black">
+    <div className="keep-dark fixed inset-0 z-[60] overflow-hidden bg-black">
       <video
         ref={videoRef}
         muted

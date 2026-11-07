@@ -244,7 +244,7 @@ export default function AdminAliasesPage() {
                               type="button"
                               disabled={inFlight}
                               onClick={() => handleAction(row.alias_barcode, "approve")}
-                              className="rounded-sm border border-emerald-600/50 px-3 py-1.5 font-display text-xs tracking-widest text-emerald-400 transition-colors hover:bg-emerald-900/30 disabled:opacity-40"
+                              className="rounded-sm border border-emerald-600/50 px-3 py-1.5 font-display text-xs tracking-widest text-emerald-400 transition-colors hover:bg-emerald-50 disabled:opacity-40"
                             >
                               {inFlight ? "…" : "Approve"}
                             </button>
@@ -252,7 +252,7 @@ export default function AdminAliasesPage() {
                               type="button"
                               disabled={inFlight}
                               onClick={() => handleAction(row.alias_barcode, "reject")}
-                              className="rounded-sm border border-red-600/40 px-3 py-1.5 font-display text-xs tracking-widest text-red-400 transition-colors hover:bg-red-900/20 disabled:opacity-40"
+                              className="rounded-sm border border-red-600/40 px-3 py-1.5 font-display text-xs tracking-widest text-red-400 transition-colors hover:bg-red-50 disabled:opacity-40"
                             >
                               {inFlight ? "…" : "Reject"}
                             </button>
@@ -263,7 +263,7 @@ export default function AdminAliasesPage() {
                             type="button"
                             disabled={inFlight}
                             onClick={() => handleAction(row.alias_barcode, "reject")}
-                            className="rounded-sm border border-red-600/40 px-3 py-1.5 font-display text-xs tracking-widest text-red-400 transition-colors hover:bg-red-900/20 disabled:opacity-40"
+                            className="rounded-sm border border-red-600/40 px-3 py-1.5 font-display text-xs tracking-widest text-red-400 transition-colors hover:bg-red-50 disabled:opacity-40"
                           >
                             {inFlight ? "…" : "Revoke"}
                           </button>

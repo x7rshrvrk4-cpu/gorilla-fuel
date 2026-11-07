@@ -14,7 +14,7 @@ const EVIDENCE_COLOR: Record<ResearchEvidenceLevel, string> = {
   strong: "border-emerald-400/50 text-emerald-300 bg-emerald-400/10",
   moderate: "border-yellow-400/50 text-yellow-300 bg-yellow-400/10",
   limited: "border-orange-400/50 text-orange-300 bg-orange-400/10",
-  mixed: "border-zinc-400/50 text-zinc-300 bg-zinc-400/10",
+  mixed: "border-line/50 text-muted bg-surface-2",
 };
 
 export default function ResearchSummaryCard({ ingredient }: { ingredient: ExamineIngredientInfo }) {

@@ -115,13 +115,13 @@ export default function BeautyResultCard({ product, result }: Props) {
       {/* SIGNAL 2 — limited coverage: this looks like a category the cosmetic
           dictionary is thin on (sunscreen/deodorant/makeup). Informational, slate. */}
       {underCovered && (
-        <div className="flex items-start gap-2 border-b border-slate-400/30 bg-slate-500/[0.07] px-6 py-3">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 h-4 w-4 shrink-0 text-slate-300" aria-hidden="true">
+        <div className="flex items-start gap-2 border-b border-line/30 bg-slate-500/[0.07] px-6 py-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 h-4 w-4 shrink-0 text-muted" aria-hidden="true">
             <circle cx="12" cy="12" r="10" />
             <path d="M12 16v-4M12 8h.01" strokeLinecap="round" />
           </svg>
           <div>
-            <p className="font-display text-[10px] uppercase tracking-[0.18em] text-slate-300">Newer coverage</p>
+            <p className="font-display text-[10px] uppercase tracking-[0.18em] text-muted">Newer coverage</p>
             <p className="mt-0.5 text-xs leading-relaxed text-muted">
               This looks like a {underCovered.label} product. Our cosmetic checks here are newer — they cover
               the main flagged ingredients ({underCovered.covers}) but may not catch every concern in this

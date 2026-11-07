@@ -233,7 +233,7 @@ export default function Home() {
               <div className="gorilla-card flex flex-col rounded-sm p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <span className="inline-flex rounded-sm border border-amber-600/40 bg-amber-900/20 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-amber-400">
+                    <span className="inline-flex rounded-sm border border-amber-600/40 bg-amber-50 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-amber-400">
                       Alcohol
                     </span>
                     <h3 className="mt-2 font-display text-2xl leading-tight text-foreground">
@@ -272,7 +272,7 @@ export default function Home() {
               <div className="gorilla-card flex flex-col rounded-sm p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <span className="inline-flex rounded-sm border border-emerald-600/40 bg-emerald-900/20 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-emerald-400">
+                    <span className="inline-flex rounded-sm border border-emerald-600/40 bg-emerald-50 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-emerald-400">
                       Food
                     </span>
                     <h3 className="mt-2 font-display text-2xl leading-tight text-foreground">
@@ -323,7 +323,7 @@ export default function Home() {
               <div className="gorilla-card flex flex-col rounded-sm p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <span className="inline-flex rounded-sm border border-blue-600/40 bg-blue-900/20 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-blue-400">
+                    <span className="inline-flex rounded-sm border border-blue-600/40 bg-blue-50 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-blue-400">
                       Supplement
                     </span>
                     <h3 className="mt-2 font-display text-2xl leading-tight text-foreground">
@@ -364,7 +364,7 @@ export default function Home() {
               <div className="gorilla-card flex flex-col rounded-sm p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <span className="inline-flex rounded-sm border border-rose-600/40 bg-rose-900/20 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-rose-400">
+                    <span className="inline-flex rounded-sm border border-rose-600/40 bg-rose-50 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-rose-400">
                       Wine
                     </span>
                     <h3 className="mt-2 font-display text-2xl leading-tight text-foreground">{winePick.name}</h3>
@@ -396,7 +396,7 @@ export default function Home() {
               <div className="gorilla-card flex flex-col rounded-sm p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <span className="inline-flex rounded-sm border border-orange-600/40 bg-orange-900/20 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-orange-400">
+                    <span className="inline-flex rounded-sm border border-orange-600/40 bg-orange-50 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-orange-400">
                       Meal
                     </span>
                     <h3 className="mt-2 font-display text-2xl leading-tight text-foreground">{mealPick.title}</h3>
@@ -426,7 +426,7 @@ export default function Home() {
               <div className="gorilla-card flex flex-col rounded-sm p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <span className="inline-flex rounded-sm border border-fuchsia-600/40 bg-fuchsia-900/20 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-fuchsia-400">
+                    <span className="inline-flex rounded-sm border border-fuchsia-600/40 bg-fuchsia-50 px-2 py-0.5 font-display text-[10px] uppercase tracking-[0.2em] text-fuchsia-400">
                       Smoothie
                     </span>
                     <h3 className="mt-2 font-display text-2xl leading-tight text-foreground">{smoothiePick.name}</h3>

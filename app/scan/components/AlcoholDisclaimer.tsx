@@ -6,7 +6,7 @@ export const ALCOHOL_DISCLAIMER =
 
 export default function AlcoholDisclaimer() {
   return (
-    <p className="border-b border-amber-400/20 bg-slate-900/60 px-6 py-3 text-xs leading-relaxed text-slate-300">
+    <p className="border-b border-amber-400/20 bg-surface px-6 py-3 text-xs leading-relaxed text-muted">
       {ALCOHOL_DISCLAIMER}
     </p>
   );

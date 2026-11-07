@@ -20,13 +20,13 @@ export default function NuanceNotes({
       {notes.map((note) => (
         <p
           key={note.id}
-          className="flex gap-2 rounded-sm border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-[11px] leading-relaxed text-slate-400"
+          className="flex gap-2 rounded-sm border border-line/50 bg-surface px-3 py-2 text-[11px] leading-relaxed text-muted"
         >
-          <span className="mt-px shrink-0 text-slate-500" aria-hidden>
+          <span className="mt-px shrink-0 text-muted" aria-hidden>
             ⓘ
           </span>
           <span>
-            <span className="font-display uppercase tracking-[0.12em] text-slate-300">Nuance — </span>
+            <span className="font-display uppercase tracking-[0.12em] text-muted">Nuance — </span>
             {note.text}
           </span>
         </p>
