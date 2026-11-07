@@ -277,3 +277,57 @@ h1, h2, h3, h4, .display {
 .bg-gold:not(.keep-dark *) { background-color: #e6b800; }
 .bg-gold.text-background:not(.keep-dark *), .bg-gold:not(.keep-dark *) > .text-background { color: #1c1a14; }
 .hover:bg-gold:hover:not(.keep-dark *) { background-color: #e6b800; }
+
+/* ── Light theme v3: near-black text, gold boxes for headlines and labels ── */
+:root { --foreground: #0e0d09; --muted: #3b382d; --ink: #14120c; --gold-fill: #e6b800; }
+
+/* Hero / page headlines that were solid gold become a gold box with black type */
+h1.text-gold:not(.keep-dark *) {
+  display: inline-block;
+  background: var(--gold-fill);
+  color: var(--ink);
+  padding: 0.08em 0.28em 0.04em;
+  border-radius: 3px;
+}
+/* Gold highlighted words inside headlines become gold highlighter boxes */
+h1 .text-gold:not(.keep-dark *), h2 .text-gold:not(.keep-dark *), h3.text-gold:not(.keep-dark *) {
+  background: var(--gold-fill);
+  color: var(--ink);
+  padding: 0 0.16em;
+  border-radius: 2px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+/* Small uppercase gold labels (eyebrows) become gold chips with black text */
+.text-gold[class*="tracking-[0.2"]:not(.keep-dark *):not(a):not(button):not(summary),
+.text-gold[class*="tracking-[0.3"]:not(.keep-dark *):not(a):not(button):not(summary),
+.text-gold[class*="tracking-[0.25"]:not(.keep-dark *):not(a):not(button):not(summary) {
+  display: inline-block;
+  background: var(--gold-fill);
+  color: var(--ink);
+  padding: 0.18em 0.7em;
+  border-radius: 2px;
+}
+/* Other small gold text reads better as near-black */
+.text-gold:is(.text-xs, .text-sm, .text-base, [class*="text-[10px]"], [class*="text-[11px]"], [class*="text-[12px]"], [class*="text-[13px]"]):not(.keep-dark *):not([class*="tracking-[0.2"]):not([class*="tracking-[0.3"]):not([class*="tracking-[0.25"]):not(.bg-gold) {
+  color: var(--ink);
+}
+
+/* v3: pages that use amber as their gold (alcohol etc.) get the same gold boxes */
+h1 .text-amber-400:not(.keep-dark *), h1 .text-amber-300:not(.keep-dark *), h2 .text-amber-400:not(.keep-dark *), h2 .text-amber-300:not(.keep-dark *) {
+  background: var(--gold-fill);
+  color: var(--ink);
+  padding: 0 0.16em;
+  border-radius: 2px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.text-amber-400[class*="tracking-[0.2"]:not(.keep-dark *):not(a):not(button):not(summary),
+.text-amber-400[class*="tracking-[0.3"]:not(.keep-dark *):not(a):not(button):not(summary),
+.text-amber-400[class*="tracking-[0.25"]:not(.keep-dark *):not(a):not(button):not(summary) {
+  display: inline-block;
+  background: var(--gold-fill);
+  color: var(--ink);
+  padding: 0.18em 0.7em;
+  border-radius: 2px;
+}
