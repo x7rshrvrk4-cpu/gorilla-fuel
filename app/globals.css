@@ -5,8 +5,8 @@
   --surface: #faf7ee;
   --surface-2: #f3eedd;
   --foreground: #1c1a14;
-  --gold: #a87906;
-  --gold-dim: #7d5a05;
+  --gold: #b89200;
+  --gold-dim: #8c6f00;
   --muted: #5e5a4c;
   --line: #e6dfc8;
   --font-display: var(--font-bebas);
@@ -52,7 +52,7 @@ h1, h2, h3, h4, .display {
 }
 
 .gold-gradient-text {
-  background: linear-gradient(120deg, #c9970a, #a87906 45%, #7d5a05 100%);
+  background: linear-gradient(120deg, #e8bb00, #c49c00 45%, #8c6f00 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -247,7 +247,7 @@ h1, h2, h3, h4, .display {
 }
 
 /* Light theme: the pale accent shades used on dark cards need darker versions on white. */
-.text-amber-300:not(.keep-dark *), .text-amber-400:not(.keep-dark *), .text-yellow-300:not(.keep-dark *), .text-yellow-400:not(.keep-dark *) { color: #92400e; }
+.text-amber-300:not(.keep-dark *), .text-amber-400:not(.keep-dark *), .text-yellow-300:not(.keep-dark *), .text-yellow-400:not(.keep-dark *) { color: #b08800; }
 .text-emerald-300:not(.keep-dark *), .text-emerald-400:not(.keep-dark *), .text-green-300:not(.keep-dark *), .text-green-400:not(.keep-dark *) { color: #047857; }
 .text-red-300:not(.keep-dark *), .text-red-400:not(.keep-dark *) { color: #b91c1c; }
 .text-sky-300:not(.keep-dark *), .text-sky-400:not(.keep-dark *), .text-blue-300:not(.keep-dark *), .text-blue-400:not(.keep-dark *) { color: #1d4ed8; }
@@ -258,7 +258,7 @@ h1, h2, h3, h4, .display {
 .gorilla-card { box-shadow: 0 1px 3px rgba(60, 50, 20, 0.08); }
 
 /* Light theme: pale -100/-200 text shades and lime */
-.text-amber-100:not(.keep-dark *), .text-amber-200:not(.keep-dark *), .text-yellow-200:not(.keep-dark *) { color: #78350f; }
+.text-amber-100:not(.keep-dark *), .text-amber-200:not(.keep-dark *), .text-yellow-200:not(.keep-dark *) { color: #7a5c00; }
 .text-red-200:not(.keep-dark *) { color: #991b1b; }
 .text-sky-100:not(.keep-dark *), .text-sky-200:not(.keep-dark *), .text-indigo-200:not(.keep-dark *) { color: #1e3a8a; }
 .text-rose-200:not(.keep-dark *) { color: #9f1239; }
@@ -269,6 +269,11 @@ h1, h2, h3, h4, .display {
 /* Light theme: opacity variants of pale shades (e.g. text-rose-300/80) */
 [class*="text-rose-300/"]:not(.keep-dark *), [class*="text-pink-300/"]:not(.keep-dark *) { color: #9f1239; }
 [class*="text-emerald-300/"]:not(.keep-dark *), [class*="text-green-300/"]:not(.keep-dark *) { color: #065f46; }
-[class*="text-amber-300/"]:not(.keep-dark *), [class*="text-amber-200/"]:not(.keep-dark *) { color: #78350f; }
+[class*="text-amber-300/"]:not(.keep-dark *), [class*="text-amber-200/"]:not(.keep-dark *) { color: #7a5c00; }
 [class*="text-red-300/"]:not(.keep-dark *) { color: #991b1b; }
 [class*="text-sky-300/"]:not(.keep-dark *), [class*="text-blue-300/"]:not(.keep-dark *) { color: #1e3a8a; }
+
+/* Light theme: true gold fills (buttons) with dark text so they read as gold, not brown */
+.bg-gold:not(.keep-dark *) { background-color: #e6b800; }
+.bg-gold.text-background:not(.keep-dark *), .bg-gold:not(.keep-dark *) > .text-background { color: #1c1a14; }
+.hover:bg-gold:hover:not(.keep-dark *) { background-color: #e6b800; }
