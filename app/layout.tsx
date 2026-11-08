@@ -6,7 +6,7 @@
  * Root cause history: commit 627f7b9.
  */
 import type { Metadata } from "next";
-import { Bebas_Neue, DM_Sans } from "next/font/google";
+import { Bebas_Neue, Lora, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import Navigation from "./components/Navigation";
@@ -23,9 +23,16 @@ const bebasNeue = Bebas_Neue({
   weight: "400",
 });
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+// Body text is a serif (Lora); the wordmark uses Playfair Display; Bebas Neue stays for headlines and buttons.
+const lora = Lora({
+  variable: "--font-lora",
   subsets: ["latin"],
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["700"],
 });
 
 const description =
@@ -64,7 +71,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bebasNeue.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${bebasNeue.variable} ${lora.variable} ${playfair.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

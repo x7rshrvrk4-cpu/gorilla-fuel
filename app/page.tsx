@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import StatsTicker from "./components/StatsTicker";
+import { getHeroStats } from "./lib/siteStats";
 import CrossLinkBanner from "./components/CrossLinkBanner";
 import UniversalSearch from "./components/UniversalSearch";
 import { amazonUrl } from "./intel/lib/products";
@@ -62,47 +62,100 @@ const PILLARS = [
   },
 ];
 
-export default function Home() {
+const HERO_PILLS: { label: string; href: string }[] = [
+  { label: "Beer", href: "/alcohol" },
+  { label: "Wine", href: "/alcohol" },
+  { label: "Supplements", href: "/rankings" },
+  { label: "Food & snacks", href: "/approved" },
+  { label: "Smoothies", href: "/smoothies" },
+  { label: "Gluten free", href: "/glutenfree" },
+  { label: "Holistic", href: "/holistic" },
+];
+
+export default async function Home() {
+  const stats = await getHeroStats();
   const { alcohol: alcoholPick, food: foodPick, supp: suppPick, meal: mealPick, smoothie: smoothiePick, wine: winePick } = getWeeklyPicks();
 
   return (
     <>
-      {/* STATS TICKER */}
-      <StatsTicker />
-
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section className="relative border-b border-line bg-background">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,215,0,0.08),_transparent_60%)]" />
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-8 px-6 py-24 text-center sm:py-32">
-          <h1 className="font-display text-6xl leading-[0.9] text-gold sm:text-8xl md:text-9xl">
-            SCAN IT.<br />SCORE IT.<br />KNOW IT.
+      <section className="hero-glow relative border-b border-line">
+        <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 px-6 pb-10 pt-14 text-center sm:pt-20">
+          <h1 className="font-display text-6xl leading-[0.95] text-foreground sm:text-7xl md:text-8xl">
+            SCAN IT. SCORE IT.
+            <br />
+            <span className="gold-metal inline-block rounded px-[0.18em] pt-[0.06em] leading-none">KNOW IT.</span>
           </h1>
           <p className="max-w-lg text-lg leading-relaxed text-muted sm:text-xl">
-            Free Canadian product intelligence for beer, wine, supplements and
-            food. Scores can't be bought. Ever.
+            Point your phone at any barcode for an honest, ad-free health score in seconds. Beer, wine, supplements and food.
           </p>
 
           {/* WHOLE-DATABASE LIVE SEARCH — curated catalogue + scanned cache.
               z-30 so the results dropdown (z-[9999] inside) paints over the
               category doors and picks below it. */}
-          <div className="relative z-30 w-full max-w-lg">
-            <UniversalSearch placeholder="Search any product by name, brand, or barcode…" />
-          </div>
-
-          <div className="flex flex-col gap-4 sm:flex-row">
+          <div className="relative z-30 w-full max-w-xl">
+            <UniversalSearch placeholder="Search a product or barcode" className="[&_input]:pr-12" />
             <Link
               href="/scan"
-              className="rounded-sm bg-gold px-8 py-4 font-display text-xl tracking-widest text-background transition-opacity hover:opacity-90"
+              aria-label="Scan a barcode with your camera"
+              className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-sm text-gold-dim hover:text-gold"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
+                <circle cx="12" cy="13" r="3.5" />
+              </svg>
+            </Link>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-4">
+            <Link
+              href="/scan"
+              className="gold-metal gold-metal-btn rounded-sm px-9 py-4 font-display text-xl tracking-widest transition-opacity hover:opacity-90"
             >
               SCAN A PRODUCT
             </Link>
             <Link
               href="/explore"
-              className="rounded-sm border border-gold px-8 py-4 font-display text-xl tracking-widest text-gold transition-colors hover:bg-gold hover:text-background"
+              className="border-b-2 border-gold pb-0.5 font-display text-lg tracking-widest text-foreground hover:text-gold"
             >
-              BROWSE RANKINGS
+              BROWSE RANKINGS →
             </Link>
           </div>
+
+          <div className="flex max-w-xl flex-wrap justify-center gap-2">
+            {HERO_PILLS.map((p) => (
+              <Link
+                key={p.href + p.label}
+                href={p.href}
+                className="rounded-full border border-line bg-surface px-4 py-1.5 text-sm text-foreground transition-colors hover:border-gold"
+              >
+                {p.label}
+              </Link>
+            ))}
+          </div>
+
+          <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs uppercase tracking-[0.12em] text-muted">
+            <li>🍁 Made in Canada</li>
+            <li>✓ Free, no account</li>
+            <li>✓ Scores can&apos;t be bought</li>
+          </ul>
+
+          <dl className="mt-4 grid w-full max-w-3xl grid-cols-2 gap-6 border-t border-line pt-6 sm:grid-cols-3">
+            <div className="flex flex-col-reverse gap-1">
+              <dt className="text-[11px] uppercase tracking-[0.14em] text-muted">Wines searchable</dt>
+              <dd className="font-display text-4xl text-foreground">{stats.wines.toLocaleString("en-CA")}+</dd>
+            </div>
+            {stats.products !== null && (
+              <div className="flex flex-col-reverse gap-1">
+                <dt className="text-[11px] uppercase tracking-[0.14em] text-muted">Products in the database</dt>
+                <dd className="font-display text-4xl text-foreground">{stats.products.toLocaleString("en-CA")}+</dd>
+              </div>
+            )}
+            <div className="col-span-2 flex flex-col-reverse gap-1 sm:col-span-1">
+              <dt className="text-[11px] uppercase tracking-[0.14em] text-muted">Live data sources</dt>
+              <dd className="font-display text-4xl text-foreground">{stats.sources}</dd>
+            </div>
+          </dl>
         </div>
       </section>
 

@@ -10,7 +10,8 @@
   --muted: #5e5a4c;
   --line: #e6dfc8;
   --font-display: var(--font-bebas);
-  --font-body: var(--font-dm-sans);
+  --font-body: var(--font-lora);
+  --font-brand: var(--font-playfair);
 }
 
 @theme inline {
@@ -412,4 +413,21 @@ header a[href="/"] .text-gold:not(.keep-dark *) { color: var(--gold); }
 
 /* v4c: remaining pale amber score colour */
 [style*="#e0a23a" i], [style*="rgb(224, 162, 58)"] { color: #8a5a00 !important; }
+}
+
+/* Brand wordmark in the header */
+.brand-wordmark { font-family: var(--font-brand), Georgia, serif; font-weight: 700; letter-spacing: 0.01em; }
+
+/* Metallic gold fill (buttons, highlighted word). Text on it is always dark, in both themes. */
+.gold-metal {
+  background: linear-gradient(135deg, #b78f0a 0%, #f2d25c 42%, #d4a916 70%, #a9830a 100%);
+  color: #14120c;
+}
+.gold-metal-btn {
+  box-shadow: 0 6px 16px rgba(160, 125, 10, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.hero-glow {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(240, 205, 90, 0.25), transparent 60%),
+    linear-gradient(180deg, var(--background) 0%, var(--surface) 100%);
 }

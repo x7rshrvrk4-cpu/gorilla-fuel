@@ -47,7 +47,7 @@ export default function Navigation() {
             unoptimized
             className="h-10 w-10 rounded-sm object-contain transition-transform group-hover:scale-105"
           />
-          <span className="font-display text-2xl tracking-wider text-foreground">
+          <span className="brand-wordmark text-2xl text-foreground">
             GORILLA <span className="text-gold">FUEL</span>
           </span>
         </Link>
