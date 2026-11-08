@@ -12449,14 +12449,17 @@ const ALCOHOL_PRODUCTS_RAW: AlcoholRankingProduct[] = [
     brand: "Sleeman Breweries",
     name: "Sleeman Clear Lime 473ml",
     abv: 4,
-    caloriesPerCan: 105,
-    carbsPerCan: 6.5,
-    sugarPerCan: 4,
+    // Corrected: the old 105 kcal / 6.5 g carbs / 4 g sugar matched no source. Published figures for the 473 mL can are
+    // 110 kcal and 3 g carbs (trade listing and retailer; a restaurant menu lists 3 g sugar), while LCBO says 120 kcal.
+    // No official panel was found, so sugar is left blank rather than guessed (carbs are only 3 g, so sugar is at most 3 g).
+    caloriesPerCan: 110,
+    carbsPerCan: 3,
     servingMl: 473,
     knownAdditives: [],
     additiveCount: 0,
     gorillaPour: 3,
     availability: "Beer Store Ontario",
+    nutritionEstimated: true,
   },
   {
     id: "sleeman-gold-473ml",
