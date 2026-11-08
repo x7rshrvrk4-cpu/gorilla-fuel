@@ -9652,6 +9652,7 @@ const ALCOHOL_PRODUCTS_RAW: AlcoholRankingProduct[] = [
     additiveCount: 0,
     gorillaPour: 1,
     availability: "Beer Store Ontario",
+    nutritionEstimated: true, // calories were below the alcohol's own energy; not label-verified, awaiting the brewer's official figures
     gorillaAnalysis: "Very high ABV strong lager. 11.9% in a 500ml can is significant. Treat with caution.",
   },
   {
@@ -9672,6 +9673,7 @@ const ALCOHOL_PRODUCTS_RAW: AlcoholRankingProduct[] = [
     additiveCount: 0,
     gorillaPour: 2,
     availability: "Beer Store Ontario",
+    nutritionEstimated: true, // calories were below the alcohol's own energy; not label-verified, awaiting the brewer's official figures
     gorillaAnalysis: "Strong Dutch lager at 8.6% ABV. Higher than standard lager strength. Clean ingredients but high alcohol content means a lower score.",
   },
   {
@@ -9727,6 +9729,7 @@ const ALCOHOL_PRODUCTS_RAW: AlcoholRankingProduct[] = [
     additiveCount: 0,
     gorillaPour: 1,
     availability: "Beer Store Ontario",
+    nutritionEstimated: true, // calories were below the alcohol's own energy; not label-verified, awaiting the brewer's official figures
   },
   {
     id: "8-6-black-stout-500ml",
@@ -9745,6 +9748,7 @@ const ALCOHOL_PRODUCTS_RAW: AlcoholRankingProduct[] = [
     additiveCount: 0,
     gorillaPour: 1,
     availability: "Beer Store Ontario",
+    nutritionEstimated: true, // calories were below the alcohol's own energy; not label-verified, awaiting the brewer's official figures
   },
   {
     id: "8-6-cherry-strong-500ml",
@@ -9763,6 +9767,7 @@ const ALCOHOL_PRODUCTS_RAW: AlcoholRankingProduct[] = [
     additiveCount: 0,
     gorillaPour: 1,
     availability: "Beer Store Ontario",
+    nutritionEstimated: true, // calories were below the alcohol's own energy; not label-verified, awaiting the brewer's official figures
   },
   {
     id: "kozel-500ml",
@@ -9853,6 +9858,7 @@ const ALCOHOL_PRODUCTS_RAW: AlcoholRankingProduct[] = [
     additiveCount: 5,
     gorillaPour: 1,
     availability: "Beer Store Ontario",
+    nutritionEstimated: true, // calories were below the alcohol's own energy; not label-verified, awaiting the brewer's official figures
   },
   {
     id: "faxe-se7en-sinful-568ml",
@@ -10676,6 +10682,7 @@ const ALCOHOL_PRODUCTS_RAW: AlcoholRankingProduct[] = [
     additiveCount: 0,
     gorillaPour: 5,
     availability: "Beer Store Ontario",
+    nutritionEstimated: true, // calories were below the alcohol's own energy; not label-verified, awaiting the brewer's official figures
   },
   {
     id: "vizzy-orange-cream-473ml",
@@ -12258,6 +12265,7 @@ const ALCOHOL_PRODUCTS_RAW: AlcoholRankingProduct[] = [
     additiveCount: 0,
     gorillaPour: 4,
     availability: "Beer Store Ontario",
+    nutritionEstimated: true, // calories were below the alcohol's own energy; not label-verified, awaiting the brewer's official figures
   },
   {
     id: "miller-lite-341ml",
