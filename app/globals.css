@@ -246,6 +246,43 @@ h1, h2, h3, h4, .display {
   color: #f5f1e6;
 }
 
+
+/* ── Theme tokens: light is the default (see :root above); dark is the original palette, chosen with the header toggle ── */
+:root { --foreground: #0e0d09; --muted: #3b382d; --ink: #14120c; --gold-fill: #e6b800; }
+:root[data-theme="dark"] {
+  --background: #060500;
+  --surface: #0f0d08;
+  --surface-2: #17140c;
+  --foreground: #f5f1e6;
+  --gold: #ffd700;
+  --gold-dim: #b8980a;
+  --muted: #c4bfae;
+  --line: #2a2516;
+  --ink: #f5f1e6;
+  color-scheme: dark;
+}
+:root[data-theme="dark"] .gold-gradient-text { background: linear-gradient(120deg, #fff6c8, #ffd700 45%, #b8860b 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+/* dark theme: translucent versions of the pale tinted boxes */
+:root[data-theme="dark"] .bg-red-50 { background-color: rgba(239,68,68, 0.12); }
+:root[data-theme="dark"] .bg-amber-50 { background-color: rgba(245,158,11, 0.12); }
+:root[data-theme="dark"] .bg-yellow-50 { background-color: rgba(234,179,8, 0.12); }
+:root[data-theme="dark"] .bg-emerald-50 { background-color: rgba(16,185,129, 0.12); }
+:root[data-theme="dark"] .bg-green-50 { background-color: rgba(34,197,94, 0.12); }
+:root[data-theme="dark"] .bg-teal-50 { background-color: rgba(20,184,166, 0.12); }
+:root[data-theme="dark"] .bg-cyan-50 { background-color: rgba(6,182,212, 0.12); }
+:root[data-theme="dark"] .bg-sky-50 { background-color: rgba(14,165,233, 0.12); }
+:root[data-theme="dark"] .bg-blue-50 { background-color: rgba(59,130,246, 0.12); }
+:root[data-theme="dark"] .bg-indigo-50 { background-color: rgba(99,102,241, 0.12); }
+:root[data-theme="dark"] .bg-purple-50 { background-color: rgba(168,85,247, 0.12); }
+:root[data-theme="dark"] .bg-fuchsia-50 { background-color: rgba(217,70,239, 0.12); }
+:root[data-theme="dark"] .bg-violet-50 { background-color: rgba(139,92,246, 0.12); }
+:root[data-theme="dark"] .bg-rose-50 { background-color: rgba(244,63,94, 0.12); }
+:root[data-theme="dark"] .bg-pink-50 { background-color: rgba(236,72,153, 0.12); }
+:root[data-theme="dark"] .bg-orange-50 { background-color: rgba(249,115,22, 0.12); }
+:root[data-theme="dark"] .bg-lime-50 { background-color: rgba(132,204,22, 0.12); }
+
+/* ── Light theme only: everything below applies when the dark toggle is off ── */
+:root:not([data-theme="dark"]) {
 /* Light theme: the pale accent shades used on dark cards need darker versions on white. */
 .text-amber-300:not(.keep-dark *), .text-amber-400:not(.keep-dark *), .text-yellow-300:not(.keep-dark *), .text-yellow-400:not(.keep-dark *) { color: #b08800; }
 .text-emerald-300:not(.keep-dark *), .text-emerald-400:not(.keep-dark *), .text-green-300:not(.keep-dark *), .text-green-400:not(.keep-dark *) { color: #047857; }
@@ -276,10 +313,9 @@ h1, h2, h3, h4, .display {
 /* Light theme: true gold fills (buttons) with dark text so they read as gold, not brown */
 .bg-gold:not(.keep-dark *) { background-color: #e6b800; }
 .bg-gold.text-background:not(.keep-dark *), .bg-gold:not(.keep-dark *) > .text-background { color: #1c1a14; }
-.hover:bg-gold:hover:not(.keep-dark *) { background-color: #e6b800; }
+.hover\:bg-gold:hover:not(.keep-dark *) { background-color: #e6b800; }
 
 /* ── Light theme v3: near-black text, gold boxes for headlines and labels ── */
-:root { --foreground: #0e0d09; --muted: #3b382d; --ink: #14120c; --gold-fill: #e6b800; }
 
 /* Hero / page headlines that were solid gold become a gold box with black type */
 h1.text-gold:not(.keep-dark *) {
@@ -376,3 +412,4 @@ header a[href="/"] .text-gold:not(.keep-dark *) { color: var(--gold); }
 
 /* v4c: remaining pale amber score colour */
 [style*="#e0a23a" i], [style*="rgb(224, 162, 58)"] { color: #8a5a00 !important; }
+}

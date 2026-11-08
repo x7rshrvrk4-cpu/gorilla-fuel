@@ -65,7 +65,16 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${bebasNeue.variable} ${dmSans.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Light is the default; apply a saved dark choice before first paint (no flash). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "try{if(localStorage.getItem('gf-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}",
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground font-body">
         <Navigation />
         <div className="flex-1 flex flex-col">{children}</div>

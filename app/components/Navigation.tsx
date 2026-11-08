@@ -1,5 +1,6 @@
 "use client";
 
+import ThemeToggle from "./ThemeToggle";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -51,6 +52,8 @@ export default function Navigation() {
           </span>
         </Link>
 
+        <div className="flex items-center gap-1">
+        <ThemeToggle />
         <button
           type="button"
           aria-label="Toggle navigation menu"
@@ -62,6 +65,7 @@ export default function Navigation() {
           <span className={`h-0.5 w-6 bg-gold transition-opacity ${open ? "opacity-0" : ""}`} />
           <span className={`h-0.5 w-6 bg-gold transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`} />
         </button>
+        </div>
       </nav>
 
       {open && (
