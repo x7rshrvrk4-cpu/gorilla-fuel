@@ -1797,6 +1797,7 @@ const ALCOHOL_PRODUCTS_RAW: AlcoholRankingProduct[] = [
     gorillaPour: 5,
     availability: "LCBO -- Ontario exclusive",
     lcboVerified: true,
+    nutritionEstimated: true, // 80 kcal is below the ~98 kcal of the alcohol alone (355 mL at 5%); awaiting the maker's published figure
   },
   {
     id: "twisted-tea-original",
