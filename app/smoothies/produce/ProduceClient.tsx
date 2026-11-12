@@ -86,7 +86,7 @@ function ProduceCard({ p }: { p: Produce }) {
         <div className="flex shrink-0 flex-col items-end gap-1 text-xs text-foreground/80">
           <span><span className="text-foreground">{p.per100.kcal}</span> kcal</span>
           <span className={sugarTone(p.per100.sugar)}>{p.per100.sugar == null ? "sugar n/a" : `${p.per100.sugar} g sugar`}</span>
-          <span><span className="text-foreground">{p.per100.fibre}</span> g fibre</span>
+          <span>{p.per100.fibre == null ? "fibre n/a" : <><span className="text-foreground">{p.per100.fibre}</span> g fibre</>}</span>
         </div>
       </summary>
       <p className="mt-1 text-[10px] text-foreground/55">per 100 g</p>

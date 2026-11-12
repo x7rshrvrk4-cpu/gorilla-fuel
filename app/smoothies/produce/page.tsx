@@ -6,7 +6,7 @@ import { PRODUCE } from "../lib/produceData";
 export const metadata: Metadata = {
   title: "Produce Guide — Gorilla Fuel",
   description:
-    "What 58 fruits, vegetables and herbs actually do: nutrients per 100 g from the Canadian Nutrient File, what the research supports, how strong the evidence is, and who should check with a clinician first.",
+    "What 59 fruits, vegetables and herbs actually do: nutrients per 100 g from the Canadian Nutrient File, what the research supports, how strong the evidence is, and who should check with a clinician first.",
   alternates: { canonical: "/smoothies/produce" },
 };
 

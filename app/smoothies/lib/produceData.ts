@@ -3,7 +3,7 @@
 // Sugar flag rule (our own convention): HIGH >= 20 g, moderate 12-19.9 g, low < 12 g per serving.
 export type Produce = {
   id: string; name: string; category: string;
-  per100: { kcal: number; protein: number; sugar: number | null; fibre: number };
+  per100: { kcal: number; protein: number; sugar: number | null; fibre: number | null };
   nutrients: string; research: string; evidence: string; notes: string; forms: string;
   cautions: string[]; sources: string[]; dataSource: string;
 };
@@ -40,6 +40,30 @@ export const PRODUCE: Produce[] = [
    "S21"
   ],
   "dataSource": "Canadian Nutrient File (Health Canada)"
+ },
+ {
+  "id": "huckleberries",
+  "name": "Huckleberries (wild)",
+  "category": "Berries",
+  "per100": {
+   "kcal": 37,
+   "protein": 0.4,
+   "sugar": null,
+   "fibre": null
+  },
+  "nutrients": "Carbohydrate 8.7 g, fat 0.1 g, vitamin C 2.8 mg per 100 g (USDA, Alaska Native wild huckleberries). USDA does not report sugar or fibre for this entry, so we show none rather than guess.",
+  "research": "No human trials on true huckleberries (Vaccinium membranaceum, Gaylussacia) were found. Most of the evidence people quote is from blueberries and other Vaccinium berries, and huckleberries have a different anthocyanin profile, so those results cannot be assumed to carry over.",
+  "evidence": "no human trials found; related-berry evidence only",
+  "notes": "Wild huckleberries are not one species: western mountain huckleberries (Vaccinium) and eastern black huckleberries (Gaylussacia) differ. Mostly foraged or sold seasonally, and not the same as blueberries.",
+  "forms": "Whole, in smoothies or baking. Frozen works.",
+  "cautions": [
+   "Only forage berries you can identify with certainty; some wild berries are poisonous."
+  ],
+  "sources": [
+   "S30",
+   "S31"
+  ],
+  "dataSource": "USDA FoodData Central (SR Legacy); not in the Canadian Nutrient File"
  },
  {
   "id": "strawberries",

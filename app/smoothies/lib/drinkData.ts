@@ -2439,5 +2439,15 @@ export const SOURCES: Record<string, Source> = {
   "title": "Grapefruit juice: potential drug interactions (CMAJ 2002) and CBC coverage of Bailey et al. CMAJ 2012",
   "publisher": "CMAJ / CBC",
   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC117477/"
+ },
+ "S30": {
+  "title": "Huckleberries, raw (Alaska Native), FDC ID 169808",
+  "publisher": "USDA FoodData Central (SR Legacy)",
+  "url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169808/nutrients"
+ },
+ "S31": {
+  "title": "Effects of berry anthocyanins on cognitive performance, vascular function and cardiometabolic risk markers: systematic review of randomized placebo-controlled trials in humans (blueberry and other berries, not huckleberry)",
+  "publisher": "Nutrients / PMC",
+  "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8234025/"
  }
 };
