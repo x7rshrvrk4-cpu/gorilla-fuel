@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ProduceClient from "./ProduceClient";
+import WashingSection from "./WashingSection";
 import { PRODUCE } from "../lib/produceData";
 
 export const metadata: Metadata = {
@@ -28,6 +29,7 @@ export default function ProducePage() {
         <Link href="/smoothies" className="text-gold underline hover:text-foreground">smoothie &amp; juice recipes</Link>.
       </p>
       <ProduceClient />
+      <WashingSection />
       <p className="mt-10 border-t border-line pt-4 text-xs leading-relaxed text-foreground/70">
         General information, not medical advice. Evidence ratings are a judgement from the cited sources; almost nothing
         earns &ldquo;strong&rdquo; except established nutrient roles and documented drug interactions.

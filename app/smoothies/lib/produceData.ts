@@ -52,7 +52,7 @@ export const PRODUCE: Produce[] = [
    "fibre": null
   },
   "nutrients": "Carbohydrate 8.7 g, fat 0.1 g, vitamin C 2.8 mg per 100 g (USDA, Alaska Native wild huckleberries). USDA does not report sugar or fibre for this entry, so we show none rather than guess.",
-  "research": "No human trials on true huckleberries (Vaccinium membranaceum, Gaylussacia) were found. Most of the evidence people quote is from blueberries and other Vaccinium berries, and huckleberries have a different anthocyanin profile, so those results cannot be assumed to carry over.",
+  "research": "No human trials on true huckleberries (Vaccinium membranaceum, Gaylussacia) were found. Most of the evidence people quote is from blueberries and other Vaccinium berries, and huckleberries have a different anthocyanin profile, so those results cannot be assumed to carry over. A 2023 lab analysis of Pacific Northwest wild berries (Higbee et al.) reported huckleberries higher in cyanidin-type anthocyanins than blueberries; that describes the plant compounds, not a health effect in people.",
   "evidence": "no human trials found; related-berry evidence only",
   "notes": "Wild huckleberries are not one species: western mountain huckleberries (Vaccinium) and eastern black huckleberries (Gaylussacia) differ. Mostly foraged or sold seasonally, and not the same as blueberries.",
   "forms": "Whole, in smoothies or baking. Frozen works.",
@@ -61,7 +61,8 @@ export const PRODUCE: Produce[] = [
   ],
   "sources": [
    "S30",
-   "S31"
+   "S31",
+   "S32"
   ],
   "dataSource": "USDA FoodData Central (SR Legacy); not in the Canadian Nutrient File"
  },

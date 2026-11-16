@@ -2449,5 +2449,10 @@ export const SOURCES: Record<string, Source> = {
   "title": "Effects of berry anthocyanins on cognitive performance, vascular function and cardiometabolic risk markers: systematic review of randomized placebo-controlled trials in humans (blueberry and other berries, not huckleberry)",
   "publisher": "Nutrients / PMC",
   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8234025/"
+ },
+ "S32": {
+  "title": "Polyphenolic profiles of a variety of wild berries from the Pacific Northwest region of North America (Higbee et al., 2023; abstract-level, full text not accessed)",
+  "publisher": "Current Research in Food Science",
+  "url": "https://doi.org/10.1016/j.crfs.2023.100564"
  }
 };
