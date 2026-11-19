@@ -260,20 +260,17 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
             </p>
           ) : (
             <>
-              {/* FOOD */}
-              {results.food.length > 0 && (
-                <ResultGroup label="Food">
-                  {results.food.map((r) => (
+              {/* WINE and ALCOHOL lead the dropdown: most searches are for a bottle, and a
+                  brand like "Jackson-Triggs" must not surface food products first. */}
+              {results.wine.length > 0 && (
+                <ResultGroup label="Wine" accentClass="text-rose-400">
+                  {results.wine.map((r) => (
                     <ResultRow
-                      key={r.barcode}
+                      key={r.id}
                       href={getProductLink(r)}
                       name={r.name}
-                      sub={r.brand ?? ""}
-                      right={
-                        r.type === "food" && r.score !== null ? (
-                          <span className={`font-display text-base ${gradeColor(r.grade)}`}>{r.score}</span>
-                        ) : null
-                      }
+                      sub={r.abv !== undefined ? `${r.brand} · ${r.abv}% ABV` : r.brand}
+                      right={<WineScoreMini score={r.wineScore} />}
                       onClick={() => setOpen(false)}
                     />
                   ))}
@@ -297,16 +294,20 @@ export default function UniversalSearch({ placeholder = "Search products, beers,
                 </ResultGroup>
               )}
 
-              {/* WINE */}
-              {results.wine.length > 0 && (
-                <ResultGroup label="Wine" accentClass="text-rose-400">
-                  {results.wine.map((r) => (
+              {/* FOOD */}
+              {results.food.length > 0 && (
+                <ResultGroup label="Food">
+                  {results.food.map((r) => (
                     <ResultRow
-                      key={r.id}
+                      key={r.barcode}
                       href={getProductLink(r)}
                       name={r.name}
-                      sub={r.abv !== undefined ? `${r.brand} · ${r.abv}% ABV` : r.brand}
-                      right={<WineScoreMini score={r.wineScore} />}
+                      sub={r.brand ?? ""}
+                      right={
+                        r.type === "food" && r.score !== null ? (
+                          <span className={`font-display text-base ${gradeColor(r.grade)}`}>{r.score}</span>
+                        ) : null
+                      }
                       onClick={() => setOpen(false)}
                     />
                   ))}

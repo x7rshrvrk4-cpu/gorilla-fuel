@@ -189,9 +189,11 @@ export default function SearchResults() {
   }, [q]);
 
   const sections: { label: string; accent?: string; items: SearchResult[] }[] = [
-    { label: "Food", items: results.food },
-    { label: "Beer & Alcohol", items: results.alcohol },
+    // Wine and alcohol lead: most searches are for a bottle, and a brand name like
+    // "Jackson-Triggs" must not surface food products first.
     { label: "Wine", accent: "text-rose-400", items: results.wine },
+    { label: "Beer & Alcohol", items: results.alcohol },
+    { label: "Food", items: results.food },
     { label: "Supplement Rankings", items: results.ranked },
     { label: "Gorilla Intel", accent: "text-emerald-400/80", items: results.intel },
     { label: "Kids Snacks", accent: "text-sky-300/80", items: results.kids },
